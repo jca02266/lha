@@ -31,7 +31,7 @@ AC_HEADER_TIME
 AC_STRUCT_TM
 AC_STRUCT_TIMEZONE
 
-AC_CACHE_CHECK([for tm_gmtoff in struct tm], ac_cv_struct_tm_gmtoff,
+AC_CACHE_CHECK([for tm_gmtoff in struct tm], ac_cv_member_struct_tm_tm_gmtoff,
 [AC_TRY_COMPILE([
 #if TM_IN_SYS_TIME
 #include <sys/time.h>
@@ -39,23 +39,27 @@ AC_CACHE_CHECK([for tm_gmtoff in struct tm], ac_cv_struct_tm_gmtoff,
 #include <time.h>
 #endif
   ], [struct tm t; t.tm_gmtoff;],
-  ac_cv_struct_tm_gmtoff=yes, ac_cv_struct_tm_gmtoff=no)
+  ac_cv_member_struct_tm_tm_gmtoff=yes,
+  ac_cv_member_struct_tm_tm_gmtoff=no)
 ])
 
-if test "x$ac_cv_struct_tm_gmtoff" = xyes; then
-  AC_DEFINE(HAVE_TM_GMTOFF, 1, [Define if your struct tm has tm_gmtoff])
+if test "x$ac_cv_member_struct_tm_tm_gmtoff" = xyes; then
+  AC_DEFINE(HAVE_STRUCT_TM_TM_GMTOFF, 1,
+	    [Define if your struct tm has tm_gmtoff])
 fi
 
-AC_CACHE_CHECK([for st_ino in struct stat], ac_cv_struct_st_ino,
+AC_CACHE_CHECK([for st_ino in struct stat], ac_cv_member_struct_stat_st_ino,
 [AC_TRY_COMPILE([
 #include <sys/types.h>
 #include <sys/stat.h>
   ], [struct stat s; s.st_ino;],
-  ac_cv_struct_st_ino=yes, ac_cv_struct_st_ino=no)
+  ac_cv_member_struct_stat_st_ino=yes,
+  ac_cv_member_struct_stat_st_ino=no)
 ])
 
-if test "x$ac_cv_struct_st_ino" = xyes; then
-  AC_DEFINE(HAVE_ST_INO, 1, [Define if your struct stat has st_ino])
+if test "x$ac_cv_member_struct_stat_st_ino" = xyes; then
+  AC_DEFINE(HAVE_STRUCT_STAT_ST_INO, 1,
+	    [Define if your struct stat has st_ino])
 fi
 
 dnl Checks for library functions.

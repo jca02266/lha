@@ -82,11 +82,14 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
+/* Define to 1 if `st_ino' is member of `struct stat'. */
+#undef HAVE_STRUCT_STAT_ST_INO
+
+/* Define to 1 if `tm_gmtoff' is member of `struct tm'. */
+#undef HAVE_STRUCT_TM_TM_GMTOFF
+
 /* Define to 1 if `tm_zone' is member of `struct tm'. */
 #undef HAVE_STRUCT_TM_TM_ZONE
-
-/* Define if your struct stat has st_ino */
-#undef HAVE_ST_INO
 
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */
@@ -113,9 +116,6 @@
 
 /* Define to 1 if you have the `timelocal' function. */
 #undef HAVE_TIMELOCAL
-
-/* Define if your struct tm has tm_gmtoff */
-#undef HAVE_TM_GMTOFF
 
 /* Define to 1 if your `struct tm' has `tm_zone'. Deprecated, use
    `HAVE_STRUCT_TM_TM_ZONE' instead. */

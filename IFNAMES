@@ -13,7 +13,7 @@ EXTEND_TOWNSOS lhlist.c
 # FTIME header.c			replace with HAVE_FTIME
 # GETTIMEOFDAY header.c			replace with HAVE_GETTIMEOFDAY
 # SYSV_SYSTEM_DIR lha_macro.h		replace with HAVE_DIRENT_H
-# HAVE_TM_ZONE header.c			replace with HAVE_TM_GMTOFF
+# HAVE_TM_ZONE header.c			replace with HAVE_STRUCT_TM_TM_GMTOFF
 LHA_MAIN_SRC lha.h lha_macro.h
 # LONG_MAX lha_macro.h
 # LONG_MIN lha_macro.h
@@ -35,7 +35,7 @@ NONSYSTEM_DIR_LIBRARY lha_macro.h	no use (???)
 NOT_COMPATIBLE_MODE header.c lhext.c
 NOT_USED header.c
 NOVOID lha_macro.h
-# NO_INODE lharc.c			replace with !HAVE_ST_INO (???)
+# NO_INODE lharc.c			replace with !HAVE_STRUCT_STAT_ST_INO
 # HAVE_NO_LCHOWN lhext.c		replace with !HAVE_LCHOWN
 NULL lha_macro.h
 OSK header.c

@@ -28,32 +28,25 @@ AC_HEADER_TIME
 AC_STRUCT_TM
 AC_STRUCT_TIMEZONE
 
-AC_CACHE_CHECK([for tm_gmtoff in struct tm], ac_cv_struct_tm_gmtoff,
-[AC_TRY_COMPILE([
-#if TM_IN_SYS_TIME
-#include <sys/time.h>
-#else
-#include <time.h>
+AC_CHECK_MEMBERS([struct tm.tm_gmtoff, struct stat.st_ino],,,
+[
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
 #endif
-  ], [struct tm t; t.tm_gmtoff;],
-  ac_cv_struct_tm_gmtoff=yes, ac_cv_struct_tm_gmtoff=no)
+#if HAVE_SYS_STAT_H
+# include <sys/stat.h>
+#endif
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 ])
-
-if test "x$ac_cv_struct_tm_gmtoff" = xyes; then
-  AC_DEFINE(HAVE_TM_GMTOFF, 1, [Define if your struct tm has tm_gmtoff])
-fi
-
-AC_CACHE_CHECK([for st_ino in struct stat], ac_cv_struct_st_ino,
-[AC_TRY_COMPILE([
-#include <sys/types.h>
-#include <sys/stat.h>
-  ], [struct stat s; s.st_ino;],
-  ac_cv_struct_st_ino=yes, ac_cv_struct_st_ino=no)
-])
-
-if test "x$ac_cv_struct_st_ino" = xyes; then
-  AC_DEFINE(HAVE_ST_INO, 1, [Define if your struct stat has st_ino])
-fi
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL

@@ -374,12 +374,12 @@ gettz()
 /* ------------------------------------------------------------------------ */
 #if !defined(HAVE_TZSET) && !defined(HAVE_FTIME)	/* maybe defined(HAVE_GETTIMEOFDAY) */
 {
-#ifdef HAVE_TM_GMTOFF
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
 	time_t tt;
 
 	time(&tt);
 	return -localtime(&tt)->tm_gmtoff;
-#else /* HAVE_TM_GMTOFF */
+#else /* HAVE_STRUCT_TM_TM_GMTOFF */
 	struct timeval  tp;
 	struct timezone tzp;
 	gettimeofday(&tp, &tzp);/* specific to 4.3BSD */
@@ -388,7 +388,7 @@ gettz()
 	 * 60L : 0));
 	 */
 	return (tzp.tz_minuteswest * 60L);
-#endif /* HAVE_TM_GMTOFF */
+#endif /* HAVE_STRUCT_TM_TM_GMTOFF */
 }
 #endif
 #endif				/* defined(HAVE_FTIME) || defined(HAVE_GETTIMEOFDAY) ||
