@@ -1,5 +1,7 @@
 2002-07-07  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: should specify the 4th argument for cross compiling.
+
 	* configure.ac: fix a test expression.
 
 	* src/cproto.sh: added for maintainer.
