@@ -1,3 +1,7 @@
+2002-07-26  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/header.c (write_header): rewritten.
+
 2002-07-25  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/lha-test4: stderr should be redirected.
@@ -6,9 +10,9 @@
 	function error() was called.
 	(error): ditto.
 
-	* src/lha.h (LzHeader.last_modified_stamp;): no longer used.
+	* src/lha.h (LzHeader.last_modified_stamp;): no longer used it.
 
-	* src/header.c (get_header): re-written.
+	* src/header.c (get_header): rewritten.
 
 2002-07-21  Koji Arai  <jca02266@nifty.ne.jp>
 
