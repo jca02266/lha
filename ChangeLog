@@ -1,3 +1,9 @@
+2003-09-21  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* released.
+
+	* configure.ac: updated version.
+
 2003-08-18  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* 00readme.autoconf: fixed.
