@@ -75,6 +75,7 @@ decode_start_dyn( /* void */ )
 	n_max = 286;
 	maxmatch = MAXMATCH;
 	init_getbits();
+    init_code_cache();
 	start_c_dyn();
 	start_p_dyn();
 }

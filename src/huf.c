@@ -300,6 +300,7 @@ encode_start_st1( /* void */ )
 		p_freq[i] = 0;
 	output_pos = output_mask = 0;
 	init_putbits();
+    init_code_cache();
 	buf[0] = 0;
 }
 
@@ -487,6 +488,7 @@ decode_start_st1( /* void */ )
 	}
 #endif
 	init_getbits();
+    init_code_cache();
 	blocksize = 0;
 }
 

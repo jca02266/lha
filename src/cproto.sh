@@ -13,7 +13,7 @@ CPPFLAGS='-DSTDC_HEADERS=1
 	-D__extension__=
 '
 
-SOURCES='append.c crcio.c dhuf.c extract.c header.c
+SOURCES='append.c bitio.c crcio.c dhuf.c extract.c header.c
 	huf.c larc.c lhadd.c lharc.c lhext.c
 	lhlist.c maketbl.c maketree.c patmatch.c
 	shuf.c slide.c util.c

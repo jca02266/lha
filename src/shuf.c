@@ -27,6 +27,7 @@ decode_start_st0( /*void*/ )
 	n_max = 286;
 	maxmatch = MAXMATCH;
 	init_getbits();
+    init_code_cache();
 #ifdef SUPPORT_LH7
 	np = 1 << (MAX_DICBIT - 7);
 #endif
@@ -81,6 +82,7 @@ encode_start_fix( /*void*/ )
 	maxmatch = 60;
 	np = 1 << (12 - 6);
 	init_putbits();
+    init_code_cache();
 	start_c_dyn();
 	ready_made(0);
 }
@@ -136,6 +138,7 @@ decode_start_fix(/*void*/)
 	n_max = 314;
 	maxmatch = 60;
 	init_getbits();
+    init_code_cache();
 	np = 1 << (LZHUFF1_DICBIT - 6);
 	start_c_dyn();
 	ready_made(0);
