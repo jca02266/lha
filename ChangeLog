@@ -1,5 +1,10 @@
 2002-05-19  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.in, configure.ac: added AM_C_PROTOTYPES, AC_C_CONST.
+	no use AM_C_PROTOTYPES for the present.
+
+	* config.h.in: ditto.
+
 	* src/lharc.c (print_tiny_usage_and_exit): change credit.
 
 	* src/lha_macro.h: put PLATFORM in LHA_VERSION macro.
