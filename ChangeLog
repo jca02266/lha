@@ -1,5 +1,9 @@
 2002-05-28  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lharc.c (xstrdup): no need to call fatal_error().
+
+	* src/lhdir.h, src/lha_macro.h, src/lha.h: added modeline for vi(m).
+
 	* configure.ac, config.h.in: use new autoconf macro, AC_CHECK_MEMBERS().
 
 	* IFNAMES, configure.in, src/header.c, src/lharc.c: replaced with
