@@ -88,6 +88,7 @@ write_pt_len(n, nbit, i_special)
         if (k <= 6)
             putbits(3, k);
         else
+            /* k=7 -> 1110  k=8 -> 11110  k=9 -> 111110 ... */
             putbits(k - 3, USHRT_MAX << 1);
         if (i == i_special) {
             while (i < 6 && pt_len[i] == 0)
@@ -338,7 +339,7 @@ read_pt_len(nn, nbit, i_special)
                     mask >>= 1;
                     c++;
                 }
-                fillbuf(c - 3);         /* fillbuf(c - 7 + 3); ??? */
+                fillbuf(c - 3);
             }
 
             pt_len[i++] = c;
