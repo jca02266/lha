@@ -167,13 +167,12 @@ list_one(hdr)
 			((mode & UNIX_OTHER_EXEC_PERM) ? 'x' : '-');
 		modebits[10] = 0;
 
-		printf("%s %5d/%-5d ", modebits,
-		       hdr->unix_uid, hdr->unix_gid);
+        printf("%s ", modebits);
 		break;
 	case EXTEND_OS68K:
 	 /**/ case EXTEND_XOSK:/**/
 		mode = hdr->unix_mode;
-		printf("%c%c%c%c%c%c%c%c %5d/%-5d",
+		printf("%c%c%c%c%c%c%c%c   ",
 		       ((mode & OSK_DIRECTORY_PERM) ? 'd' : '-'),
 		       ((mode & OSK_SHARED_PERM) ? 's' : '-'),
 		       ((mode & OSK_OTHER_EXEC_PERM) ? 'e' : '-'),
@@ -181,8 +180,8 @@ list_one(hdr)
 		       ((mode & OSK_OTHER_READ_PERM) ? 'r' : '-'),
 		       ((mode & OSK_OWNER_EXEC_PERM) ? 'e' : '-'),
 		       ((mode & OSK_OWNER_WRITE_PERM) ? 'w' : '-'),
-		       ((mode & OSK_OWNER_READ_PERM) ? 'r' : '-'),
-		       hdr->unix_uid, hdr->unix_gid);
+		       ((mode & OSK_OWNER_READ_PERM) ? 'r' : '-'));
+
 		break;
 	default:
 		switch (hdr->extend_type) {	/* max 18 characters */
@@ -230,9 +229,28 @@ list_one(hdr)
 			p = "[unknown]";
 			break;
 		}
-		printf("%-23.23s", p);
+		printf("%-11.11s", p);
 		break;
 	}
+
+    switch (mode = hdr->extend_type) {
+    case EXTEND_UNIX:
+    case EXTEND_OS68K:
+    case EXTEND_XOSK:
+        if (hdr->user[0])
+            printf("%5.5s/", hdr->user);
+        else
+            printf("%5d/", hdr->unix_uid);
+
+        if (hdr->group[0])
+            printf("%-5.5s ", hdr->group);
+        else
+            printf("%-5d ", hdr->unix_gid);
+        break;
+    default:
+        printf("%12s", "");
+        break;
+    }
 
 	print_size(hdr->packed_size, hdr->original_size);
 
