@@ -18,8 +18,6 @@ FILE *fout = NULL;
 static int noslide = 1;
 #endif
 
-static unsigned long encoded_origsize;
-
 /* variables for hash */
 struct hash {
     unsigned int pos;
@@ -163,7 +161,6 @@ update_dict(pos, crc)
     n = fread_crc(crc, &text[txtsiz - dicsiz], dicsiz, infile);
 
     remainder += n;
-    encoded_origsize += n;      /* total size of read bytes */
 
     *pos -= dicsiz;
     for (i = 0; i < HSHSIZ; i++) {
@@ -187,7 +184,7 @@ insert_hash(token, pos)
     hash[token].pos = pos;
 }
 
-/* search the most long token matched to current token */
+/* search the most long token matching to current token */
 static void
 search_dict(token, pos, min)
     unsigned int token;         /* search token */
@@ -293,14 +290,12 @@ encode(interface)
     int lastmatchlen;
     unsigned int lastmatchoffset;
     unsigned int token, pos, crc;
+    size_t count;
 
 #ifdef DEBUG
-    unsigned int addr;
-
-    addr = 0;
-
-    fout = fopen("en", "wt");
-    if (fout == NULL) exit(1);
+    if (!fout)
+        fout = xfopen("en", "wt");
+    fprintf(fout, "[filename: %s]\n", reading_filename);
 #endif
     infile = interface->infile;
     outfile = interface->outfile;
@@ -316,7 +311,6 @@ encode(interface)
     memset(&text[0], ' ', TXTSIZ);
 
     remainder = fread_crc(&crc, &text[dicsiz], txtsiz-dicsiz, infile);
-    encoded_origsize = remainder;
     matchlen = THRESHOLD - 1;
 
     pos = dicsiz;
@@ -338,34 +332,36 @@ encode(interface)
             /* output a letter */
             encode_set.output(text[pos - 1], 0);
 #ifdef DEBUG
-            fprintf(fout, "%u C %02X\n", addr, text[pos-1]);
-            addr++;
+            fprintf(fout, "%u C %02X\n",
+                    count, text[pos-1]);
 #endif
             count++;
         } else {
             /* output length and offset */
-            encode_set.output(lastmatchlen + (UCHAR_MAX + 1 - THRESHOLD),
+            encode_set.output(lastmatchlen + (256 - THRESHOLD),
                               lastmatchoffset & (dicsiz-1) );
-            --lastmatchlen;
 
 #ifdef DEBUG
-            fprintf(fout, "%u M %u %u ", addr,
-                    lastmatchoffset & (dicsiz-1), lastmatchlen+1);
-            addr += lastmatchlen +1 ;
-
             {
-                int t,cc;
-                for (t=0; t<lastmatchlen+1; t++) {
-                    cc = text[pos - lastmatchoffset - 2 + t];
-                    fprintf(fout, "%02X ", cc);
-                }
+                int i;
+                unsigned char *ptr;
+                unsigned int offset = (lastmatchoffset & (dicsiz-1)) + 1;
+
+                fprintf(fout, "%u M <%u %u> ",
+                        count, lastmatchlen, count - offset);
+
+                ptr = &text[pos-1 - offset];
+                for (i=0; i < lastmatchlen; i++)
+                    fprintf(fout, "%02X ", ptr[i]);
                 fprintf(fout, "\n");
             }
 #endif
+            count += lastmatchlen;
+
+            --lastmatchlen;
             while (--lastmatchlen > 0) {
                 next_token(&token, &pos, &crc);
                 insert_hash(token, pos);
-                count++;
             }
             next_token(&token, &pos, &crc);
             search_dict(token, pos, THRESHOLD - 1);
@@ -375,7 +371,7 @@ encode(interface)
     encode_set.encode_end();
 
     interface->packed = compsize;
-    interface->original = encoded_origsize;
+    interface->original = count;
 
     return crc;
 }
@@ -384,14 +380,15 @@ unsigned int
 decode(interface)
     struct interfacing *interface;
 {
-    unsigned int i, j, k, c;
-    unsigned int dicsiz1, offset;
+    unsigned int i, c;
+    unsigned int dicsiz1, adjust;
     unsigned char *dtext;
     unsigned int crc;
 
 #ifdef DEBUG
-    fout = fopen("de", "wt");
-    if (fout == NULL) exit(1);
+    if (!fout)
+        fout = xfopen("de", "wt");
+    fprintf(fout, "[filename: %s]\n", writing_filename);
 #endif
 
     infile = interface->infile;
@@ -405,35 +402,44 @@ decode(interface)
     prev_char = -1;
     dicsiz = 1L << dicbit;
     dtext = (unsigned char *)xmalloc(dicsiz);
-    for (i=0; i<dicsiz; i++) dtext[i] = 0x20;
+    memset(dtext, 0, dicsiz);
     decode_set.decode_start();
     dicsiz1 = dicsiz - 1;
-    offset = (interface->method == LARC_METHOD_NUM) ? 0x100 - 2 : 0x100 - 3;
-    count = 0;
+    adjust = 256 - THRESHOLD;
+    if (interface->method == LARC_METHOD_NUM)
+        adjust = 256 - 2;
+
+    decode_count = 0;
     loc = 0;
-    while (count < origsize) {
+    while (decode_count < origsize) {
         c = decode_set.decode_c();
-        if (c <= UCHAR_MAX) {
+        if (c < 256) {
 #ifdef DEBUG
-          fprintf(fout, "%u C %02X\n", count, c);
+          fprintf(fout, "%u C %02X\n", decode_count, c);
 #endif
             dtext[loc++] = c;
             if (loc == dicsiz) {
                 fwrite_crc(&crc, dtext, dicsiz, outfile);
                 loc = 0;
             }
-            count++;
+            decode_count++;
         }
         else {
-            j = c - offset;
-            i = (loc - decode_set.decode_p() - 1) & dicsiz1;
-#ifdef DEBUG
-            fprintf(fout, "%u M %u %u ", count, (loc-1-i) & dicsiz1, j);
-#endif
-            count += j;
-            for (k = 0; k < j; k++) {
-                c = dtext[(i + k) & dicsiz1];
+            int matchlen;
+            unsigned int offset;
+            unsigned int matchpos;
 
+            matchlen = c - adjust;
+            offset = decode_set.decode_p() + 1;
+            matchpos = (loc - offset) & dicsiz1;
+#ifdef DEBUG
+            fprintf(fout, "%u M <%u %u> ",
+                    decode_count, matchlen, decode_count-offset);
+#endif
+            decode_count += matchlen;
+            for (i = 0; i < matchlen; i++) {
+                c = dtext[(matchpos + i) & dicsiz1];
+                
 #ifdef DEBUG
                 fprintf(fout, "%02X ", c & 0xff);
 #endif
