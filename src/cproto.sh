@@ -1,15 +1,19 @@
 #!/bin/sh
+#
+# generate function prototypes `prototype.h'.
+#
 
-trap "rm -f prototypes.h.tmp" 0 1 2 3 15
+trap "rm -f prototypes.h.tmp prototypes.h.bak" 0 1 2 3 15
 
 CPROTO_FLAGS='-m -d'
 CPPFLAGS='-DSTDC_HEADERS=1
-	-DHAVE_STRDUP=0
-	-DHAVE_MEMSET=0
-	-DHAVE_MEMMOVE=0
-	-DHAVE_STRCASECMP=0
+	-DHAVE_STRDUP=1
+	-DHAVE_MEMSET=1
+	-DHAVE_MEMMOVE=1
+	-DHAVE_STRCASECMP=1
+	-DHAVE_BASENAME=1
 	-DMULTIBYTE_FILENAME=1
-	-Dinterrupt=dummy
+	-Dinterrupt=dummy__
 	-DNEED_INCREMENTAL_INDICATOR=1
 	-D__builtin_va_list=int
 	-D__extension__=
@@ -24,6 +28,7 @@ SOURCES='append.c bitio.c crcio.c dhuf.c extract.c header.c
 
 test -f prototypes.h && mv -f prototypes.h prototypes.h.bak
 
+# below makes cproto regard `RETSIGTYPE' as the variable type.
 cat <<END >prototypes.h
 typedef void RETSIGTYPE;
 END
@@ -40,12 +45,11 @@ cat <<END
 
 END
 
-cproto $CPROTO_FLAGS $CPPFLAGS $SOURCES | grep -v -e '^int main ' -e dummy
+cproto $CPROTO_FLAGS $CPPFLAGS $SOURCES |
+	grep -v -e '^int main ' | sed -e 's/dummy__/interrupt/'
 
 cat <<END
 
-/* lharc.c */
-RETSIGTYPE interrupt P_((int signo));
 /* util.c */
 #if !HAVE_MEMMOVE
 void *memmove P_((void *dst, const void *src, size_t cnt));
@@ -58,6 +62,9 @@ char *memset P_((char *s, int c, size_t n));
 #endif
 #if !HAVE_STRCASECMP
 int strcasecmp P_((const char *p1, const char *p2));
+#endif
+#if !HAVE_BASENAME
+char *basename P_((char *s));
 #endif
 
 /* vsnprintf.c */

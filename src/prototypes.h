@@ -71,6 +71,7 @@ void message P_((char *fmt, ...));
 void warning P_((char *fmt, ...));
 void error P_((char *fmt, ...));
 void fatal_error P_((char *fmt, ...));
+RETSIGTYPE interrupt P_((int signo));
 void *xmalloc P_((size_t size));
 void *xrealloc P_((void *old, size_t size));
 char *xstrdup P_((char *str));
@@ -120,10 +121,7 @@ char *xstrchr P_((const char *s, int c));
 char *xstrrchr P_((const char *s, int c));
 char *xmemchr P_((const char *s, int c, size_t n));
 char *xmemrchr P_((const char *s, int c, size_t n));
-char *basename P_((char *s));
 
-/* lharc.c */
-RETSIGTYPE interrupt P_((int signo));
 /* util.c */
 #if !HAVE_MEMMOVE
 void *memmove P_((void *dst, const void *src, size_t cnt));
@@ -136,6 +134,9 @@ char *memset P_((char *s, int c, size_t n));
 #endif
 #if !HAVE_STRCASECMP
 int strcasecmp P_((const char *p1, const char *p2));
+#endif
+#if !HAVE_BASENAME
+char *basename P_((char *s));
 #endif
 
 /* vsnprintf.c */
