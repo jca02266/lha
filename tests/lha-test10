@@ -92,8 +92,8 @@ diff test-c test-tmp2-h2/test-tmp-d1/d2/d3/test-c
 mkdir test-tmp3
 case $(uname) in
 CYGWIN*)
-  # 220 bytes
-  file=12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 ;;
+  # 190 bytes
+  file=1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 ;;
 *)
   # 255 bytes
   file=123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345 ;;
@@ -102,11 +102,21 @@ esac
 							check $? $LINENO
 $lha cg  test-tmp3-hg.lzh test-tmp3 2> test-stderr
 							check $? $LINENO
-test -s test-stderr
+# on Cygwin/MinGW, skip this test.
+# the length of pathname does not amount to the limit of level 0 header.
+case $(uname) in
+CYGWIN*) true ;;
+*) test -s test-stderr ;;
+esac
 							check $? $LINENO
 $lha c0  test-tmp3-h0.lzh test-tmp3 2> test-stderr
 							check $? $LINENO
-test -s test-stderr
+# on Cygwin/MinGW, skip this test.
+# the length of pathname does not amount to the limit of level 0 header.
+case $(uname) in
+CYGWIN*) true ;;
+*) test -s test-stderr ;;
+esac
 							check $? $LINENO
 $lha c1  test-tmp3-h1.lzh test-tmp3
  							check $? $LINENO
@@ -161,4 +171,3 @@ test x"`/bin/ls -l test-tmp4-h2.lzh | awk '{print $5}'`" = x258
 							check $? $LINENO
 test -f test-tmp4/$file
 							check $? $LINENO
-echo $_
