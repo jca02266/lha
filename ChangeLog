@@ -1,5 +1,13 @@
 2004-09-29  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lharc.c (parse_option, parse_suboption): use getopt_long().
+
+	* src/Makefile.am: added getopt_long.c and getopt_long.h.
+
+	* src/getopt_long.c, src/getopt_long.h: newly added.
+
+2004-09-29  Koji Arai  <jca02266@nifty.ne.jp>
+
 	* released.
 
 	* 00readme.autoconf: note for builds on MS-Windows.
