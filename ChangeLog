@@ -1,5 +1,8 @@
 2002-06-23  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lhext.c (cmd_extract): When error occurred in extract_one(),
+	should adjust point of file stream.
+
 	* configure.ac: library checkings (for libmingwex) should be done
 	before header checkings.
 
