@@ -2,6 +2,8 @@
 
 	* released.
 
+	* README.autoconf: added `make check' on sample description.
+
 	* configure.in, configure.ac: update version.
 
 2002-05-26  Koji Arai  <jca02266@nifty.ne.jp>
