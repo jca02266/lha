@@ -123,15 +123,32 @@ if test "x$enable_indicator" = xyes; then
 fi
 
 # support multibyte filename
+AC_MSG_CHECKING(kanji code for filename is )
 AC_ARG_ENABLE(multibyte-filename,
   AC_HELP_STRING([--enable-multibyte-filename],
-		 [support multibyte filename [[default=yes]]]),
-  ,
+		 [support multibyte filename. specify kanji code (euc or sjis) [[default=auto]]]),,
   # default
-  enable_multibyte_filename=yes)
-if test "x$enable_multibyte_filename" = xyes; then
-  AC_DEFINE(MULTIBYTE_FILENAME, 1,
-	    [Define to 1 if you want to use multibyte filename])
+  enable_multibyte_filename=auto)
+
+case $enable_multibyte_filename in
+auto|yes)
+  AC_EGREP_CPP(SJIS,[
+#if defined(__CYGWIN__) || defined(__MINGW32__) || defined(__hpux)
+SJIS
+#else
+EUC
+#endif], enable_multibyte_filename=CODE_SJIS,
+         enable_multibyte_filename=CODE_EUC);;
+sjis)    enable_multibyte_filename=CODE_SJIS;;
+euc)     enable_multibyte_filename=CODE_EUC;;
+no)	 ;;
+*)	 AC_MSG_ERROR([you should specify auto, sjis or euc as your system filename code.]);;
+esac
+
+AC_MSG_RESULT($enable_multibyte_filename)
+if test x$enable_multibyte_filename != xno; then
+  AC_DEFINE_UNQUOTED(MULTIBYTE_FILENAME, $enable_multibyte_filename,
+      [Define to CODE_EUC or CODE_SJIS if you want to use multibyte filename])
 fi
 
 # make user/group name extented header
