@@ -1,6 +1,6 @@
 # -*- shell-script -*-
 FILENAME=lha-test15
-message testing to self extract archive
+message testing to self extracting archive
 
 if test -c /dev/zero; then
   # Usually, size of SFX code is less than 20K
