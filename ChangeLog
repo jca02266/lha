@@ -1,3 +1,8 @@
+2002-10-02  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/util.c (xstrchr): `strchr(s, 0)' should return the pointer
+	of the '\0' terminator.
+
 2002-09-14  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lhadd.c (add_one): Use chsize() if system does not have
