@@ -288,7 +288,6 @@ EXTERN boolean  text_mode;
 EXTERN boolean  verbose;
 EXTERN boolean  noexec;     /* debugging option */
 EXTERN boolean  force;
-EXTERN boolean  prof;
 EXTERN boolean  delete_after_append;
 EXTERN int      compress_method;
 EXTERN int      header_level;
