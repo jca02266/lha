@@ -1,4 +1,10 @@
-2002-05-26  Koji Arai  <arai@fgsd.mt.nec.co.jp>
+2002-05-27  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* released.
+
+	* configure.in, configure.ac: update version.
+
+2002-05-26  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lhext.c (cmd_extract): discard useless fseek() calling (for MinGW).
 
