@@ -1,3 +1,11 @@
+2002-05-26  Koji Arai  <arai@fgsd.mt.nec.co.jp>
+
+	* tests/lha-test.in: added tests.
+
+	* tests/Makefile.am: ditto.
+
+	* configure.in, configure.ac, Makefile.am: ditto.
+
 2002-05-25  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* IFNAMES: updated.
