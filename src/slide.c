@@ -89,8 +89,10 @@ static unsigned int txtsiz;
 static unsigned long dicsiz;
 static unsigned int remainder;
 
-static int matchlen;
-static unsigned int matchpos;
+struct matchdata {
+    int len;
+    unsigned int off;
+};
 
 int
 encode_alloc(method)
@@ -186,21 +188,19 @@ insert_hash(token, pos)
 
 /* search the most long token matching to current token */
 static void
-search_dict(token, pos, min)
+search_dict(token, pos, min, m)
     unsigned int token;         /* search token */
     unsigned int pos;           /* position of token */
     int min;                    /* min. length of matching string */
+    struct matchdata *m;
 {
     unsigned int off, tok, max;
 
     if (min < THRESHOLD - 1) min = THRESHOLD - 1;
 
     max = maxmatch;
-    matchpos = pos;
-    matchlen = min;
-
-    if (hash[token].pos == NIL)
-        return;
+    m->off = 0;
+    m->len = min;
 
     off = 0;
     for (tok = token; hash[tok].too_flag && off < maxmatch - THRESHOLD; ) {
@@ -224,7 +224,7 @@ search_dict(token, pos, min)
         while (scan_pos > scan_end) {
             chain++;
 
-            if (text[scan_pos + matchlen] == text[pos + matchlen]) {
+            if (text[scan_pos + m->len] == text[pos + m->len]) {
                 {
                     /* collate token */
                     unsigned char *a = &text[scan_pos];
@@ -233,18 +233,18 @@ search_dict(token, pos, min)
                     for (len = 0; len < max && *a++ == *b++; len++);
                 }
 
-                if (len > matchlen) {
-                    matchpos = scan_pos;
-                    matchlen = len;
-                    if (matchlen == max)
+                if (len > m->len) {
+                    m->off = pos - scan_pos;
+                    m->len = len;
+                    if (m->len == max)
                         break;
 
 #ifdef DEBUG
                     if (noslide) {
-                      if (matchpos < dicsiz) {
-                        printf("matchpos=%u scan_pos=%u dicsiz=%u\n"
-                               ,matchpos, scan_pos, dicsiz);
-                      }
+                        if (pos - m->off < dicsiz) {
+                            printf("matchpos=%u scan_pos=%u dicsiz=%u\n",
+                                   pos - m->off, scan_pos, dicsiz);
+                        }
                     }
 #endif
                 }
@@ -256,14 +256,15 @@ search_dict(token, pos, min)
         if (chain >= LIMIT)
             hash[tok].too_flag = 1;
 
-        if (off == 0 || matchlen > off + 2)
+        if (off == 0 || m->len > off + 2)
             break;
+
         max = off + 2;
         off = 0;
         tok = token;
     }
 
-    if (matchlen > remainder) matchlen = remainder;
+    if (m->len > remainder) m->len = remainder;
 }
 
 /* slide dictionary */
@@ -287,10 +288,9 @@ unsigned int
 encode(interface)
     struct interfacing *interface;
 {
-    int lastmatchlen;
-    unsigned int lastmatchoffset;
     unsigned int token, pos, crc;
     size_t count;
+    struct matchdata match, last;
 
 #ifdef DEBUG
     if (!fout)
@@ -311,24 +311,24 @@ encode(interface)
     memset(&text[0], ' ', TXTSIZ);
 
     remainder = fread_crc(&crc, &text[dicsiz], txtsiz-dicsiz, infile);
-    matchlen = THRESHOLD - 1;
+    match.len = THRESHOLD - 1;
+    match.off = 0;
 
     pos = dicsiz;
 
-    if (matchlen > remainder) matchlen = remainder;
+    if (match.len > remainder) match.len = remainder;
 
     token = INIT_HASH(pos);
     insert_hash(token, pos);     /* associate token and pos */
 
     while (remainder > 0 && ! unpackable) {
-        lastmatchlen = matchlen;
-        lastmatchoffset = pos - matchpos - 1;
+        last = match;
 
         next_token(&token, &pos, &crc);
-        search_dict(token, pos, lastmatchlen-1);
+        search_dict(token, pos, last.len-1, &match);
         insert_hash(token, pos);
 
-        if (matchlen > lastmatchlen || lastmatchlen < THRESHOLD) {
+        if (match.len > last.len || last.len < THRESHOLD) {
             /* output a letter */
             encode_set.output(text[pos - 1], 0);
 #ifdef DEBUG
@@ -338,33 +338,33 @@ encode(interface)
             count++;
         } else {
             /* output length and offset */
-            encode_set.output(lastmatchlen + (256 - THRESHOLD),
-                              lastmatchoffset & (dicsiz-1) );
+            encode_set.output(last.len + (256 - THRESHOLD),
+                              (last.off-1) & (dicsiz-1) );
 
 #ifdef DEBUG
             {
                 int i;
                 unsigned char *ptr;
-                unsigned int offset = (lastmatchoffset & (dicsiz-1)) + 1;
+                unsigned int offset = (last.off & (dicsiz-1));
 
                 fprintf(fout, "%u M <%u %u> ",
-                        count, lastmatchlen, count - offset);
+                        count, last.len, count - offset);
 
                 ptr = &text[pos-1 - offset];
-                for (i=0; i < lastmatchlen; i++)
+                for (i=0; i < last.len; i++)
                     fprintf(fout, "%02X ", ptr[i]);
                 fprintf(fout, "\n");
             }
 #endif
-            count += lastmatchlen;
+            count += last.len;
 
-            --lastmatchlen;
-            while (--lastmatchlen > 0) {
+            --last.len;
+            while (--last.len > 0) {
                 next_token(&token, &pos, &crc);
                 insert_hash(token, pos);
             }
             next_token(&token, &pos, &crc);
-            search_dict(token, pos, THRESHOLD - 1);
+            search_dict(token, pos, THRESHOLD - 1, &match);
             insert_hash(token, pos);
         }
     }
@@ -425,19 +425,18 @@ decode(interface)
             decode_count++;
         }
         else {
-            int matchlen;
-            unsigned int offset;
+            struct matchdata match;
             unsigned int matchpos;
 
-            matchlen = c - adjust;
-            offset = decode_set.decode_p() + 1;
-            matchpos = (loc - offset) & dicsiz1;
+            match.len = c - adjust;
+            match.off = decode_set.decode_p() + 1;
+            matchpos = (loc - match.off) & dicsiz1;
 #ifdef DEBUG
             fprintf(fout, "%u M <%u %u> ",
-                    decode_count, matchlen, decode_count-offset);
+                    decode_count, match.len, decode_count-match.off);
 #endif
-            decode_count += matchlen;
-            for (i = 0; i < matchlen; i++) {
+            decode_count += match.len;
+            for (i = 0; i < match.len; i++) {
                 c = dtext[(matchpos + i) & dicsiz1];
                 
 #ifdef DEBUG
