@@ -1,5 +1,5 @@
 # -*- shell-script -*-
-message testing header level 0, 1 and 2
+message testing header level 0, 1, 2 and each generic headers
 $lha c0  test-tmp-h0.lzh test-1
 							check $? $LINENO
 $lha c1  test-tmp-h1.lzh test-1
@@ -30,6 +30,7 @@ diff -r test-1 test-tmp-h1/test-1
 							check $? $LINENO
 diff -r test-1 test-tmp-h2/test-1
 							check $? $LINENO
+# contains directory header (-lhd-)
 mkdir test-tmp-d1 &&
 cp test-a test-tmp-d1 &&
 mkdir test-tmp-d1/d2 &&
@@ -37,7 +38,6 @@ cp test-b test-tmp-d1/d2 &&
 mkdir test-tmp-d1/d2/d3 &&
 cp test-c test-tmp-d1/d2/d3 &&
 							check $? $LINENO
-
 $lha c0  test-tmp2-h0.lzh test-tmp-d1
 							check $? $LINENO
 $lha c1  test-tmp2-h1.lzh test-tmp-d1
@@ -50,7 +50,6 @@ $lha xw=test-tmp2-h1  test-tmp2-h1.lzh
 							check $? $LINENO
 $lha xw=test-tmp2-h2  test-tmp2-h2.lzh
 							check $? $LINENO
-# for logging
 $lha vv test-tmp2-h0.lzh
 							check $? $LINENO
 $lha vv test-tmp2-h1.lzh
@@ -81,93 +80,87 @@ diff test-b test-tmp2-h2/test-tmp-d1/d2/test-b
 							check $? $LINENO
 diff test-c test-tmp2-h2/test-tmp-d1/d2/d3/test-c
 							check $? $LINENO
-# long long filename
-# assume that we are allowed to create 255 bytes filename (not path name).
-# the _POSIX_PATH_MAX (the maximam length of relative path name) value may
-# be 255.
-#
-# Note that on Cygwin/MinGW, on NTFS, the maximam length of whole path
-# name (contain the drive letter) seems to be 259.
-#
-mkdir test-tmp3
-case $(uname) in
-CYGWIN*)
-  # 190 bytes
-  file=1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 ;;
-*)
-  # 255 bytes
-  file=123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345 ;;
-esac
-(cd test-tmp3 && touch $file)
+
+# generic archive
+
+$lha cg0 test-tmp-hg0.lzh test-1
 							check $? $LINENO
-$lha cg  test-tmp3-hg.lzh test-tmp3 2> test-stderr
+$lha cg1 test-tmp-hg1.lzh test-1
 							check $? $LINENO
-# on Cygwin/MinGW, skip this test.
-# the length of pathname does not amount to the limit of level 0 header.
-case $(uname) in
-CYGWIN*) true ;;
-*) test -s test-stderr ;;
-esac
+$lha cg2 test-tmp-hg2.lzh test-1
 							check $? $LINENO
-$lha c0  test-tmp3-h0.lzh test-tmp3 2> test-stderr
+$lha xw=test-tmp-hg0  test-tmp-hg0.lzh
 							check $? $LINENO
-# on Cygwin/MinGW, skip this test.
-# the length of pathname does not amount to the limit of level 0 header.
-case $(uname) in
-CYGWIN*) true ;;
-*) test -s test-stderr ;;
-esac
+$lha xw=test-tmp-hg1  test-tmp-hg1.lzh
 							check $? $LINENO
-$lha c1  test-tmp3-h1.lzh test-tmp3
- 							check $? $LINENO
-$lha c2  test-tmp3-h2.lzh test-tmp3
+$lha xw=test-tmp-hg2  test-tmp-hg2.lzh
 							check $? $LINENO
-$lha xw=test-tmp3-hg  test-tmp3-hg.lzh
+$lha vv test-tmp-hg0.lzh
 							check $? $LINENO
-$lha xw=test-tmp3-h0  test-tmp3-h0.lzh
+$lha vv test-tmp-hg1.lzh
 							check $? $LINENO
-$lha xw=test-tmp3-h1  test-tmp3-h1.lzh
+$lha vv test-tmp-hg2.lzh
 							check $? $LINENO
-$lha xw=test-tmp3-h2  test-tmp3-h2.lzh
+$lha vv test-tmp-hg0.lzh | egrep '\[0\].?$'
 							check $? $LINENO
-# for logging
-$lha vv test-tmp3-hg.lzh
+$lha vv test-tmp-hg1.lzh | egrep '\[1\].?$'
 							check $? $LINENO
-$lha vv test-tmp3-h0.lzh
+$lha vv test-tmp-hg2.lzh | egrep '\[2\].?$'
 							check $? $LINENO
-$lha vv test-tmp3-h1.lzh
+diff -r test-1 test-tmp-hg0/test-1
 							check $? $LINENO
-$lha vv test-tmp3-h2.lzh
+diff -r test-1 test-tmp-hg1/test-1
 							check $? $LINENO
-$lha vv test-tmp3-hg.lzh | egrep '\[0\].?$'
+diff -r test-1 test-tmp-hg2/test-1
 							check $? $LINENO
-$lha vv test-tmp3-h0.lzh | egrep '\[0\].?$'
+# contains directory header (-lhd-)
+mkdir test-tmp-gd1 &&
+cp test-a test-tmp-gd1 &&
+mkdir test-tmp-gd1/d2 &&
+cp test-b test-tmp-gd1/d2 &&
+mkdir test-tmp-gd1/d2/d3 &&
+cp test-c test-tmp-gd1/d2/d3 &&
 							check $? $LINENO
-$lha vv test-tmp3-h1.lzh | egrep '\[1\].?$'
+
+$lha cg0 test-tmp2-hg0.lzh test-tmp-gd1
 							check $? $LINENO
-$lha vv test-tmp3-h2.lzh | egrep '\[2\].?$'
+$lha cg1 test-tmp2-hg1.lzh test-tmp-gd1
 							check $? $LINENO
-test -f test-tmp3-hg/$(echo test-tmp3/$file | cut -c-233)
+$lha cg2 test-tmp2-hg2.lzh test-tmp-gd1
 							check $? $LINENO
-test -f test-tmp3-h0/$(echo test-tmp3/$file | cut -c-221)
+$lha xw=test-tmp2-hg0  test-tmp2-hg0.lzh
 							check $? $LINENO
-test -f test-tmp3-h1/test-tmp3/$file
+$lha xw=test-tmp2-hg1  test-tmp2-hg1.lzh
 							check $? $LINENO
-test -f test-tmp3-h2/test-tmp3/$file
+$lha xw=test-tmp2-hg2  test-tmp2-hg2.lzh
 							check $? $LINENO
-# the header size is 0x101 instead of 0x100 on level 2 header
-file=test-tmp9012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
-touch $file
+$lha vv test-tmp2-hg0.lzh
 							check $? $LINENO
-$lha c2 test-tmp4-h2.lzh $file
+$lha vv test-tmp2-hg1.lzh
 							check $? $LINENO
-$lha vv test-tmp4-h2.lzh
+$lha vv test-tmp2-hg2.lzh
 							check $? $LINENO
-$lha vv test-tmp4-h2.lzh | egrep '\[2\].?$'
+$lha vv test-tmp2-hg0.lzh | egrep '\[0\].?$'
 							check $? $LINENO
-$lha xw=test-tmp4 test-tmp4-h2.lzh
+$lha vv test-tmp2-hg1.lzh | egrep '\[1\].?$'
 							check $? $LINENO
-test x"`/bin/ls -l test-tmp4-h2.lzh | awk '{print $5}'`" = x258
+$lha vv test-tmp2-hg2.lzh | egrep '\[2\].?$'
 							check $? $LINENO
-test -f test-tmp4/$file
+diff test-a test-tmp2-hg0/test-tmp-gd1/test-a
+							check $? $LINENO
+diff test-b test-tmp2-hg0/test-tmp-gd1/d2/test-b
+							check $? $LINENO
+diff test-c test-tmp2-hg0/test-tmp-gd1/d2/d3/test-c
+							check $? $LINENO
+diff test-a test-tmp2-hg1/test-tmp-gd1/test-a
+							check $? $LINENO
+diff test-b test-tmp2-hg1/test-tmp-gd1/d2/test-b
+							check $? $LINENO
+diff test-c test-tmp2-hg1/test-tmp-gd1/d2/d3/test-c
+							check $? $LINENO
+diff test-a test-tmp2-hg2/test-tmp-gd1/test-a
+							check $? $LINENO
+diff test-b test-tmp2-hg2/test-tmp-gd1/d2/test-b
+							check $? $LINENO
+diff test-c test-tmp2-hg2/test-tmp-gd1/d2/d3/test-c
 							check $? $LINENO
