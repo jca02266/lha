@@ -1,5 +1,21 @@
 2002-07-21  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test10: change grep pattern so that pattern matches
+	a carriage return at the end of line for MinGW.
+
+	* src/lha.h: define `struct utimbuf' when utime.h is not given
+	such as MinGW. (Microsoft Visual Studio 6.0 has sys/utime.h).
+
+	* src/lhext.c (make_parent_path): missing braces.
+
+	* tests/lha-test.in (check): print script line number when test failed.
+
+	* tests/lha-test2, tests/lha-test3, tests/lha-test4, tests/lha-test5, tests/lha-test6, tests/lha-test7, tests/lha-test8, tests/lha-test9, tests/lha-test10: ditto.
+
+	* tests/lha-test10: on Cygwin/MinGW, could not make 255 bytes
+	filename. (the system limit of filename length contains the length
+	of current directory.)
+
 	* tests/lha-test10: should use /bin/ls instead of ls, since
 	/usr/ucb/ls puts size on 4th field (on Solaris).
 
