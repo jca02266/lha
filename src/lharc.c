@@ -106,7 +106,7 @@ init_variable()		/* Added N.Watazaki */
 /* [UNIX]			0A														*/
 /* ------------------------------------------------------------------------ */
 static void
-print_tiny_usage_and_exit()
+print_tiny_usage()
 {
 	fprintf(stderr, "\
 LHarc    for UNIX  V 1.02  Copyright(C) 1989  Y.Tagawa\n\
@@ -173,12 +173,14 @@ main(argc, argv)
         av[i] = xstrdup( argv[i] );
 	}
 
-	if (ac < 2 || strcmp(av[1], "--help") == 0)
-		print_tiny_usage_and_exit();
+	if (ac < 2 || strcmp(av[1], "--help") == 0) {
+        print_tiny_usage();
+        exit(0);
+    }
 
 	if (strcmp(av[1], "--version") == 0) {
 		print_version();
-		exit(1);
+		exit(0);
 	}
 
 	if (ac < 3) {
@@ -242,8 +244,8 @@ main(argc, argv)
 		break;
 
 	default:
-		print_tiny_usage_and_exit();
-
+        print_tiny_usage_and_exit();
+        exit(2);
 	}
 
 	/* options */
