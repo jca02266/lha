@@ -1,3 +1,15 @@
+2003-03-22  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lharc.c (init_variable): do not use HEADER_LEVELx macros.
+	(parse_option): ditto.
+
+	* src/header.c (write_header): ditto.
+
+	* src/lha_macro.h (HEADER_LEVEL0, HEADER_LEVEL1, HEADER_LEVEL2, MATCHBIT): ditto.
+
+	* src/huf.c (encode_start_st1): do not use assert().
+	(decode_start_st1): ditto.
+
 2003-03-12  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/header.c (wintime_to_unix_stamp): should cast to unsigned type.
