@@ -327,5 +327,4 @@ void sjis2euc(int *p1, int *p2);
 /* mode:c */
 /* tab-width:4 */
 /* End: */
-
-
+/* vi: set tabstop=4: */

@@ -436,3 +436,4 @@ char *strchr (), *strrchr ();
 /* mode:c */
 /* tab-width:4 */
 /* End: */
+/* vi: set tabstop=4: */
