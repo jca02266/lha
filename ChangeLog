@@ -1,5 +1,9 @@
 2002-06-29  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lhext.c: replaced bcmp() with memcmp().
+
+	* src/lha_macro.h: ditto.
+
 	* src/append.c: replace bcopy() with memcpy() or memmove().
 
 	* src/lha_macro.h: ditto.
