@@ -268,6 +268,6 @@ if test "x$enable_backup_archive" = xyes; then
 	    [Define to 1 if you want to leave an old archive])
 fi
 
-AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile man/Makefile olddoc/Makefile])
 AC_CONFIG_FILES([tests/Makefile tests/lha-test])
 AC_OUTPUT
