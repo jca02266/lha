@@ -8,7 +8,8 @@ EXTRA_DIST =	lha-test2 \
 		lha-test7 \
 		lha-test8 \
 		lha-test9 \
-		lha-test10
+		lha-test10 \
+		lha-test11
 
 DISTCLEANFILES = test.log
 
