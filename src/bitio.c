@@ -71,23 +71,7 @@ putbits(n, x)           /* Write rightmost n bits of x */
     unsigned short  x;
 {
     x <<= USHRT_BIT - n;
-    while (n >= bitcount) {
-        n -= bitcount;
-        subbitbuf += x >> (USHRT_BIT - bitcount);
-        x <<= bitcount;
-        if (compsize < origsize) {
-            if (fwrite(&subbitbuf, 1, 1, outfile) == 0) {
-                fatal_error("Write error in crcio.c(putbits)");
-            }
-            compsize++;
-        }
-        else
-            unpackable = 1;
-        subbitbuf = 0;
-        bitcount = CHAR_BIT;
-    }
-    subbitbuf += x >> (USHRT_BIT - bitcount);
-    bitcount -= n;
+    putcode(n, x);
 }
 
 void
