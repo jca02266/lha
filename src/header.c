@@ -280,8 +280,8 @@ filename_conv(name, len, size,
 			name[i] = toupper(name[i]);
             continue;
         }
-        if (case_to == TO_LOWER && islower(name[i])) {
-			name[i] = toupper(name[i]);
+        if (case_to == TO_LOWER && isupper(name[i])) {
+			name[i] = tolower(name[i]);
             continue;
         }
 	}
