@@ -1,5 +1,7 @@
 2003-03-24  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: updated version.
+
 	* src/prototypes.h: updated.
 
 2003-03-23  Koji Arai  <jca02266@nifty.ne.jp>
