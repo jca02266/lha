@@ -387,8 +387,9 @@ work:
 #if 0 /* Comment out; IMHO, this feature is useless. by Koji Arai */
 	else {
 		if (ac == 3 && !isatty(0)) { /* 1999.7.18 */
-            /* Bug(?) on MinGW, isatty() return 0 on
-               Cygwin console.  Cygwin 1.3.10(0.51/3/2) on Win2000 */
+            /* Bug(?) on MinGW, isatty() return 0 on Cygwin console.
+               mingw-runtime-1.3-2 and Cygwin 1.3.10(0.51/3/2) on
+               Win2000 */
             get_filename_from_stdin = TRUE;
 		}
 	}
