@@ -1,3 +1,8 @@
+2003-02-23  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/header.c: added credit.
+	no longer use `ftime()', `tzset()', `localtime()' and `gettimeofday()'.
+
 2003-02-17  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: updated version.
