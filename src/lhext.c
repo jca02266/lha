@@ -116,9 +116,10 @@ make_parent_path(name)
 		return FALSE;
 
 #if defined __MINGW32__
-    if (mkdir(path) < 0)
+    if (mkdir(path) < 0) {      /* try again */
 		error("Cannot make directory", path);
         return FALSE;
+    }
 #else
 	if (mkdir(path, 0777) < 0) {	/* try again */
 		error("Cannot make directory", path);
