@@ -194,6 +194,9 @@
 /* Individual macro define                                                  */
 /* ------------------------------------------------------------------------ */
 
+/* bitio.c */
+#define peekbits(n)     (bitbuf >> (sizeof(bitbuf)*8 - (n)))
+
 /* from crcio.c */
 #define CRCPOLY         0xA001      /* CRC-16 (x^16+x^15+x^2+1) */
 #define INITIALIZE_CRC(crc) ((crc) = 0)

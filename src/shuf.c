@@ -168,7 +168,7 @@ decode_c_st0(/*void*/)
         make_table(NP, pt_len, 8, pt_table);
     }
     blocksize--;
-    j = c_table[bitbuf >> 4];
+    j = c_table[peekbits(12)];
     if (j < N1)
         fillbuf(c_len[j]);
     else {
@@ -195,7 +195,7 @@ decode_p_st0(/*void*/)
 {
     int             i, j;
 
-    j = pt_table[bitbuf >> 8];
+    j = pt_table[peekbits(8)];
     if (j < np) {
         fillbuf(pt_len[j]);
     }

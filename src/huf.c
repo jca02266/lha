@@ -329,15 +329,18 @@ read_pt_len(nn, nbit, i_special)
     else {
         i = 0;
         while (i < n) {
-            c = bitbuf >> (16 - 3);
-            if (c == 7) {
+            c = peekbits(3);
+            if (c != 7)
+                fillbuf(3);
+            else {
                 unsigned short  mask = 1 << (16 - 4);
                 while (mask & bitbuf) {
                     mask >>= 1;
                     c++;
                 }
+                fillbuf(c - 3);         /* fillbuf(c - 7 + 3); ??? */
             }
-            fillbuf((c < 7) ? 3 : c - 3);
+
             pt_len[i++] = c;
             if (i == i_special) {
                 c = getbits(2);
@@ -367,7 +370,7 @@ read_c_len( /* void */ )
     } else {
         i = 0;
         while (i < n) {
-            c = pt_table[bitbuf >> (16 - 8)];
+            c = pt_table[peekbits(8)];
             if (c >= NT) {
                 unsigned short  mask = 1 << (16 - 9);
                 do {
@@ -412,7 +415,7 @@ decode_c_st1( /*void*/ )
         read_pt_len(np, pbit, -1);
     }
     blocksize--;
-    j = c_table[bitbuf >> 4];
+    j = c_table[peekbits(12)];
     if (j < NC)
         fillbuf(c_len[j]);
     else {
@@ -437,7 +440,7 @@ decode_p_st1( /* void */ )
 {
     unsigned short  j, mask;
 
-    j = pt_table[bitbuf >> (16 - 8)];
+    j = pt_table[peekbits(8)];
     if (j < np)
         fillbuf(pt_len[j]);
     else {
