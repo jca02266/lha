@@ -1,5 +1,14 @@
 2002-05-20  Koji Arai  <arai@fgsd.mt.nec.co.jp>
 
+	* src/lharc.c (open_old_archive):  On MinGW, set binary stdin.
+
+	* src/lhadd.c (temporary_to_new_archive_file): On MinGW, set binary stdout.
+
+	* src/lha_macro.h: no define TMP_FILENAME_TEMPLATE in source.
+
+	* configure.ac, configure.in, README.autoconf: be able to specify
+	--with-tmp-file=no which meaning TMP_FILENAME_TEMPLATE is undefined.
+
 	* src/lha.h: correct usage of mkstemp().
 	On MinGW, opening file cannot be removed.
 
