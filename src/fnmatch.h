@@ -51,8 +51,6 @@
 #define	FNM_IGNORECASE	FNM_CASEFOLD
 #define	FNM_FILE_NAME	FNM_PATHNAME
 
-#include <sys/cdefs.h>
-
 int	 fnmatch(const char *, const char *, int);
 
 #endif /* !_FNMATCH_H_ */
