@@ -12,7 +12,6 @@
 #endif
 
 #include "lha.h"
-#include <assert.h>
 
 #ifdef DEBUG
 FILE *fout = NULL;
@@ -121,7 +120,8 @@ encode_alloc(method)
         dicbit = LZHUFF7_DICBIT;    /* 16 bits */
         break;
     default:
-        assert(0);
+        error("unknown method %d", method);
+        exit(1);
     }
 
     dicsiz = (((unsigned long)1) << dicbit);
@@ -150,27 +150,20 @@ static void init_slide()
         hash[i] = NIL;
         too_flag[i] = 0;
     }
-    /*
-    for (i = 0; i < DICSIZ; i++) {
-        prev[i] = NIL;
-    }
-    */
 }
 
 /* 辞書を DICSIZ 分 前にずらす */
 
-static unsigned int
+static void
 update(crc)
-    unsigned int crc;
+    unsigned int *crc;
 {
     unsigned int i, j;
     long n;
 
-    assert(dicsiz > 0);
-    assert(txtsiz - dicsiz > 0);
     memmove(&text[0], &text[dicsiz], txtsiz - dicsiz);
 
-    n = fread_crc(&crc, &text[txtsiz - dicsiz], dicsiz, infile);
+    n = fread_crc(crc, &text[txtsiz - dicsiz], dicsiz, infile);
 
     remainder += n;
     encoded_origsize += n;      /* total size of read bytes */
@@ -185,8 +178,6 @@ update(crc)
         j = prev[i];
         prev[i] = (j > dicsiz) ? j - dicsiz : NIL;
     }
-
-    return crc;
 }
 
 
@@ -263,20 +254,18 @@ static void match_insert()
 
 /* ポインタを進め、辞書を更新し、ハッシュ値を更新する */
 
-static unsigned int
+static void
 get_next(crc)
-    unsigned int crc;
+    unsigned int *crc;
 {
     remainder--;
     if (++pos >= txtsiz - maxmatch) {
-        crc = update(crc);
+        update(crc);
 #ifdef DEBUG
         noslide = 0;
 #endif
     }
     hval = ((hval << 5) ^ text[pos + 2]) & (unsigned)(HSHSIZ - 1);
-
-    return crc;
 }
 
 unsigned int
@@ -323,7 +312,7 @@ encode(interface)
     while (remainder > 0 && ! unpackable) {
         lastmatchlen = matchlen;  lastmatchoffset = pos - matchpos - 1;
         --matchlen;
-        crc = get_next(crc);  match_insert();
+        get_next(&crc);  match_insert();
         if (matchlen > remainder) matchlen = remainder;
         if (matchlen > lastmatchlen || lastmatchlen < THRESHOLD) {
             encode_set.output(text[pos - 1], 0);
@@ -352,10 +341,10 @@ encode(interface)
             }
 #endif
             while (--lastmatchlen > 0) {
-                crc = get_next(crc);  insert();
+                get_next(&crc);  insert();
                 count++;
             }
-            crc = get_next(crc);
+            get_next(&crc);
             matchlen = THRESHOLD - 1;
             match_insert();
             if (matchlen > remainder) matchlen = remainder;
