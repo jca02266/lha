@@ -4,6 +4,9 @@
 
 	* configure.ac: updated version.
 
+	* src/header.c (write_header): if user/group name is not set,
+	extended header (0x52 and 0x53) should not be made.
+
 	* tests/lha-test10: added testing handle deep directory.
 
 	* src/header.c (write_header): fixed typo, not strchr() but
