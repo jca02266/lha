@@ -1,3 +1,13 @@
+2003-08-18  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* 00readme.autoconf: fixed.
+
+	* configure.ac: use AC_SYS_LARGEFILE for largefile support.
+
+	* config.h.in: ditto.
+
+	* src/prototypes.h: updated.
+
 2003-07-29  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/Makefile.am (EXTRA_DIST): lha-test1 was missed.
