@@ -1,14 +1,17 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
-autoconfiguration for LHa for UNIX version 1.14f
-					Thu, Sep 30 1999 by Koji Arai
+autoconfiguration for LHa for UNIX version 1.14i
+                                        Tue, Jan 30 2001 by Koji Arai
 
-このファイルはLHa for UNIX version 1.14f をautoconf、automake化
+このファイルはLHa for UNIX version 1.14i をautoconf、automake化
 したときのメモです。
+
+※ この版はまだβ版です。十分にテストされていません。もちろん
+   無保証なので自己責任で使用してください。
 
 ・マクロの置き換え
 
-  オリジナルのlha-1.14f で使われていたマクロはautoconf標準のマクロ名に
+  オリジナルのlha-1.14i で使われていたマクロはautoconf標準のマクロ名に
   置き換えられました。(IFNAMESファイルに詳細が書かれています)
 
   IFNAMESファイルは、
@@ -21,22 +24,55 @@ autoconfiguration for LHa for UNIX version 1.14f
   できないため、そのまま放置したことを示します。
 
 ・GPL
-  automake は、--foreign 付きで処理しました。いくつかのGNUユーティリティ
-  (config.guess, config.sub, install-sh, missing, mkinstalldirs)が含ま
-  れているため、GPL2が記述されたファイルCOPYINGを同梱しましたが、
-  Lha for UNIX自体はGPLに従っていないと思います。
 
-・-lh6-メソッドのアーカイブ作成
+  automake は、--foreign 付きで処理しました。automakeやautoconfなしで
+  コンパイルするにはいくつかのGNUユーティリティ(config.guess,
+  config.sub, install-sh, missing, mkinstalldirs)を同梱しなければいけ
+  ないのですが、これらの中にはGPL2に従って配布されなければならないもの
+  もあり、lha for UNIX にこれらを含んでも問題ないかどうか判断できなかっ
+  たため同梱しませんでした。したがって、このautoconf版はlha-1.14iオリ
+  ジナルに対するパッチ形式で配布しています。コンパイルには別途autoconf、
+  automake が必要となります。
 
-  lha 1.14f では、SUPPORT_LH6の定義を行わなければ、-lh6-メソッドのアー
-  カイブを作成できませんでした。このことは別に構わないのですが
-  SUPPORT_LH6を定義するとデフォルトで-lh6-メソッドのアーカイブ作成を強
-  制されてしまいます。そこで、もう少し柔軟にlha利用者がこれらを選択で
-  きるようSUPPORT_LH6の挙動をデフォルトで作成するアーカイブメソッドの
-  変更にし、このマクロ定義(configureでは--enable-lh6フラグ)のあるなし
-  によらず、o6オプションで- lh6-アーカイブを作成できるようにしました。
+・コンパイルの手順
 
-  また、configureのデフォルトはSUPPORT_LH6を定義しません。従って、デフォ
-  ルトで作成されるアーカイブのメソッドは-lh5-です。(上で述べた通り、
-  lhaの o6 オプションによりいつでも-lh6-で作成でき、configureオプショ
-  ンによりデフォルトの挙動を変更することができます)
+  コンパイルの手順は以下のようになります。
+
+    tar xvzf lha-1.14i.tar.gz
+    cd lha-1.14i
+    patch -p1 < ../lha-1.14i-autoconf.diff
+
+    aclocal
+    automake -a
+    autoconf
+    ./configure
+    make
+    make install
+
+・-lh6-, -lh7- メソッドのアーカイブ作成
+
+  lha 1.14i では、SUPPORT_LH7の定義をせずにコンパイルした場合、-lh6- 
+  および -lh7- メソッドのアーカイブを作成できませんでした。このことは
+  別に構わないのですがSUPPORT_LH7を定義するとデフォルトで-lh7-メソッド
+  のアーカイブ作成を強制されてしまいます。そこで、もう少し柔軟にlha利
+  用者がこれらを選択できるようSUPPORT_LH7は常に定義するようにし、デフォ
+  ルトで作成されるアーカイブのメソッド指定をconfigureオプションの 
+  --with-default-method=[567] で指定できるようにしました。
+
+  このオプションの省略値は -lh5- です。つまりデフォルトでは -lh5- アー
+  カイブを作成します。(そして、上で述べた通り、lhaの o6 または o7 オプ
+  ションによりいつでも-lh6-、-lh7- アーカイブを作成でき、configureオプ
+  ションによりデフォルトの挙動を変更することができます)
+
+・アーカイブ中の漢字ファイル名
+
+  オリジナルのLha for UNIX はアーカイブに格納するファイル名の漢字コー
+  ドに関して無頓着です。世の中SJISのUNIXやCygwinのような環境があるにも
+  関らず UNIX ヘッダのlha アーカイブファイル名を EUC と判断しています。
+  (コンパイル時に MULTIBYTE_CHAR を定義したとき)
+
+  autoconf版では、configure オプション --enable-multibyte-char により
+  漢字ファイル名が使用でき、システムの漢字コード、アーカイブ中の漢字コー
+  ドをオプションにより指定できるようにしました。(注: 嘘です。今のとこ
+  ろ src/header.c にある xxx_kanji_code を変更してコンパイルしなおす必
+  要があります)
