@@ -1,3 +1,13 @@
+2003-01-20  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lha.h (prev_char): discard unused variable `prev_char'.
+
+	* src/crcio.c (fwrite_txt): ditto.
+
+	* src/slide.c (decode): ditto.
+
+	* src/slide.c: refined a little.
+
 2003-01-19  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/slide.c: took off the debug flag.
