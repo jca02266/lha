@@ -1,5 +1,21 @@
 2003-07-27  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/prototypes.h: updated.
+
+	* src/lha.h (exit): defined as lha_exit().
+
+	* src/lharc.c (init_variable): discard a variable
+	`remove_temporary_at_error'.
+	(fatal_error): ditto.
+	(cleanup): newly added.
+	(interrupt): call cleanup().
+	(lha_exit): newly added; cleanup temporary files always.
+
+	* src/lhadd.c (add_one): discard a variable
+	`remove_temporary_at_error'.
+
+	* src/indicator.c (start_indicator): refined.
+
 	* src/lharc.c (parse_option): fixed typo.
 
 	* src/indicator.c (carriage_return): newly added; print CR on tty only.
