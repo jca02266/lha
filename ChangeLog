@@ -1,5 +1,7 @@
 2003-07-22  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/shuf.c (decode_start_st0): wrong value was assigned.
+
 	* src/lha.h: discard `prof' variable.
 
 	* src/lharc.c (init_variable): discard `prof' variable.
