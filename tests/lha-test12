@@ -1,0 +1,34 @@
+# -*- shell-script -*-
+message testing the end of line conversion.
+
+# NL to CR NL in archive
+$lha ct test-tmp-crnl.lzh test-a test-b test-c
+							check $? $LINENO
+# no convert
+$lha xw=test-tmp-crnl test-tmp-crnl.lzh
+							check $? $LINENO
+diff -r test-1 test-tmp-crnl
+test $? -ne 0
+							check $? $LINENO
+sed -e 's/$/
+/' < test-a | diff test-tmp-crnl/test-a -
+							check $? $LINENO
+sed -e 's/$/
+/' < test-b | diff test-tmp-crnl/test-b -
+							check $? $LINENO
+sed -e 's/$/
+/' < test-c | diff test-tmp-crnl/test-c -
+							check $? $LINENO
+# CR NL to NL
+$lha xtw=test-tmp-nl test-tmp-crnl.lzh
+							check $? $LINENO
+diff -r test-1 test-tmp-nl
+							check $? $LINENO
+# no convert
+$lha c test-tmp-nl.lzh test-a test-b test-c
+							check $? $LINENO
+# CR NL to NL (cannot convert)
+$lha xtw=test-tmp-nl2 test-tmp-nl.lzh
+							check $? $LINENO
+diff -r test-1 test-tmp-nl2
+							check $? $LINENO
