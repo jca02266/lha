@@ -98,28 +98,6 @@
 #define LARC5_DICBIT            12      /* 2^12 =  4k sliding dictionary */
 #define LARC4_DICBIT             0      /* no compress */
 
-#define I_HEADER_SIZE			0
-#define I_HEADER_CHECKSUM		1
-#define I_METHOD				2
-#define I_PACKED_SIZE			7
-#define I_ORIGINAL_SIZE			11
-#define I_LAST_MODIFIED_STAMP	15
-#define I_ATTRIBUTE				19
-#define I_HEADER_LEVEL			20
-#define I_NAME_LENGTH			21
-#define I_NAME					22
-
-#define I_CRC						22	/* + name_length */
-#define I_EXTEND_TYPE				24	/* + name_length */
-#define I_MINOR_VERSION				25	/* + name_length */
-#define I_UNIX_LAST_MODIFIED_STAMP	26	/* + name_length */
-#define I_UNIX_MODE					30	/* + name_length */
-#define I_UNIX_UID					32	/* + name_length */
-#define I_UNIX_GID					34	/* + name_length */
-#define I_UNIX_EXTEND_BOTTOM		36	/* + name_length */
-
-#define I_GENERIC_HEADER_BOTTOM		I_EXTEND_TYPE
-
 #define EXTEND_GENERIC			0
 #define EXTEND_UNIX				'U'
 #define EXTEND_MSDOS			'M'
@@ -259,7 +237,6 @@
 
 /* util.c */
 #define BUFFERSIZE	2048
-#define MAXSFXCODE	1024*64
 
 /* slide.c */
 /*

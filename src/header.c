@@ -701,6 +701,21 @@ get_extended_header(fp, hdr, header_size, hcrc)
     return whole_size;
 }
 
+#define I_HEADER_SIZE           0               /* level 0,1,2   */
+#define I_HEADER_CHECKSUM       1               /* level 0,1     */
+#define I_METHOD                2               /* level 0,1,2,3 */
+#define I_PACKED_SIZE           7               /* level 0,1,2,3 */
+#define I_ATTRIBUTE             19              /* level 0,1,2,3 */
+#define I_HEADER_LEVEL          20              /* level 0,1,2,3 */
+
+#define COMMON_HEADER_SIZE      21      /* size of common part */
+
+#define I_GENERIC_HEADER_SIZE 24 /* + name_length */
+#define I_LEVEL0_HEADER_SIZE  36 /* + name_length (unix extended) */
+#define I_LEVEL1_HEADER_SIZE  27 /* + name_length */
+#define I_LEVEL2_HEADER_SIZE  26 /* + padding */
+#define I_LEVEL3_HEADER_SIZE  32
+
 /*
  * level 0 header
  *
@@ -760,7 +775,8 @@ get_header_level0(fp, hdr, data)
     hdr->header_size = header_size = get_byte();
     checksum = get_byte();
 
-    if (fread(data+I_NAME_LENGTH, header_size+2-I_NAME_LENGTH, 1, fp) == 0) {
+    if (fread(data + COMMON_HEADER_SIZE,
+              header_size + 2 - COMMON_HEADER_SIZE, 1, fp) == 0) {
         error("Invalid header (LHarc file ?)");
         return FALSE;   /* finish */
     }
@@ -874,7 +890,8 @@ get_header_level1(fp, hdr, data)
     hdr->header_size = header_size = get_byte();
     checksum = get_byte();
 
-    if (fread(data+I_NAME_LENGTH, header_size+2-I_NAME_LENGTH, 1, fp) == 0) {
+    if (fread(data + COMMON_HEADER_SIZE,
+              header_size + 2 - COMMON_HEADER_SIZE, 1, fp) == 0) {
         error("Invalid header (LHarc file ?)");
         return FALSE;   /* finish */
     }
@@ -904,7 +921,7 @@ get_header_level1(fp, hdr, data)
     hdr->crc = get_word();
     hdr->extend_type = get_byte();
 
-    dummy = header_size+2 - name_length - 27;
+    dummy = header_size+2 - name_length - I_LEVEL1_HEADER_SIZE;
     if (dummy > 0)
         skip_bytes(dummy); /* skip old style extend header */
 
@@ -964,7 +981,8 @@ get_header_level2(fp, hdr, data)
     hdr->size_field_length = 2; /* in bytes */
     hdr->header_size = header_size = get_word();
 
-    if (fread(data + I_NAME_LENGTH, 26 - I_NAME_LENGTH, 1, fp) == 0) {
+    if (fread(data + COMMON_HEADER_SIZE,
+              I_LEVEL2_HEADER_SIZE - COMMON_HEADER_SIZE, 1, fp) == 0) {
         error("Invalid header (LHarc file ?)");
         return FALSE;   /* finish */
     }
@@ -993,7 +1011,7 @@ get_header_level2(fp, hdr, data)
     if (extend_size == -1)
         return FALSE;
 
-    padding = header_size - 26 - extend_size;
+    padding = header_size - I_LEVEL2_HEADER_SIZE - extend_size;
     while (padding--)           /* padding should be 0 or 1 */
         hcrc = UPDATE_CRC(hcrc, fgetc(fp));
 
@@ -1042,7 +1060,8 @@ get_header_level3(fp, hdr, data)
 
     hdr->size_field_length = get_word();
 
-    if (fread(data + I_NAME_LENGTH, 32 - I_NAME_LENGTH, 1, fp) == 0) {
+    if (fread(data + COMMON_HEADER_SIZE,
+              I_LEVEL3_HEADER_SIZE - COMMON_HEADER_SIZE, 1, fp) == 0) {
         error("Invalid header (LHarc file ?)");
         return FALSE;   /* finish */
     }
@@ -1072,7 +1091,7 @@ get_header_level3(fp, hdr, data)
     if (extend_size == -1)
         return FALSE;
 
-    padding = header_size - 32 - extend_size;
+    padding = header_size - I_LEVEL3_HEADER_SIZE - extend_size;
     while (padding--)           /* padding should be 0 */
         hcrc = UPDATE_CRC(hcrc, fgetc(fp));
 
@@ -1106,7 +1125,7 @@ get_header(fp, hdr)
     }
     data[0] = end_mark;
 
-    if (fread(data + 1, I_NAME_LENGTH - 1, 1, fp) == 0) {
+    if (fread(data + 1, COMMON_HEADER_SIZE - 1, 1, fp) == 0) {
         error("Invalid header (LHarc file ?)");
         return FALSE;           /* finish */
     }
@@ -1190,6 +1209,45 @@ get_header(fp, hdr)
     }
 
     return TRUE;
+}
+
+/* skip SFX header */
+boolean
+skip_msdos_sfx1_code(fp)
+	FILE           *fp;
+{
+	unsigned char   buffer[64 * 1024]; /* SFX header size */
+	unsigned char  *p;
+	int             n;
+
+	n = fread(buffer, 1, sizeof(buffer), fp);
+
+	for (p = buffer; p < buffer + n; p++) {
+		if (! (p[I_METHOD]=='-' && p[I_METHOD+1]=='l' && p[I_METHOD+4]=='-'))
+            continue;
+		/* found "-l??-" keyword (as METHOD type string) */
+
+        /* size and checksum validate check */
+
+        /* level 0 header */
+        if (p[I_HEADER_LEVEL] == 0
+            && p[I_HEADER_SIZE] > 20
+            && p[I_HEADER_CHECKSUM] == calc_sum(p+2, p[I_HEADER_SIZE])) {
+            fseek(fp, (p - buffer) - n, SEEK_CUR);
+            return TRUE;
+        }
+
+        /* level 2 header */
+        if (p[I_HEADER_LEVEL] == 2
+            && p[I_HEADER_SIZE] >= 24
+            && p[I_ATTRIBUTE] == 0x20) {
+            fseek(fp, (p - buffer) - n, SEEK_CUR);
+            return TRUE;
+        }
+	}
+
+	fseek(fp, -n, SEEK_CUR);
+	return FALSE;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1331,9 +1389,9 @@ write_header_level0(data, hdr, pathname)
     /* write pathname (level 0 header contains the directory part) */
     name_length = strlen(pathname);
     if (generic_format)
-        limit = 255 - I_GENERIC_HEADER_BOTTOM + 2;
+        limit = 255 - I_GENERIC_HEADER_SIZE + 2;
     else
-        limit = 255 - I_UNIX_EXTEND_BOTTOM + 2;
+        limit = 255 - I_LEVEL0_HEADER_SIZE + 2;
 
     if (name_length > limit) {
         warning("the length of pathname \"%s\" is too long.", pathname);
@@ -1344,7 +1402,7 @@ write_header_level0(data, hdr, pathname)
     put_word(hdr->crc);
 
     if (generic_format) {
-        header_size = I_GENERIC_HEADER_BOTTOM + name_length - 2;
+        header_size = I_GENERIC_HEADER_SIZE + name_length - 2;
         data[I_HEADER_SIZE] = header_size;
         data[I_HEADER_CHECKSUM] = calc_sum(data + I_METHOD, header_size);
     } else {
@@ -1357,7 +1415,7 @@ write_header_level0(data, hdr, pathname)
         put_word(hdr->unix_gid);
 
         /* size of extended header is 12 */
-        header_size = I_UNIX_EXTEND_BOTTOM + name_length - 2;
+        header_size = I_LEVEL0_HEADER_SIZE + name_length - 2;
         data[I_HEADER_SIZE] = header_size;
         data[I_HEADER_CHECKSUM] = calc_sum(data + I_METHOD, header_size);
     }
@@ -1403,7 +1461,7 @@ write_header_level1(data, hdr, pathname)
     put_byte(hdr->header_level); /* level 1 */
 
     /* level 1 header: write filename (basename only) */
-    limit = 255 - 27 + 2;
+    limit = 255 - I_LEVEL1_HEADER_SIZE + 2;
     if (name_length > limit) {
         put_byte(0);            /* name length */
     }

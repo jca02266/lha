@@ -113,39 +113,6 @@ archive_is_msdos_sfx1(name)
 		 (strucmp(".x", name + len - 2) == 0));
 }
 
-/* ------------------------------------------------------------------------ */
-/* skip SFX header */
-boolean
-skip_msdos_sfx1_code(fp)
-	FILE           *fp;
-{
-	unsigned char   buffer[MAXSFXCODE];
-	unsigned char  *p, *q;
-	int             n;
-
-	n = fread(buffer, sizeof(char), MAXSFXCODE, fp);
-
-	for (p = buffer + 2, q = buffer + n - /* 5 */ (I_HEADER_LEVEL+1)-2; p < q; p++) {
-		/* found "-l??-" keyword (as METHOD type string) */
-		if (p[0] == '-' && p[1] == 'l' && p[4] == '-') {
-			/* size and checksum validate check */
-			if ( (p[I_HEADER_LEVEL-2] == 0 || p[I_HEADER_LEVEL-2] == 0)
-				&& p[I_HEADER_SIZE-2] > 20
-				&& p[I_HEADER_CHECKSUM-2] == calc_sum(p, p[-2])) {
-					fseek(fp, ((p - 2) - buffer) - n, SEEK_CUR);
-				return TRUE;
-			} else if (p[I_HEADER_LEVEL-2] == 2 && p[I_HEADER_SIZE-2] >= 24
-					   && p[I_ATTRIBUTE-2] == 0x20) {
-				fseek(fp, ((p - 2) - buffer) - n, SEEK_CUR);
-				return TRUE;
-			}
-		}
-	}
-
-	fseek(fp, -n, SEEK_CUR);
-	return FALSE;
-}
-
 /*
  * strdup(3)
  */
