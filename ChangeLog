@@ -1,5 +1,8 @@
 2003-07-21  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/header.c (get_header): avoid valgrind warning, `Source and
+	destination overlap in strncpy()'.
+
 	* src/lharc.c (find_files): refined.
 
 	* tests/lha-test.in: should exit in trap. exit status will be
