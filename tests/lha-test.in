@@ -1,0 +1,81 @@
+#!/bin/sh
+
+: ${lha=@top_builddir@/src/lha}
+
+trap "rm -rf test-*" 0 1 2 3 15
+
+test_number=0
+
+exec > test.log
+
+message() {
+  echo "$@" >&2
+  echo "$@"
+}
+
+check() {
+  ((test_number = test_number + 1))
+  status=$1
+  if [[ $status = 0 ]]; then
+    message test $test_number ... ok
+  else
+    message test $test_number ... failed
+  fi
+}
+
+message testing $lha
+message testing to create/list/extract lha archive
+
+for i in `seq 100`
+do
+    echo foo >> test-a
+done
+sed 's/foo/bar/g' < test-a > test-b
+sed 's/foo/baz/g' < test-a > test-c
+
+$lha c test-1.lzh test-a test-b test-c
+							check $?
+test -s test-1.lzh
+							check $?
+
+$lha l test-1.lzh
+check $?
+
+test -d test-1 || mkdir test-1
+mv test-[abc] test-1
+$lha x test-1.lzh
+							check $?
+diff test-1/test-a test-a
+							check $?
+diff test-1/test-b test-b
+							check $?
+diff test-1/test-c test-c
+							check $?
+
+message testing to lh5, lh6, lh7 methods
+$lha co5 test-2.lzh test-a test-b test-c
+							check $?
+$lha co6 test-3.lzh test-a test-b test-c
+							check $?
+$lha co7 test-4.lzh test-a test-b test-c
+							check $?
+$lha v test-2.lzh | grep lh5
+							check $?
+$lha v test-3.lzh | grep lh6
+							check $?
+$lha v test-4.lzh | grep lh7
+							check $?
+
+$lha xw=test-2 test-2.lzh
+							check $?
+$lha xw=test-3 test-3.lzh
+							check $?
+$lha xw=test-4 test-4.lzh
+							check $?
+
+diff -r test-1 test-2
+							check $?
+diff -r test-1 test-3
+							check $?
+diff -r test-1 test-4
+							check $?
