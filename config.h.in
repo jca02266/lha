@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define to 1 if you want to leave an old archive */
+#undef BACKUP_OLD_ARCHIVE
+
 /* Define it to 5, 6 or 7 which you want to use -lhX- method, default */
 #undef DEFAULT_LZHUFF_METHOD
 
