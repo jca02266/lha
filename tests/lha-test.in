@@ -100,6 +100,7 @@ case `$lha --version 2>&1` in
     ;;
 esac
 . $srcdir/lha-test10; cleanup
+. $srcdir/lha-test11; cleanup
 
 if (( $error_num != 0 )); then
   echo $error_num tests failed! >&2
