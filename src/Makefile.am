@@ -4,5 +4,5 @@ lha_SOURCES = append.c crcio.c dhuf.c extract.c header.c huf.c larc.c lha.h \
 	lha_macro.h lhadd.c lharc.c lhext.c lhlist.c \
 	maketbl.c maketree.c patmatch.c shuf.c slide.c util.c
 lha_LDADD = @LIBOBJS@
-EXTRA_DIST = lhdir.c lhdir.h
+EXTRA_DIST = lhdir.h
 AM_CPPFLAGS=$(DEF_KCODE) $(SUPPORT_LZHUFF_METHOD)
