@@ -1,4 +1,4 @@
-lha for unix ver 1.15gで対処
+lha for unix ver 1.14gで対処
 
 lha for unix ver 1.14f bugs
 
