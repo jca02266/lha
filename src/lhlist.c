@@ -15,11 +15,6 @@
 #include "lha.h"
 
 /* ------------------------------------------------------------------------ */
-static long     packed_size_total;
-static long     original_size_total;
-static int      list_files;
-
-/* ------------------------------------------------------------------------ */
 /* Print Stuff																*/
 /* ------------------------------------------------------------------------ */
 /* need 14 or 22 (when verbose_listing is TRUE) column spaces */
@@ -44,8 +39,6 @@ static void
 print_stamp(t)
 	time_t          t;
 {
-	static boolean  got_now = FALSE;
-	static time_t   now;
 	static unsigned int threshold;
 	static char     t_month[12 * 3 + 1] = "JanFebMarAprMayJunJulAugSepOctNovDec";
 	struct tm      *p;
@@ -58,11 +51,10 @@ print_stamp(t)
 		return;
 	}
 
-	if (!got_now) {
-		now = time((time_t *) 0);
+	if (!threshold) {
+		time_t now = time(0);
 		p = localtime(&now);
 		threshold = p->tm_year * 12 + p->tm_mon - 6;
-		got_now = TRUE;
 	}
 
 	p = localtime(&t);
@@ -85,18 +77,18 @@ print_bar()
 {
     if (verbose_listing) {
         if (verbose)
-            /*       PERMSSN    UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP            LV */
+            /*      PERMISSION  UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP            LV */
             printf("---------- ----------- ------- ------- ------ ---------- ------------------- ---\n");
         else
-            /*       PERMSSN    UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP     NAME */
+            /*      PERMISSION  UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP     NAME */
             printf("---------- ----------- ------- ------- ------ ---------- ------------ ----------\n");
     }
     else {
         if (verbose)
-            /*       PERMSSN    UID  GID      SIZE  RATIO     STAMP     LV */
+            /*      PERMISSION  UID  GID      SIZE  RATIO     STAMP     LV */
             printf("---------- ----------- ------- ------ ------------ ---\n");
         else
-            /*       PERMSSN    UID  GID      SIZE  RATIO     STAMP           NAME */
+            /*      PERMISSION  UID  GID      SIZE  RATIO     STAMP           NAME */
             printf("---------- ----------- ------- ------ ------------ --------------------\n");
     }
 }
@@ -109,15 +101,15 @@ list_header()
 {
     if (verbose_listing) {
         if (verbose)
-            printf(" PERMSSN    UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP            LV\n");
+            printf("PERMISSION  UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP            LV\n");
         else
-            printf(" PERMSSN    UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP     NAME\n");
+            printf("PERMISSION  UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP     NAME\n");
     }
     else {
         if (verbose)
-            printf(" PERMSSN    UID  GID      SIZE  RATIO     STAMP     LV\n");
+            printf("PERMISSION  UID  GID      SIZE  RATIO     STAMP     LV\n");
         else
-            printf(" PERMSSN    UID  GID      SIZE  RATIO     STAMP           NAME\n");
+            printf("PERMISSION  UID  GID      SIZE  RATIO     STAMP           NAME\n");
     }
 	print_bar();
 }
@@ -281,7 +273,9 @@ list_one(hdr)
 
 /* ------------------------------------------------------------------------ */
 static void
-list_tailer()
+list_tailer(list_files, packed_size_total, original_size_total)
+    int list_files;
+    unsigned long packed_size_total, original_size_total;
 {
 	struct stat     stbuf;
 
@@ -312,6 +306,10 @@ cmd_list()
 	FILE           *afp;
 	LzHeader        hdr;
 	int             i;
+
+    unsigned long packed_size_total;
+    unsigned long original_size_total;
+    int list_files;
 
 	/* initialize total count */
 	packed_size_total = 0L;
@@ -353,7 +351,7 @@ cmd_list()
 
 	/* print tailer message */
 	if (!quiet)
-		list_tailer();
+		list_tailer(list_files, packed_size_total, original_size_total);
 
 	return;
 }
