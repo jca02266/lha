@@ -1,5 +1,9 @@
 2002-07-10  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* released.
+
+	* configure.ac: updated version.
+
 	* src/header.c: change hex codes '\xff' to octal codes '\377'.
 
 	* tests/lha-test.in: Skip the lha-test9. (this test is imcomplete, yet)
@@ -73,6 +77,8 @@
 	* src/Makefile.am (EXTRA_DIST): no need to specify `lhdir.c'.
 
 2002-07-06  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* released.
 
 	* configure.ac: updated version.
 
