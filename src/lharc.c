@@ -45,38 +45,12 @@
 
 #include "lha.h"
 
-/* ------------------------------------------------------------------------ */
-/*								PROGRAM										*/
-/* ------------------------------------------------------------------------ */
 static int      cmd = CMD_UNKNOWN;
-
-/* 1996.8.13 t.okamoto */
-#if 0
-char          **cmd_filev;
-int             cmd_filec;
-
-char           *archive_name;
-char            temporary_name[FILENAME_LENGTH];
-char            backup_archive_name[FILENAME_LENGTH];
-#endif
 
 /* static functions */
 static void     sort_files();
 static void		print_version();
 
-char		    *extract_directory = NULL;
-char		  **xfilev;
-int             xfilec = 257;
-
-/* 1996.8.13 t.okamoto */
-#if 0
-char           *writting_filename;
-char           *reading_filename;
-
-int             archive_file_mode;
-int             archive_file_gid;
-#endif
-/* ------------------------------------------------------------------------ */
 static void
 init_variable()		/* Added N.Watazaki */
 {
@@ -119,7 +93,6 @@ init_variable()		/* Added N.Watazaki */
 	noconvertcase							= FALSE;
 
 	extract_directory = NULL;
-	xfilec = 257;
     temporary_fd = -1;
 }
 
@@ -179,7 +152,6 @@ commands:                           options:\n\
 	exit(1);
 }
 
-/* ------------------------------------------------------------------------ */
 int
 main(argc, argv)
 	int             argc;
@@ -397,6 +369,9 @@ work:
 
 	/* target file name */
 	if (get_filename_from_stdin) {
+        char **xfilev;
+        int xfilec = 257;
+
 		cmd_filec = 0;
 		xfilev = (char **)xmalloc(sizeof(char *) * xfilec);
 		while (fgets(inpbuf, sizeof(inpbuf), stdin)) {
@@ -453,12 +428,6 @@ work:
 	return 0;
 }
 
-
-/* ------------------------------------------------------------------------ */
-/* */
-/* ------------------------------------------------------------------------ */
-
-/* ------------------------------------------------------------------------ */
 static void
 print_version()
 {
@@ -488,7 +457,6 @@ message(fmt, va_alist)
     errno =  errno_sv;
 }
 
-/* ------------------------------------------------------------------------ */
 void
 #if STDC_HEADERS
 warning(char *fmt, ...)
@@ -512,7 +480,6 @@ warning(fmt, va_alist)
     errno =  errno_sv;
 }
 
-/* ------------------------------------------------------------------------ */
 void
 #if STDC_HEADERS
 error(char *fmt, ...)
@@ -568,7 +535,6 @@ fatal_error(fmt, va_alist)
     exit(1);
 }
 
-/* ------------------------------------------------------------------------ */
 void
 interrupt(signo)
 	int             signo;
@@ -591,9 +557,6 @@ interrupt(signo)
 	kill(getpid(), signo);
 }
 
-/* ------------------------------------------------------------------------ */
-/*																			*/
-/* ------------------------------------------------------------------------ */
 static int
 sort_by_ascii(a, b)
 	char          **a, **b;
@@ -623,7 +586,6 @@ sort_by_ascii(a, b)
 	}
 }
 
-/* ------------------------------------------------------------------------ */
 static void
 sort_files()
 {
@@ -631,24 +593,22 @@ sort_files()
 		qsort(cmd_filev, cmd_filec, sizeof(char *), sort_by_ascii);
 }
 
-/* ------------------------------------------------------------------------ */
-char           *
+void *
 xmalloc(size)
 	int             size;
 {
-	char           *p = (char *) malloc(size);
+    void *p = malloc(size);
 	if (!p)
 		fatal_error("Not enough memory");
 	return p;
 }
 
-/* ------------------------------------------------------------------------ */
-char           *
+void *
 xrealloc(old, size)
-	char           *old;
-	int             size;
+	void *old;
+	int size;
 {
-	char           *p = (char *) realloc(old, size);
+	void *p = (char *) realloc(old, size);
 	if (!p)
 		fatal_error("Not enough memory");
 	return p;
@@ -682,7 +642,6 @@ xstrdup(str)
 	^ malloc base      returned
 */
 
-/* ------------------------------------------------------------------------ */
 void
 init_sp(sp)
 	struct string_pool *sp;
@@ -693,7 +652,6 @@ init_sp(sp)
 	sp->buffer = (char *) xmalloc(sp->size * sizeof(char));
 }
 
-/* ------------------------------------------------------------------------ */
 void
 add_sp(sp, name, len)
 	struct string_pool *sp;
@@ -709,7 +667,6 @@ add_sp(sp, name, len)
 	sp->n++;
 }
 
-/* ------------------------------------------------------------------------ */
 void
 finish_sp(sp, v_count, v_vector)
 	register struct string_pool *sp;
@@ -732,7 +689,6 @@ finish_sp(sp, v_count, v_vector)
 	}
 }
 
-/* ------------------------------------------------------------------------ */
 void
 free_sp(vector)
 	char          **vector;
@@ -757,7 +713,6 @@ include_path_p(path, name)
 	return (*n == '/' || (n != name && path[-1] == '/' && n[-1] == '/'));
 }
 
-/* ------------------------------------------------------------------------ */
 void
 cleaning_files(v_filec, v_filev)
 	int            *v_filec;
@@ -842,7 +797,6 @@ cleaning_files(v_filec, v_filev)
 	free(flags);
 }
 
-/* ------------------------------------------------------------------------ */
 #ifdef NODIRECTORY
 /* please need your imprementation */
 boolean
@@ -854,7 +808,6 @@ find_files(name, v_filec, v_filev)
 	return FALSE;		/* DUMMY */
 }
 
-/* ------------------------------------------------------------------------ */
 void
 free_files(filec, filev)
 	int             filec;
@@ -862,7 +815,6 @@ free_files(filec, filev)
 {
 	/* do nothing */
 }
-/* ------------------------------------------------------------------------ */
 #else
 boolean
 find_files(name, v_filec, v_filev)
@@ -874,7 +826,7 @@ find_files(name, v_filec, v_filev)
 	char            newname[FILENAME_LENGTH];
 	int             len, n;
 	DIR            *dirp;
-	DIRENTRY       *dp;
+    struct dirent  *dp;
 	struct stat     tmp_stbuf, arc_stbuf, fil_stbuf;
 
 	strcpy(newname, name);
@@ -928,7 +880,6 @@ find_files(name, v_filec, v_filev)
 	return TRUE;
 }
 
-/* ------------------------------------------------------------------------ */
 void
 free_files(filec, filev)
 	int             filec;
@@ -937,9 +888,7 @@ free_files(filec, filev)
 	free_sp(filev);
 }
 #endif
-/* ------------------------------------------------------------------------ */
-/*																			*/
-/* ------------------------------------------------------------------------ */
+
 /* Build temporary file name and store to TEMPORARY_NAME */
 int
 build_temporary_name()
@@ -985,7 +934,6 @@ build_temporary_name()
 #endif
 }
 
-/* ------------------------------------------------------------------------ */
 static void
 modify_filename_extention(buffer, ext)
 	char           *buffer;
@@ -1006,7 +954,6 @@ modify_filename_extention(buffer, ext)
 	strcpy(p, ext);
 }
 
-/* ------------------------------------------------------------------------ */
 /* build backup file name */
 void
 build_backup_name(buffer, original)
@@ -1017,7 +964,6 @@ build_backup_name(buffer, original)
 	modify_filename_extention(buffer, BACKUPNAME_EXTENTION);	/* ".bak" */
 }
 
-/* ------------------------------------------------------------------------ */
 void
 build_standard_archive_name(buffer, orginal)
 	char           *buffer;
@@ -1027,9 +973,6 @@ build_standard_archive_name(buffer, orginal)
 	modify_filename_extention(buffer, ARCHIVENAME_EXTENTION);	/* ".lzh" */
 }
 
-/* ------------------------------------------------------------------------ */
-/*																			*/
-/* ------------------------------------------------------------------------ */
 boolean
 need_file(name)
 	char           *name;
@@ -1059,9 +1002,6 @@ xfopen(name, mode)
 	return fp;
 }
 
-/* ------------------------------------------------------------------------ */
-/*																			*/
-/* ------------------------------------------------------------------------ */
 static          boolean
 open_old_archive_1(name, v_fp)
 	char           *name;
@@ -1084,7 +1024,6 @@ open_old_archive_1(name, v_fp)
 	return FALSE;
 }
 
-/* ------------------------------------------------------------------------ */
 FILE           *
 open_old_archive()
 {
@@ -1102,7 +1041,7 @@ open_old_archive()
 		else
 			return NULL;
 	}
-	if (p = (char *) strrchr(archive_name, '.')) {
+	if (p = strrchr(archive_name, '.')) {
 		if (strucmp(".LZH", p) == 0
 		    || strucmp(".LZS", p) == 0
 		    || strucmp(".COM", p) == 0	/* DOS SFX */
@@ -1143,7 +1082,6 @@ open_old_archive()
 	return NULL;
 }
 
-/* ------------------------------------------------------------------------ */
 int
 inquire(msg, name, selective)
 	char           *msg, *name, *selective;
@@ -1164,7 +1102,6 @@ inquire(msg, name, selective)
 	/* NOTREACHED */
 }
 
-/* ------------------------------------------------------------------------ */
 void
 write_archive_tail(nafp)
 	FILE           *nafp;
@@ -1172,7 +1109,6 @@ write_archive_tail(nafp)
 	putc(0x00, nafp);
 }
 
-/* ------------------------------------------------------------------------ */
 void
 copy_old_one(oafp, nafp, hdr)
 	FILE           *oafp, *nafp;
