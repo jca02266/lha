@@ -1285,7 +1285,7 @@ copy_old_one(oafp, nafp, hdr)
     LzHeader       *hdr;
 {
     if (noexec) {
-        fseek(oafp, hdr->header_size + hdr->packed_size, SEEK_CUR);
+        fseeko(oafp, hdr->header_size + hdr->packed_size, SEEK_CUR);
     }
     else {
         reading_filename = archive_name;

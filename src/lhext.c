@@ -443,13 +443,13 @@ cmd_extract()
     /* extract each files */
     while (get_header(afp, &hdr)) {
         if (need_file(hdr.name)) {
-            pos = ftell(afp);
+            pos = ftello(afp);
             read_size = extract_one(afp, &hdr);
             if (read_size != hdr.packed_size) {
                 /* when error occurred in extract_one(), should adjust
                    point of file stream */
                 if (pos != -1 && afp != stdin)
-                    fseek(afp, pos + hdr.packed_size - read_size, SEEK_SET);
+                    fseeko(afp, pos + hdr.packed_size - read_size, SEEK_SET);
                 else {
                     size_t i = hdr.packed_size - read_size;
                     while (i--) fgetc(afp);
@@ -457,7 +457,7 @@ cmd_extract()
             }
         } else {
             if (afp != stdin)
-                fseek(afp, hdr.packed_size, SEEK_CUR);
+                fseeko(afp, hdr.packed_size, SEEK_CUR);
             else {
                 size_t i = hdr.packed_size;
                 while (i--) fgetc(afp);

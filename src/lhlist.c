@@ -338,7 +338,7 @@ cmd_list()
         }
 
         if (afp != stdin)
-            fseek(afp, hdr.packed_size, SEEK_CUR);
+            fseeko(afp, hdr.packed_size, SEEK_CUR);
         else {
             i = hdr.packed_size;
             while (i--)

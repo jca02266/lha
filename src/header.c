@@ -1155,7 +1155,7 @@ seek_lha_header(fp)
         if ((p[I_HEADER_LEVEL] == 0 || p[I_HEADER_LEVEL] == 1)
             && p[I_HEADER_SIZE] > 20
             && p[I_HEADER_CHECKSUM] == calc_sum(p+2, p[I_HEADER_SIZE])) {
-            if (fseek(fp, (p - buffer) - n, SEEK_CUR) == -1)
+            if (fseeko(fp, (p - buffer) - n, SEEK_CUR) == -1)
                 fatal_error("cannot seek header");
             return 0;
         }
@@ -1164,13 +1164,13 @@ seek_lha_header(fp)
         if (p[I_HEADER_LEVEL] == 2
             && p[I_HEADER_SIZE] >= 24
             && p[I_ATTRIBUTE] == 0x20) {
-            if (fseek(fp, (p - buffer) - n, SEEK_CUR) == -1)
+            if (fseeko(fp, (p - buffer) - n, SEEK_CUR) == -1)
                 fatal_error("cannot seek header");
             return 0;
         }
     }
 
-    if (fseek(fp, -n, SEEK_CUR) == -1)
+    if (fseeko(fp, -n, SEEK_CUR) == -1)
         fatal_error("cannot seek header");
     return -1;
 }

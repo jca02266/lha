@@ -57,9 +57,10 @@ AC_CHECK_MEMBERS([struct tm.tm_gmtoff, struct stat.st_ino],,,
 AC_TYPE_SIGNAL
 AC_FUNC_UTIME_NULL
 AC_FUNC_FNMATCH
+AC_FUNC_FSEEKO
 AC_CHECK_FUNCS(strchr strdup memcpy memset memmove strcasecmp)
 AC_CHECK_FUNCS(mktime timelocal tzset ftime gettimeofday utime)
-AC_CHECK_FUNCS(ftruncate chsize lchown mkstemp)
+AC_CHECK_FUNCS(ftruncate chsize lchown mkstemp ftello)
 AC_CHECK_FUNCS(getpwuid getgrgid getpwnam getgrnam)
 AC_CHECK_FUNCS(iconv basename)
 AC_REPLACE_FUNCS(vsnprintf fnmatch)

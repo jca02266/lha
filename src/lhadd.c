@@ -27,7 +27,7 @@ add_one(fp, nafp, hdr)
 
     if (!fp && generic_format)  /* [generic] doesn't need directory info. */
         return;
-    header_pos = ftell(nafp);
+    header_pos = ftello(nafp);
     write_header(nafp, hdr);/* DUMMY */
 
     if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
@@ -39,22 +39,22 @@ add_one(fp, nafp, hdr)
         finish_indicator2(hdr->name, "Frozen", 0);
         return;     /* previous write_header is not DUMMY. (^_^) */
     }
-    org_pos = ftell(fp);
-    data_pos = ftell(nafp);
+    org_pos = ftello(fp);
+    data_pos = ftello(nafp);
 
     hdr->crc = encode_lzhuf(fp, nafp, hdr->original_size,
           &v_original_size, &v_packed_size, hdr->name, hdr->method);
 
     if (v_packed_size < v_original_size) {
-        next_pos = ftell(nafp);
+        next_pos = ftello(nafp);
     }
     else {          /* retry by stored method */
-        fseek(fp, org_pos, SEEK_SET);
-        fseek(nafp, data_pos, SEEK_SET);
+        fseeko(fp, org_pos, SEEK_SET);
+        fseeko(nafp, data_pos, SEEK_SET);
         hdr->crc = encode_stored_crc(fp, nafp, hdr->original_size,
                       &v_original_size, &v_packed_size);
         fflush(nafp);
-        next_pos = ftell(nafp);
+        next_pos = ftello(nafp);
 #if HAVE_FTRUNCATE
         if (ftruncate(fileno(nafp), next_pos) == -1)
             error("cannot truncate archive");
@@ -68,9 +68,9 @@ add_one(fp, nafp, hdr)
     }
     hdr->original_size = v_original_size;
     hdr->packed_size = v_packed_size;
-    fseek(nafp, header_pos, SEEK_SET);
+    fseeko(nafp, header_pos, SEEK_SET);
     write_header(nafp, hdr);
-    fseek(nafp, next_pos, SEEK_SET);
+    fseeko(nafp, next_pos, SEEK_SET);
 }
 
 
@@ -115,7 +115,7 @@ append_it(name, oafp, nafp)
 
     cmp = 0;                    /* avoid compiler warnings `uninitialized' */
     while (oafp) {
-        old_header = ftell(oafp);
+        old_header = ftello(oafp);
         if (!get_header(oafp, &ahdr)) {
             /* end of archive or error occurred */
             fclose(oafp);
@@ -127,17 +127,17 @@ append_it(name, oafp, nafp)
         if (cmp < 0) {          /* SKIP */
             /* copy old to new */
             if (!noexec) {
-                fseek(oafp, old_header, SEEK_SET);
+                fseeko(oafp, old_header, SEEK_SET);
                 copy_old_one(oafp, nafp, &ahdr);
             }
             else
-                fseek(oafp, ahdr.packed_size, SEEK_CUR);
+                fseeko(oafp, ahdr.packed_size, SEEK_CUR);
         } else if (cmp == 0) {  /* REPLACE */
             /* drop old archive's */
-            fseek(oafp, ahdr.packed_size, SEEK_CUR);
+            fseeko(oafp, ahdr.packed_size, SEEK_CUR);
             break;
         } else {                /* cmp > 0, INSERT */
-            fseek(oafp, old_header, SEEK_SET);
+            fseeko(oafp, old_header, SEEK_SET);
             break;
         }
     }
@@ -159,7 +159,7 @@ append_it(name, oafp, nafp)
         }
         else {                  /* copy old to new */
             if (!noexec) {
-                fseek(oafp, old_header, SEEK_SET);
+                fseeko(oafp, old_header, SEEK_SET);
                 copy_old_one(oafp, nafp, &ahdr);
             }
         }
@@ -189,7 +189,7 @@ find_update_files(oafp)
     struct stat     stbuf;
     int             len;
 
-    pos = ftell(oafp);
+    pos = ftello(oafp);
 
     init_sp(&sp);
     while (get_header(oafp, &hdr)) {
@@ -205,10 +205,10 @@ find_update_files(oafp)
             if (stat(name, &stbuf) >= 0)    /* exist ? */
                 add_sp(&sp, name, len + 1);
         }
-        fseek(oafp, hdr.packed_size, SEEK_CUR);
+        fseeko(oafp, hdr.packed_size, SEEK_CUR);
     }
 
-    fseek(oafp, pos, SEEK_SET);
+    fseeko(oafp, pos, SEEK_SET);
 
     finish_sp(&sp, &cmd_filec, &cmd_filev);
 }
@@ -221,10 +221,10 @@ delete(oafp, nafp)
     LzHeader        ahdr;
     long            old_header_pos;
 
-    old_header_pos = ftell(oafp);
+    old_header_pos = ftello(oafp);
     while (get_header(oafp, &ahdr)) {
         if (need_file(ahdr.name)) { /* skip */
-            fseek(oafp, ahdr.packed_size, SEEK_CUR);
+            fseeko(oafp, ahdr.packed_size, SEEK_CUR);
             if (noexec || !quiet) {
                 if ((ahdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK)
                     message("delete %s -> %s", ahdr.realname, ahdr.name);
@@ -234,14 +234,14 @@ delete(oafp, nafp)
         }
         else {      /* copy */
             if (noexec) {
-                fseek(oafp, ahdr.packed_size, SEEK_CUR);
+                fseeko(oafp, ahdr.packed_size, SEEK_CUR);
             }
             else {
-                fseek(oafp, old_header_pos, SEEK_SET);
+                fseeko(oafp, old_header_pos, SEEK_SET);
                 copy_old_one(oafp, nafp, &ahdr);
             }
         }
-        old_header_pos = ftell(oafp);
+        old_header_pos = ftello(oafp);
     }
     return;
 }
@@ -521,15 +521,15 @@ cmd_add()
     }
 
     if (oafp) {
-        old_header = ftell(oafp);
+        old_header = ftello(oafp);
         while (get_header(oafp, &ahdr)) {
             if (noexec)
-                fseek(oafp, ahdr.packed_size, SEEK_CUR);
+                fseeko(oafp, ahdr.packed_size, SEEK_CUR);
             else {
-                fseek(oafp, old_header, SEEK_SET);
+                fseeko(oafp, old_header, SEEK_SET);
                 copy_old_one(oafp, nafp, &ahdr);
             }
-            old_header = ftell(oafp);
+            old_header = ftello(oafp);
         }
         fclose(oafp);
     }
@@ -537,7 +537,7 @@ cmd_add()
     new_archive_size = 0;       /* avoid compiler warnings `uninitialized' */
     if (!noexec) {
         write_archive_tail(nafp);
-        new_archive_size = ftell(nafp);
+        new_archive_size = ftello(nafp);
         fclose(nafp);
     }
 
@@ -601,7 +601,7 @@ cmd_delete()
     new_archive_size = 0;       /* avoid compiler warnings `uninitialized' */
     if (!noexec) {
         write_archive_tail(nafp);
-        new_archive_size = ftell(nafp);
+        new_archive_size = ftello(nafp);
         fclose(nafp);
     }
 

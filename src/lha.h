@@ -192,6 +192,13 @@ int fnmatch(const char *pattern, const char *string, int flags);
 #define LONG_MIN (LONG_MAX-ULONG_MAX)
 #endif
 
+#if !HAVE_FSEEKO
+# define fseeko  fseek
+#endif
+#if !HAVE_FTELLO
+# define ftello  ftell
+#endif
+
 #endif /* HAVE_LIMITS_H */
 
 #include "lha_macro.h"
