@@ -1,5 +1,7 @@
 2003-07-19  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/maketree.c (make_len): discard debug print.
+
 	* configure.ac: updated version.
 
 	* src/prototypes.h: updated.
@@ -14,7 +16,6 @@
 
 	* src/lha.h (struct LzHeader): use size_t for the members
 	`packed_size' and `original_size'.
-
 
 2003-07-13  Koji Arai  <jca02266@nifty.ne.jp>
 
