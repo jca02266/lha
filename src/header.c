@@ -599,6 +599,14 @@ get_extended_header(fp, hdr, header_size)
  *     8      2  uid
  *    10      2  gid
  *
+ * attribute (MS-DOS)
+ *    bit1  read only
+ *    bit2  hidden
+ *    bit3  system
+ *    bit4  volume label
+ *    bit5  directory
+ *    bit6  archive bit (need to backup)
+ *
  */
 static int
 get_header_level0(fp, hdr, data)
@@ -644,7 +652,7 @@ get_header_level0(fp, hdr, data)
 
     if (extend_size < 0) {
         if (extend_size == -2) {
-            /* CRC field does not given */
+            /* CRC field is not given */
             hdr->extend_type = EXTEND_GENERIC;
             hdr->has_crc = FALSE;
 
@@ -1221,7 +1229,7 @@ write_header_level2(data, hdr, lzname)
     int header_size;
     char *extend_header_top;
     char *headercrc_ptr;
-    unsigned short  hcrc;
+    unsigned short hcrc;
 
     basename = strrchr(lzname, LHA_PATHSEP);
     if (basename) {
