@@ -1,10 +1,10 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiscated for LHa for UNIX version 1.14i
-			Mon, Jul 29 2002 by Koji Arai <jca02266@nifty.ne.jp>
+		        Sun, Aug 11 2002 by Koji Arai <jca02266@nifty.ne.jp>
 
-このファイルはLHa for UNIX version 1.14i をautoconf、automake化
-した(autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
+このファイルは LHa for UNIX version 1.14i を autoconf、automake 化した
+(autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
 
 LHa for UNIX に関しては岡本継男さんのページ
   <http://www2m.biglobe.ne.jp/~dolphin/lha/lha.htm>
@@ -35,6 +35,8 @@ LHa for UNIX に関しては岡本継男さんのページ
     tar xvzf lha-114i.tar.gz
     cd lha-114i
     patch -T -p1 < ../lha-1.14i-autoconf.diff
+
+    # touch aclocal.m4 Makefile.in */Makefile.in configure.ac config.h.in configure
 
     sh ./configure
     make
@@ -86,11 +88,11 @@ LHa for UNIX に関しては岡本継男さんのページ
 
 ・アーカイブ中の漢字ファイル名
 
-  オリジナルの LHa for UNIX はアーカイブに格納するファイル名の漢字コー
-  ドに関して無頓着です。コンパイル時に MULTIBYTE_CHAR を定義したときで
-  もアーカイブ中の Shift JIS ファイル名を EUC にすることもなく、EUC コー
-  ドのまま(正確にはシステムの漢字コードのまま)アーカイブに格納したりし
-  ます。
+  オリジナルの LHa for UNIX 1.14i はアーカイブに格納するファイル名の漢
+  字コードに関して無頓着です。コンパイル時に MULTIBYTE_CHAR を定義した
+  ときでもアーカイブ中の Shift JIS ファイル名を EUC にすることもなく、
+  EUC コードのまま(正確にはシステムの漢字コードのまま)アーカイブに格納
+  したりします。
 
   autoconf 版では、configure オプション --enable-multibyte-filename に
   より漢字ファイル名が使用でき、アーカイブに格納されるファイル名の漢字
@@ -182,6 +184,8 @@ LHa for UNIX に関しては岡本継男さんのページ
       (256 などは little-endian で 0x00 0x01 となるため、先頭が 0 にな
       ります。)
 
+      読み込み時にヘッダの CRC check を行うようにしました。
+
     o level 1 header のバグ
 
       ファイル名に対して拡張ヘッダを使用することがないため、230 バイト
@@ -237,6 +241,21 @@ LHa for UNIX に関しては岡本継男さんのページ
       g オプションで -lhd- の作成が抑止されるのは同じです。
 
       なお、g オプションとヘッダレベルの指定を同時に行うときは上記のよ
-      うに g オプションを先に指定する必要があります。(lha c1g など) g 
-      オプションを後に指定すると level 0 header が作成されます(このオ
-      リジナル仕様はちょっとわかりにくいです)。
+      うに g オプションを先に指定する必要があります。lha c1g など g オ
+      プションを後に指定すると level 0 header が作成されます(このオリ
+      ジナル仕様はちょっとわかりにくいです)。
+
+・level 3 header
+
+  世の中には、level 3 header というものが存在するようですが、まだ仕様
+  としてfix されてないようなので*読み込みのみ*サポートしました。追加の
+  拡張ヘッダは未対応です。(特に対応すべきヘッダが見当たらなかった)
+  largefile 対応する場合は、この level 3 header をサポートした方が良さ
+  そうです。
+
+・ヘッダのダンプ
+
+  まったくのおまけ機能としてヘッダのダンプ機能を追加しました。これは完
+  全にデバッグ用です。
+    lha vvv foo.lzh
+  とすると、アーカイブの内容一覧にまざってダンプが出力されます。
