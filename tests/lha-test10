@@ -144,7 +144,7 @@ $lha vv test-tmp4-h2.lzh | grep '\[2\]$'
 							check $?
 $lha xw=test-tmp4 test-tmp4-h2.lzh
 							check $?
-test x"`ls -l test-tmp4-h2.lzh | awk '{print $5}'`" = x258
+test x"`/bin/ls -l test-tmp4-h2.lzh | awk '{print $5}'`" = x258
 							check $?
 test -f test-tmp4/$file
 							check $?
