@@ -1,4 +1,6 @@
-2002-05-26  Koji Arai  <jca02266@nifty.ne.jp>
+2002-05-26  Koji Arai  <arai@fgsd.mt.nec.co.jp>
+
+	* tests/lha-test.in: added some tests.
 
 	* tests/lha-test.in: specified `q' option on print archive test.
 
