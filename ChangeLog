@@ -1,5 +1,23 @@
 2002-07-06  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: checking whether strchr() is 8 bit clean or not.
+
+	* config.h.in: ditto.
+
+	* src/util.c: give functions strchr(), strrchr(), memchr() and
+	memrchr() which handle 8 bit characters correctly.
+
+	* src/header.c: use above if needed.
+
+	* src/lha_macro.h: deprecate the macro name `DELIM2' which is path
+	separattor for the filename in lha header.
+	use LHA_PATHSEP instead.
+
+	* src/util.c (convdelim): ditto.
+
+	* src/header.c (convert_filename): ditto.
+	(write_header): ditto.
+
 	* src/header.c (convert_filename): fixed bug on utf8 conversion,
 	provisionally.
 
