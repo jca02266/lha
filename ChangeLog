@@ -1,3 +1,8 @@
+2003-02-17  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/fnmatch.h: no need to include <sys/cdefs.h>. it does not
+	exist on MinGW.
+
 2003-02-14  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lharc.c (find_files): `goto' requires expression after label.
