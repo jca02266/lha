@@ -1,3 +1,19 @@
+2002-06-29  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/slide.c (encode_alloc): Wrong value was assigned to the
+	`dicbit', when SUPPORT_LH7 was not defined. (fixed by DANGAN,
+	reported on the LHa BBS [38]).
+	
+	* src/lha_macro.h: ditto.
+
+	* src/shuf.c (decode_c_st0): the method of -lh3- extraction was
+	fixed by DANGAN (reported on the LHa BBS [35]).
+
+	* src/lha_macro.h (LH3_DICBIT): ditto.
+
+	* src/dhuf.c (encode_c_dyn): the method of -lh1- compression was
+	refined by DANGAN (reported on the LHa BBS [30], [39], [62]).
+
 2002-06-26  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/lha-test4: Skip a test for the LHa for UNIX (original version).
