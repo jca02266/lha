@@ -127,14 +127,14 @@ convert_filename(name, len, size,
                  from_code, to_code,
                  from_delim, to_delim,
                  case_to)
-	register char  *name;
-	register int    len;
-	register int    size;
+    char *name;
+    int len;
+    int size;
     int from_code, to_code, case_to;
     char *from_delim, *to_delim;
 
 {
-	register int    i;
+    int i;
 #ifdef MULTIBYTE_FILENAME
     char tmp[FILENAME_LENGTH];
 
@@ -164,7 +164,7 @@ convert_filename(name, len, size,
     }
 #endif
 
-	for (i = 0; i < len; i ++) {
+    for (i = 0; i < len; i ++) {
 #ifdef MULTIBYTE_FILENAME
         if (from_code == CODE_EUC &&
             (unsigned char)name[i] == 0x8e) {
@@ -191,37 +191,37 @@ convert_filename(name, len, size,
             len++;
             continue;
         }
-		if (from_code == CODE_EUC && (name[i] & 0x80) && (name[i+1] & 0x80)) {
-			int c1, c2;
+        if (from_code == CODE_EUC && (name[i] & 0x80) && (name[i+1] & 0x80)) {
+            int c1, c2;
             if (to_code != CODE_SJIS) {
                 i++;
                 continue;
             }
 
-			c1 = (unsigned char)name[i];
+            c1 = (unsigned char)name[i];
             c2 = (unsigned char)name[i+1];
-			euc2sjis(&c1, &c2);
-			name[i] = c1;
+            euc2sjis(&c1, &c2);
+            name[i] = c1;
             name[i+1] = c2;
-			i++;
+            i++;
             continue;
-		}
+        }
         if (from_code == CODE_SJIS &&
             SJC_FIRST_P(name[i]) &&
             SJC_SECOND_P(name[i+1])) {
-			int c1, c2;
+            int c1, c2;
 
             if (to_code != CODE_EUC) {
                 i++;
                 continue;
             }
 
-			c1 = (unsigned char)name[i];
+            c1 = (unsigned char)name[i];
             c2 = (unsigned char)name[i+1];
-			sjis2euc(&c1, &c2);
-			name[i] = c1;
+            sjis2euc(&c1, &c2);
+            name[i] = c1;
             name[i+1] = c2;
-			i++;
+            i++;
             continue;
         }
 #endif /* MULTIBYTE_FILENAME */
@@ -236,15 +236,15 @@ convert_filename(name, len, size,
             }
         }
 
-		if (case_to == TO_UPPER && islower(name[i])) {
-			name[i] = toupper(name[i]);
+        if (case_to == TO_UPPER && islower(name[i])) {
+            name[i] = toupper(name[i]);
             continue;
         }
         if (case_to == TO_LOWER && isupper(name[i])) {
-			name[i] = tolower(name[i]);
+            name[i] = tolower(name[i]);
             continue;
         }
-	}
+    }
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1503,12 +1503,12 @@ ConvertEncodingByIconv(const char *src, char *dst, int dstsize,
 
     ic = iconv_open(dstEnc, srcEnc);
     if (ic == (iconv_t)-1) {
-        error("iconv_open() failure");
+        error("iconv_open() failure: %s", strerror(errno));
         return -1;
     }
 
     if (iconv(ic, &src_p, &sLen, &dst_p, &iLen) == (size_t)-1) {
-        error("iconv() failure");
+        error("iconv() failure: %s", strerror(errno));
         iconv_close(ic);
         return -1;
     }
@@ -1537,7 +1537,6 @@ sjis_to_utf8(char *dst, const char *src, size_t dstsize)
   error("not support utf-8 conversion");
 #endif
 
-  /* not supported */
   if (dstsize < 1) return dst;
   dst[dstsize-1] = 0;
   return strncpy(dst, src, dstsize-1);
@@ -1562,7 +1561,6 @@ utf8_to_sjis(char *dst, const char *src, size_t dstsize)
   error("not support utf-8 conversion");
 #endif
 
-  /* not supported */
   if (dstsize < 1) return dst;
   dst[dstsize-1] = 0;
   return strncpy(dst, src, dstsize-1);
