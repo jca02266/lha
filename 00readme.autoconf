@@ -1,7 +1,8 @@
+# $Id$
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiscated for LHa for UNIX version 1.14i
-			Tue, Dec 31 2002 by Koji Arai <jca02266@nifty.ne.jp>
+					    Koji Arai <jca02266@nifty.ne.jp>
 
 このファイルは LHa for UNIX version 1.14i を autoconf、automake 化した
 (autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
@@ -115,6 +116,8 @@ LHa for UNIX に関しては岡本継男さんのページ
   システムの各漢字コードを指定できるようにするかもしれませんが、今のと
   ころ実装はしていません。
 
+  (予定: samba の CAP code などにも対応しようと思ってます)
+
   Mac OS X 用の utf8 <-> sjis 変換は、2002/6 に坂井浩人さんに作成して
   いただきました。ありがとうございます。
 
@@ -164,8 +167,8 @@ LHa for UNIX に関しては岡本継男さんのページ
 
 ・header.c の書き換え
 
-  header.c の主要部分は作り変えられました。上記に示した変更に加えて
-  オリジナル LHa for UNIX 1.14i から以下の不具合が修正されました。
+  header.c は作り変えられました。上記に示した変更に加えてオリジナル 
+  LHa for UNIX 1.14i から以下の不具合が修正されました。
 
     o level 2 header のバグ
 
@@ -208,7 +211,7 @@ LHa for UNIX に関しては岡本継男さんのページ
 
       なお、level 0 header で -lhd- method は使えないという説がある
 
-        http://kuwa.omosiro.com/x68k/KGARC/ARC/LHAHED15.ZIP
+        <http://kuwa.omosiro.com/x68k/KGARC/ARC/LHAHED15.ZIP>
 
       のですが、吉崎栄泰氏のオリジナル LHA (DOS/Windows版) (ver 2.55,
       2.67) などは -lhd- method を level 0 header で作成します。
@@ -281,6 +284,29 @@ LHa for UNIX に関しては岡本継男さんのページ
 
 ・Cygwin での解凍
 
-  Cygwin で解凍した場合アーカイブが MS-DOS タイプなど permission の
-  情報を持たない場合は、0777 & ~umask で展開するようにしました。
-  これは、.exe や .dll に実行属性を付けるためです。
+  MS-DOS タイプなど permission の情報を持たないアーカイブを Cygwin で
+  解凍する場合は、0777 & ~umask で展開するようにしました。これは、.exe 
+  や .dll に実行属性を付けるためです。
+
+・再配布について
+
+  私は、src/header.c にはもはや元の lha 1.14i にあったコードは含まれて
+  いないと考えています。src/header.c は私の著作物です。ただし、lha
+  1.14i にあったコードが参考になったことは事実です。敬意を表する意味で
+  も src/header.c にあった歴代の改変者の名前はそのまま残しています。
+
+  これの意図する所は、man/lha.man にある再配布条件を src/header.c に適
+  用しないことです。私は、より自由で使いやすいコードを LHa for UNIX の
+  構成物にしようと考えています。src/header.c に適用するライセンスはま
+  だ未定です(なので、現状は LHa for UNIX の再配布条件が適用されると考
+  えてください)。
+
+     ライセンス候補(メモ):
+	   <http://www.gnu.org/licenses/license-list.ja.html>
+           <http://www.opensource.org/licenses/>
+
+  現在のところ、src/vsnprintf.c, src/fnmatch.c, src/fnmatch.h を除くそ
+  の他の構成物や LHa for UNIX 全体には man/lha.man に含まれる条項が適
+  用されます。(vsnprintf.c, fnmatch.c を利用するように make した LHa
+  for UNIX には、各ソースに記述された条項も適用されることに注意してく
+  ださい)
