@@ -1,11 +1,12 @@
 2002-11-25  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/header.c: use size_t for header_size.
-	(skip_msdos_sfx1_code): rename to `seek_lha_header'.
+	(skip_msdos_sfx1_code): rename to `seek_lha_header()'.
 
 	* src/lha.h: use size_t for header_size.
 
-	* src/lhadd.c (cmd_add): rename to `seek_lha_header'.
+	* src/lhadd.c (cmd_add): rename `skip_msdos_sfx1_code()' to
+	`seek_lha_header()'.
 	(cmd_delete): ditto.
 
 	* src/lhext.c (cmd_extract): ditto.
