@@ -1,3 +1,13 @@
+2002-07-28  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/lha-test.in: added lha-test11.
+
+	* tests/lha-test8: added tests for level 0 and 2 header.
+
+	* tests/lha-test10: added tests for generic header.
+
+	* tests/lha-test11: testing for long filename. moved from lha-test10.
+
 2002-07-26  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/header.c (write_header): rewritten.
