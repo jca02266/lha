@@ -46,6 +46,7 @@
 #include "lha.h"
 
 static int      cmd = CMD_UNKNOWN;
+static int error_occurred;
 
 /* static functions */
 static void     sort_files();
@@ -429,6 +430,8 @@ work:
 		exit(0);
 #endif
 
+    if (error_occurred)
+        return 1;
 	return 0;
 }
 
@@ -511,6 +514,8 @@ error(fmt, va_alist)
     va_end(v);
 
     fputs("\n", stderr);
+
+    error_occurred = 1;
 
     errno =  errno_sv;
 }
