@@ -863,24 +863,21 @@ get_header(fp, hdr)
                                        broken archive. */
     char *system_delim = "//";
     int filename_case = NONE;
+    int end_mark;
 
     memset(hdr, 0, sizeof(LzHeader));
 
     setup_get(data);
 
-    switch (fread(data, 1, I_NAME_LENGTH, fp)) {
-    case I_NAME_LENGTH:
-        break;
-    case 0:
-        return FALSE;           /* end of file */
-    case 1:
-        if (data[0] == '\0')    /* end mark */
-            return FALSE;
-        /* fall through */
-    default:
-        error("Invalid header (LHarc file ?)");
-        return FALSE;   /* finish */
-    }
+	if ((end_mark = getc(fp)) == EOF || end_mark == 0) {
+		return FALSE;	/* finish */
+	}
+    data[0] = end_mark;
+
+    if (fread(data + 1, I_NAME_LENGTH - 1, 1, fp) == 0) {
+		error("Invalid header (LHarc file ?)");
+		return FALSE;	/* finish */
+	}
 
     switch (data[I_HEADER_LEVEL]) {
     case 0:
