@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([LHa for UNIX], 1.14i-ac20020622, jca02266@nifty.ne.jp, lha)
+AC_INIT([LHa for UNIX], 1.14i-ac20020629, jca02266@nifty.ne.jp, lha)
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
@@ -125,23 +125,24 @@ fi
 AC_MSG_CHECKING(kanji code for filename is )
 AC_ARG_ENABLE(multibyte-filename,
   AC_HELP_STRING([--enable-multibyte-filename],
-		 [support multibyte filename. specify kanji code (euc or sjis) [[default=auto]]]),,
+		 [support multibyte filename. specify kanji code (euc, sjis, utf8 or auto) [[default=auto]]]),,
   # default
   enable_multibyte_filename=auto)
 
-# Note: On Mac OS X, specify sjis, although the kanji code of filename
-# is used utf-8.
 case $enable_multibyte_filename in
 auto|yes)
   AC_EGREP_CPP(SJIS,[
-#if defined(__CYGWIN__) || defined(__MINGW32__) || defined(__hpux) || defined(__APPLE__)
+#if defined(__CYGWIN__) || defined(__MINGW32__) || defined(__hpux)
 SJIS
-#else
-EUC
 #endif], enable_multibyte_filename=CODE_SJIS,
-         enable_multibyte_filename=CODE_EUC);;
+  AC_EGREP_CPP(SJIS,[
+#if defined(__APPLE__)	/* for Mac OS X */
+UTF8
+#endif], enable_multibyte_filename=CODE_UTF8,
+         enable_multibyte_filename=CODE_EUC));;
 sjis)    enable_multibyte_filename=CODE_SJIS;;
 euc)     enable_multibyte_filename=CODE_EUC;;
+utf8)    enable_multibyte_filename=CODE_UTF8;;
 no)	 ;;
 *)	 AC_MSG_ERROR([you should specify auto, sjis or euc as your system filename code.]);;
 esac
