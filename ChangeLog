@@ -317,7 +317,7 @@
 	* config.h.in: ditto.
 
 	* lha.h: ditto.
-	
+
 	* configure.ac: added checking functions `fnmatch' and `basename'.
 	but not yet prepare the free fnmatch.c.
 
