@@ -239,7 +239,7 @@ AC_ARG_ENABLE(user-name-header,
   ,
   # default
   enable_user_name_header=no)
-if test "x$user_name_header" = xyes; then
+if test "x$enable_user_name_header" = xyes; then
   AC_DEFINE(INCLUDE_OWNER_NAME_IN_HEADER, 1,
             [Define to 1 if you want to use the user/group name extened header])
 fi
