@@ -1,7 +1,7 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiscated for LHa for UNIX version 1.14i
-			Wed, Oct 16 2002 by Koji Arai <jca02266@nifty.ne.jp>
+			Fri, Nov 15 2002 by Koji Arai <jca02266@nifty.ne.jp>
 
 このファイルは LHa for UNIX version 1.14i を autoconf、automake 化した
 (autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
@@ -14,11 +14,8 @@ LHa for UNIX に関しては岡本継男さんのページ
 
   コンパイルの手順は以下のようになります。
 
-    gzip -dc lha-114i.tar.gz | tar xvf -
-    cd lha-114i
-    patch -T -p1 < ../lha-1.14i-autoconf.diff
-
-    # touch aclocal.m4 Makefile.in */Makefile.in configure.ac config.h.in configure
+    gzip -dc lha-114i.autoconf-xxxx.tar.gz | tar xvf -
+    cd lha-114i.autoconf-xxx
 
     sh ./configure
     make
@@ -39,9 +36,8 @@ LHa for UNIX に関しては岡本継男さんのページ
   す。autoconf/automake のバージョンはそれぞれ autoconf 2.5x, automake
   1.6.x 以降での利用を前提としています。
 
-    gzip -dc lha-114i.tar.gz | tar xvf -
-    cd lha-114i
-    patch -p1 < ../lha-1.14i-autoconf.diff
+    gzip -dc lha-114i.autoconf-xxxx.tar.gz | tar xvf -
+    cd lha-114i.autoconf-xxxx
 
     aclocal
     automake -a
@@ -55,8 +51,8 @@ LHa for UNIX に関しては岡本継男さんのページ
 ・マクロの置き換え
 
   オリジナルの LHa for UNIX 1.14i で使われていたマクロは autoconf 標準
-  のマクロ名に置き換えられました。(IFNAMES ファイルに詳細が書かれてい
-  ます)
+  のマクロ名に置き換えられました。(olddoc/IFNAMES ファイルに詳細が書か
+  れています)
 
   IFNAMESファイルは、
      マクロ名 定義のあるファイル...  コメント
