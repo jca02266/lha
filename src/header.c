@@ -1164,6 +1164,14 @@ write_header(nafp, hdr)
 
 	if (header_level == HEADER_LEVEL2) {
 		unsigned short  hcrc;
+
+        if ((header_size + 2 & 0xff) == 0) {
+            /* cannot write zero at the first byte on level 2 header. */
+            /* adjust header size. */
+            put_byte(0);
+            header_size++;
+            printf("%d\n", header_size);
+        }
 		setup_put(data + I_HEADER_SIZE);
 		put_word(header_size + 2);
 		/* common header */
