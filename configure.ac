@@ -124,7 +124,7 @@ main()
         exit(1);
 
     if (tz.tz_minuteswest == -1)
-        exit(1);	/* no given the timezone information */
+        exit(1);	/* the timezone information is no given */
 
     exit(0);
 }], lha_cv_func_gettimeofday_2nd_arg=yes,
