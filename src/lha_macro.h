@@ -195,46 +195,6 @@
 /* ------------------------------------------------------------------------ */
 /*	Slide relation															*/
 /* ------------------------------------------------------------------------ */
-#if HAVE_LIMITS_H
-
-#include <limits.h>
-
-#else
-
-#ifndef CHAR_BIT
-#define CHAR_BIT  8
-#endif
-
-#ifndef UCHAR_MAX
-#define UCHAR_MAX				((1<<(sizeof(unsigned char)*8))-1)
-#endif
-
-#ifndef USHRT_MAX
-#define USHRT_MAX				((1<<(sizeof(unsigned short)*8))-1)
-#endif
-
-#ifndef SHRT_MAX
-#define SHRT_MAX				((1<<(sizeof(short)*8-1))-1)
-#endif
-
-#ifndef SHRT_MIN
-#define SHRT_MIN				(SHRT_MAX-USHRT_MAX)
-#endif
-
-#ifndef ULONG_MAX
-#define ULONG_MAX	((1<<(sizeof(unsigned long)*8))-1)
-#endif
-
-#ifndef LONG_MAX
-#define LONG_MAX	((1<<(sizeof(long)*8-1))-1)
-#endif
-
-#ifndef LONG_MIN
-#define LONG_MIN	(LONG_MAX-ULONG_MAX)
-#endif
-
-#endif
-
 #define LH3_DICBIT			13
 #define LH5_DICBIT			13
 #define LH6_DICBIT			15
@@ -253,28 +213,6 @@
 #else
 #define WRITE_BINARY	"w"
 #define READ_BINARY		"r"
-#endif
-
-/* ------------------------------------------------------------------------ */
-/*	Memory and String function												*/
-/* ------------------------------------------------------------------------ */
-#if STDC_HEADERS
-# include <string.h>
-#else
-# if !HAVE_STRCHR
-#  define strchr index
-#  define strrchr rindex
-# endif
-char *strchr (), *strrchr ();
-# if !HAVE_MEMCPY
-#  define memcmp(s1, s2, n) bcmp ((s1), (s2), (n))
-#  define memcpy(d, s, n) bcopy ((s), (d), (n))
-#  define memmove(d, s, n) bcopy ((s), (d), (n))
-# endif
-#endif
-
-#if HAVE_STRCASECMP
-#define strucmp(p,q)	strcasecmp((p),(q))
 #endif
 
 /* ------------------------------------------------------------------------ */
@@ -339,10 +277,6 @@ char *strchr (), *strrchr ();
 /* util.c */
 #define BUFFERSIZE	2048
 #define MAXSFXCODE	1024*64
-
-#ifndef NULL
-#define NULL		(char *)0
-#endif
 
 /* slide.c */
 /*

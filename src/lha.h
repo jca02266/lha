@@ -24,12 +24,35 @@
 #include <signal.h>
 
 #if STDC_HEADERS
+# include <string.h>
+#else
+# if !HAVE_STRCHR
+#  define strchr index
+#  define strrchr rindex
+# endif
+char *strchr (), *strrchr ();
+# if !HAVE_MEMCPY
+#  define memcmp(s1, s2, n) bcmp ((s1), (s2), (n))
+#  define memcpy(d, s, n) bcopy ((s), (d), (n))
+#  define memmove(d, s, n) bcopy ((s), (d), (n))
+# endif
+#endif
+
+#if HAVE_STRCASECMP
+#define strucmp(p,q)	strcasecmp((p),(q))
+#endif
+
+#if STDC_HEADERS
 # include <stdlib.h>
 # include <stddef.h>
 #else
 # if HAVE_STDLIB_H
 #  include <stdlib.h>
 # endif
+#endif
+
+#ifndef NULL
+#define NULL ((char *)0)
 #endif
 
 #if HAVE_UNISTD_H
@@ -106,6 +129,43 @@ typedef int gid_t;
 #define SEEK_END		2
 #endif	/* SEEK_SET */
 
+#if HAVE_LIMITS_H
+#include <limits.h>
+#else
+
+#ifndef CHAR_BIT
+#define CHAR_BIT 8
+#endif
+
+#ifndef UCHAR_MAX
+#define UCHAR_MAX ((1<<(sizeof(unsigned char)*8))-1)
+#endif
+
+#ifndef USHRT_MAX
+#define USHRT_MAX ((1<<(sizeof(unsigned short)*8))-1)
+#endif
+
+#ifndef SHRT_MAX
+#define SHRT_MAX ((1<<(sizeof(short)*8-1))-1)
+#endif
+
+#ifndef SHRT_MIN
+#define SHRT_MIN (SHRT_MAX-USHRT_MAX)
+#endif
+
+#ifndef ULONG_MAX
+#define ULONG_MAX ((1<<(sizeof(unsigned long)*8))-1)
+#endif
+
+#ifndef LONG_MAX
+#define LONG_MAX ((1<<(sizeof(long)*8-1))-1)
+#endif
+
+#ifndef LONG_MIN
+#define LONG_MIN (LONG_MAX-ULONG_MAX)
+#endif
+
+#endif /* HAVE_LIMITS_H */
 
 #include "lha_macro.h"
 
