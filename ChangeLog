@@ -1,5 +1,7 @@
 2002-11-15  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* 00readme.autoconf: updated.
+
 	* src/prototypes.h: updated.
 
 	* configure.ac, Makefile.am, olddoc/Makefile.am:
