@@ -173,13 +173,13 @@
 /* Define to 1 if `vfork' works. */
 #undef HAVE_WORKING_VFORK
 
-/* Define you want to make user/group name extended header */
+/* Define to 1 if you want to make user/group name extended header */
 #undef MAKE_USER_NAME_HEADER
 
-/* Define you want to use multibyte filename */
+/* Define to 1 if you want to use multibyte filename */
 #undef MULTIBYTE_CHAR
 
-/* Define you want to use the incremental indicator */
+/* Define to 1 if you want to use the incremental indicator */
 #undef NEED_INCREMENTAL_INDICATOR
 
 /* Name of package */
