@@ -1,3 +1,11 @@
+2002-12-23  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.ac: added a configure option: --enable-ignore-dot-files.
+
+	* config.h.in: ditto.
+
+	* src/lharc.c (parse_option): added `-X' option to ignore dot files.
+
 2002-12-17  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: should check whether system has `ssize_t'.
