@@ -318,6 +318,9 @@ typedef short   				node;
 /* ------------------------------------------------------------------------ */
 #if STDC_HEADERS
 # include <string.h>
+# define bcmp(a,b,n)    memcmp((a),(b),(n))
+# define bzero(d,n)     memset((d),0,(n))
+# define bcopy(s,d,n)   memmove((d),(s),(n))
 #else
 # ifndef HAVE_STRCHR
 #  define strchr index
@@ -325,9 +328,9 @@ typedef short   				node;
 # endif
 char *strchr (), *strrchr ();
 # ifdef HAVE_MEMCPY
-#  define bcmp(a,b,n)	memcmp((a),(b),(n))
-#  define bzero(d,n)	memset((d),0,(n))
-#  define bcopy(s,d,n)	memmove((d),(s),(n))
+#  define bcmp(a,b,n)   memcmp((a),(b),(n))
+#  define bzero(d,n)    memset((d),0,(n))
+#  define bcopy(s,d,n)  memmove((d),(s),(n))
 # endif
 #endif
 
