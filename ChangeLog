@@ -2,6 +2,10 @@
 
 	* released.
 
+	* Makefile.am: fixed EXTRA_DIST for 00readme.autoconf renaming.
+
+	* README.autoconf, 00readme.autoconf: renamed.
+
 	* configure.ac, configure.in: updated version.
 
 2002-06-04  Koji Arai  <jca02266@nifty.ne.jp>
