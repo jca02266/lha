@@ -24,6 +24,13 @@
 
 #include <signal.h>
 
+#if HAVE_PWD_H
+# include <pwd.h>
+#endif
+#if HAVE_GRP_H
+# include <grp.h>
+#endif
+
 #include "lha_macro.h"
 
 struct encode_option {
@@ -77,6 +84,8 @@ typedef struct LzHeader {
 	unsigned short  unix_mode;
 	unsigned short  unix_uid;
 	unsigned short  unix_gid;
+    char            user[256];
+    char            group[256];
 }  LzHeader;
 
 struct interfacing {
