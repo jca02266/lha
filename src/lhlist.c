@@ -132,7 +132,7 @@ static void
 list_one(hdr)
 	register LzHeader *hdr;
 {
-	register int    mode;
+	register int    mode = 0;
 	register char  *p;
 	char            method[6];
 	char modebits[11];
@@ -143,7 +143,7 @@ list_one(hdr)
 	strncpy(method, hdr->method, 5);
 	method[5] = '\0';
 
-	switch (mode = hdr->extend_type) {
+	switch (hdr->extend_type) {
 	case EXTEND_UNIX:
 		mode = hdr->unix_mode;
 
@@ -224,6 +224,9 @@ list_one(hdr)
 			p = "[TownsOS]";
 			break;
 #endif
+		case EXTEND_JAVA:
+            p = "[JAVA]";
+            break;
 			/* Ouch!  Please customize it's ID.  */
 		default:
 			p = "[unknown]";
@@ -233,7 +236,7 @@ list_one(hdr)
 		break;
 	}
 
-    switch (mode = hdr->extend_type) {
+    switch (hdr->extend_type) {
     case EXTEND_UNIX:
     case EXTEND_OS68K:
     case EXTEND_XOSK:
@@ -268,7 +271,7 @@ list_one(hdr)
 		if ((mode & UNIX_FILE_SYMLINK) != UNIX_FILE_SYMLINK)
 			printf(" %s", hdr->name);
 		else {
-			char            buf[256], *b1, *b2;
+			char buf[FILENAME_LENGTH], *b1, *b2;
 			strcpy(buf, hdr->name);
 			b1 = strtok(buf, "|");
 			b2 = strtok(NULL, "|");

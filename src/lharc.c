@@ -59,7 +59,7 @@ init_variable()		/* Added N.Watazaki */
 /* options */
 	quiet			= FALSE;
 	text_mode		= FALSE;
-	verbose			= FALSE;
+	verbose			= 0;
 	noexec			= FALSE;	/* debugging option */
 	force			= FALSE;
 	prof			= FALSE;
@@ -283,7 +283,7 @@ main(argc, argv)
 			prof = TRUE;
 			break;
 		case 'v':
-			verbose = TRUE;
+			verbose++;
 			break;
 		case 't':
 			text_mode = TRUE;

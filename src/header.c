@@ -13,7 +13,7 @@
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
-#define DUMP_HEADER 0           /* for debugging */
+#define DUMP_HEADER 1           /* for debugging */
 
 #if !STRCHR_8BIT_CLEAN
 /* should use 8 bit clean version */
@@ -71,22 +71,32 @@ calc_sum(p, len)
 static int
 dump_get_byte()
 {
-    int i;
+    int c;
 
-    printf("%02d %2d: ", get_ptr - start_ptr, 1);
-    i = GET_BYTE();
-    printf("%d(0x%02x)\n", i, i);
-    return i;
+    if (verbose_listing && verbose > 1)
+        printf("%02d %2d: ", get_ptr - start_ptr, 1);
+    c = GET_BYTE();
+    if (verbose_listing && verbose > 1) {
+        if (isprint(c))
+            printf("%d(0x%02x) '%c'\n", c, c, c);
+        else
+            printf("%d(0x%02x)\n", c, c);
+    }
+    return c;
 }
 
 static void
 dump_skip_bytes(len)
     int len;
 {
-    printf("%02d %2d:", get_ptr - start_ptr, len);
-    while (len--)
-        printf(" 0x%02x", GET_BYTE());
-    printf("\n");
+    if (verbose_listing && verbose > 1) {
+        printf("%02d %2d:", get_ptr - start_ptr, len);
+        while (len--)
+            printf(" 0x%02x", GET_BYTE());
+        printf("\n");
+    }
+    else
+        get_ptr += len;
 }
 #endif
 
@@ -98,13 +108,15 @@ get_word()
     int w;
 
 #if DUMP_HEADER
-    printf("%02d %2d: ", get_ptr - start_ptr, 2);
+    if (verbose_listing && verbose > 1)
+        printf("%02d %2d: ", get_ptr - start_ptr, 2);
 #endif
 	b0 = GET_BYTE();
 	b1 = GET_BYTE();
     w = (b1 << 8) + b0;
 #if DUMP_HEADER
-    printf("%hd(0x%04hx)\n", w, w);
+    if (verbose_listing && verbose > 1)
+        printf("%d(0x%04x)\n", w, w);
 #endif
 	return w;
 }
@@ -126,7 +138,8 @@ get_longword()
     long l;
 
 #if DUMP_HEADER
-    printf("%02d %2d: ", get_ptr - start_ptr, 4);
+    if (verbose_listing && verbose > 1)
+        printf("%02d %2d: ", get_ptr - start_ptr, 4);
 #endif
 	b0 = GET_BYTE();
 	b1 = GET_BYTE();
@@ -134,7 +147,8 @@ get_longword()
 	b3 = GET_BYTE();
     l = (b3 << 24) + (b2 << 16) + (b1 << 8) + b0;
 #if DUMP_HEADER
-    printf("%ld(0x%08lx)\n", l, l);
+    if (verbose_listing && verbose > 1)
+        printf("%ld(0x%08lx)\n", l, l);
 #endif
 	return (b3 << 24) + (b2 << 16) + (b1 << 8) + b0;
 }
@@ -158,13 +172,15 @@ get_bytes(buf, len, size)
     int i;
 
 #if DUMP_HEADER
-    printf("%02d %2d: ", get_ptr - start_ptr, len);
+    if (verbose_listing && verbose > 1)
+        printf("%02d %2d: ", get_ptr - start_ptr, len);
 #endif
     for (i = 0; i < len && i < size; i++)
         buf[i] = get_ptr[i];
     get_ptr += len;
 #if DUMP_HEADER
-    printf("\"%s\"\n", buf);
+    if (verbose_listing && verbose > 1)
+        printf("\"%*.*s\"\n", i, i, buf);
 #endif
     return i;
 }
@@ -1087,6 +1103,7 @@ get_header(fp, hdr)
     case EXTEND_OS68K:
     case EXTEND_XOSK:
     case EXTEND_UNIX:
+    case EXTEND_JAVA:
         filename_case = NONE;
         break;
 

@@ -139,6 +139,7 @@
 
 #define EXTEND_TOWNSOS			'T'
 #define EXTEND_XOSK				'X' /* OS-9 for X68000 (?) */
+#define EXTEND_JAVA				'J'
 
 /*---------------------------------------------------------------------------*/
 
