@@ -1,5 +1,7 @@
 2003-07-27  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lharc.c (parse_option): fixed typo.
+
 	* src/indicator.c (carriage_return): newly added; print CR on tty only.
 	(start_indicator): call above.
 	(finish_indicator): ditto.
