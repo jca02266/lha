@@ -241,8 +241,8 @@ typedef struct LzHeader {
     size_t          header_size;
     int             size_field_length;
     char            method[METHOD_TYPE_STORAGE];
-    long            packed_size;
-    long            original_size;
+    size_t          packed_size;
+    size_t          original_size;
     unsigned char   attribute;
     unsigned char   header_level;
     char            name[FILENAME_LENGTH];

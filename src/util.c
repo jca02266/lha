@@ -81,9 +81,9 @@ copyfile(f1, f2, size, text_flg, crcp)  /* return: size of source file */
 int
 encode_stored_crc(ifp, ofp, size, original_size_var, write_size_var)
     FILE *ifp, *ofp;
-    long size;
-    long *original_size_var;
-    long *write_size_var;
+    size_t size;
+    size_t *original_size_var;
+    size_t *write_size_var;
 {
     int save_quiet;
     unsigned int crc;
