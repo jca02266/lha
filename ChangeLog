@@ -1,3 +1,7 @@
+2002-08-18  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lhlist.c (print_stamp): use ISO 8601 date format when `lha vv'.
+
 2002-08-14  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/header.c: discarded warning message for the extended header,

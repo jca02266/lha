@@ -5,7 +5,7 @@ message testing timestamp
 $lha c0 test-tmp-h0.lzh test-[abc]
 							check $? $LINENO
 # show time stamp
-$lha v test-tmp-h0.lzh
+$lha vv test-tmp-h0.lzh
 ls -l test-[abc]
 
 $lha xw=test-tmp-h0 test-tmp-h0.lzh
@@ -25,7 +25,7 @@ test $? -ne 0
 $lha c1 test-tmp-h1.lzh test-[abc]
 							check $? $LINENO
 # show time stamp
-$lha v test-tmp-h1.lzh
+$lha vv test-tmp-h1.lzh
 ls -l test-[abc]
 
 $lha xw=test-tmp-h1 test-tmp-h1.lzh
@@ -45,7 +45,7 @@ test $? -ne 0
 $lha c1 test-tmp-h2.lzh test-[abc]
 							check $? $LINENO
 # show time stamp
-$lha v test-tmp-h2.lzh
+$lha vv test-tmp-h2.lzh
 ls -l test-[abc]
 
 $lha xw=test-tmp-h2 test-tmp-h2.lzh

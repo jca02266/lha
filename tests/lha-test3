@@ -11,7 +11,12 @@ $lha co6g test-tmp-m6g.lzh test-a test-b test-c
 							check $? $LINENO
 $lha co7g test-tmp-m7g.lzh test-a test-b test-c
 							check $? $LINENO
-$lha v test-tmp-m0g.lzh
+$lha v test-tmp-m0g.lzh &&
+$lha v test-tmp-m1g.lzh &&
+$lha v test-tmp-m5g.lzh &&
+$lha v test-tmp-m6g.lzh &&
+$lha v test-tmp-m7g.lzh
+							check $? $LINENO
 $lha v test-tmp-m0g.lzh | grep 'generic.*lh0'
 							check $? $LINENO
 $lha v test-tmp-m1g.lzh | grep 'generic.*lh1'
