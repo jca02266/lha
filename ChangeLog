@@ -1,5 +1,10 @@
 2002-07-14  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* re-released.
+
+	* src/header.c (get_header): archive path separator should be
+	converted always.
+
 	* released.
 
 	* configure.ac: updated version.
