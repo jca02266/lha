@@ -9,8 +9,6 @@
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
-#include <assert.h>
-
 #if HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
@@ -295,9 +293,9 @@ encode_start_st1( /* void */ )
     case LZHUFF6_DICBIT: pbit = 5; np = LZHUFF6_DICBIT + 1; break;
     case LZHUFF7_DICBIT: pbit = 5; np = LZHUFF7_DICBIT + 1; break;
     default:
-        assert(0);
+        fatal_error("Cannot use %d bytes dictionary", 1 << dicbit);
     }
-        
+
     for (i = 0; i < NC; i++)
         c_freq[i] = 0;
     for (i = 0; i < np; i++)
@@ -483,7 +481,7 @@ decode_start_st1( /* void */ )
     case LZHUFF6_DICBIT: pbit = 5; np = LZHUFF6_DICBIT + 1; break;
     case LZHUFF7_DICBIT: pbit = 5; np = LZHUFF7_DICBIT + 1; break;
     default:
-        assert(0);
+        fatal_error("Cannot use %d bytes dictionary", 1 << dicbit);
     }
 
     init_getbits();
