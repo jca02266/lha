@@ -13,6 +13,8 @@
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
+#define DUMP_HEADER 0           /* for debugging */
+
 #if !STRCHR_8BIT_CLEAN
 /* should use 8 bit clean version */
 #undef strchr
@@ -23,8 +25,18 @@
 
 /* ------------------------------------------------------------------------ */
 static char    *get_ptr;
+#define GET_BYTE()		(*get_ptr++ & 0xff)
+
+#if DUMP_HEADER
+static char    *start_ptr;
+#define setup_get(PTR)  (start_ptr = get_ptr = (PTR))
+#define get_byte()      dump_get_byte()
+#define skip_bytes(len) dump_skip_bytes(len)
+#else
 #define setup_get(PTR)	(get_ptr = (PTR))
-#define get_byte()		(*get_ptr++ & 0xff)
+#define get_byte()		GET_BYTE()
+#define skip_bytes(len) (get_ptr += (len))
+#endif
 #define put_ptr			get_ptr
 #define setup_put(PTR)	(put_ptr = (PTR))
 #define put_byte(c)		(*put_ptr++ = (char)(c))
@@ -55,15 +67,46 @@ calc_sum(p, len)
 	return sum & 0xff;
 }
 
+#if DUMP_HEADER
+static int
+dump_get_byte()
+{
+    int i;
+
+    printf("%02d %2d: ", get_ptr - start_ptr, 1);
+    i = GET_BYTE();
+    printf("%d(0x%02x)\n", i, i);
+    return i;
+}
+
+static void
+dump_skip_bytes(len)
+    int len;
+{
+    printf("%02d %2d:", get_ptr - start_ptr, len);
+    while (len--)
+        printf(" 0x%02x", GET_BYTE());
+    printf("\n");
+}
+#endif
+
 /* ------------------------------------------------------------------------ */
 static unsigned short
 get_word()
 {
 	int             b0, b1;
+    unsigned short w;
 
-	b0 = get_byte();
-	b1 = get_byte();
-	return (b1 << 8) + b0;
+#if DUMP_HEADER
+    printf("%02d %2d: ", get_ptr - start_ptr, 2);
+#endif
+	b0 = GET_BYTE();
+	b1 = GET_BYTE();
+    w = (b1 << 8) + b0;
+#if DUMP_HEADER
+    printf("%hd(0x%04hx)\n", w, w);
+#endif
+	return w;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -80,11 +123,19 @@ static long
 get_longword()
 {
 	long            b0, b1, b2, b3;
+    long l;
 
-	b0 = get_byte();
-	b1 = get_byte();
-	b2 = get_byte();
-	b3 = get_byte();
+#if DUMP_HEADER
+    printf("%02d %2d: ", get_ptr - start_ptr, 4);
+#endif
+	b0 = GET_BYTE();
+	b1 = GET_BYTE();
+	b2 = GET_BYTE();
+	b3 = GET_BYTE();
+    l = (b3 << 24) + (b2 << 16) + (b1 << 8) + b0;
+#if DUMP_HEADER
+    printf("%ld(0x%08lx)\n", l, l);
+#endif
 	return (b3 << 24) + (b2 << 16) + (b1 << 8) + b0;
 }
 
@@ -105,9 +156,16 @@ get_bytes(buf, len, size)
     int len, size;
 {
     int i;
+
+#if DUMP_HEADER
+    printf("%02d %2d: ", get_ptr - start_ptr, len);
+#endif
     for (i = 0; i < len && i < size; i++)
         buf[i] = get_ptr[i];
     get_ptr += len;
+#if DUMP_HEADER
+    printf("\"%s\"\n", buf);
+#endif
     return i;
 }
 
@@ -454,36 +512,42 @@ unix_to_generic_stamp(t)
  *             size  field name
  *  --------------------------------
  *  base header:         :
- *                2  next-header size  [*1]
+ *           2 or 4  next-header size  [*1]
  *  --------------------------------------
  *  ext header:   1  ext-type            ^
  *                ?  contents            | [*1] next-header size
- *                2  next-header size    v
+ *           2 or 4  next-header size    v
  *  --------------------------------------
  *
+ *  on level 0, 1, 2 header:
+ *    size field is 2 bytes
+ *  on level 3 header:
+ *    size field is 4 bytes
  */
-static int
+static long
 get_extended_header(fp, hdr, header_size)
     FILE *fp;
     LzHeader *hdr;
-    int header_size;
+    long header_size;
 {
     char data[LZHEADER_STORAGE];
     int name_length;
     char dirname[FILENAME_LENGTH];
     int dir_length = 0;
     int i;
-    int whole_size = header_size;
+    long whole_size = header_size;
+    int ext_type;
+    int n = 1 + hdr->size_field_length; /* `ext-type' + `next-header size' */
 
     if (hdr->header_level == 0)
         return 0;
 
     name_length = strlen(hdr->name);
 
-    for (; header_size != 0; whole_size += header_size = get_word()) {
+    while (header_size) {
         setup_get(data);
         if (sizeof(data) < header_size) {
-            error("header size too large.");
+            error("header size (%ld) too large.", header_size);
             exit(1);
         }
 
@@ -491,20 +555,21 @@ get_extended_header(fp, hdr, header_size)
             error("Invalid header (LHa file ?)");
             return -1;
         }
-        switch (get_byte()) {
+        ext_type = get_byte();
+        switch (ext_type) {
         case 0:
-            /* header crc */
-            setup_get(get_ptr + header_size - 3); /* FIXME: ignored? */
+            /* header crc (CRC-16) */
+            skip_bytes(header_size - n); /* FIXME: ignored? */
             break;
         case 1:
             /* filename */
             name_length =
-                get_bytes(hdr->name, header_size-3, sizeof(hdr->name)-1);
+                get_bytes(hdr->name, header_size-n, sizeof(hdr->name)-1);
             hdr->name[name_length] = 0;
             break;
         case 2:
             /* directory */
-            dir_length = get_bytes(dirname, header_size-3, sizeof(dirname)-1);
+            dir_length = get_bytes(dirname, header_size-n, sizeof(dirname)-1);
             dirname[dir_length] = 0;
             break;
         case 0x40:
@@ -529,14 +594,14 @@ get_extended_header(fp, hdr, header_size)
         case 0x52:
             /* UNIX group name */
             if (hdr->extend_type == EXTEND_UNIX) {
-                i = get_bytes(hdr->group, header_size-3, sizeof(hdr->group)-1);
+                i = get_bytes(hdr->group, header_size-n, sizeof(hdr->group)-1);
                 hdr->group[i] = '\0';
             }
             break;
         case 0x53:
             /* UNIX user name */
             if (hdr->extend_type == EXTEND_UNIX) {
-                i = get_bytes(hdr->user, header_size-3, sizeof(hdr->user)-1);
+                i = get_bytes(hdr->user, header_size-n, sizeof(hdr->user)-1);
                 hdr->user[i] = '\0';
             }
             break;
@@ -547,9 +612,17 @@ get_extended_header(fp, hdr, header_size)
             break;
         default:
             /* other headers */
-            setup_get(get_ptr + header_size - 3);
+            if (verbose)
+                warning("unknown extended header 0x%02x", ext_type);
+            skip_bytes(header_size - n);
             break;
         }
+
+    next:
+        if (hdr->size_field_length == 2)
+            whole_size += header_size = get_word();
+        else
+            whole_size += header_size = get_longword();
     }
 
     if (dir_length) {
@@ -585,7 +658,7 @@ get_extended_header(fp, hdr, header_size)
  *    20      1  level (0x00 fixed)                |
  *    21      1  name length                       |
  *    22      X  pathname                          |
- * X +22      2  file crc                          |
+ * X +22      2  file crc (CRC-16)                 |
  * X +24      Y  ext-header(old style)             v
  * -------------------------------------------------
  * X+Y+24   [*2] data
@@ -620,6 +693,7 @@ get_header_level0(fp, hdr, data)
     int i;
     int extend_size;
 
+    hdr->size_field_length = 2; /* in bytes */
     hdr->header_size = header_size = get_byte();
     checksum = get_byte();
 
@@ -685,7 +759,7 @@ get_header_level0(fp, hdr, data)
         }
     }
     if (extend_size > 0)
-        setup_get(get_ptr + extend_size);
+        skip_bytes(extend_size);
 
     return TRUE;
 }
@@ -708,7 +782,7 @@ get_header_level0(fp, hdr, data)
  *    20       1  level (0x01 fixed)               |
  *    21       1  name length                      |
  *    22       X  filename                         |
- * X+ 22       2  file crc                         |
+ * X+ 22       2  file crc (CRC-16)                |
  * X+ 24       1  OS ID                            |
  * X +25       Y  ???                              |
  * X+Y+25      2  next-header size                 v
@@ -732,6 +806,7 @@ get_header_level1(fp, hdr, data)
     int name_length;
     int i, dummy;
 
+    hdr->size_field_length = 2; /* in bytes */
     hdr->header_size = header_size = get_byte();
     checksum = get_byte();
 
@@ -767,7 +842,7 @@ get_header_level1(fp, hdr, data)
 
     dummy = header_size+2 - name_length - 27;
     if (dummy > 0)
-        setup_get(get_ptr + dummy); /* skip old style extend header */
+        skip_bytes(dummy); /* skip old style extend header */
 
     extend_size = get_word();
     extend_size = get_extended_header(fp, hdr, extend_size);
@@ -795,9 +870,9 @@ get_header_level1(fp, hdr, data)
  *     7       4  packed size       [*2]           |
  *    11       4  original size                    |
  *    15       4  time                             |
- *    19       1  RESERVED                         | [*1] total header size
+ *    19       1  RESERVED (0x20 fixed)            | [*1] total header size
  *    20       1  level (0x02 fixed)               |      (X+26+(1))
- *    21       2  file crc                         |
+ *    21       2  file crc (CRC-16)                |
  *    23       1  OS ID                            |
  *    24       2  next-header size                 |
  * -----------------------------------             |
@@ -821,6 +896,7 @@ get_header_level2(fp, hdr, data)
     int header_size, extend_size;
     int padding;
 
+    hdr->size_field_length = 2; /* in bytes */
     hdr->header_size = header_size = get_word();
 
     if (fread(data + I_NAME_LENGTH, 26 - I_NAME_LENGTH, 1, fp) == 0) {
@@ -851,6 +927,80 @@ get_header_level2(fp, hdr, data)
 
     padding = header_size - 26 - extend_size;
     while (padding--)           /* padding should be 0 or 1 */
+        fgetc(fp);
+
+    /* FIXME: no collate the header CRC */
+
+    return TRUE;
+}
+
+/*
+ * level 3 header
+ *
+ *
+ * offset   size  field name
+ * --------------------------------------------------
+ *     0       2  size field length (4 fixed)      ^
+ *     2       5  method ID                        |
+ *     7       4  packed size       [*2]           |
+ *    11       4  original size                    |
+ *    15       4  time                             |
+ *    19       1  RESERVED (0x20 fixed)            | [*1] total header size
+ *    20       1  level (0x03 fixed)               |      (X+32)
+ *    21       2  file crc (CRC-16)                |
+ *    23       1  OS ID                            |
+ *    24       4  total header size [*1]           |
+ *    28       4  next-header size                 |
+ * -----------------------------------             |
+ *    32       X  ext-header                       |
+ *                 :                               v
+ * -------------------------------------------------
+ * X +32          data                             ^
+ *                 :                               | [*2] packed size
+ *                 :                               v
+ * -------------------------------------------------
+ *
+ */
+static int
+get_header_level3(fp, hdr, data)
+    FILE *fp;
+    LzHeader *hdr;
+    char *data;
+{
+    long header_size, extend_size;
+    int padding;
+
+    hdr->size_field_length = get_word();
+
+    if (fread(data + I_NAME_LENGTH, 32 - I_NAME_LENGTH, 1, fp) == 0) {
+        error("Invalid header (LHarc file ?)");
+        return FALSE;   /* finish */
+    }
+
+    get_bytes(hdr->method, 5, sizeof(hdr->method));
+    hdr->packed_size = get_longword();
+    hdr->original_size = get_longword();
+    hdr->unix_last_modified_stamp = get_longword();
+    hdr->attribute = get_byte(); /* reserved */
+    hdr->header_level = get_byte();
+
+    /* defaults for other type */
+    hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
+    hdr->unix_gid = 0;
+    hdr->unix_uid = 0;
+
+    hdr->has_crc = TRUE;
+    hdr->crc = get_word();
+    hdr->extend_type = get_byte();
+    hdr->header_size = header_size = get_longword();
+    extend_size = get_longword();
+
+    extend_size = get_extended_header(fp, hdr, extend_size);
+    if (extend_size == -1)
+        return FALSE;
+
+    padding = header_size - 32 - extend_size;
+    while (padding--)         /* padding should be 0 */
         fgetc(fp);
 
     /* FIXME: no collate the header CRC */
@@ -898,6 +1048,10 @@ get_header(fp, hdr)
         break;
     case 2:
         if (get_header_level2(fp, hdr, data) == FALSE)
+            return FALSE;
+        break;
+    case 3:
+        if (get_header_level3(fp, hdr, data) == FALSE)
             return FALSE;
         break;
     default:
