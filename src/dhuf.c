@@ -253,14 +253,16 @@ encode_c_dyn(c)
 	do {
 		bits >>= 1;
 		if (p & 1) {
-			bits |= 0x8000;
+			bits |= 0x80000000L;
 		}
-		if (++cnt == 16) {
-			putcode(16, bits);
-			cnt = bits = 0;
-		}
+		cnt++;
 	} while ((p = parent[p]) != ROOT_C);
-	putcode(cnt, bits);
+	if (cnt <= 16) {
+		putcode(cnt, bits >> 16);
+	} else {
+		putcode(16, bits >> 16);
+		putbits(cnt - 16, bits);
+	}
 	if (d >= 0)
 		putbits(8, d);
 	update_c(c);
