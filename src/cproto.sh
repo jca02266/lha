@@ -46,7 +46,7 @@ cat <<END
 END
 
 cproto $CPROTO_FLAGS $CPPFLAGS $SOURCES |
-	grep -v -e '^int main ' | sed -e 's/dummy__/interrupt/'
+	sed -e '/^int main /d' -e 's/dummy__/interrupt/'
 
 cat <<END
 
