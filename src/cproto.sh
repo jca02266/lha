@@ -25,7 +25,7 @@ cat <<END
 RETSIGTYPE interrupt(int signo);
 /* util.c */
 #if !HAVE_MEMMOVE
-void *memmove P_(void *dst, const void *src, size_t cnt)
+void *memmove P_((void *dst, const void *src, size_t cnt));
 #endif
 #if !HAVE_STRDUP
 char *strdup P_((char *buf));
