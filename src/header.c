@@ -366,83 +366,32 @@ convert_filename(name, len, size,
  * returns bogus timezone information, try FTIME, MKTIME, TIMELOCAL or TZSET.
  */
 
-/* choose one */
-#if defined(HAVE_MKTIME)
-#ifdef HAVE_TIMELOCAL
-#undef HAVE_TIMELOCAL
-#endif
-#endif				/* defined(HAVE_MKTIME) */
-
-#if defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL)
-#ifdef HAVE_TZSET
-#undef HAVE_TZSET
-#endif
-#endif				/* defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) */
-
-#if defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) || defined(HAVE_TZSET)
-#ifdef HAVE_FTIME
-#undef HAVE_FTIME
-#endif
-#endif
-
-#if defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) || defined(HAVE_TZSET) || defined(HAVE_FTIME)
-#ifdef HAVE_GETTIMEOFDAY
-#undef HAVE_GETTIMEOFDAY
-#endif
-#else
-#ifndef HAVE_GETTIMEOFDAY
-#define HAVE_GETTIMEOFDAY		/* use gettimeofday() */
-#endif
-#endif
-
 #ifdef HAVE_FTIME
 #include <sys/timeb.h>
 #endif
 
-/*
- * You may define as : #define TIMEZONE_HOOK		\ extern long
- * timezone ;	\ extern void tzset();
- */
-#ifdef TIMEZONE_HOOK
-TIMEZONE_HOOK
-/* Which do you like better, `TIMEZONE_HOOK' or `TIMEZONE_HOOK;' ? */
-#endif
-
-#if defined(HAVE_TZSET) && defined(_MINIX)
-extern long     timezone;		/* not defined in time.h */
-#endif
-
-/* ------------------------------------------------------------------------ */
-#if defined(HAVE_FTIME) || defined(HAVE_GETTIMEOFDAY) || defined(HAVE_TZSET)
+#if !defined(HAVE_MKTIME) && !defined(HAVE_TIMELOCAL)
 static long
 gettz()
-#ifdef HAVE_TZSET
 {
-	tzset();
-	return timezone;
-}
+#ifdef HAVE_TZSET
+#if defined(_MINIX)
+    extern long     timezone;		/* not defined in time.h */
 #endif
 
-/* ------------------------------------------------------------------------ */
-#if !defined(HAVE_TZSET) && defined(HAVE_FTIME)
-{
+	tzset();
+	return timezone;
+#elif HAVE_FTIME        
 	struct timeb    buf;
 
 	ftime(&buf);
 	return buf.timezone * 60L;
-}
-#endif
-
-/* ------------------------------------------------------------------------ */
-#if !defined(HAVE_TZSET) && !defined(HAVE_FTIME)	/* maybe defined(HAVE_GETTIMEOFDAY) */
-{
-#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+#elif HAVE_STRUCT_TM_TM_GMTOFF
 	time_t tt;
 
 	time(&tt);
 	return -localtime(&tt)->tm_gmtoff;
-#else /* HAVE_STRUCT_TM_TM_GMTOFF */
-#if GETTIMEOFDAY_HAS_2ND_ARG
+#elif GETTIMEOFDAY_HAS_2ND_ARG
 	struct timeval  tp;
 	struct timezone tzp;
 	gettimeofday(&tp, &tzp);/* specific to 4.3BSD */
@@ -456,18 +405,15 @@ gettz()
     CANNOT GET TIMEZONE INFORMATION ON YOUR SYSTEM.
     TAKE THE ANOTHER WAY.
 #endif
-#endif /* HAVE_STRUCT_TM_TM_GMTOFF */
 }
 #endif
-#endif				/* defined(HAVE_FTIME) || defined(HAVE_GETTIMEOFDAY) ||
-                     * defined(HAVE_TZSET) */
 
 /* ------------------------------------------------------------------------ */
 static          time_t
 generic_to_unix_stamp(t)
 	long            t;
-#if defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL)
 {
+#if defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL)
 	struct tm       dostm;
 
 	/*
@@ -483,19 +429,15 @@ generic_to_unix_stamp(t)
 	dostm.tm_mday = t >> 16 & 0x1f;
 	dostm.tm_mon = (t >> (16+5) & 0x0f) - 1;	/* 0..11 */
 	dostm.tm_year = (t >> (16+9) & 0x7f) + 80;
-#if 0
-	dostm.tm_isdst = 0;	/* correct? */
-#endif
-	dostm.tm_isdst = -1;    /* correct? */
-#ifdef HAVE_MKTIME
+	dostm.tm_isdst = -1;
+
+#if HAVE_MKTIME
 	return (time_t) mktime(&dostm);
-#else				/* maybe defined(HAVE_TIMELOCAL) */
+#else /* HAVE_TIMELOCAL is defined */
 	return (time_t) timelocal(&dostm);
 #endif
-}
 
 #else				/* defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) */
-{
 	int             year, month, day, hour, min, sec;
 	long            longtime;
 	static unsigned int dsboy[12] = {0, 31, 59, 90, 120, 151,
@@ -534,8 +476,8 @@ generic_to_unix_stamp(t)
 
 	/* LONGTIME is now the time in seconds, since 1970/01/01 00:00:00.  */
 	return (time_t) longtime;
-}
 #endif				/* defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) */
+}
 
 /* ------------------------------------------------------------------------ */
 static long
