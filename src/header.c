@@ -1126,7 +1126,7 @@ get_header(fp, hdr)
             /* hdr->name is symbolic link name */
             /* hdr->realname is real name */
             *p = 0;
-            strncpy(hdr->realname, p+1, sizeof(hdr->realname));
+            strcpy(hdr->realname, p+1);
         }
         else
             error("unknown symlink name \"%s\"", hdr->name);
