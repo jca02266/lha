@@ -1,5 +1,12 @@
 2002-05-27  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* README.autoconf: added description abount `get_filename_from_stdin' feature.
+
+	* tests/lha-test.in: remove test around the `get_filename_from_stdin'.
+
+	* src/lharc.c (main): never set `get_filename_from_stdin` to true.
+	`echo foo | lha x foo.lzh' does not work like original LHa.
+
 	* tests/lha-test.in: replace with #!/bin/bash.
 
 	* README.autoconf: added E-Mail address.
