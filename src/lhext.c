@@ -440,9 +440,10 @@ cmd_extract()
 			if (afp != stdin)
                 fseek(afp, pos + hdr.packed_size, SEEK_SET);
             else {
-                long pos2 = ftell(afp);
-                int i = pos + hdr.packed_size - pos2;
-				while (i-- > 0) fgetc(afp);
+                /* FIXME: assume that the extract_one() has read
+                   packed_size bytes from stdin. */
+                long i = 0;
+				while (i--) fgetc(afp);
             }
 		} else {
 			if (afp != stdin)
