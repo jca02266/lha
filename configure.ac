@@ -31,7 +31,7 @@ AC_STRUCT_TM
 AC_STRUCT_TIMEZONE
 
 AC_CHECK_SIZEOF(long)
-AC_CHECK_TYPES([uid_t, gid_t, long long, uint64_t])
+AC_CHECK_TYPES([uid_t, gid_t, long long, uint64_t, ssize_t])
 AC_CHECK_MEMBERS([struct tm.tm_gmtoff, struct stat.st_ino],,,
 [
 #if HAVE_SYS_TYPES_H
@@ -63,10 +63,6 @@ AC_CHECK_FUNCS(mkdir rmdir ftruncate chsize lchown mkstemp link)
 AC_CHECK_FUNCS(getpwuid getgrgid getpwnam getgrnam)
 AC_CHECK_FUNCS(iconv basename)
 AC_REPLACE_FUNCS(vsnprintf fnmatch)
-
-if test x$ac_cv_func_fnmatch_works != xyes; then
-  AC_LIBOBJ(fnmatch)
-fi
 
 if test $ac_header_dirent = no; then
   AC_LIBOBJ(lhdir)

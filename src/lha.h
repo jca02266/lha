@@ -100,6 +100,10 @@ typedef int gid_t;
 # endif
 #endif
 
+#if !HAVE_SSIZE_T
+typedef long ssize_t;
+#endif
+
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
 # include <time.h>
