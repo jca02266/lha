@@ -7,17 +7,26 @@ CPPFLAGS='-DSTDC_HEADERS=1
 	-DHAVE_STRDUP=0
 	-DHAVE_MEMSET=0
 	-DHAVE_MEMMOVE=0
+	-DHAVE_STRCASECMP=0
 	-DMULTIBYTE_FILENAME=1
-	-DRETSIGTYPE=void
+	-Dinterrupt=dummy
 	-DNEED_INCREMENTAL_INDICATOR=1
+	-D__builtin_va_list=int
 	-D__extension__=
 '
+# `interrupt' is the reserved word for cproto.
 
 SOURCES='append.c bitio.c crcio.c dhuf.c extract.c header.c
 	huf.c larc.c lhadd.c lharc.c lhext.c
 	lhlist.c maketbl.c maketree.c patmatch.c
 	shuf.c slide.c util.c
 '
+
+test -f prototypes.h && mv -f prototypes.h prototypes.h.bak
+
+cat <<END >prototypes.h
+typedef void RETSIGTYPE;
+END
 
 exec 5>&1 > prototypes.h.tmp
 
@@ -31,12 +40,12 @@ cat <<END
 
 END
 
-cproto $CPROTO_FLAGS $CPPFLAGS $SOURCES | grep -v '^int main '
+cproto $CPROTO_FLAGS $CPPFLAGS $SOURCES | grep -v -e '^int main ' -e dummy
 
 cat <<END
 
 /* lharc.c */
-RETSIGTYPE interrupt(int signo);
+RETSIGTYPE interrupt P_((int signo));
 /* util.c */
 #if !HAVE_MEMMOVE
 void *memmove P_((void *dst, const void *src, size_t cnt));
@@ -46,6 +55,9 @@ char *strdup P_((char *buf));
 #endif
 #if !HAVE_MEMSET
 char *memset P_((char *s, int c, int n));
+#endif
+#if !HAVE_STRCASECMP
+int strcasecmp P_((const char *p1, const char *p2));
 #endif
 
 /* vsnprintf.c */
@@ -58,7 +70,8 @@ int snprintf P_((char *str, size_t n, char const *fmt, ...));
 END
 
 exec 1>&5
-if ! cmp prototypes.h.tmp prototypes.h; then
-  mv -f prototypes.h prototypes.h.bak
+if test -f prototypes.h.bak && cmp -s prototypes.h.tmp prototypes.h.bak; then
+  mv -f prototypes.h.bak prototypes.h
+else
   mv -f prototypes.h.tmp prototypes.h
 fi
