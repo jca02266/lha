@@ -1,3 +1,13 @@
+2002-07-25  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lharc.c (main): exit with status 1 (meaning failure) when the
+	function error() was called.
+	(error): ditto.
+
+	* src/lha.h (LzHeader.last_modified_stamp;): no longer used.
+
+	* src/header.c (get_header): re-written.
+
 2002-07-21  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/lha-test10: change grep pattern so that pattern matches
