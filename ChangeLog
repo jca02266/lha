@@ -1,5 +1,10 @@
 2002-06-30  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: fixed typo.
+
+	* src/header.c (sjis_to_utf8): fixed typo.
+	(utf8_to_sjis): fixed typo.
+	
 	* src/lhadd.c (cmd_add): Missed to adjust the index when specified
 	adding file is same as the generating archive file.
 
