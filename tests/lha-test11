@@ -1,0 +1,92 @@
+# -*- shell-script -*-
+message testing the long filename support
+# long long filename
+# assume that we are allowed to create 255 bytes filename (not path name).
+# the _POSIX_PATH_MAX (the maximam length of relative path name) value may
+# be 255.
+#
+# Note that on Cygwin/MinGW, on NTFS, the maximam length of whole path
+# name (contain the drive letter) is limited probably. it seems to be 259 (?)
+#
+mkdir test-tmp1
+case $(uname) in
+CYGWIN*)
+  # 190 bytes
+  file=1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 ;;
+*)
+  # 255 bytes
+  file=123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345 ;;
+esac
+(cd test-tmp1 && touch $file)
+							check $? $LINENO
+$lha cg  test-tmp1-hg.lzh test-tmp1 2> test-stderr
+							check $? $LINENO
+# on Cygwin/MinGW, skip this test.
+# the length of pathname does not amount to the limit of level 0 header.
+case $(uname) in
+CYGWIN*) true ;;
+*) test -s test-stderr ;;
+esac
+							check $? $LINENO
+$lha c0  test-tmp1-h0.lzh test-tmp1 2> test-stderr
+							check $? $LINENO
+# on Cygwin/MinGW, skip this test.
+# the length of pathname does not amount to the limit of level 0 header.
+case $(uname) in
+CYGWIN*) true ;;
+*) test -s test-stderr ;;
+esac
+							check $? $LINENO
+$lha c1  test-tmp1-h1.lzh test-tmp1
+ 							check $? $LINENO
+$lha c2  test-tmp1-h2.lzh test-tmp1
+							check $? $LINENO
+$lha xw=test-tmp1-hg  test-tmp1-hg.lzh
+							check $? $LINENO
+$lha xw=test-tmp1-h0  test-tmp1-h0.lzh
+							check $? $LINENO
+$lha xw=test-tmp1-h1  test-tmp1-h1.lzh
+							check $? $LINENO
+$lha xw=test-tmp1-h2  test-tmp1-h2.lzh
+							check $? $LINENO
+# for logging
+$lha vv test-tmp1-hg.lzh
+							check $? $LINENO
+$lha vv test-tmp1-h0.lzh
+							check $? $LINENO
+$lha vv test-tmp1-h1.lzh
+							check $? $LINENO
+$lha vv test-tmp1-h2.lzh
+							check $? $LINENO
+$lha vv test-tmp1-hg.lzh | egrep '\[0\].?$'
+							check $? $LINENO
+$lha vv test-tmp1-h0.lzh | egrep '\[0\].?$'
+							check $? $LINENO
+$lha vv test-tmp1-h1.lzh | egrep '\[1\].?$'
+							check $? $LINENO
+$lha vv test-tmp1-h2.lzh | egrep '\[2\].?$'
+							check $? $LINENO
+test -f test-tmp1-hg/$(echo test-tmp1/$file | cut -c-233)
+							check $? $LINENO
+test -f test-tmp1-h0/$(echo test-tmp1/$file | cut -c-221)
+							check $? $LINENO
+test -f test-tmp1-h1/test-tmp1/$file
+							check $? $LINENO
+test -f test-tmp1-h2/test-tmp1/$file
+							check $? $LINENO
+# the header size is 0x101 instead of 0x100 on level 2 header
+file=test-tmp9012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+touch $file
+							check $? $LINENO
+$lha c2 test-tmp4-h2.lzh $file
+							check $? $LINENO
+$lha vv test-tmp4-h2.lzh
+							check $? $LINENO
+$lha vv test-tmp4-h2.lzh | egrep '\[2\].?$'
+							check $? $LINENO
+$lha xw=test-tmp4 test-tmp4-h2.lzh
+							check $? $LINENO
+test x"`/bin/ls -l test-tmp4-h2.lzh | awk '{print $5}'`" = x258
+							check $? $LINENO
+test -f test-tmp4/$file
+							check $? $LINENO
