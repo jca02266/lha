@@ -1,6 +1,7 @@
 2002-06-11  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lharc.c: index was wrong.
+	  reported on LHa BBS (see <http://www2m.biglobe.ne.jp/~dolphin/>).
 
 2002-06-06  Koji Arai  <jca02266@nifty.ne.jp>
 
