@@ -1,5 +1,11 @@
 2002-05-29  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.in, configure.ac, config.h.in: checks having uid_t/gid_t.
+
+	* src/lha.h: typedef `int' if no have uid_t/gid_t.
+
+	* src/lhext.c (adjust_info): mismatched braces.
+
 	* header.doc.euc: around user/group name extention.
 
 	* configure.in, configure.ac, config.h.in: checks having
