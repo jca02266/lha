@@ -176,7 +176,7 @@ LHa for UNIX に関しては岡本継男さんのページ
 
     o level 2 header のバグ
 
-      total header size (アーカイブヘッダの先頭 2 byte) が 256 以上に
+      total header size (アーカイブヘッダの先頭 2 byte) が 256 以上
       であるアーカイブを正しく読むことができませんでした。また、total
       header size がちょうど 256 になるような不正なアーカイブを作成し
       ていました。LHA のヘッダ仕様ではヘッダ先頭が 0 であればアーカイ
@@ -270,3 +270,4 @@ LHa for UNIX に関しては岡本継男さんのページ
   拡張ヘッダ Windows timestamp (0x41) を解釈するようにしました。(level
   1 header のみ)。level 2 以上では、基本ヘッダに time_t の情報があるの
   で、拡張ヘッダの方は無視します。
+  
