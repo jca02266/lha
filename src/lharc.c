@@ -898,11 +898,11 @@ cleaning_files(v_filec, v_filev)
     /* flags & 0x02 :   1: directory, 0 : regular file */
     /* flags & 0x04 :   1: need delete */
 
-    
     for (i = 0; i < filec; i++)
         if (GETSTAT(filev[i], &stbuf) < 0) {
             flags[i] = 0x04;
-            warning("Cannot access \"%s\", ignored.", filev[i]);
+            warning("Cannot access \"%s\" : %s; ignored.", filev[i],
+                    strerror(errno));
         }
         else {
             if (is_regularfile(&stbuf))
@@ -912,7 +912,7 @@ cleaning_files(v_filec, v_filev)
 #ifdef S_IFLNK
             else if (is_symlink(&stbuf)) /* t.okamoto */
                 flags[i] = 0x00;
-#endif          
+#endif
             else {
                 flags[i] = 0x04;
                 warning("Cannot archive \"%s\", ignored.", filev[i]);
@@ -1007,7 +1007,7 @@ find_files(name, v_filec, v_filev)
               n != 2))  ) {
             add_sp(&sp, newname, len+n+1);
         }
-#else       
+#else
         if ((dp->d_ino != 0) &&
         /* exclude '.' and '..' */
             ((dp->d_name[0] != '.') ||
