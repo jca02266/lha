@@ -1,5 +1,7 @@
 2002-05-19  Koji Arai  <arai@fgsd.mt.nec.co.jp>
 
+	* src/lharc.c (xstrdup): fix typo.
+
 	* configure.ac: added for autoconf-2.53.
 
 	* config.h.in: regenerate by autoconf-2.53.
