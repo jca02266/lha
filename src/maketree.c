@@ -34,7 +34,6 @@ make_code(nchar, bitlen, code, leaf_num)
     }
 }
 
-/* ------------------------------------------------------------------------ */
 static void
 count_leaf(node, nchar, leaf_num, depth) /* call with node = root */
     int node;
@@ -50,7 +49,6 @@ count_leaf(node, nchar, leaf_num, depth) /* call with node = root */
     }
 }
 
-/* ------------------------------------------------------------------------ */
 static void
 make_len(root, nchar, bitlen, sort, leaf_num)
     int root;
@@ -93,7 +91,6 @@ make_len(root, nchar, bitlen, sort, leaf_num)
     }
 }
 
-/* ------------------------------------------------------------------------ */
 /* priority queue; send i-th entry down heap */
 static void
 downheap(i, heap, heapsize, freq)
@@ -116,7 +113,6 @@ downheap(i, heap, heapsize, freq)
     heap[i] = k;
 }
 
-/* ------------------------------------------------------------------------ */
 /* make tree, calculate bitlen[], return root */
 short
 make_tree(nchar, freq, bitlen, code)
@@ -127,7 +123,6 @@ make_tree(nchar, freq, bitlen, code)
 {
     short i, j, avail, root;
     unsigned short *sort;
-    unsigned short leaf_num[17];
 
     short heap[NC + 1];       /* NC >= nchar */
     size_t heapsize;
@@ -168,15 +163,19 @@ make_tree(nchar, freq, bitlen, code)
         right[root] = j;
     } while (heapsize > 1);
 
-    /* make leaf_num */
-    memset(leaf_num, 0, sizeof(leaf_num));
-    count_leaf(root, nchar, leaf_num, 0);
+    {
+        unsigned short leaf_num[17];
 
-    /* make bitlen */
-    make_len(root, nchar, bitlen, code, leaf_num);
+        /* make leaf_num */
+        memset(leaf_num, 0, sizeof(leaf_num));
+        count_leaf(root, nchar, leaf_num, 0);
 
-    /* make code table */
-    make_code(nchar, bitlen, code, leaf_num);
+        /* make bitlen */
+        make_len(root, nchar, bitlen, code, leaf_num);
+
+        /* make code table */
+        make_code(nchar, bitlen, code, leaf_num);
+    }
 
     return root;
 }
