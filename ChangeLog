@@ -1,3 +1,18 @@
+2002-08-26  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/header.c (wintime_to_unix_stamp): newly added for converting
+	from `FILETIME' to `time_t'.
+	(get_extended_header): use `wintime_to_unix_stamp()' to recognize
+	the Windows time stamp header (0x41).
+
+	* src/lha.h: define `uint64_t' unless system has it.
+
+	* configure.ac: check existence of the type `uint64_t'.
+
+	* config.h.in: ditto.
+
+	* src/lharc.c (init_variable): set default header level to 2.
+
 2002-08-24  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/lha-test.in (lha-test14): added to test the symbolic link file.
