@@ -973,6 +973,7 @@ find_files(name, v_filec, v_filev)
     DIR            *dirp;
     struct dirent  *dp;
     struct stat     tmp_stbuf, arc_stbuf, fil_stbuf;
+    int exist_tmp = 1, exist_arc = 1;
 
     strcpy(newname, name);
     len = strlen(name);
@@ -985,8 +986,10 @@ find_files(name, v_filec, v_filev)
 
     init_sp(&sp);
 
-    GETSTAT(temporary_name, &tmp_stbuf);
-    GETSTAT(archive_name, &arc_stbuf);
+    if (GETSTAT(temporary_name, &tmp_stbuf) == -1)
+        exist_tmp = 0;
+    if (GETSTAT(archive_name, &arc_stbuf) == -1)
+        exist_arc = 0;
 
     for (dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
         for (i = 0; exclude_files && exclude_files[i]; i++) {
@@ -1013,12 +1016,16 @@ find_files(name, v_filec, v_filev)
             ((dp->d_name[0] != '.') ||
              ((n != 1) &&
               ((dp->d_name[1] != '.') ||
-               (n != 2)))) &&
-            ((tmp_stbuf.st_dev != fil_stbuf.st_dev ||
-              tmp_stbuf.st_ino != fil_stbuf.st_ino) &&
-             (arc_stbuf.st_dev != fil_stbuf.st_dev ||
-              arc_stbuf.st_ino != fil_stbuf.st_ino))) {
-            add_sp(&sp, newname, len + n + 1);
+               (n != 2))))) {
+
+            if ((!exist_tmp ||
+                 tmp_stbuf.st_dev != fil_stbuf.st_dev ||
+                 tmp_stbuf.st_ino != fil_stbuf.st_ino) &&
+                (!exist_arc ||
+                 arc_stbuf.st_dev != fil_stbuf.st_dev ||
+                 arc_stbuf.st_ino != fil_stbuf.st_ino)) {
+                add_sp(&sp, newname, len + n + 1);
+            }
         }
 #endif
     next:
