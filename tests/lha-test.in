@@ -22,6 +22,7 @@ check() {
   local lineno=$2
   if [[ $status -eq 0 ]]; then
     message test $test_number ... ok
+    echo at line $lineno
   else
     message test $test_number ... failed at line $lineno
     ((error_num = error_num + 1))
