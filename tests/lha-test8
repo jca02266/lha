@@ -1,20 +1,61 @@
 # -*- shell-script -*-
 message testing timestamp
-$lha c test-tmp.lzh test-[abc]
+# level 0 header
+$lha c0 test-tmp-h0.lzh test-[abc]
 							check $? $LINENO
 # show time stamp
-$lha v test-tmp.lzh
+$lha v test-tmp-h0.lzh
 ls -l test-[abc]
 
-$lha xw=test-tmp test-tmp.lzh
+$lha xw=test-tmp-h0 test-tmp-h0.lzh
 							check $? $LINENO
-diff -r test-1 test-tmp
+diff -r test-1 test-tmp-h0
 							check $? $LINENO
-test test-a -nt test-tmp/test-a ||
-test test-a -ot test-tmp/test-a ||
-test test-b -nt test-tmp/test-b ||
-test test-b -ot test-tmp/test-b ||
-test test-c -nt test-tmp/test-c ||
-test test-c -ot test-tmp/test-c
+test test-a -nt test-tmp-h0/test-a ||
+test test-a -ot test-tmp-h0/test-a ||
+test test-b -nt test-tmp-h0/test-b ||
+test test-b -ot test-tmp-h0/test-b ||
+test test-c -nt test-tmp-h0/test-c ||
+test test-c -ot test-tmp-h0/test-c
+test $? -ne 0
+							check $? $LINENO
+
+# level 1 header
+$lha c1 test-tmp-h1.lzh test-[abc]
+							check $? $LINENO
+# show time stamp
+$lha v test-tmp-h1.lzh
+ls -l test-[abc]
+
+$lha xw=test-tmp-h1 test-tmp-h1.lzh
+							check $? $LINENO
+diff -r test-1 test-tmp-h1
+							check $? $LINENO
+test test-a -nt test-tmp-h1/test-a ||
+test test-a -ot test-tmp-h1/test-a ||
+test test-b -nt test-tmp-h1/test-b ||
+test test-b -ot test-tmp-h1/test-b ||
+test test-c -nt test-tmp-h1/test-c ||
+test test-c -ot test-tmp-h1/test-c
+test $? -ne 0
+							check $? $LINENO
+
+# level 2 header
+$lha c1 test-tmp-h2.lzh test-[abc]
+							check $? $LINENO
+# show time stamp
+$lha v test-tmp-h2.lzh
+ls -l test-[abc]
+
+$lha xw=test-tmp-h2 test-tmp-h2.lzh
+							check $? $LINENO
+diff -r test-1 test-tmp-h2
+							check $? $LINENO
+test test-a -nt test-tmp-h2/test-a ||
+test test-a -ot test-tmp-h2/test-a ||
+test test-b -nt test-tmp-h2/test-b ||
+test test-b -ot test-tmp-h2/test-b ||
+test test-c -nt test-tmp-h2/test-c ||
+test test-c -ot test-tmp-h2/test-c
 test $? -ne 0
 							check $? $LINENO
