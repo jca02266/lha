@@ -10,75 +10,8 @@
 /* macro VERSION and PLATFORM are defined in config.h by configure script */
 #define LHA_VERSION "LHa for UNIX version " VERSION " (" PLATFORM ")"
 
-#ifdef __APPLE__
-#include <CoreFoundation/CFString.h>
-#include <CoreFoundation/CFStringEncodingExt.h>
-#endif /* __APPLE__ */
-
-/* Most of System V, define TM_IN_SYS_TIME */
-#if	TM_IN_SYS_TIME
-#include <sys/time.h>
-#else
-#include <time.h>
-#endif	/* TM_IN_SYS_TIME */
-
-/* ------------------------------------------------------------------------ */
-/*	Directory Access Stuff													*/
-/* ------------------------------------------------------------------------ */
-#ifndef NODIRECTORY
-#if HAVE_DIRENT_H
-# include <dirent.h>
-# define NAMLEN(dirent) strlen((dirent)->d_name)
-#else
-# define dirent direct
-# define NAMLEN(dirent) (dirent)->d_namlen
-# if HAVE_SYS_NDIR_H
-#  include <sys/ndir.h>
-# endif
-# if HAVE_SYS_DIR_H
-#  include <sys/dir.h>
-# endif
-# if HAVE_NDIR_H
-#  include <ndir.h>
-# endif
-# ifdef NONSYSTEM_DIR_LIBRARY			/* no use ?? */
-#  include "lhdir.h"
-# endif
-#endif
-
-#define DIRENTRY	struct dirent
-
-#endif  /* NODIRECTORY */
-
-/* ------------------------------------------------------------------------ */
-/*	Other Define															*/
-/* ------------------------------------------------------------------------ */
-/* Not support 'void' */
-#ifdef NOVOID
-#define void
-#endif
-
-#ifndef SEEK_SET
-#define SEEK_SET		0
-#define SEEK_CUR		1
-#define SEEK_END		2
-#endif	/* SEEK_SET
-
-
-/* non-integral functions */
-extern struct tm *localtime();
-extern char    *getenv();
-
-extern char    *xmalloc();
-extern char    *xrealloc();
-extern char    *xstrdup();
-
-/* external variables */
-extern int      errno;
-
 #define	FALSE			0
 #define TRUE			1
-typedef int				boolean;
 
 /* used by qsort() for alphabetic-sort */
 #define STRING_COMPARE(a,b)		strcmp((a),(b))
@@ -115,6 +48,7 @@ typedef int				boolean;
 #define X0201_KANA_P(c)\
 	(0xa0 < (unsigned char)(c) && (unsigned char)(c) < 0xe0)
 
+/* for filename conversion */
 #define NONE 0
 #define CODE_EUC 1
 #define CODE_SJIS 2
@@ -260,8 +194,6 @@ typedef int				boolean;
 #define LZHEADER_STRAGE			4096
 
 #define MAX_INDICATOR_COUNT		64
-
-typedef short   				node;
 
 /* ------------------------------------------------------------------------ */
 /*	Slide relation															*/

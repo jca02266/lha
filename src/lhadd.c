@@ -21,7 +21,6 @@ add_one(fp, nafp, hdr)
 {
 	long            header_pos, next_pos, org_pos, data_pos;
 	long            v_original_size, v_packed_size;
-	int             mode;
 
 	reading_filename = hdr->name;
 	writting_filename = temporary_name;

@@ -168,7 +168,6 @@ static void init_slide()
 static void update()
 {
 	unsigned int i, j;
-	unsigned int k;
 	long n;
 
 #if 0

@@ -13,11 +13,6 @@
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
-#ifdef __APPLE__
-static int ConvertEncodingToUTF8(const char* inCStr, char* outUTF8Buffer, int outUTF8BufferLength, unsigned long scriptEncoding, unsigned long flags);
-static int ConvertUTF8ToEncoding(const char* inUTF8Buf, int inUTF8BufLength, char* outCStrBuffer, int outCStrBufferLength, unsigned long scriptEncoding, unsigned long flags);
-#endif /* __APPLE__ */
-
 #if !STRCHR_8BIT_CLEAN
 /* should use 8 bit clean version */
 #undef strchr
@@ -99,6 +94,7 @@ put_longword(v)
 	put_byte(v >> 24);
 }
 
+#if 0   /* no use */
 /* ------------------------------------------------------------------------ */
 static void
 msdos_to_unix_filename(name, len)
@@ -201,6 +197,7 @@ unix_to_generic_filename(name, len)
 			name[i] = toupper(name[i]);
 	}
 }
+#endif /* 0 */
 
 /* added by Koji Arai */
 static void
@@ -431,7 +428,7 @@ gettz()
 }
 #endif
 #endif				/* defined(HAVE_FTIME) || defined(HAVE_GETTIMEOFDAY) ||
-				 * defined(HAVE_TZSET) */
+                     * defined(HAVE_TZSET) */
 
 /* ------------------------------------------------------------------------ */
 #ifdef NOT_USED
@@ -1000,7 +997,7 @@ write_header(nafp, hdr)
                      "\xff\\/", "\xff\xff\xff", NONE);
 
 	if (hdr->header_level != HEADER_LEVEL2) {
-		if (p = (char *) strrchr(lzname, LHA_PATHSEP))
+		if (p = strrchr(lzname, LHA_PATHSEP))
 			name_length = strlen(++p);
 		else
 			name_length = strlen(lzname);
@@ -1072,7 +1069,7 @@ write_header(nafp, hdr)
                     put_byte(hdr->user[i]);
             }
 
-			if (p = (char *) strrchr(lzname, LHA_PATHSEP)) {
+			if (p = strrchr(lzname, LHA_PATHSEP)) {
 				int             i;
 
 				name_length = p - lzname + 1;
@@ -1098,7 +1095,7 @@ write_header(nafp, hdr)
 			data[I_HEADER_CHECKSUM] = calc_sum(data + I_METHOD, header_size);
 		} else {		/* header level 2 */
 			int             i;
-			if (p = (char *) strrchr(lzname, LHA_PATHSEP))
+			if (p = strrchr(lzname, LHA_PATHSEP))
 				name_length = strlen(++p);
 			else {
 				p = lzname;

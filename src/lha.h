@@ -24,6 +24,19 @@
 #include <signal.h>
 
 #if STDC_HEADERS
+# include <stdlib.h>
+# include <stddef.h>
+#else
+# if HAVE_STDLIB_H
+#  include <stdlib.h>
+# endif
+#endif
+
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#if STDC_HEADERS
 # include <stdarg.h>
 # define va_init(a,b) va_start(a,b)
 #else
@@ -44,6 +57,55 @@ typedef int uid_t;
 #if !HAVE_GID_T
 typedef int gid_t;
 #endif
+
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
+#if HAVE_UTIME_H
+#include <utime.h>
+#endif
+
+#ifndef NODIRECTORY
+#if HAVE_DIRENT_H
+# include <dirent.h>
+# define NAMLEN(dirent) strlen((dirent)->d_name)
+#else
+# define dirent direct
+# define NAMLEN(dirent) (dirent)->d_namlen
+# if HAVE_SYS_NDIR_H
+#  include <sys/ndir.h>
+# endif
+# if HAVE_SYS_DIR_H
+#  include <sys/dir.h>
+# endif
+# if HAVE_NDIR_H
+#  include <ndir.h>
+# endif
+# ifdef NONSYSTEM_DIR_LIBRARY			/* no use ?? */
+#  include "lhdir.h"
+# endif
+#endif
+#endif  /* NODIRECTORY */
+
+#ifdef __APPLE__  /* On MacOS X, use CoreFoundation for utf8 conversion */
+#include <CoreFoundation/CFString.h>
+#include <CoreFoundation/CFStringEncodingExt.h>
+#endif /* __APPLE__ */
+
+#ifndef SEEK_SET
+#define SEEK_SET		0
+#define SEEK_CUR		1
+#define SEEK_END		2
+#endif	/* SEEK_SET */
+
 
 #include "lha_macro.h"
 
@@ -72,6 +134,8 @@ struct decode_option {
 /* ------------------------------------------------------------------------ */
 /*	LHa File Type Definition												*/
 /* ------------------------------------------------------------------------ */
+typedef int boolean;            /* TRUE or FALSE */
+
 struct string_pool {
 	int             used;
 	int             size;
@@ -161,21 +225,13 @@ EXTERN char		*archive_name;
 EXTERN char     temporary_name[FILENAME_LENGTH];
 EXTERN char     backup_archive_name[FILENAME_LENGTH];
 
-extern char		*extract_directory;
+EXTERN char		*extract_directory;
 EXTERN char		*reading_filename, *writting_filename;
-
-/* 1996.8.13 t.okamoto */
-#if 0
-EXTERN boolean  remove_temporary_at_error;
-EXTERN boolean  recover_archive_when_interrupt;
-EXTERN boolean  remove_extracting_file_when_interrupt;
-#endif
 
 EXTERN int      archive_file_mode;
 EXTERN int      archive_file_gid;
 
 EXTERN struct	interfacing interface;
-EXTERN node		*next;
 /* EXTERN unsigned short crc; */  /* 1996.8.13 t.okamoto */
 
 EXTERN int      noconvertcase; /* 2000.10.6 */
