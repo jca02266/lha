@@ -1,3 +1,13 @@
+2003-05-23  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.ac: use fseeko(), ftello() instead of fseek(), ftell().
+
+	* config.h.in: ditto.
+
+	* src/lha.h, src/lhlist.c, src/lhext.c, src/lharc.c: ditto.
+
+	* src/lhadd.c, src/header.c: ditto.
+
 2003-05-10  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: updated version.
