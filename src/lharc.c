@@ -560,8 +560,8 @@ interrupt(signo)
 	if (recover_archive_when_interrupt)
 		rename(backup_archive_name, archive_name);
 	if (remove_extracting_file_when_interrupt) {
-		message("Removing: %s", writting_filename);
-		unlink(writting_filename);
+		message("Removing: %s", writing_filename);
+		unlink(writing_filename);
 	}
 	signal(SIGINT, SIG_DFL);
 #ifdef SIGHUP
@@ -1162,7 +1162,7 @@ copy_old_one(oafp, nafp, hdr)
 	}
 	else {
 		reading_filename = archive_name;
-		writting_filename = temporary_name;
+		writing_filename = temporary_name;
 		if (hdr->header_level != 2) {
 			copyfile(oafp, nafp,
 					 (long) (hdr->header_size + 2) + hdr->packed_size, 0);

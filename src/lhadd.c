@@ -23,7 +23,7 @@ add_one(fp, nafp, hdr)
 	long            v_original_size, v_packed_size;
 
 	reading_filename = hdr->name;
-	writting_filename = temporary_name;
+	writing_filename = temporary_name;
 
 	if (!fp && generic_format)	/* [generic] doesn't need directory
 					 * info. */
@@ -330,7 +330,7 @@ temporary_to_new_archive_file(new_archive_size)
 
 	if (!strcmp(new_archive_name, "-")) {
 		nafp = stdout;
-		writting_filename = "starndard output";
+		writing_filename = "starndard output";
 #if __MINGW32__
         setmode(fileno(stdout), O_BINARY);
 #endif
@@ -340,7 +340,7 @@ temporary_to_new_archive_file(new_archive_size)
         if (rename(temporary_name, new_archive_name) == 0)
             return;
 		nafp = xfopen(new_archive_name, WRITE_BINARY);
-		writting_filename = archive_name;
+		writing_filename = archive_name;
 	}
 
 	oafp = xfopen(temporary_name, READ_BINARY);

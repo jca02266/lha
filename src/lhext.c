@@ -259,7 +259,7 @@ extract_one(afp, hdr)
 #endif
 
 		reading_filename = archive_name;
-		writting_filename = name;
+		writing_filename = name;
 		if (output_to_stdout || verify_mode) {
 			if (noexec) {
 				printf("%s %s\n", verify_mode ? "VERIFY" : "EXTRACT", name);

@@ -286,7 +286,7 @@ EXTERN char     temporary_name[FILENAME_LENGTH];
 EXTERN char     backup_archive_name[FILENAME_LENGTH];
 
 EXTERN char		*extract_directory;
-EXTERN char		*reading_filename, *writting_filename;
+EXTERN char		*reading_filename, *writing_filename;
 
 EXTERN int      archive_file_mode;
 EXTERN int      archive_file_gid;
