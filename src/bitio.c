@@ -5,6 +5,7 @@
 /*      Modified                Nobutaka Watazaki                           */
 /*                                                                          */
 /*  Ver. 1.14   Source All chagned              1995.01.14  N.Watazaki      */
+/*              Separated from crcio.c          2002.10.26  Koji Arai       */
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
