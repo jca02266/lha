@@ -1,3 +1,21 @@
+2003-07-19  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.ac: updated version.
+
+	* src/prototypes.h: updated.
+
+	* config.h.in: updated.
+
+	* configure.ac: check declaration of `basename'.
+
+	* src/cproto.sh: ditto.
+
+	* src/util.c (encode_stored_crc): use size_t.
+
+	* src/lha.h (struct LzHeader): use size_t for the members
+	`packed_size' and `original_size'.
+
+
 2003-07-13  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: updated version.
