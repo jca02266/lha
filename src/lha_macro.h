@@ -7,8 +7,8 @@
 /*	Ver. 1.14g	modified   						2000.05.06	T.OKAMOTO		*/
 /* ------------------------------------------------------------------------ */
 
-/* macro VERSION is defined in config.h by configure script */
-#define LHA_VERSION "lha for unix version " VERSION
+/* macro VERSION and PLATFORM are defined in config.h by configure script */
+#define LHA_VERSION "lha for unix version " VERSION " (" PLATFORM ")"
 
 /* Most of System V, define TM_IN_SYS_TIME */
 #if	TM_IN_SYS_TIME
