@@ -2,6 +2,31 @@
 
 	* configure.ac: refined messages.
 
+2002-10-26  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/bitio.c (putbits): use the function putcode().
+
+	* src/dhuf.c (decode_start_dyn): call init_code_cache().
+
+	* src/huf.c (encode_start_st1): ditto.
+	(decode_start_st1): ditto.
+
+	* src/larc.c (decode_start_lzs): ditto.
+
+	* src/shuf.c (decode_start_st0): ditto.
+	(encode_start_fix): ditto.
+	(decode_start_fix): ditto.
+
+	* src/Makefile.am: added bitio.c
+
+	* src/cproto.sh: added bitio.c
+
+	* src/bitio.c: new file.
+
+	* src/crcio.c: extracted bitio routines.
+
+	* src/lha.h: ditto.
+
 2002-10-16  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* 00readme.autoconf: modified.
