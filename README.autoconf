@@ -1,7 +1,7 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiguration for LHa for UNIX version 1.14i
-			Sun, May 27 2002 by Koji Arai <jca02266@nifty.ne.jp>
+		        Sat, Jun  1 2002 by Koji Arai <jca02266@nifty.ne.jp>
 
 このファイルはLHa for UNIX version 1.14i をautoconf、automake化
 した(autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
@@ -61,7 +61,7 @@ LHa for UNIX に関しては岡本継男さんのページ
     patch -p1 < ../lha-1.14i-autoconf.diff
 
     aclocal
-    automake -a   # gcc でなければ -i オプションもつけてください
+    automake -a
     autoheader
     autoconf
     sh ./configure
