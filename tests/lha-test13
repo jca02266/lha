@@ -45,15 +45,17 @@ diff test-tmp-euc test-tmp-euc-d2/test-tmp-euc
 							check $? $LINENO
 
 i=0
-while ((i++ < 10))
+while ((i < 10))
 do
   cat test-tmp-euc
+  ((i = i + 1))
 done > test-tmp-euc2
 
 i=0
-while ((i++ < 10))
+while ((i < 10))
 do
   cat test-tmp-sjis
+  ((i = i + 1))
 done > test-tmp-sjis2
 
 # no convert
