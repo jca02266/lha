@@ -119,7 +119,7 @@ read_tree_p(/*void*/)
 	while (i < NP) {
 		pt_len[i] = getbits(LENFIELD);
 		if (++i == 3 && pt_len[0] == 1 && pt_len[1] == 1 && pt_len[2] == 1) {
-			c = getbits(LH3_DICBIT - 6);
+			c = getbits(LZHUFF3_DICBIT - 6);
 			for (i = 0; i < NP; i++)
 				pt_len[i] = 0;
 			for (i = 0; i < 256; i++)
@@ -136,7 +136,7 @@ decode_start_fix(/*void*/)
 	n_max = 314;
 	maxmatch = 60;
 	init_getbits();
-	np = 1 << (12 - 6);
+	np = 1 << (LZHUFF1_DICBIT - 6);
 	start_c_dyn();
 	ready_made(0);
 	make_table(np, pt_len, 8, pt_table);
