@@ -20,8 +20,8 @@
 
 	* src/lha_macro.h: ditto.
 
-	* src/lha_macro.h: getuid(), chown(), kill(), link() are
-	provisionally defined as 0.
+	* src/lha_macro.h: getuid(), chown(), kill() are provisionally
+	defined as 0.
 
 	* src/header.c: set `default_system_kanji_code' to Shift_JIS on mingw32.
 

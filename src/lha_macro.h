@@ -84,7 +84,6 @@ typedef int				boolean;
 # define getuid()       0
 # define chown(file, uid, gid)  0
 # define kill(pid, sig)         0
-# define link(from, to)         0
 #endif
 
 /* ------------------------------------------------------------------------ */
