@@ -1,5 +1,14 @@
 2002-11-15  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/prototypes.h: updated.
+
+	* configure.ac, Makefile.am, olddoc/Makefile.am:
+	  old documentations moved to olddoc directory.
+
+	* CHANGES.euc, MACHINES2.euc, README.euc, change-114h.txt, change-114e.txt, change-114i.txt, IFNAMES, Makefile.in, change-114f.txt, config.eng, MACHINES.euc, PROBLEMS.euc, change-114g.txt, config.jpn.euc: ditto.
+
+	* Makefile.in.org, src/Makefile.in.org: removed.
+
 	* configure.ac: updated version (source maintenance start on
 	sourceforge.jp)
 
