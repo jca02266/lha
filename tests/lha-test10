@@ -81,3 +81,54 @@ diff test-b test-tmp2-h2/test-tmp-d1/d2/test-b
 							check $?
 diff test-c test-tmp2-h2/test-tmp-d1/d2/d3/test-c
 							check $?
+# long long filename
+# assume that we are allowed to create 255 bytes filename.
+mkdir test-tmp3
+file=123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345
+(cd test-tmp3 && touch $file)
+
+$lha cg  test-tmp3-hg.lzh test-tmp3 2> test-stderr
+							check $?
+test -s test-stderr
+							check $?
+$lha c0  test-tmp3-h0.lzh test-tmp3 2> test-stderr
+							check $?
+test -s test-stderr
+							check $?
+$lha c1  test-tmp3-h1.lzh test-tmp3
+ 							check $?
+$lha c2  test-tmp3-h2.lzh test-tmp3
+							check $?
+$lha xw=test-tmp3-hg  test-tmp3-hg.lzh
+							check $?
+$lha xw=test-tmp3-h0  test-tmp3-h0.lzh
+							check $?
+$lha xw=test-tmp3-h1  test-tmp3-h1.lzh
+							check $?
+$lha xw=test-tmp3-h2  test-tmp3-h2.lzh
+							check $?
+# for logging
+$lha vv test-tmp3-hg.lzh
+							check $?
+$lha vv test-tmp3-h0.lzh
+							check $?
+$lha vv test-tmp3-h1.lzh
+							check $?
+$lha vv test-tmp3-h2.lzh
+							check $?
+$lha vv test-tmp3-hg.lzh | grep '\[0\]$'
+							check $?
+$lha vv test-tmp3-h0.lzh | grep '\[0\]$'
+							check $?
+$lha vv test-tmp3-h1.lzh | grep '\[1\]$'
+							check $?
+$lha vv test-tmp3-h2.lzh | grep '\[2\]$'
+							check $?
+test -f test-tmp3-hg/$(echo test-tmp3/$file | cut -c-233)
+							check $?
+test -f test-tmp3-h0/$(echo test-tmp3/$file | cut -c-221)
+							check $?
+test -f test-tmp3-h1/test-tmp3/$file
+							check $?
+test -f test-tmp3-h2/test-tmp3/$file
+							check $?
