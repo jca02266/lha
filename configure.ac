@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(lha, 1.14i-ac20020525)
+AC_INIT(lha, 1.14i-ac20020525a)
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
