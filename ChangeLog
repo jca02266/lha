@@ -1,3 +1,10 @@
+2002-08-22  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/lha-test.in: `++' is invalid arithmetic operator on POSIX
+	shell, Ksh and early version of Bash.
+
+	* tests/lha-test13: ditto.
+
 2002-08-18  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lharc.c (print_version): version string is made here.
