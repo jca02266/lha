@@ -96,6 +96,12 @@ init_variable()		/* Added N.Watazaki */
 
 	extract_directory = NULL;
     temporary_fd = -1;
+
+#if BACKUP_OLD_ARCHIVE
+    backup_old_archive = TRUE;
+#else
+    backup_old_archive = FALSE;
+#endif
 }
 
 /* ------------------------------------------------------------------------ */

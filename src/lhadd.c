@@ -548,7 +548,7 @@ cmd_add()
 	}
 
 	/* build backup archive file */
-	if (old_archive_exist)
+	if (old_archive_exist && backup_old_archive)
 		build_backup_file();
 
 	report_archive_name_if_different();
@@ -610,12 +610,15 @@ cmd_delete()
 	}
 
 	/* build backup archive file */
-	build_backup_file();
+    if (backup_old_archive)
+        build_backup_file();
 
 	/* 1999.5.24 t.oka */
 	if(!noexec && new_archive_size <= 1){
 		unlink(temporary_name);
-		warning("New archive file \"%s\" is not created because it would be empty.", new_archive_name);
+        if (!backup_old_archive)
+            unlink(archive_name);
+		warning("The archive file \"%s\" was removed because it would be empty.", new_archive_name);
 		return;
 	}
 

@@ -273,6 +273,7 @@ EXTERN boolean	verify_mode;
 /* Indicator flag */
 EXTERN int		quiet_mode;
 
+EXTERN boolean backup_old_archive;
 /* ------------------------------------------------------------------------ */
 /*	Globale Variable														*/
 /* ------------------------------------------------------------------------ */

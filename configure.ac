@@ -205,6 +205,18 @@ if test "x$user_name_header" = xyes; then
             [Define to 1 if you want to use the user/group name extened header])
 fi
 
+# backup old archive file
+AC_ARG_ENABLE(backup_archive,
+  AC_HELP_STRING([--enable-backup-archive],
+		 [backup old archive [[default=no]]]),
+  ,
+  # default
+  enable_backup_archive=no)
+if test "x$enable_backup_archive" = xyes; then
+  AC_DEFINE(BACKUP_OLD_ARCHIVE, 1,
+	    [Define to 1 if you want to leave an old archive])
+fi
+
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])
 AC_CONFIG_FILES([tests/Makefile tests/lha-test])
 AC_OUTPUT
