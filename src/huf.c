@@ -494,3 +494,4 @@ decode_start_st1( /* void */ )
 /* mode:c */
 /* tab-width:4 */
 /* End: */
+/* vi: set tabstop=4: */

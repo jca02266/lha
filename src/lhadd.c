@@ -631,3 +631,4 @@ char *str2;
 /* tab-width:4 */
 /* compile-command:"gcc -c lhadd.c" */
 /* End: */
+/* vi: set tabstop=4: */

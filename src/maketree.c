@@ -173,3 +173,4 @@ make_tree(nparm, freqparm, lenparm, codeparm)
 /* mode:c */
 /* tab-width:4 */
 /* End: */
+/* vi: set tabstop=4: */

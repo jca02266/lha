@@ -347,3 +347,4 @@ encode_end_dyn( /* void */ )
 /* mode:c */
 /* tab-width:4 */
 /* End: */
+/* vi: set tabstop=4: */

@@ -1165,3 +1165,4 @@ copy_old_one(oafp, nafp, hdr)
 /* tab-width:4 */
 /* compile-command:"gcc -c lharc.c" */
 /* End: */
+/* vi: set tabstop=4: */

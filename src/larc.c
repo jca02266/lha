@@ -86,3 +86,4 @@ decode_start_lz5( /*void*/ )
 /* Local Variables: */
 /* tab-width : 4 */
 /* End: */
+/* vi: set tabstop=4: */

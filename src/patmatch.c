@@ -41,3 +41,4 @@ patmatch(p, s, f)
 /* Local Variables: */
 /* tab-width : 4 */
 /* End: */
+/* vi: set tabstop=4: */

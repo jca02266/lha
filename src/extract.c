@@ -68,3 +68,4 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method)
 /* mode:c */
 /* tab-width:4 */
 /* End: */
+/* vi: set tabstop=4: */

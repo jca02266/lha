@@ -1081,3 +1081,4 @@ sjis2euc(int *p1, int *p2)
 /* tab-width:4 */
 /* compile-command:"gcc -c header.c" */
 /* End: */
+/* vi: set tabstop=4: */

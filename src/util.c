@@ -372,3 +372,4 @@ memset(s, c, n)
 /* tab-width:4 */
 /* compile-command:"gcc -c util.c" */
 /* End: */
+/* vi: set tabstop=4: */

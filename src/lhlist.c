@@ -346,3 +346,4 @@ cmd_list()
 /* tab-width:4 */
 /* compile-command:"gcc -c lhlist.c" */
 /* End: */
+/* vi: set tabstop=4: */
