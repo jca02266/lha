@@ -214,10 +214,11 @@ convert_filename(name, len, size,
 {
 	register int    i;
 #ifdef MULTIBYTE_FILENAME
-    char tmp[256];              /* 256 is sizeof(LzHeader.name) */
+    char tmp[FILENAME_LENGTH];
 
     if (from_code == CODE_SJIS && to_code == CODE_UTF8) {
         for (i = 0; i < len; i++)
+            /* FIXME: provisionally fix for the Mac OS CoreFoundation */
             if ((unsigned char)name[i] == LHA_PATHSEP)  name[i] = '/';
         sjis_to_utf8(tmp, name, sizeof(tmp));
         strncpy(name, tmp, size);
@@ -229,6 +230,7 @@ convert_filename(name, len, size,
     }
     else if (from_code == CODE_UTF8 && to_code == CODE_SJIS) {
         for (i = 0; i < len; i++)
+            /* FIXME: provisionally fix for the Mac OS CoreFoundation */
             if ((unsigned char)name[i] == LHA_PATHSEP)  name[i] = '/';
         utf8_to_sjis(tmp, name, sizeof(tmp));
         strncpy(name, tmp, size);
@@ -570,21 +572,15 @@ get_header(fp, hdr)
 		return FALSE;	/* finish */
 	}
 
-	if (fread(data + I_HEADER_CHECKSUM,
-		  sizeof(char), header_size - 1, fp) < header_size - 1) {
+	if (fread(data + 1, I_NAME_LENGTH - 1, 1, fp) == 0) {
 		fatal_error("Invalid header (LHarc file ?)");
 		return FALSE;	/* finish */
 	}
 	setup_get(data + I_HEADER_LEVEL);
 	hdr->header_level = get_byte();
-	if (hdr->header_level != 2 &&
-	    fread(data + header_size, sizeof(char), 2, fp) < 2) {
-		fatal_error("Invalid header (LHarc file ?)");
-		return FALSE;	/* finish */
-	}
 
 	if (hdr->header_level >= 3) {
-		fatal_error("Unknown level header (level %d)", hdr->header_level);
+		error("Unknown level header (level %d)", hdr->header_level);
 		return FALSE;
 	}
 
@@ -592,10 +588,22 @@ get_header(fp, hdr)
 	checksum = get_byte();
 
 	if (hdr->header_level == 2) {
-		hdr->header_size = header_size + checksum*256;
+		hdr->header_size = header_size += checksum*256;
 	} else {
 		hdr->header_size = header_size;
 	}
+
+    if (fread(data + I_NAME_LENGTH, header_size - I_NAME_LENGTH, 1, fp) == 0) {
+        fatal_error("Invalid header (LHarc file ?)");
+        return FALSE;	/* finish */
+    }
+
+	if (hdr->header_level != 2 &&
+	    fread(data + header_size, sizeof(char), 2, fp) < 2) {
+		fatal_error("Invalid header (LHarc file ?)");
+		return FALSE;	/* finish */
+	}
+
 	memcpy(hdr->method, data + I_METHOD, METHOD_TYPE_STRAGE);
 	setup_get(data + I_PACKED_SIZE);
 	hdr->packed_size = get_longword();
@@ -676,7 +684,7 @@ get_header(fp, hdr)
 			if (hdr->header_level != 2 &&
 			((data + LZHEADER_STRAGE - get_ptr < header_size) ||
 			 fread(get_ptr, sizeof(char), header_size, fp) < header_size)) {
-				fatal_error("Invalid header (LHa file ?)");
+				error("Invalid header (LHa file ?)");
 				return FALSE;
 			}
 			switch (get_byte()) {
@@ -690,19 +698,23 @@ get_header(fp, hdr)
 				/*
 				 * filename
 				 */
-				for (i = 0; i < header_size - 3; i++)
+				for (i = 0; i < header_size-3 && i < sizeof(hdr->name)-1; i++)
 					hdr->name[i] = (char) get_byte();
-				hdr->name[header_size - 3] = '\0';
-				name_length = header_size - 3;
+				hdr->name[i] = '\0';
+				name_length = i;
+                for (; i < header_size-3; i++)
+                    get_byte();
 				break;
 			case 2:
 				/*
 				 * directory
 				 */
-				for (i = 0; i < header_size - 3; i++)
+				for (i = 0; i < header_size-3 && i < sizeof(dirname)-1; i++)
 					dirname[i] = (char) get_byte();
-				dirname[header_size - 3] = '\0';
-				dir_length = header_size - 3;
+				dirname[i] = '\0';
+				dir_length = i;
+                for (; i < header_size-3; i++)
+                    get_byte();
 				break;
 			case 0x40:
 				/*
@@ -733,17 +745,21 @@ get_header(fp, hdr)
 				/*
 				 * UNIX group name
 				 */
-                for (i = 0; i < header_size - 3; i++)
+                for (i = 0; i < header_size-3 && i < sizeof(hdr->group)-1; i++)
                     hdr->group[i] = get_byte();
                 hdr->group[i] = '\0';
+                for (; i < header_size-3; i++)
+                    get_byte();
 				break;
 			case 0x53:
 				/*
 				 * UNIX user name
 				 */
-                for (i = 0; i < header_size - 3; i++)
+                for (i = 0; i < header_size-3 && i < sizeof(hdr->user)-1; i++)
                     hdr->user[i] = get_byte();
                 hdr->user[i] = '\0';
+                for (; i < header_size-3; i++)
+                    get_byte();
 				break;
 			case 0x54:
 				/*
@@ -984,17 +1000,35 @@ write_header(nafp, hdr)
                      system_delim, archive_delim, filename_case);
 
 	if (hdr->header_level != HEADER_LEVEL2) {
+        int limit;
+        /* level 0 header: write pathname (contain the directory part) */
+        /* level 1 header: write filename (basename only) */
         if (hdr->header_level == HEADER_LEVEL0 ||
             (p = strrchr(lzname, LHA_PATHSEP)) == 0)
             p = lzname;
         else
             ++p;
-        /* level 0 header: write pathname (contain the directory part) */
-        /* level 1 header: write filename (basename only) */
         name_length = strlen(p);
-		put_byte(name_length);
-		memcpy(data + I_NAME, p, name_length);
-		setup_put(data + I_NAME + name_length);
+
+        limit = 255 - I_UNIX_EXTEND_BOTTOM + 2;
+        if (header_level == 0) {
+            if (generic_format)
+                limit = 255 - I_GENERIC_HEADER_BOTTOM + 2;
+
+            if (name_length > limit) {
+                warning("the length of pathname \"%s\" is too long.", p);
+                name_length = limit;
+            }
+        }
+
+        if (header_level == 1) {
+            put_byte(0);
+        }
+        else {
+            put_byte(name_length);
+            memcpy(data + I_NAME, p, name_length);
+            setup_put(data + I_NAME + name_length);
+        }
 	}
 
 	put_word(hdr->crc);
@@ -1062,6 +1096,20 @@ write_header(nafp, hdr)
                     for (i = 0; i < len; i++)
                         put_byte(hdr->user[i]);
                 }
+            }
+
+            if (hdr->header_level == 1) {
+                int i;
+                if (p = strrchr(lzname, LHA_PATHSEP))
+                    name_length = strlen(++p);
+                else {
+                    p = lzname;
+                    name_length = strlen(lzname);
+                }
+                put_word(name_length + 3);
+                put_byte(1);	/* filename */
+                for (i = 0; i < name_length; i++)
+                    put_byte(*p++);
             }
 
 			if (p = strrchr(lzname, LHA_PATHSEP)) {
