@@ -77,7 +77,7 @@
 	* src/vsnprintf.c: derived snprintf() which has the BSD licence.
 
 	* configure.ac: fix typo.
-	
+
 	* configure.ac: checking whether strchr() is 8 bit clean or not.
 
 	* config.h.in: ditto.
@@ -105,7 +105,7 @@
 
 	* src/header.c (sjis_to_utf8): fixed typo.
 	(utf8_to_sjis): fixed typo.
-	
+
 	* src/lhadd.c (cmd_add): Missed to adjust the index when specified
 	adding file is same as the generating archive file.
 
@@ -153,7 +153,7 @@
 	* src/slide.c (encode_alloc): Wrong value was assigned to the
 	`dicbit', when SUPPORT_LH7 was not defined. (fixed by DANGAN,
 	reported on the LHa BBS [38]).
-	
+
 	* src/lha_macro.h: ditto.
 
 	* src/shuf.c (decode_c_st0): the method of -lh3- extraction was
@@ -257,7 +257,7 @@
 
 	* src/header.c: Remove preprocess codes for kanji code decision.
 
-	* configure.ac: When --enable-multibyte-filename[=auto] is specifi%d,
+	* configure.ac: When --enable-multibyte-filename[=auto] is specified,
 	decide kanji code for filename automatically.
 	Otherwise, euc or sjis is specified, it is EUC-JP or Shift_JIS.
 
@@ -326,7 +326,7 @@
 
 	* src/lha_macro.h: ditto.
 
-	* src/header.c: ditto. 
+	* src/header.c: ditto.
 
 	* config.h.in (INCLUDE_OWNER_NAME_IN_HEADER): changed macro name.
 
