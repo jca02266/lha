@@ -1,5 +1,11 @@
 2003-07-22  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lha.h: discard `prof' variable.
+
+	* src/lharc.c (init_variable): discard `prof' variable.
+	(parse_option): discard undocumented `p' option.
+	(main): ditto.
+
 	* src/append.c (encode_lzhuf): hate global variable.
 
 	* src/extract.c (decode_lzhuf): ditto.
