@@ -1,5 +1,7 @@
 2002-05-26  Koji Arai  <arai@fgsd.mt.nec.co.jp>
 
+	* src/lhext.c (cmd_extract): discard useless fseek() calling (for MinGW).
+
 	* tests/lha-test.in: added some tests.
 
 	* tests/lha-test.in: specified `q' option on print archive test.
