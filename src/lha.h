@@ -207,7 +207,6 @@ typedef struct LzHeader {
 	char            method[METHOD_TYPE_STRAGE];
 	long            packed_size;
 	long            original_size;
-	long            last_modified_stamp;
 	unsigned char   attribute;
 	unsigned char   header_level;
 	char            name[FILENAME_LENGTH];
