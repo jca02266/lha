@@ -51,10 +51,10 @@ RETSIGTYPE interrupt P_((int signo));
 void *memmove P_((void *dst, const void *src, size_t cnt));
 #endif
 #if !HAVE_STRDUP
-char *strdup P_((char *buf));
+char *strdup P_((const char *buf));
 #endif
 #if !HAVE_MEMSET
-char *memset P_((char *s, int c, int n));
+char *memset P_((char *s, int c, size_t n));
 #endif
 #if !HAVE_STRCASECMP
 int strcasecmp P_((const char *p1, const char *p2));

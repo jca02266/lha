@@ -121,7 +121,7 @@ archive_is_msdos_sfx1(name)
 #ifndef HAVE_STRDUP
 char *
 strdup(buf)
-    char *buf;
+    const char *buf;
 {
     char *p;
 
@@ -181,7 +181,8 @@ strcasecmp(p1, p2)
 char *
 memset(s, c, n)
     char *s;
-    int c, n;
+    int c;
+    size_t n;
 {
     char *p = s;
 
