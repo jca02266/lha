@@ -20,12 +20,12 @@
 /* need 14 or 22 (when verbose_listing is TRUE) column spaces */
 static void
 print_size(packed_size, original_size)
-    long            packed_size, original_size;
+    long packed_size, original_size;
 {
     if (verbose_listing)
-        printf("%7ld ", packed_size);
+        printf("%7lu ", packed_size);
 
-    printf("%7ld ", original_size);
+    printf("%7lu ", original_size);
 
     if (original_size == 0L)
         printf("******");
@@ -37,7 +37,7 @@ print_size(packed_size, original_size)
 /* need 12 or 17 (when verbose_listing is TRUE) column spaces */
 static void
 print_stamp(t)
-    time_t          t;
+    time_t t;
 {
     static unsigned int threshold;
     static char     t_month[12 * 3 + 1] = "JanFebMarAprMayJunJulAugSepOctNovDec";
