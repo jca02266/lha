@@ -1,3 +1,37 @@
+2002-06-17  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lharc.c (message): use variable argument list with stdarg.
+	(warning): ditto.
+	(error): ditto.
+	(write_error): removed.
+	(read_error): removed.
+	(build_temporary_name): use xsnprintf().
+	(open_old_archive): ditto.
+	(expanded_archive_name): move in the function (open_old_archive()) as static.
+
+	* src/crcio.c (putcode): changed for fatal_error().
+	(putbits): changed for fatal_error().
+	(fwrite_crc): ditto.
+	(putc_euc): should return EOF when putc() cause error.
+	(fwrite_txt): changed for putc_euc().
+
+	* src/header.c (get_header): changed for fatal_error(), warning() and error().
+	(init_header): use xsnprintf().
+	(write_header): fixed wrong usage of fwrite().
+
+	* src/lha.h: updated declarations.
+
+	* src/lhadd.c (append_it): changed for error().
+
+	* src/lhext.c (inquire_extract): ditto.
+
+	* src/lhlist.c (cmd_list): ditto.
+
+	* src/maketbl.c (make_table): ditto.
+
+	* src/util.c (copyfile): changed for fatal_error().
+	(xsnprintf): newly added to adopt to various snprintf().
+
 2002-06-12  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lha_macro.h (UNIX_STICKYBIT): fixed a misspelling.
