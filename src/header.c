@@ -547,7 +547,7 @@ get_header(fp, hdr)
 	}
 
 	if (hdr->header_level >= 3) {
-		fatal_error("Unknown level header");
+		fatal_error("Unknown level header (level %d)", hdr->header_level);
 		return FALSE;
 	}
 
@@ -568,7 +568,7 @@ get_header(fp, hdr)
 
 	if ((hdr->header_level = get_byte()) != 2) {
 		if (calc_sum(data + I_METHOD, header_size) != checksum)
-			warning("Checksum error (LHarc file?)", "");
+			warning("Checksum error (LHarc file?)");
 		name_length = get_byte();
 		for (i = 0; i < name_length; i++)
 			hdr->name[i] = (char) get_byte();
@@ -591,8 +591,8 @@ get_header(fp, hdr)
 				hdr->extend_type = EXTEND_GENERIC;
 				hdr->has_crc = FALSE;
 			} else {
-				fatal_error("Unkonwn header (lha file?)");
-				return FALSE;
+				error("Unkonwn header (lha file?)");
+                exit(1);
 			}
 		} else {
 			hdr->has_crc = TRUE;
@@ -887,14 +887,15 @@ init_header(name, v_stat, hdr)
 
 #ifdef S_IFLNK	
 	if (is_symlink(v_stat)) {
-		char	lkname[257];
+		char	lkname[256];    /* FIXME: no enough space */
 		int		len;	
 		bcopy(LZHDIRS_METHOD, hdr->method, METHOD_TYPE_STRAGE);
 		hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
 		hdr->original_size = 0;
-		len = readlink(name, lkname, 256);
-		lkname[len] = (char)'\0';
-		sprintf(hdr->name, "%s|%s", hdr->name, lkname);
+		len = readlink(name, lkname, sizeof(lkname));
+		if (xsnprintf(hdr->name, sizeof(hdr->name),
+                      "%s|%.*s", hdr->name, len, lkname) == -1)
+            error("file name is too long (%s -> %.*s)", hdr->name, len, lkname);
 	}
 #endif
 
@@ -1080,7 +1081,7 @@ write_header(nafp, hdr)
 		put_word(hcrc);
 	}
 
-	if (fwrite(data, sizeof(char), header_size + 2, nafp) == 0)
+	if (fwrite(data, header_size + 2, 1, nafp) == 0)
 		fatal_error("Cannot write to temporary file");
 
     filename_conv(hdr->name, strlen(hdr->name), sizeof(hdr->name),

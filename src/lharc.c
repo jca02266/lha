@@ -44,6 +44,8 @@
 
 #include "lha.h"
 
+#include <stdarg.h>
+
 /* ------------------------------------------------------------------------ */
 /*								PROGRAM										*/
 /* ------------------------------------------------------------------------ */
@@ -55,7 +57,6 @@ char          **cmd_filev;
 int             cmd_filec;
 
 char           *archive_name;
-char            expanded_archive_name[FILENAME_LENGTH];
 char            temporary_name[FILENAME_LENGTH];
 char            backup_archive_name[FILENAME_LENGTH];
 #endif
@@ -344,7 +345,7 @@ main(argc, argv)
 				break;
 #endif
 			default:
-				fprintf(stderr, "LHa: error option o%c\n", *p);
+				error("invalid compression method 'o%c'", *p);
 				exit(1);
 			}
 			break;
@@ -371,7 +372,7 @@ main(argc, argv)
 			header_level = HEADER_LEVEL2;
 			break;
 		default:
-			fprintf(stderr, "LHa: Unknown option '%c'.\n", p[-1]);
+			error("Unknown option '%c'.", p[-1]);
 			exit(1);
 		}
 	}
@@ -465,50 +466,75 @@ print_version()
 	fprintf(stderr, "%s\n", LHA_VERSION);
 }
 
-/* ------------------------------------------------------------------------ */
-static void
-message_1(title, subject, name)
-	char           *title, *subject, *name;
+void
+message(char *fmt, ...)
 {
-	fprintf(stderr, "LHa: %s%s ", title, subject);
-	fflush(stderr);
+    int errno_sv = errno;
+    va_list v;
 
-	if (errno == 0)
-		fprintf(stderr, "%s\n", name);
-	else
-		perror(name);
+	fprintf(stderr, "LHa: ");
+
+    va_start(v, fmt);
+    vfprintf(stderr, fmt, v);
+    va_end(v);
+
+    fputs("\n", stderr);
+
+    errno =  errno_sv;
 }
 
 /* ------------------------------------------------------------------------ */
 void
-message(subject, name)
-	char           *subject, *name;
+warning(char *fmt, ...)
 {
-	message_1("", subject, name);
+    int errno_sv = errno;
+    va_list v;
+
+	fprintf(stderr, "LHa: Warning: ");
+
+    va_start(v, fmt);
+    vfprintf(stderr, fmt, v);
+    va_end(v);
+
+    fputs("\n", stderr);
+
+    errno =  errno_sv;
 }
 
 /* ------------------------------------------------------------------------ */
 void
-warning(subject, name)
-	char           *subject, *name;
+error(char *fmt, ...)
 {
-	message_1("Warning: ", subject, name);
+    int errno_sv = errno;
+    va_list v;
+
+	fprintf(stderr, "LHa: Error: ");
+
+    va_start(v, fmt);
+    vfprintf(stderr, fmt, v);
+    va_end(v);
+
+    fputs("\n", stderr);
+
+    errno =  errno_sv;
 }
 
-/* ------------------------------------------------------------------------ */
 void
-error(subject, msg)
-	char           *subject, *msg;
+fatal_error(char *fmt, ...)
 {
-	message_1("Error: ", subject, msg);
-}
+    int errno_sv = errno;
+    va_list v;
 
-/* ------------------------------------------------------------------------ */
-void
-fatal_error(msg)
-	char           *msg;
-{
-    message_1("Fatal error:", "", msg);
+	fprintf(stderr, "LHa: Fatal error: ");
+
+    va_start(v, fmt);
+    vfprintf(stderr, fmt, v);
+    va_end(v);
+
+	if (errno)
+        fprintf(stderr, ": %s\n", strerror(errno_sv));
+    else
+        fputs("\n", stderr);
 
     if (remove_temporary_at_error) {
         if (temporary_fd != -1)
@@ -521,25 +547,10 @@ fatal_error(msg)
 
 /* ------------------------------------------------------------------------ */
 void
-write_error()
-{
-	fatal_error(writting_filename);
-}
-
-/* ------------------------------------------------------------------------ */
-void
-read_error()
-{
-	fatal_error(reading_filename);
-}
-
-/* ------------------------------------------------------------------------ */
-void
 interrupt(signo)
 	int             signo;
 {
-	errno = 0;
-	message("Interrupted\n", "");
+	message("Interrupted");
 
 	if (temporary_fd != -1)
 		close(temporary_fd);
@@ -547,8 +558,7 @@ interrupt(signo)
 	if (recover_archive_when_interrupt)
 		rename(backup_archive_name, archive_name);
 	if (remove_extracting_file_when_interrupt) {
-		errno = 0;
-		message("Removing", writting_filename);
+		message("Removing: %s", writting_filename);
 		unlink(writting_filename);
 	}
 	signal(SIGINT, SIG_DFL);
@@ -751,8 +761,7 @@ cleaning_files(v_filec, v_filev)
 	for (i = 0; i < filec; i++)
 		if (GETSTAT(filev[i], &stbuf) < 0) {
 			flags[i] = 0x04;
-			fprintf(stderr,
-			 "LHa: Cannot access \"%s\", ignored.\n", filev[i]);
+			warning("Cannot access \"%s\", ignored.", filev[i]);
 		}
 		else {
 			if (is_regularfile(&stbuf))
@@ -765,11 +774,9 @@ cleaning_files(v_filec, v_filev)
 #endif			
 			else {
 				flags[i] = 0x04;
-				fprintf(stderr,
-					"LHa: Cannot archive \"%s\", ignored.\n", filev[i]);
+				warning("Cannot archive \"%s\", ignored.", filev[i]);
 			}
 		}
-	errno = 0;
 
 	for (i = 0; i < filec; i++) {
 		p = filev[i];
@@ -920,7 +927,8 @@ build_temporary_name()
 		strcpy(temporary_name, TMP_FILENAME_TEMPLATE);
 	}
 	else {
-		sprintf(temporary_name, "%s/lhXXXXXX", extract_directory);
+		xsnprintf(temporary_name, sizeof(temporary_name),
+                  "%s/lhXXXXXX", extract_directory);
 	}
 #else
 	char           *p, *s;
@@ -1023,7 +1031,7 @@ xfopen(name, mode)
 	FILE           *fp;
 
 	if ((fp = fopen(name, mode)) == NULL)
-		fatal_error(name);
+		fatal_error("Cannot open file \"%s\"", name);
 
 	return fp;
 }
@@ -1059,6 +1067,7 @@ open_old_archive()
 {
 	FILE           *fp;
 	char           *p;
+    static char expanded_archive_name[FILENAME_LENGTH];
 
 	if (!strcmp(archive_name, "-")) {
 		if (cmd == CMD_EXTRACT || cmd == CMD_LIST) {
@@ -1084,7 +1093,8 @@ open_old_archive()
 
 	if (open_old_archive_1(archive_name, &fp))
 		return fp;
-	sprintf(expanded_archive_name, "%s.lzh", archive_name);
+	xsnprintf(expanded_archive_name, sizeof(expanded_archive_name),
+              "%s.lzh", archive_name);
 	if (open_old_archive_1(expanded_archive_name, &fp)) {
 		archive_name = expanded_archive_name;
 		return fp;
@@ -1093,7 +1103,8 @@ open_old_archive()
 	 * if ( (errno&0xffff)!=E_PNNF ) { archive_name =
 	 * expanded_archive_name; return NULL; }
 	 */
-	sprintf(expanded_archive_name, "%s.lzs", archive_name);
+	xsnprintf(expanded_archive_name, sizeof(expanded_archive_name),
+              "%s.lzs", archive_name);
 	if (open_old_archive_1(expanded_archive_name, &fp)) {
 		archive_name = expanded_archive_name;
 		return fp;

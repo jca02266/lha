@@ -109,9 +109,7 @@ putcode(n, x)			/* Write rightmost n bits of x */
 		x <<= bitcount;
 		if (compsize < origsize) {
 			if (fwrite(&subbitbuf, 1, 1, outfile) == 0) {
-				/* fileerror(WTERR, outfile); */
-			    fatal_error("Write error in crcio.c(putcode)\n");
-				/* exit(errno); */
+			    fatal_error("Write error in crcio.c(putcode)");
 			}
 			compsize++;
 		}
@@ -137,9 +135,7 @@ putbits(n, x)			/* Write rightmost n bits of x */
 		x <<= bitcount;
 		if (compsize < origsize) {
 			if (fwrite(&subbitbuf, 1, 1, outfile) == 0) {
-				/* fileerror(WTERR, outfile); */
-			    fatal_error("Write error in crcio.c(putbits)\n");
-				/* exit(errno); */
+			    fatal_error("Write error in crcio.c(putbits)");
 			}
 			compsize++;
 		}
@@ -182,11 +178,11 @@ fwrite_crc(p, n, fp)
 	if (fp) {
 		if (text_mode) {
 			if (fwrite_txt(p, n, fp))
-				fatal_error("File write error\n");
+				fatal_error("File write error");
 		}
 		else {
 			if (fwrite(p, 1, n, fp) < n)
-				fatal_error("File write error\n");
+				fatal_error("File write error");
 		}
 	}
 }
@@ -224,7 +220,7 @@ init_putbits( /* void */ )
 
 /* ------------------------------------------------------------------------ */
 #ifdef EUC
-void
+int
 putc_euc(c, fd)
 	int             c;
 	FILE           *fd;
@@ -233,13 +229,11 @@ putc_euc(c, fd)
 
 	if (putc_euc_cache == EOF) {
 		if (!euc_mode || c < 0x81 || c > 0xFC) {
-			putc(c, fd);
-			return;
+			return putc(c, fd);
 		}
 		if (c >= 0xA0 && c < 0xE0) {
-			putc(0x8E, fd);	/* single shift */
-			putc(c, fd);
-			return;
+			if (putc(0x8E, fd) == EOF) return EOF;	/* single shift */
+			return putc(c, fd);
 		}
 		putc_euc_cache = c;	/* save first byte */
 		return;
@@ -258,8 +252,8 @@ putc_euc(c, fd)
 		c -= 0x1F;
 		d = (d - 0x81) * 2 + 0x21;
 	}
-	putc(0x80 | d, fd);
-	putc(0x80 | c, fd);
+	if (putc(0x80 | d, fd) == EOF) return EOF;
+	return putc(0x80 | c, fd);
 }
 #endif
 
@@ -273,9 +267,11 @@ fwrite_txt(p, n, fp)
 	while (--n >= 0) {
 		if (*p != '\015' && *p != '\032') {
 #ifdef EUC
-			putc_euc(*p, fp);
+			if (putc_euc(*p, fp) == EOF)
+                break;
 #else
-			putc(*p, fp);
+			if (putc(*p, fp) == EOF)
+                break;
 #endif
 		}
 

@@ -321,7 +321,7 @@ cmd_list()
 
 	/* open archive file */
 	if ((afp = open_old_archive()) == NULL) {
-		error(archive_name, "");
+		error("Cannot open archive \"%s\"", archive_name);
 		exit(1);
 	}
 	if (archive_is_msdos_sfx1(archive_name))

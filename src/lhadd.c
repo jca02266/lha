@@ -92,7 +92,7 @@ append_it(name, oafp, nafp)
 	boolean         directory, symlink;
 
 	if (GETSTAT(name, &stbuf) < 0) {
-		error("Cannot access", name);	/* See cleaning_files, Why? */
+		error("Cannot access file \"%s\"", name);	/* See cleaning_files, Why? */
 		return oafp;
 	}
 	
@@ -244,9 +244,9 @@ delete(oafp, nafp)
 			fseek(oafp, ahdr.packed_size, SEEK_CUR);
 			if (noexec || !quiet)
 				if (b2 != NULL)
-					printf("delete %s -> %s\n", b1, b2);
+					message("delete %s -> %s", b1, b2);
 				else
-					printf("delete %s\n", b1);
+					message("delete %s", b1);
 		}
 		else {		/* copy */
 			if (noexec) {
@@ -278,11 +278,11 @@ build_temporary_file()
     remove_temporary_at_error = TRUE;
     temporary_fd = build_temporary_name();
     if (temporary_fd == -1)
-        fatal_error(temporary_name);
+        fatal_error("Cannot open temporary file \"%s\"", temporary_name);
 
     afp = fdopen(temporary_fd, WRITE_BINARY);
     if (afp == NULL)
-        fatal_error(temporary_name);
+        fatal_error("Cannot open temporary file \"%s\"", temporary_name);
 
     return afp;
 }
@@ -305,7 +305,7 @@ build_backup_file()
             if (unlink(backup_archive_name) < 0 ||
                 rename(archive_name, backup_archive_name) < 0)
 #endif
-			fatal_error(archive_name);
+            fatal_error("Cannot make backup file \"%s\"", archive_name);
         }
 		recover_archive_when_interrupt = TRUE;
 		signal(SIGINT, interrupt);
@@ -321,7 +321,7 @@ report_archive_name_if_different()
 {
 	if (!quiet && new_archive_name == new_archive_name_buffer) {
 		/* warning at old archive is SFX */
-		fprintf(stderr, "New archive file is \"%s\"\n", new_archive_name);
+		message("New archive file is \"%s\"", new_archive_name);
 	}
 }
 
@@ -391,7 +391,7 @@ remove_one(name)
 	char          **filev;
 
 	if (GETSTAT(name, &stbuf) < 0) {
-		warning("Cannot access", name);
+		warning("Cannot access \"%s\": %s", name, strerror(errno));
 	}
 	else if (is_directory(&stbuf)) {
 		if (find_files(name, &filec, &filev)) {
@@ -399,22 +399,22 @@ remove_one(name)
 			free_files(filec, filev);
 		}
 		else
-			warning("Cannot open directory", name);
+			warning("Cannot open directory \"%s\"", name);
 
 		if (noexec)
-			printf("REMOVE DIRECTORY %s\n", name);
+			message("REMOVE DIRECTORY %s", name);
 		else if (rmdir(name) < 0)
-			warning("Cannot remove directory", name);
+			warning("Cannot remove directory \"%s\"", name);
 		else if (verbose)
-			printf("Removed %s.\n", name);
+			message("Removed %s.", name);
 	}
 	else if (is_regularfile(&stbuf)) {
 		if (noexec)
-			printf("REMOVE FILE %s.\n", name);
+			message("REMOVE FILE %s.", name);
 		else if (unlink(name) < 0)
-			warning("Cannot remove", name);
+			warning("Cannot remove \"%s\"", name);
 		else if (verbose)
-			printf("Removed %s.\n", name);
+			message("Removed %s.", name);
 	}
 #ifdef S_IFLNK
 	else if (is_symlink(&stbuf)) {
@@ -423,11 +423,11 @@ remove_one(name)
 		else if (unlink(name) < 0)
 			warning("Cannot remove", name);
 		else if (verbose)
-			printf("Removed %s.\n", name);
+			message("Removed %s.", name);
 	}
 #endif
 	else {
-		error("Cannot remove (not a file or directory)", name);
+		error("Cannot remove file \"%s\" (not a file or directory)", name);
 	}
 }
 
@@ -457,8 +457,8 @@ cmd_add()
 
 	/* exit if no operation */
 	if (!update_if_newer && cmd_filec == 0) {
-		error("No files given in argument, do nothing.", "");
-		return;
+		error("No files given in argument, do nothing.");
+        exit(1);
 	}
 
 	/* open old archive if exist */
@@ -467,10 +467,14 @@ cmd_add()
 	else
 		old_archive_exist = TRUE;
 
-	if (update_if_newer && cmd_filec == 0 && !oafp)
-		fatal_error(archive_name);	/* exit if cannot execute
-						 * automatic update */
-	errno = 0;
+	if (update_if_newer && cmd_filec == 0) {
+        warning("No files given in argument");
+        if (!oafp) {
+            error("archive file \"%s\" does not exists.",
+                  archive_name);
+            exit(1);
+        }
+    }
 
 	if (new_archive && old_archive_exist) {
 		fclose(oafp);
@@ -556,13 +560,12 @@ cmd_delete()
 
 	/* open old archive if exist */
 	if ((oafp = open_old_archive()) == NULL)
-		fatal_error(archive_name);
-	errno = 0;
+		fatal_error("Cannot open archive file \"%s\"", archive_name);
 
 	/* exit if no operation */
 	if (cmd_filec == 0) {
 		fclose(oafp);
-		warning("No files given in argument, do nothing.", "");
+		warning("No files given in argument, do nothing.");
 		return;
 	}
 
@@ -595,7 +598,7 @@ cmd_delete()
 	/* 1999.5.24 t.oka */
 	if(!noexec && new_archive_size <= 1){
 		unlink(temporary_name);
-		fprintf(stderr, "New archive file \"%s\" is not created because it would be empty.\n", new_archive_name);
+		warning("New archive file \"%s\" is not created because it would be empty.", new_archive_name);
 		return;
 	}
 

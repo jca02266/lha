@@ -42,25 +42,25 @@ copyfile(f1, f2, size, crc_flg)	/* return: size of source file */
 			if (xsize == 0)
 				break;
 			if (ferror(f1)) {
-				fatal_error("file read error\n");
+				fatal_error("file read error");
 			}
 		}
 		else {
 			xsize = (size > BUFFERSIZE) ? BUFFERSIZE : size;
 			if (fread(buf, 1, xsize, f1) != xsize) {
-				fatal_error("file read error\n");
+				fatal_error("file read error");
 			}
 		}
 		/* write */
 		if (f2) {
 			if (crc_flg == 2 && text_mode) {
 				if (fwrite_txt(buf, xsize, f2)) {
-					fatal_error("file write error\n");
+					fatal_error("file write error");
 				}
 			}
 			else {
 				if (fwrite(buf, 1, xsize, f2) != xsize) {
-					fatal_error("file write error\n");
+					fatal_error("file write error");
 				}
 			}
 		}
@@ -366,6 +366,28 @@ memset(s, c, n)
 	return s;
 }
 #endif
+
+#include <stdarg.h>
+int
+xsnprintf(char *dest, size_t size, char *fmt, ...)
+{
+    int len;
+    va_list v;
+
+    va_start(v, fmt);
+    len = vsnprintf(dest, size, fmt, v);
+    va_end(v);
+
+    if (len == -1)
+        return -1;
+
+    if (len >= size) {
+        dest[size-1] = 0;
+        return -1;
+    }
+
+    return 0;
+}
 
 /* Local Variables: */
 /* mode:c */

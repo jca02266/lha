@@ -151,7 +151,6 @@ EXTERN char		**cmd_filev;
 EXTERN int      cmd_filec;
 
 EXTERN char		*archive_name;
-EXTERN char     expanded_archive_name[FILENAME_LENGTH];
 EXTERN char     temporary_name[FILENAME_LENGTH];
 EXTERN char     backup_archive_name[FILENAME_LENGTH];
 
@@ -217,10 +216,10 @@ extern int		patmatch();
 
 extern void		interrupt();
 
-extern void		message();
-extern void		warning();
-extern void		error();
-extern void		fatal_error();
+extern void		message(char *fmt, ...);
+extern void		warning(char *fmt, ...);
+extern void		error(char *fmt, ...);
+extern void		fatal_error(char *fmt, ...);
 
 extern boolean	need_file();
 extern int		inquire();
@@ -338,6 +337,10 @@ extern int      encode_stored_crc();
 /* from header.c */
 void euc2sjis(int *p1, int *p2);
 void sjis2euc(int *p1, int *p2);
+
+/* from util.c */
+int xsnprintf(char *dest, size_t size, char *fmt, ...);
+
 
 /* Local Variables: */
 /* mode:c */

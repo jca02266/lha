@@ -35,7 +35,7 @@ inquire_extract(name)
 	skip_flg = FALSE;
 	if (stat(name, &stbuf) >= 0) {
 		if (!is_regularfile(&stbuf)) {
-			error("Already exist (not a file)", name);
+			error("\"%s\" already exists (not a file)", name);
 			return FALSE;
 		}
 
@@ -90,20 +90,19 @@ make_parent_path(name)
 		}
 
 	if (p == path) {
-		message("Why?", "ROOT");
+		message("invalid path name \"%s\"", name);
 		return FALSE;	/* no more parent. */
 	}
 
 	if (GETSTAT(path, &stbuf) >= 0) {
 		if (is_directory(&stbuf))
 			return TRUE;
-		error("Not a directory", path);
+		error("Not a directory \"%s\"", path);
 		return FALSE;
 	}
-	errno = 0;
 
 	if (verbose)
-		printf("Making directory \"%s\".\n", path);
+		message("Making directory \"%s\".", path);
 
 #if defined __MINGW32__
     if (mkdir(path) >= 0)
@@ -112,18 +111,17 @@ make_parent_path(name)
 	if (mkdir(path, 0777) >= 0)	/* try */
 		return TRUE;	/* successful done. */
 #endif
-	errno = 0;
 
 	if (!make_parent_path(path))
 		return FALSE;
 
 #if defined __MINGW32__
     if (mkdir(path) < 0)
-		message("Cannot make directory", path);
+		error("Cannot make directory", path);
         return FALSE;
 #else
 	if (mkdir(path, 0777) < 0) {	/* try again */
-		message("Cannot make directory", path);
+		error("Cannot make directory", path);
 		return FALSE;
 	}
 #endif
@@ -139,11 +137,9 @@ open_with_make_path(name)
 	FILE           *fp;
 
 	if ((fp = fopen(name, WRITE_BINARY)) == NULL) {
-		errno = 0;
 		if (!make_parent_path(name) ||
 		    (fp = fopen(name, WRITE_BINARY)) == NULL)
-			error("Cannot extract", name);
-		errno = 0;
+			error("Cannot extract a file \"%s\"", name);
 	}
 	return fp;
 }
@@ -193,7 +189,6 @@ adjust_info(name, hdr)
 #endif /* HAVE_LCHWON */
 				chown(name, uid, gid);
 		}
-		errno = 0;
 	}
 }
 
@@ -232,7 +227,7 @@ extract_one(afp, hdr)
 	}
 
 	if (extract_directory)
-		sprintf(name, "%s/%s", extract_directory, q);
+		xsnprintf(name, sizeof(name), "%s/%s", extract_directory, q);
 	else
 		strcpy(name, q);
 
@@ -241,7 +236,8 @@ extract_one(afp, hdr)
 	/* 1999.4.30 t.okamoto */
 	for (method = 0;; method++) {
 		if (methods[method] == NULL) {
-			error("Unknown method skiped ...", name);
+			error("Unknown method \"%.*s\"; \"%s\" will be skiped ...",
+                  5, hdr->method, name);
 			return;
 		}
 		if (bcmp(hdr->method, methods[method], 5) == 0)
@@ -253,8 +249,8 @@ extract_one(afp, hdr)
 #if 0
 		for (method = 0;; method++) {
 			if (methods[method] == NULL) {
-				error("Unknown method skiped ...", name);
-				return;
+                error("Unknown method \"%.*s\"; \"%s\" will be skiped ...",
+                      5, hdr->method, name);
 			}
 			if (bcmp(hdr->method, methods[method], 5) == 0)
 				break;
@@ -335,7 +331,6 @@ extract_one(afp, hdr)
 #endif
 
 			unlink(name);
-			errno = 0;
 			remove_extracting_file_when_interrupt = TRUE;
 
 			if ((fp = open_with_make_path(name)) != NULL) {
@@ -352,9 +347,8 @@ extract_one(afp, hdr)
 				return;
 		}
 
-		errno = 0;
 		if (hdr->has_crc && crc != hdr->crc)
-			error("CRC error", name);
+			error("CRC error: \"%s\"", name);
 	}
 	else if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_DIRECTORY
 			 || (hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK
@@ -394,15 +388,15 @@ extract_one(afp, hdr)
 				l_code = symlink(bb2, bb1);
 				if (l_code < 0) {
 					if (quiet != TRUE)
-						warning("Can't make Symbolic Link : ");
+						warning("Can't make Symbolic Link \"%s\" -> \"%s\"",
+                                bb1, bb2);
 				}
 				if (quiet != TRUE) {
-					printf("Symbolic Link %s -> %s\n", bb1, bb2);
+					message("Symbolic Link %s -> %s", bb1, bb2);
 				}
 				strcpy(name, bb1);	/* Symbolic's name set */
 #else
-				sprintf(buf, "%s -> %s", bb1, bb2);
-				warning("Can't make Symbolic Link", buf);
+				warning("Can't make Symbolic Link %s -> %s", bb1, bb2);
 				return;
 #endif
 			} else { /* make directory */
@@ -412,7 +406,7 @@ extract_one(afp, hdr)
 		}
 	}
 	else {
-		error("Unknown information", name);
+		error("Unknown information: \"%s\"", name);
 	}
 
 	if (!output_to_stdout)
@@ -431,7 +425,7 @@ cmd_extract()
 
 	/* open archive file */
 	if ((afp = open_old_archive()) == NULL)
-		fatal_error(archive_name);
+		fatal_error("Cannot open archive file \"%s\"", archive_name);
 
 	if (archive_is_msdos_sfx1(archive_name))
 		skip_msdos_sfx1_code(afp);
