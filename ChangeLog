@@ -1,5 +1,7 @@
 2002-06-23  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test.in: On Cygwin/MinGW, cannot test lha-test9.
+
 	* src/lhext.c: Fixed a misspelling. not `Symblic' but `Symbolic'.
 	  reported on LHa BBS (see <http://www2m.biglobe.ne.jp/~dolphin/>).
 
