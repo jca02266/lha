@@ -459,7 +459,7 @@ work:
 static void
 print_version()
 {
-	fprintf(stderr, "%s (%s)\n", LHA_VERSION, PLATFORM);
+	fprintf(stderr, "%s\n", LHA_VERSION);
 }
 
 /* ------------------------------------------------------------------------ */
