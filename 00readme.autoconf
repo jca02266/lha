@@ -1,7 +1,7 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiscated for LHa for UNIX version 1.14i
-		        Sat, Jun 19 2002 by Koji Arai <jca02266@nifty.ne.jp>
+                        Sat, Jun 29 2002 by Koji Arai <jca02266@nifty.ne.jp>
 
 このファイルはLHa for UNIX version 1.14i をautoconf、automake化
 した(autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
@@ -100,10 +100,13 @@ LHa for UNIX に関しては岡本継男さんのページ
 	    システムの漢字コードを SJIS として扱います。
       --enable-multibyte-filename=euc
 	    システムの漢字コードを EUC として扱います。
+      --enable-multibyte-filename=utf8
+	    システムの漢字コードを UTF-8 として扱います。
+	    今のところ Mac OS X でだけこのオプションをサポートします。
       --enable-multibyte-filename=auto (または yes または引数なし)
 	    システムの漢字コードを自動で判別します。自動といっても現状は、
-	    Cygwin, MinGW, HP-UX の場合に SJIS、それ以外を EUC とみなすだけ
-	    です。
+	    Cygwin, MinGW, HP-UX の場合に SJIS、Mac OS X の場合 UTF-8、
+	    それ以外を EUC とみなすだけです。
       --enable-multibyte-filename=no
       --disable-multibyte-filename
 	    ファイル名のマルチバイトサポートを無効にします。
@@ -113,6 +116,9 @@ LHa for UNIX に関しては岡本継男さんのページ
   将来的には lha のコマンドラインオプションや環境変数によりアーカイブ、
   システムの各漢字コードを指定できるようにするかもしれませんが、今のと
   ころ実装はしていません。
+
+  Mac OS X 用の utf8 <-> sjis 変換は、2002/6 に坂井浩人さんによって作
+  成されました。ありがとうございます。
 
 ・標準入力からの展開ファイルの指定
 
@@ -125,7 +131,7 @@ LHa for UNIX に関しては岡本継男さんのページ
   下のファイルを bar.lzh に格納したりできます。つまり、標準入力から、
   圧縮／展開ファイルを指定できる機能なのですが、いまいち使い道がないわ
   りに邪魔な機能です(圧縮の例は、cpio 同様まあ使えるけど、このためのオ
-  プションを新設するのが良いと思います)
+  プションを新設するのが良いと考えています)
 
   tty からの利用しか想定してないと思われますが、おそらく daemon から 
   lha を実行する場合などで意図しない動作をするでしょう。そういうわけで
