@@ -105,13 +105,13 @@ convdelim(path, delim)
 {
 	unsigned char   c;
 	unsigned char  *p;
-#ifdef MULTIBYTE_CHAR
+#ifdef MULTIBYTE_FILENAME
 	int             kflg;
 
 	kflg = 0;
 #endif
 	for (p = path; (c = *p) != 0; p++) {
-#ifdef MULTIBYTE_CHAR
+#ifdef MULTIBYTE_FILENAME
 		if (kflg) {
 			kflg = 0;
 		}

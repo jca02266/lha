@@ -139,14 +139,14 @@ if test "x$enable_indicator" = xyes; then
 fi
 
 # support multibyte filename
-AC_ARG_ENABLE(multibyte-char,
-  [  --enable-multibyte-char support multibyte filename [default=yes]],
+AC_ARG_ENABLE(multibyte-filename,
+  [  --enable-multibyte-filename support multibyte filename [default=yes]],
   ,
   # default
-  enable_multibyte_char=yes)
+  enable_multibyte_filename=yes)
 
-if test "x$enable_multibyte_char" = xyes; then
-  AC_DEFINE(MULTIBYTE_CHAR, 1,
+if test "x$enable_multibyte_filename" = xyes; then
+  AC_DEFINE(MULTIBYTE_FILENAME, 1,
 	    [Define to 1 if you want to use multibyte filename])
 fi
 

@@ -116,10 +116,10 @@ typedef int				boolean;
 #define TO_LOWER 1
 #define TO_UPPER 2
 
-#ifdef MULTIBYTE_CHAR
+#ifdef MULTIBYTE_FILENAME
 #define MULTIBYTE_FIRST_P	SJC_FIRST_P
 #define MULTIBYTE_SECOND_P	SJC_SECOND_P
-#endif				/* MULTIBYTE_CHAR */
+#endif				/* MULTIBYTE_FILENAME */
 
 /* ------------------------------------------------------------------------ */
 /*	LHa File Definitions													*/

@@ -94,7 +94,7 @@ msdos_to_unix_filename(name, len)
 {
 	register int    i;
 
-#ifdef MULTIBYTE_CHAR
+#ifdef MULTIBYTE_FILENAME
 	for (i = 0; i < len; i++) {
 		if (MULTIBYTE_FIRST_P(name[i]) &&
 		    MULTIBYTE_SECOND_P(name[i + 1]))
@@ -123,7 +123,7 @@ generic_to_unix_filename(name, len)
 	register int    i;
 	boolean         lower_case_used = FALSE;
 
-#ifdef MULTIBYTE_CHAR
+#ifdef MULTIBYTE_FILENAME
 	for (i = 0; i < len; i++) {
 		if (MULTIBYTE_FIRST_P(name[i]) &&
 		    MULTIBYTE_SECOND_P(name[i + 1]))
@@ -205,7 +205,7 @@ filename_conv(name, len, size,
 	register int    i;
 
 	for (i = 0; i < len; i ++) {
-#ifdef MULTIBYTE_CHAR
+#ifdef MULTIBYTE_FILENAME
         if (from_code == CODE_EUC &&
             (unsigned char)name[i] == 0x8e) {
             if (to_code != CODE_SJIS) {
@@ -264,7 +264,7 @@ filename_conv(name, len, size,
 			i++;
             continue;
         }
-#endif /* MULTIBYTE_CHAR */
+#endif /* MULTIBYTE_FILENAME */
         {
             char *ptr;
 
