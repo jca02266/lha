@@ -1,3 +1,13 @@
+2004-09-29  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* released.
+
+	* configure.ac: updated version.
+
+	* Makefile.am: added Hacking_of_LHa in EXTRA_DIST.
+
+	* Hacking_of_LHa: renamed (typo).
+
 2004-09-27  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: updated version.
