@@ -75,7 +75,7 @@ test -f test-tmp1-h1/test-tmp1/$file
 							check $? $LINENO
 test -f test-tmp1-h2/test-tmp1/$file
 							check $? $LINENO
-# the header size is 0x101 instead of 0x100 on level 2 header
+# 0x100 is never set on the header size field on level 2 header
 file=test-tmp9012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 touch $file
 							check $? $LINENO
@@ -87,7 +87,7 @@ $lha vv test-tmp4-h2.lzh | egrep '\[2\].?$'
 							check $? $LINENO
 $lha xw=test-tmp4 test-tmp4-h2.lzh
 							check $? $LINENO
-test x"`/bin/ls -l test-tmp4-h2.lzh | awk '{print $5}'`" = x258
+test x"`$lha vvvq test-tmp4-h2.lzh | head -1`" = x"00  2: 257(0x0101)"
 							check $? $LINENO
 test -f test-tmp4/$file
 							check $? $LINENO
