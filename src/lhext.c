@@ -202,7 +202,7 @@ extract_one(afp, hdr)
 	FILE           *fp;	/* output file */
 	struct stat     stbuf;
 	char            name[FILENAME_LENGTH];
-	int             crc;
+	unsigned int crc;
 	int             method;
 	boolean         save_quiet, save_verbose, up_flag;
 	char           *q = hdr->name, c;
