@@ -405,10 +405,8 @@ work:
 
 			if (cmd_filec >= xfilec) {
 				xfilec += 256;
-				cmd_filev = (char **) realloc(xfilev,
+				cmd_filev = (char **) xrealloc(xfilev,
 						   sizeof(char *) * xfilec);
-				if (cmd_filev == NULL)
-					fatal_error("Virtual memory exhausted\n");
 				xfilev = cmd_filev;
 			}
 			if (strlen(inpbuf) < 1)
