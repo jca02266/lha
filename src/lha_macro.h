@@ -96,9 +96,6 @@ typedef int				boolean;
 #ifndef BACKUPNAME_EXTENTION
 #define BACKUPNAME_EXTENTION	".bak"
 #endif
-#ifndef TMP_FILENAME_TEMPLATE
-#define TMP_FILENAME_TEMPLATE	"/tmp/lhXXXXXX"
-#endif
 
 #define SJC_FIRST_P(c)			\
   (((unsigned char)(c) >= 0x80) &&	\
