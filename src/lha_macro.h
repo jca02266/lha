@@ -32,10 +32,10 @@
 #define BACKUPNAME_EXTENTION	".bak"
 #endif
 
-#define SJC_FIRST_P(c)			\
+#define SJIS_FIRST_P(c)			\
   (((unsigned char)(c) >= 0x80 && (unsigned char)(c) < 0xa0) ||	\
    ((unsigned char)(c) >= 0xe0 && (unsigned char)(c) < 0xfd))
-#define SJC_SECOND_P(c)			\
+#define SJIS_SECOND_P(c)			\
   (((unsigned char)(c) >= 0x40 && (unsigned char)(c) < 0xfd) &&	\
     (unsigned char)(c) != 0x7f)
 
@@ -49,11 +49,6 @@
 #define CODE_UTF8 3
 #define TO_LOWER 1
 #define TO_UPPER 2
-
-#ifdef MULTIBYTE_FILENAME
-#define MULTIBYTE_FIRST_P	SJC_FIRST_P
-#define MULTIBYTE_SECOND_P	SJC_SECOND_P
-#endif				/* MULTIBYTE_FILENAME */
 
 /* ------------------------------------------------------------------------ */
 /*	LHa File Definitions													*/
