@@ -1,4 +1,9 @@
-2002-05-19  Koji Arai  <arai@fgsd.mt.nec.co.jp>
+2002-05-19  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lharc.c (print_tiny_usage_and_exit): added credit.
+	(print_version): print PLATFORM.
+
+	* configure.ac, configure.in, config.h.in: define PLATFORM.
 
 	* src/lharc.c (xstrdup): fix typo.
 
