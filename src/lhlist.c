@@ -124,8 +124,12 @@ list_one(hdr)
 	char            method[6];
 	char modebits[11];
 
-	if (verbose)
-		printf("%s\n", hdr->name);
+    if (verbose) {
+        if ((hdr->unix_mode & UNIX_FILE_SYMLINK) != UNIX_FILE_SYMLINK)
+            printf("%s\n", hdr->name);
+        else
+            printf("%s -> %s\n", hdr->realname, hdr->name);
+    }
 
 	strncpy(method, hdr->method, 5);
 	method[5] = '\0';
@@ -255,14 +259,10 @@ list_one(hdr)
 	print_stamp(hdr->unix_last_modified_stamp);
 
 	if (!verbose) {
-		if ((mode & UNIX_FILE_SYMLINK) != UNIX_FILE_SYMLINK)
+		if ((hdr->unix_mode & UNIX_FILE_SYMLINK) != UNIX_FILE_SYMLINK)
 			printf(" %s", hdr->name);
 		else {
-			char buf[FILENAME_LENGTH], *b1, *b2;
-			strcpy(buf, hdr->name);
-			b1 = strtok(buf, "|");
-			b2 = strtok(NULL, "|");
-			printf(" %s -> %s", b1, b2);
+			printf(" %s -> %s", hdr->realname, hdr->name);
 		}
     }
 	if (verbose)

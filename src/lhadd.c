@@ -31,13 +31,8 @@ add_one(fp, nafp, hdr)
 	write_header(nafp, hdr);/* DUMMY */
 
 	if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
-		char            buf[256], *b1, *b2;
-		if (!quiet) {
-			strcpy(buf, hdr->name);
-			b1 = strtok(buf, "|");
-			b2 = strtok(NULL, "|");
-			printf("%s -> %s\t- Symbolic Link\n", b1, b2);
-		}		/* if quiet .. */
+		if (!quiet)
+			printf("%s -> %s\t- Symbolic Link\n", hdr->realname, hdr->name);
 	}
 
 	if (hdr->original_size == 0) {	/* empty file or directory */
@@ -119,8 +114,7 @@ append_it(name, oafp, nafp)
 			oafp = NULL;
 			break;
 		} else {
-			/* for symbolic link. t.okamoto */
-			cmp = strcmp_filename(ahdr.name, hdr.name);
+			cmp = strcmp(ahdr.name, hdr.name);
 			if (cmp < 0) {	/* SKIP */
 				/* copy old to new */
 				if (!noexec) {
@@ -229,20 +223,16 @@ delete(oafp, nafp)
 {
 	LzHeader        ahdr;
 	long            old_header_pos;
-	char            lpath[256], *b1, *b2;
 
 	old_header_pos = ftell(oafp);
 	while (get_header(oafp, &ahdr)) {
-		strcpy(lpath, ahdr.name);
-		b1 = strtok(lpath, "|");
-		b2 = strtok(NULL, "|");
-		if (need_file(b1)) {	/* skip */
+		if (need_file(ahdr.name)) {	/* skip */
 			fseek(oafp, ahdr.packed_size, SEEK_CUR);
 			if (noexec || !quiet) {
-				if (b2 != NULL)
-					message("delete %s -> %s", b1, b2);
+                if ((ahdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK)
+                    message("delete %s -> %s", ahdr.realname, ahdr.name);
 				else
-					message("delete %s", b1);
+					message("delete %s", ahdr.name);
             }
 		}
 		else {		/* copy */
@@ -627,28 +617,6 @@ cmd_delete()
 	return;
 }
 
-/* for symbolic link name. t.okamoto 96/2/20 */
-int strcmp_filename( str1, str2 )
-char *str1;
-char *str2;
-{
-	char *p, *q;
-
-	p = str1; q = str2;
-	while (*p != 0 && *q != 0) {
-		if (*p == '|') {
-			if (*q == 0) return 0;
-			else if (*q != '|') return -1;
-		} else if (*q == '|') {
-			if (*p == 0) return 0;
-			else if (*q != '|') return 1;
-		} else if (*p != *q) break;
-		p++; q++;
-	}
-	return (int)*p-(int)*q;
-}
-
-		
 /* Local Variables: */
 /* mode:c */
 /* tab-width:4 */

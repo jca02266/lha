@@ -365,11 +365,7 @@ extract_one(afp, hdr)
 			}
 			/* NAME has trailing SLASH '/', (^_^) */
 			if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK) {
-				char            buf[256], *bb1, *bb2;
 				int             l_code;
-				strcpy(buf, name);
-				bb1 = strtok(buf, "|");
-				bb2 = strtok(NULL, "|");
 
 #ifdef S_IFLNK
 				if (skip_flg == FALSE)  {
@@ -378,28 +374,30 @@ extract_one(afp, hdr)
 						return;
 					}
 				} else {
-					if (GETSTAT(bb1, &stbuf) == 0 && force != TRUE) {
+					if (GETSTAT(name, &stbuf) == 0 && force != TRUE) {
 						if (stbuf.st_mtime >= hdr->unix_last_modified_stamp) {
 							if (quiet != TRUE)
-								printf("%s : Skipped...\n", bb1);
+								printf("%s : Skipped...\n", name);
 							return;
 						}
 					}
 				}
 
-				unlink(bb1);
-				l_code = symlink(bb2, bb1);
+				unlink(name);
+                make_parent_path(name);
+				l_code = symlink(hdr->realname, name);
 				if (l_code < 0) {
 					if (quiet != TRUE)
 						warning("Can't make Symbolic Link \"%s\" -> \"%s\"",
-                                bb1, bb2);
+                                hdr->realname, name);
 				}
 				if (quiet != TRUE) {
-					message("Symbolic Link %s -> %s", bb1, bb2);
+					message("Symbolic Link %s -> %s",
+                            hdr->realname, name);
 				}
-				strcpy(name, bb1);	/* Symbolic's name set */
 #else
-				warning("Can't make Symbolic Link %s -> %s", bb1, bb2);
+				warning("Can't make Symbolic Link %s -> %s",
+                        hdr->realname, name);
 				return;
 #endif
 			} else { /* make directory */

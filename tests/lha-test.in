@@ -115,6 +115,7 @@ esac
 . $srcdir/lha-test11; cleanup
 . $srcdir/lha-test12; cleanup
 . $srcdir/lha-test13; cleanup
+. $srcdir/lha-test14; cleanup
 
 if (( $error_num != 0 )); then
   echo $error_num tests failed! >&2

@@ -1125,6 +1125,20 @@ get_header(fp, hdr)
                      system_kanji_code,
                      archive_delim, system_delim, filename_case);
 
+ 	if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
+        char *p;
+        /* split symbolic link */
+        p = strchr(hdr->name, '|');
+        if (p) {
+            /* hdr->name is symbolic link name */
+            /* hdr->realname is real name */
+            *p = 0;
+            strncpy(hdr->realname, p+1, sizeof(hdr->realname));
+        }
+        else
+            error("unknown symlink name \"%s\"", hdr->name);
+    }
+
     return TRUE;
 }
 
@@ -1196,15 +1210,10 @@ init_header(name, v_stat, hdr)
 
 #ifdef S_IFLNK
 	if (is_symlink(v_stat)) {
-		char	lkname[FILENAME_LENGTH];
-		int		len;
 		memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STORAGE);
 		hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
 		hdr->original_size = 0;
-		len = readlink(name, lkname, sizeof(lkname));
-		if (xsnprintf(hdr->name, sizeof(hdr->name),
-                      "%s|%.*s", hdr->name, len, lkname) == -1)
-            error("file name is too long (%s -> %.*s)", hdr->name, len, lkname);
+		readlink(name, hdr->realname, sizeof(hdr->realname));
 	}
 #endif
 }
@@ -1517,8 +1526,23 @@ write_header(fp, hdr)
         archive_delim = "\\";
     }
 
-    strncpy(pathname, hdr->name, sizeof(pathname));
-    pathname[sizeof(pathname)-1] = 0;
+ 	if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
+        char *p;
+        p = strchr(hdr->name, '|');
+        if (p) {
+            error("symlink name \"%s\" contains '|' char. change it into '_'",
+                  hdr->name);
+            *p = '_';
+        }
+        if (xsnprintf(pathname, sizeof(pathname),
+                      "%s|%s", hdr->name, hdr->realname) == -1)
+            error("file name is too long (%s -> %s)", hdr->name, hdr->realname);
+    }
+    else {
+        strncpy(pathname, hdr->name, sizeof(pathname));
+        pathname[sizeof(pathname)-1] = 0;
+    }
+
     convert_filename(pathname, strlen(pathname), sizeof(pathname),
                      system_kanji_code,
                      archive_kanji_code,

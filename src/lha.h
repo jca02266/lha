@@ -211,6 +211,7 @@ typedef struct LzHeader {
 	unsigned char   attribute;
 	unsigned char   header_level;
 	char            name[FILENAME_LENGTH];
+    char            realname[FILENAME_LENGTH];/* real name for symbolic link */
 	unsigned int    crc;      /* file CRC */
 	boolean         has_crc;  /* file CRC */
     unsigned int    header_crc; /* header CRC */
