@@ -1,6 +1,8 @@
 2002-06-21  Koji Arai  <jca02266@nifty.ne.jp>
 
-	* tests/lha-test.in: all tests are splited into some files.
+	* tests/lha-test.in: All tests are splited into some files.
+
+	* tests/Makefile.am: ditto.
 
 	* tests/lha-test2: ditto.
 
