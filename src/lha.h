@@ -191,7 +191,7 @@ EXTERN long		reading_size;
 EXTERN unsigned int n_max;
 
 /* lhadd.c */
-EXTERN int temporary_fd = -1;
+EXTERN int temporary_fd;
 
 /* ------------------------------------------------------------------------ */
 /*	Functions																*/
@@ -219,7 +219,7 @@ extern void		finish_sp();
 extern void		free_sp();
 extern void		cleaning_files();
 
-extern void		build_temporary_name();
+extern int		build_temporary_name();
 extern void		build_backup_file_name();
 extern void		build_standard_archive_name();
 

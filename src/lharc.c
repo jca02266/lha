@@ -126,6 +126,7 @@ init_variable()		/* Added N.Watazaki */
 
 	extract_directory = NULL;
 	xfilec = 257;
+    temporary_fd = -1;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -931,10 +932,25 @@ build_temporary_name()
 	strcpy((s ? s + 1 : temporary_name), "lhXXXXXX");
 #endif
 #ifdef HAVE_MKSTEMP
-	return mkstemp(temporary_name);
+    {
+        int old_umask, fd;
+
+        old_umask = umask(077);
+        fd = mkstemp(temporary_name);
+        umask(old_umask);
+        return fd;
+    }
 #else
-	mktemp(temporary_name);
-    return open(temporary_name, O_CREAT|O_EXCL|O_RDWR|O_BINARY, 0600);
+    {
+        int flags;
+        mktemp(temporary_name);
+
+        flags = O_CREAT|O_EXCL|O_RDWR;
+#ifdef O_BINARY
+        flags |= O_BINARY;
+#endif
+        return open(temporary_name, flags, 0600);
+    }
 #endif
 }
 

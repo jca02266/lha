@@ -277,13 +277,12 @@ build_temporary_file()
 
     remove_temporary_at_error = TRUE;
     temporary_fd = build_temporary_name();
-    if (fd == -1)
+    if (temporary_fd == -1)
         fatal_error(temporary_name);
 
-    afp = fdopen(temporary_name, WRITE_BINARY);
+    afp = fdopen(temporary_fd, WRITE_BINARY);
     if (afp == NULL)
         fatal_error(temporary_name);
-
 
     return afp;
 }
