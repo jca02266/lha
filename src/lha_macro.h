@@ -64,12 +64,8 @@
 extern struct tm *localtime();
 extern char    *getenv();
 
-#ifndef _MINIX
-#ifndef __STDC__
-extern char    *malloc();
-extern char    *realloc();
-#endif
-#endif
+extern char    *xmalloc();
+extern char    *xrealloc();
 
 /* external variables */
 extern int      errno;
@@ -82,6 +78,13 @@ typedef int				boolean;
 #define STRING_COMPARE(a,b)		strcmp((a),(b))
 
 #define FILENAME_LENGTH	1024
+
+#if defined __MINGW32__
+# define getuid()       0
+# define chown(file, uid, gid)  0
+# define kill(pid, sig)         0
+# define link(from, to)         0
+#endif
 
 /* ------------------------------------------------------------------------ */
 /* YOUR CUSTOMIZIES															*/
@@ -258,7 +261,7 @@ typedef short   				node;
 /* ------------------------------------------------------------------------ */
 /*	Slide relation															*/
 /* ------------------------------------------------------------------------ */
-#if defined(__STDC__) || defined(AIX)
+#if HAVE_LIMITS_H
 
 #include <limits.h>
 
@@ -296,7 +299,7 @@ typedef short   				node;
 #define LONG_MIN	(LONG_MAX-ULONG_MAX)
 #endif
 
-#endif	/* not __STDC__ */
+#endif
 
 /* ------------------------------------------------------------------------ */
 /*	FILE Attribute															*/
