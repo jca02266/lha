@@ -22,9 +22,9 @@ test -L test-tmp-1/test-tmp-b &&
 test -L test-tmp-1/test-tmp-c
 							check $? $LINENO
 # symbolic link is broken
-test ! -e test-tmp-1/test-tmp-a &&
-test ! -e test-tmp-1/test-tmp-b &&
-test ! -e test-tmp-1/test-tmp-c
+test ! -f test-tmp-1/test-tmp-a &&
+test ! -f test-tmp-1/test-tmp-b &&
+test ! -f test-tmp-1/test-tmp-c
 							check $? $LINENO
 
 # symbolic link filename contains '|'
@@ -51,7 +51,7 @@ $lha xw=test-tmp-2 test-tmp-2.lzh 2> test-tmp-stderr
 test -s test-tmp-stderr
 							check $? $LINENO
 test -L test-tmp-2/test-tmp-_foo &&
-test ! -e test-tmp-1/test-tmp-_foo
+test ! -f test-tmp-1/test-tmp-_foo
 							check $? $LINENO
 # linked filename contains '|'
 touch test-tmp-\|bar &&
@@ -69,7 +69,7 @@ $lha xw=test-tmp-3 test-tmp-3.lzh 2> test-tmp-stderr
 test -s test-tmp-stderr
 							check $? $LINENO
 test -L test-tmp-3/test-tmp-foo &&
-test ! -e test-tmp-1/test-tmp-foo
+test ! -f test-tmp-1/test-tmp-foo
 							check $? $LINENO
 ;;
 esac
