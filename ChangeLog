@@ -1,5 +1,15 @@
 2003-07-21  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/prototypes.h: updated.
+
+	* src/append.c (encode_lzhuf): set actual copied size.
+
+	* src/util.c (encode_stored_crc): use size_t instead of long.
+
+	* src/lhadd.c (temporary_to_new_archive_file): ditto.
+	(cmd_add): ditto.
+	(cmd_delete): ditto.
+
 	* src/lhadd.c (add_one): fixed a comment.
 
 	* src/indicator.c (MAX_INDICATOR_COUNT): changed to fit for the 80
