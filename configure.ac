@@ -22,7 +22,7 @@ AC_SEARCH_LIBS(opendir, [mingwex])
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h limits.h sys/file.h sys/param.h sys/time.h)
-AC_CHECK_HEADERS(pwd.h grp.h)
+AC_CHECK_HEADERS(pwd.h grp.h utime.h)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
