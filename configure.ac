@@ -22,7 +22,7 @@ AC_SEARCH_LIBS(opendir, [mingwex])
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h limits.h sys/file.h sys/param.h sys/time.h)
-AC_CHECK_HEADERS(pwd.h grp.h utime.h inttypes.h stdint.h)
+AC_CHECK_HEADERS(pwd.h grp.h utime.h inttypes.h stdint.h fnmatch.h)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -56,12 +56,17 @@ AC_CHECK_MEMBERS([struct tm.tm_gmtoff, struct stat.st_ino],,,
 AC_TYPE_SIGNAL
 AC_FUNC_FORK
 AC_FUNC_UTIME_NULL
+AC_FUNC_FNMATCH
 AC_CHECK_FUNCS(strchr strdup memcpy memset memmove strcasecmp)
 AC_CHECK_FUNCS(mktime timelocal tzset ftime gettimeofday utime)
 AC_CHECK_FUNCS(mkdir rmdir ftruncate chsize lchown mkstemp link)
 AC_CHECK_FUNCS(getpwuid getgrgid getpwnam getgrnam)
-AC_CHECK_FUNCS(iconv)
-AC_REPLACE_FUNCS(vsnprintf)
+AC_CHECK_FUNCS(iconv basename)
+AC_REPLACE_FUNCS(vsnprintf fnmatch)
+
+if test x$ac_cv_func_fnmatch_works != xyes; then
+  AC_LIBOBJ(fnmatch)
+fi
 
 if test $ac_header_dirent = no; then
   AC_LIBOBJ(lhdir)

@@ -9,6 +9,9 @@
 /* Define to 1 if the 2nd argument of gettimeofday() is effective. */
 #undef GETTIMEOFDAY_HAS_2ND_ARG
 
+/* Define to 1 if you have the `basename' function. */
+#undef HAVE_BASENAME
+
 /* Define to 1 if you have the `chsize' function. */
 #undef HAVE_CHSIZE
 
@@ -18,6 +21,12 @@
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
+
+/* Define to 1 if you have the `fnmatch' function. */
+#undef HAVE_FNMATCH
+
+/* Define to 1 if you have the <fnmatch.h> header file. */
+#undef HAVE_FNMATCH_H
 
 /* Define to 1 if you have the `fork' function. */
 #undef HAVE_FORK
