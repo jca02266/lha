@@ -1061,8 +1061,12 @@ open_old_archive()
 	char           *p;
 
 	if (!strcmp(archive_name, "-")) {
-		if (cmd == CMD_EXTRACT || cmd == CMD_LIST)
+		if (cmd == CMD_EXTRACT || cmd == CMD_LIST) {
+#if __MINGW32__
+            setmode(fileno(stdin), O_BINARY);
+#endif
 			return stdin;
+        }
 		else
 			return NULL;
 	}
