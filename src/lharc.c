@@ -450,7 +450,10 @@ work:
 static void
 print_version()
 {
-	fprintf(stderr, "%s\n", LHA_VERSION);
+    /* macro PACKAGE_NAME, PACKAGE_VERSION and PLATFORM are
+       defined in config.h by configure script */
+	fprintf(stderr, "%s version %s (%s)\n",
+            PACKAGE_NAME, PACKAGE_VERSION, PLATFORM);
 }
 
 void

@@ -7,9 +7,6 @@
 /*	Ver. 1.14g	modified   						2000.05.06	T.OKAMOTO		*/
 /* ------------------------------------------------------------------------ */
 
-/* macro VERSION and PLATFORM are defined in config.h by configure script */
-#define LHA_VERSION "LHa for UNIX version " VERSION " (" PLATFORM ")"
-
 #define	FALSE			0
 #define TRUE			1
 
