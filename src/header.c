@@ -770,7 +770,7 @@ get_header(fp, hdr)
         archive_delim = "\xff\\";
         system_delim = "//";
         filename_case = noconvertcase ? NONE : TO_LOWER;
-        /* pending: if small letter is included in filename,
+        /* FIXME: if small letter is included in filename,
            the generic_to_unix_filename() do not case conversion,
            but this code does not consider it. */
 
@@ -955,7 +955,7 @@ write_header(nafp, hdr)
 
     filename_conv(hdr->name, strlen(hdr->name), sizeof(hdr->name),
                   system_kanji_code,
-                  archive_kanji_code, /* no change code */
+                  archive_kanji_code,
                   "\xff\\/", "\xff\xff\xff", NONE);
 
 	if (hdr->header_level != HEADER_LEVEL2) {
