@@ -1,3 +1,8 @@
+2003-02-04  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.ac: need to call `AC_CANONICAL_HOST' for automake
+	1.6.x (for installing the config.guess and config.sub).
+
 2003-02-02  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/header.c, src/lharc.c: fix credit.
