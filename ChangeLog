@@ -1,7 +1,14 @@
 2002-12-17  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: should check whether system has `ssize_t'.
+
+	* config.h.in: ditto.
+
+	* lha.h: ditto.
+	
 	* configure.ac: added checking functions `fnmatch' and `basename'.
 	but not yet prepare the free fnmatch.c.
+	(Repository): 
 
 	* config.h.in: ditto.
 
