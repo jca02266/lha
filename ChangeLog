@@ -14,6 +14,10 @@
 
 2002-05-26  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test.in: added some tests.
+
+	* tests/Makefile.am: refined.
+
 	* src/lhext.c (cmd_extract): discard useless fseek() calling (for MinGW).
 
 	* tests/lha-test.in: added some tests.
