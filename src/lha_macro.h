@@ -10,6 +10,11 @@
 /* macro VERSION and PLATFORM are defined in config.h by configure script */
 #define LHA_VERSION "LHa for UNIX version " VERSION " (" PLATFORM ")"
 
+#ifdef __APPLE__
+#include <CoreFoundation/CFString.h>
+#include <CoreFoundation/CFStringEncodingExt.h>
+#endif /* __APPLE__ */
+
 /* Most of System V, define TM_IN_SYS_TIME */
 #if	TM_IN_SYS_TIME
 #include <sys/time.h>
@@ -298,6 +303,11 @@ typedef short   				node;
 
 #endif
 
+#define LH3_DICBIT			13
+#define LH5_DICBIT			13
+#define LH6_DICBIT			15
+#define LH7_DICBIT			16
+
 /* ------------------------------------------------------------------------ */
 /*	FILE Attribute															*/
 /* ------------------------------------------------------------------------ */
@@ -393,7 +403,6 @@ char *strchr (), *strrchr ();
 #define EXTRABITS	8				/* >= log2(F-THRESHOLD+258-N1) */
 #define BUFBITS		16				/* >= log2(MAXBUF) */
 #define LENFIELD	4				/* bit size of length field for tree output */
-#define LH3_DICBIT			13
 
 /* util.c */
 #define BUFFERSIZE	2048
@@ -411,16 +420,12 @@ char *strchr (), *strrchr ();
 */
 
 /* slide.c */
-#define LH5_DICBIT			13
-#define LH6_DICBIT			15
-#define LH7_DICBIT			16
-
 #ifdef SUPPORT_LH7
-#define MAX_DICBIT			16      /* lh7 use 16bits */
+#define MAX_DICBIT			LH7_DICBIT      /* lh7 use 16bits */
 #endif
 
 #ifndef SUPPORT_LH7
-#define MAX_DICBIT			15      /* lh6 use 15bits */
+#define MAX_DICBIT			LH6_DICBIT      /* lh6 use 15bits */
 #endif
 
 #define MAX_DICSIZ			(1 << MAX_DICBIT)

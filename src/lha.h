@@ -239,11 +239,8 @@ extern void		build_backup_file_name();
 extern void		build_standard_archive_name();
 
 extern FILE		*open_old_archive();
-extern void		init_header();
-extern boolean	get_header();
 extern boolean	archive_is_msdos_sfx1();
 extern boolean	skip_msdos_sfx1_code();
-extern void		write_header();
 extern void		write_archive_tail();
 extern void		copy_old_one();
 extern unsigned char *convdelim();
@@ -333,6 +330,15 @@ extern unsigned 		short calccrc();
 /* from lhadd.c */
 extern int		encode_lzhuf();
 extern int      encode_stored_crc();
+
+/* from header.c */
+extern boolean	get_header();
+extern void		init_header();
+extern void		write_header();
+#ifdef __APPLE__
+extern char		*sjis_to_utf8_static(const char *);
+extern char		*utf8_to_sjis_static(const char *);
+#endif /* __APPLE__ */
 
 /* from header.c */
 void euc2sjis(int *p1, int *p2);
