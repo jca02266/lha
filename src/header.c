@@ -1195,11 +1195,11 @@ ConvertUTF8ToEncoding(const char* inUTF8Buf,
 #endif /* __APPLE__ */
 
 char *
-sjis_to_utf8(char *dst, const char *from, size_t dstsize)
+sjis_to_utf8(char *dst, const char *src, size_t dstsize)
 {
 #ifdef __APPLE__
   dst[0] = '\0';
-  ConvertEncodingToUTF8(src, dst, 2048,
+  ConvertEncodingToUTF8(src, dst, dstsize,
                         kCFStringEncodingDOSJapanese,
                         kCFStringEncodingUseHFSPlusCanonical);
 
@@ -1217,7 +1217,7 @@ utf8_to_sjis(char *dst, const char *src, size_t dstsize)
 
   dst[0] = '\0';
   srclen = strlen(src);
-  ConvertUTF8ToEncoding((const char*) src, srclen, dst, dstsize,
+  ConvertUTF8ToEncoding(src, srclen, dst, dstsize,
                         kCFStringEncodingDOSJapanese,
                         kCFStringEncodingUseHFSPlusCanonical);
 #else
