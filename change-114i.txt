@@ -1,0 +1,42 @@
+lha for unix ver 1.14iで対処
+
+lha for unix ver 1.14h bugs
+
+■■■■■■■■■■ 不都合 ■■■■■■■■■■
+(31)
+
+■問題
+macで生成した書庫(OSTYPEがMAC)のディレクトリの
+区切りを正しく認識していなかった。
+
+Lha failed to convert a delimitor used at Macintiosh.
+
+■原因
+一度拡張ヘッダのディレクトリを取得したときに
+0xffから/への変換を行ったあと、ディレクトリと
+ファイルネームを結合した文字列に対して、
+mac-unixの変換(:を/に、:を/に)をしていたため、
+区切りが:に変わっていた。
+
+■対処
+変換後のディレクトリ名に対しては
+mac-unix変換を行わないことにした。
+
+■■■■■■■■■■ 追加 ■■■■■■■■■■
+
+■内容
+OSがMSDOSのときは無差別にファイル名を小文字に
+していたが、windowsでは小文字と大文字の混在が
+あり得るため、この対処を行う。
+
+Lha always converted upper-case into lower-case.
+Modified that lha don't convert case when using
+'g' option.
+
+■修正点
+展開時にオプションgを指定すると、小文字の変換は
+行わないようにするオプションを追加した。
+
+--- 以上
+(誰か英語直して〜)
+
