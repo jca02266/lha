@@ -28,9 +28,9 @@ print_size(packed_size, original_size)
 	long            packed_size, original_size;
 {
 	if (verbose_listing)
-		printf("%7d ", packed_size);
+		printf("%7ld ", packed_size);
 
-	printf("%7d ", original_size);
+	printf("%7ld ", original_size);
 
 	if (original_size == 0L)
 		printf("******");
@@ -51,7 +51,10 @@ print_stamp(t)
 	struct tm      *p;
 
 	if (t == 0) {
-		printf("            ");	/* 12 spaces */
+        if (verbose_listing && verbose)
+            printf("                   "); /* 19 spaces */
+        else
+            printf("            ");	/* 12 spaces */
 		return;
 	}
 
@@ -64,7 +67,11 @@ print_stamp(t)
 
 	p = localtime(&t);
 
-	if (p->tm_year * 12 + p->tm_mon > threshold)
+    if (verbose_listing && verbose)
+        printf("%04d-%02d-%02d %02d:%02d:%02d",
+               p->tm_year+1900, p->tm_mon+1, p->tm_mday,
+               p->tm_hour, p->tm_min, p->tm_sec);
+	else if (p->tm_year * 12 + p->tm_mon > threshold)
 		printf("%.3s %2d %02d:%02d",
 		&t_month[p->tm_mon * 3], p->tm_mday, p->tm_hour, p->tm_min);
 	else
@@ -76,23 +83,22 @@ print_stamp(t)
 static void
 print_bar()
 {
-	char           *p, *q;
-	/* 17+1+(0 or 7+1)+7+1+6+1+(0 or 1+4)+(12 or 17)+1+20 */
-	/* 12345678901234567_  1234567_123456  _123456789012   1234 */
-
-	if (verbose_listing) {
-		p = "- ------ ---------- ";
-		q = " -------------";
-	}
-	else {
-		p = " ";
-		q = " --------------------";
-	}
-
-	if (verbose)
-		q = "";
-
-	printf("---------- ----------- ------- ------%s------------%s\n", p, q);
+    if (verbose_listing) {
+        if (verbose)
+            /*       PERMSSN    UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP            LV */
+            printf("---------- ----------- ------- ------- ------ ---------- ------------------- ---\n");
+        else
+            /*       PERMSSN    UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP     NAME */
+            printf("---------- ----------- ------- ------- ------ ---------- ------------ ----------\n");
+    }
+    else {
+        if (verbose)
+            /*       PERMSSN    UID  GID      SIZE  RATIO     STAMP     LV */
+            printf("---------- ----------- ------- ------ ------------ ---\n");
+        else
+            /*       PERMSSN    UID  GID      SIZE  RATIO     STAMP           NAME */
+            printf("---------- ----------- ------- ------ ------------ --------------------\n");
+    }
 }
 
 /* ------------------------------------------------------------------------ */
@@ -101,29 +107,18 @@ print_bar()
 static void
 list_header()
 {
-	char           *p, *q;
-
-	if (verbose_listing) {
-		p = "PACKED    SIZE  RATIO METHOD CRC";
-		q = "          NAME";
-	}
-	else {
-		p = "  SIZE  RATIO";
-		q = "           NAME";
-	}
-
-	if (verbose)
-		q = "";
-
-	printf(" PERMSSN    UID  GID    %s     STAMP%s\n", p, q);
-#if 0
-	printf(" PERMSSN  UID GID %s   SIZE  RATIO%s %s    STAMP%s%s\n",
-	       verbose_listing ? " PACKED " : "",	/* 8,0 */
-	       verbose_listing ? "  CRC" : "",	/* 5,0 */
-	       verbose_listing ? "  " : "",	/* 2,0 */
-	       verbose_listing ? "      " : "   ",	/* 6,3 */
-	       verbose ? "" : " NAME");
-#endif
+    if (verbose_listing) {
+        if (verbose)
+            printf(" PERMSSN    UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP            LV\n");
+        else
+            printf(" PERMSSN    UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP     NAME\n");
+    }
+    else {
+        if (verbose)
+            printf(" PERMSSN    UID  GID      SIZE  RATIO     STAMP     LV\n");
+        else
+            printf(" PERMSSN    UID  GID      SIZE  RATIO     STAMP           NAME\n");
+    }
 	print_bar();
 }
 
