@@ -1,5 +1,13 @@
 2002-05-26  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test.in: added some tests.
+
+	* src/lhadd.c (report_archive_name_if_different): warning messages
+	should be printed to stderr rather than stdout.
+	(cmd_delete): ditto.
+
+	* tests/Makefile.am: fix EXTRA_DIST.
+
 	* configure.in, configure.ac: update version.
 
 	* tests/lha-test.in: added tests.
