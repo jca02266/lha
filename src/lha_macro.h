@@ -414,6 +414,10 @@ char *strchr (), *strrchr ();
 */
 
 /* slide.c */
+#define LH5_DICBIT			13
+#define LH6_DICBIT			15
+#define LH7_DICBIT			16
+
 #ifdef SUPPORT_LH7
 #define MAX_DICBIT			16      /* lh7 use 16bits */
 #endif
