@@ -135,7 +135,7 @@ auto|yes)
 #if defined(__CYGWIN__) || defined(__MINGW32__) || defined(__hpux)
 SJIS
 #endif], enable_multibyte_filename=CODE_SJIS,
-  AC_EGREP_CPP(SJIS,[
+  AC_EGREP_CPP(UTF8,[
 #if defined(__APPLE__)	/* for Mac OS X */
 UTF8
 #endif], enable_multibyte_filename=CODE_UTF8,
