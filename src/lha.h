@@ -260,6 +260,7 @@ struct interfacing {
     FILE            *outfile;
     unsigned long   original;
     unsigned long   packed;
+    size_t          read_size;
     int             dicbit;
     int             method;
 };

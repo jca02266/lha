@@ -461,5 +461,9 @@ decode(interface)
     }
 
     free(dtext);
+
+    /* usually read size is interface->packed */
+    interface->read_size = interface->packed - compsize;
+
     return crc;
 }

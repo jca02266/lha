@@ -13,3 +13,13 @@ $lha c - test-a test-b test-c | $lha xw=test-tmp2 -
 							check $? $LINENO
 diff -r test-1 test-tmp2
 							check $? $LINENO
+# skip to extract existent files when archive file is stdin
+rm test-tmp/test-b
+							check $? $LINENO
+cat test-tmp.lzh | $lha xw=test-tmp - 2> test-stderr
+							check $? $LINENO
+diff -r test-1 test-tmp
+							check $? $LINENO
+# 2 files will be skipped.
+test 2 = `grep skip test-stderr | wc -l`
+							check $? $LINENO

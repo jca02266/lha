@@ -44,8 +44,10 @@ inquire_extract(name)
             return FALSE;
         }
         else if (!force) {
-            if (!isatty(0))
+            if (!isatty(0)) {
+                warning("skip to extract %s.", name);
                 return FALSE;
+            }
 
             switch (inquire("OverWrite ?(Yes/[No]/All/Skip)", name, "YyNnAaSs\n")) {
             case 0:
@@ -66,6 +68,7 @@ inquire_extract(name)
             }
         }
     }
+
     if (noexec)
         printf("EXTRACT %s\n", name);
 
@@ -201,7 +204,7 @@ adjust_info(name, hdr)
 }
 
 /* ------------------------------------------------------------------------ */
-static void
+static size_t
 extract_one(afp, hdr)
     FILE           *afp;    /* archive file */
     LzHeader       *hdr;
@@ -213,6 +216,7 @@ extract_one(afp, hdr)
     int             method;
     boolean         save_quiet, save_verbose, up_flag;
     char           *q = hdr->name, c;
+    size_t read_size = 0;
 
     if (ignore_directory && strrchr(hdr->name, '/')) {
         q = (char *) strrchr(hdr->name, '/') + 1;
@@ -246,7 +250,7 @@ extract_one(afp, hdr)
         if (methods[method] == NULL) {
             error("Unknown method \"%.*s\"; \"%s\" will be skiped ...",
                   5, hdr->method, name);
-            return;
+            return read_size;
         }
         if (memcmp(hdr->method, methods[method], 5) == 0)
             break;
@@ -260,7 +264,7 @@ extract_one(afp, hdr)
             if (methods[method] == NULL) {
                 error("Unknown method \"%.*s\"; \"%s\" will be skiped ...",
                       5, hdr->method, name);
-                return;
+                return read_size;
             }
             if (memcmp(hdr->method, methods[method], 5) == 0)
                 break;
@@ -272,12 +276,7 @@ extract_one(afp, hdr)
         if (output_to_stdout || verify_mode) {
             if (noexec) {
                 printf("%s %s\n", verify_mode ? "VERIFY" : "EXTRACT", name);
-                if (afp == stdin) {
-                    int             i = hdr->packed_size;
-                    while (i--)
-                        fgetc(afp);
-                }
-                return;
+                return read_size;
             }
 
             save_quiet = quiet;
@@ -299,8 +298,9 @@ extract_one(afp, hdr)
                 old_mode = setmode(fileno(stdout), O_BINARY);
 #endif
 
-            crc = decode_lzhuf
-                (afp, stdout, hdr->original_size, hdr->packed_size, name, method);
+            crc = decode_lzhuf(afp, stdout,
+                               hdr->original_size, hdr->packed_size,
+                               name, method, &read_size);
 #if __MINGW32__
                 fflush(stdout);
                 setmode(fileno(stdout), old_mode);
@@ -313,7 +313,7 @@ extract_one(afp, hdr)
             if (skip_flg == FALSE)  {
                 up_flag = inquire_extract(name);
                 if (up_flag == FALSE && force == FALSE) {
-                    return;
+                    return read_size;
                 }
             }
 
@@ -322,17 +322,12 @@ extract_one(afp, hdr)
                     if (stbuf.st_mtime >= hdr->unix_last_modified_stamp) {
                         if (quiet != TRUE)
                             printf("%s : Skipped...\n", name);
-                        return;
+                        return read_size;
                     }
                 }
             }
             if (noexec) {
-                if (afp == stdin) {
-                    int i = hdr->packed_size;
-                    while (i--)
-                        fgetc(afp);
-                }
-                return;
+                return read_size;
             }
 
             signal(SIGINT, interrupt);
@@ -344,8 +339,9 @@ extract_one(afp, hdr)
             remove_extracting_file_when_interrupt = TRUE;
 
             if ((fp = open_with_make_path(name)) != NULL) {
-                crc = decode_lzhuf
-                    (afp, fp, hdr->original_size, hdr->packed_size, name, method);
+                crc = decode_lzhuf(afp, fp,
+                                   hdr->original_size, hdr->packed_size,
+                                   name, method, &read_size);
                 fclose(fp);
             }
             remove_extracting_file_when_interrupt = FALSE;
@@ -354,7 +350,7 @@ extract_one(afp, hdr)
             signal(SIGHUP, SIG_DFL);
 #endif
             if (!fp)
-                return;
+                return read_size;
         }
 
         if (hdr->has_crc && crc != hdr->crc)
@@ -368,7 +364,7 @@ extract_one(afp, hdr)
             if (noexec) {
                 if (quiet != TRUE)
                     printf("EXTRACT %s (directory)\n", name);
-                return;
+                return read_size;
             }
             /* NAME has trailing SLASH '/', (^_^) */
             if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK) {
@@ -378,14 +374,14 @@ extract_one(afp, hdr)
                 if (skip_flg == FALSE)  {
                     up_flag = inquire_extract(name);
                     if (up_flag == FALSE && force == FALSE) {
-                        return;
+                        return read_size;
                     }
                 } else {
                     if (GETSTAT(name, &stbuf) == 0 && force != TRUE) {
                         if (stbuf.st_mtime >= hdr->unix_last_modified_stamp) {
                             if (quiet != TRUE)
                                 printf("%s : Skipped...\n", name);
-                            return;
+                            return read_size;
                         }
                     }
                 }
@@ -405,11 +401,11 @@ extract_one(afp, hdr)
 #else
                 warning("Can't make Symbolic Link %s -> %s",
                         hdr->realname, name);
-                return;
+                return read_size;
 #endif
             } else { /* make directory */
                 if (!output_to_stdout && !make_parent_path(name))
-                    return;
+                    return read_size;
             }
         }
     }
@@ -422,6 +418,8 @@ extract_one(afp, hdr)
 
     if (!output_to_stdout)
         adjust_info(name, hdr);
+
+    return read_size;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -433,6 +431,7 @@ cmd_extract()
     LzHeader        hdr;
     long            pos;
     FILE           *afp;
+    size_t read_size;
 
     /* open archive file */
     if ((afp = open_old_archive()) == NULL)
@@ -445,24 +444,23 @@ cmd_extract()
     while (get_header(afp, &hdr)) {
         if (need_file(hdr.name)) {
             pos = ftell(afp);
-            extract_one(afp, &hdr);
-            /* when error occurred in extract_one(), should adjust
-               point of file stream */
-            if (afp != stdin)
-                fseek(afp, pos + hdr.packed_size, SEEK_SET);
-            else {
-                /* FIXME: assume that the extract_one() has read
-                   packed_size bytes from stdin. */
-                long i = 0;
-                while (i--) fgetc(afp);
+            read_size = extract_one(afp, &hdr);
+            if (read_size != hdr.packed_size) {
+                /* when error occurred in extract_one(), should adjust
+                   point of file stream */
+                if (pos != -1 && afp != stdin)
+                    fseek(afp, pos + hdr.packed_size - read_size, SEEK_SET);
+                else {
+                    size_t i = hdr.packed_size - read_size;
+                    while (i--) fgetc(afp);
+                }
             }
         } else {
             if (afp != stdin)
                 fseek(afp, hdr.packed_size, SEEK_CUR);
             else {
-                int             i = hdr.packed_size;
-                while (i--)
-                    fgetc(afp);
+                size_t i = hdr.packed_size;
+                while (i--) fgetc(afp);
             }
         }
     }

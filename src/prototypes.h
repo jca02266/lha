@@ -34,7 +34,7 @@ unsigned short decode_p_dyn P_((void));
 void output_dyn P_((unsigned int code, unsigned int pos));
 void encode_end_dyn P_((void));
 /* extract.c */
-int decode_lzhuf P_((FILE *infp, FILE *outfp, long original_size, long packed_size, char *name, int method));
+int decode_lzhuf P_((FILE *infp, FILE *outfp, long original_size, long packed_size, char *name, int method, size_t *read_sizep));
 /* header.c */
 int calc_sum P_((char *p, int len));
 void convert_filename P_((char *name, int len, int size, int from_code, int to_code, char *from_delim, char *to_delim, int case_to));

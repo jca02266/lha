@@ -9,13 +9,14 @@
 #include "lha.h"
 
 int
-decode_lzhuf(infp, outfp, original_size, packed_size, name, method)
+decode_lzhuf(infp, outfp, original_size, packed_size, name, method, read_sizep)
     FILE           *infp;
     FILE           *outfp;
     long            original_size;
     long            packed_size;
     char           *name;
     int             method;
+    size_t         *read_sizep;
 {
     unsigned int crc;
 
@@ -25,13 +26,17 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method)
     interface.outfile = outfp;
     interface.original = original_size;
     interface.packed = packed_size;
+    interface.read_size = 0;
+
+    *read_sizep = packed_size;
 
     switch (method) {
     case LZHUFF0_METHOD_NUM:
     case LARC4_METHOD_NUM:
         start_indicator(name, original_size
                   ,verify_mode ? "Testing " : "Melting ", 2048);
-        copyfile(infp, (verify_mode ? NULL : outfp), original_size, 2, &crc);
+        *read_sizep = copyfile(infp, (verify_mode ? NULL : outfp),
+                               original_size, 2, &crc);
         break;
     case LARC_METHOD_NUM:       /* -lzs- */
         interface.dicbit = 11;
@@ -39,6 +44,7 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method)
                 ,verify_mode ? "Testing " : "Melting "
                 ,1 << interface.dicbit);
         crc = decode(&interface);
+        *read_sizep = interface.read_size;
         break;
     case LZHUFF1_METHOD_NUM:        /* -lh1- */
     case LZHUFF4_METHOD_NUM:        /* -lh4- */
@@ -48,18 +54,20 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method)
                 ,verify_mode ? "Testing " : "Melting "
                 ,1 << interface.dicbit);
         crc = decode(&interface);
+        *read_sizep = interface.read_size;
         break;
     case LZHUFF6_METHOD_NUM:        /* -lh6- */ /* Added N.Watazaki (^_^) */
 #ifdef SUPPORT_LH7
     case LZHUFF7_METHOD_NUM:                /* -lh7- */
 #endif
         interface.dicbit = (method - LZHUFF6_METHOD_NUM) + 15;
-        
+        /* fall through */
     default:
         start_indicator(name, original_size
                 ,verify_mode ? "Testing " : "Melting "
                 ,1 << interface.dicbit);
         crc = decode(&interface);
+        *read_sizep = interface.read_size;
     }
     finish_indicator(name, verify_mode ? "Tested  " : "Melted  ");
 
