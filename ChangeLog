@@ -1,7 +1,20 @@
 2002-08-10  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/header.c (skip_bytes): newly added.
+	(dump_get_byte): newly added for dumping the data for debugging.
+	(dump_skip_bytes): ditto.
+	(get_word): ditto.
+	(get_longword): ditto.
+	(get_bytes): ditto.
+	(get_extended_header): modified for reading the level 3 header.
+	(get_header_level3): newly added.
+
+	* src/lha.h (struct LzHeader): for level 3 header, added a new
+	member `size_field_length' and changed type of the `header_size'
+	from int to long.
+
 	* src/header.c (init_header): the `hdr->method' should be
-	initialized by the "-lh0-" for empty files.
+	initialized to the "-lh0-" for empty files.
 
 	* tests/lha-test2: ditto.
 
