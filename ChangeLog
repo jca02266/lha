@@ -1,3 +1,7 @@
+2002-11-11  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.ac: refined messages.
+
 2002-10-16  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* 00readme.autoconf: modified.
