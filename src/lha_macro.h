@@ -126,7 +126,7 @@
 #define EXTEND_MACOS			'm'
 #define EXTEND_OS9				'9'
 #define EXTEND_OS2				'2'
-#define EXTEND_OS68K			'K' /* Enea Data Systems real-time OS (?) */
+#define EXTEND_OS68K			'K'
 #define EXTEND_OS386			'3'	/* OS-9000??? */
 #define EXTEND_HUMAN			'H'
 #define EXTEND_CPM				'C'
