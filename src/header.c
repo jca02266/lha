@@ -658,7 +658,7 @@ get_header(fp, hdr)
 				for (i = 0; i < header_size - 3; i++)
 					hdr->name[i] = (char) get_byte();
 				hdr->name[header_size - 3] = '\0';
-				name_length = header_size - 3; /* modified by Koji Arai */
+				name_length = header_size - 3;
 				break;
 			case 2:
 				/*
@@ -698,13 +698,17 @@ get_header(fp, hdr)
 				/*
 				 * UNIX group name
 				 */
-				setup_get(get_ptr + header_size - 3);
+                for (i = 0; i < header_size - 3; i++)
+                    hdr->group[i] = get_byte();
+                hdr->group[i] = '\0';
 				break;
 			case 0x53:
 				/*
 				 * UNIX user name
 				 */
-				setup_get(get_ptr + header_size - 3);
+                for (i = 0; i < header_size - 3; i++)
+                    hdr->user[i] = get_byte();
+                hdr->user[i] = '\0';
 				break;
 			case 0x54:
 				/*
@@ -847,6 +851,28 @@ init_header(name, v_stat, hdr)
 	hdr->unix_uid = v_stat->st_uid;
 	hdr->unix_gid = v_stat->st_gid;
 
+#if HAVE_GETPWUID
+    {
+        struct passwd *ent = getpwuid(hdr->unix_uid);
+
+        if (ent) {
+            strncpy(hdr->user, ent->pw_name, sizeof(hdr->user));
+            if (hdr->user[sizeof(hdr->user)-1])
+                hdr->user[sizeof(hdr->user)-1] = 0;
+        }
+    }
+#endif
+#if HAVE_GETGRGID
+    {
+        struct group *ent = getgrgid(hdr->unix_gid);
+
+        if (ent) {
+            strncpy(hdr->group, ent->gr_name, sizeof(hdr->group));
+            if (hdr->group[sizeof(hdr->group)-1])
+                hdr->group[sizeof(hdr->group)-1] = 0;
+        }
+    }
+#endif
 	if (is_directory(v_stat)) {
 		bcopy(LZHDIRS_METHOD, hdr->method, METHOD_TYPE_STRAGE);
 		hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
@@ -985,6 +1011,20 @@ write_header(nafp, hdr)
 			put_byte(0x51);	/* gid and uid */
 			put_word(hdr->unix_gid);
 			put_word(hdr->unix_uid);
+
+            {
+                int i, len = strlen(hdr->group);
+                put_word(len + 3);
+                put_byte(0x52);	/* group name */
+                for (i = 0; i < len; i++)
+                    put_byte(hdr->group[i]);
+
+                len = strlen(hdr->user);
+                put_word(len + 3);
+                put_byte(0x53);	/* user name */
+                for (i = 0; i < len; i++)
+                    put_byte(hdr->user[i]);
+            }
 
 			if (p = (char *) strrchr(hdr->name, DELIM2)) {
 				int             i;
