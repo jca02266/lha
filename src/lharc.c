@@ -88,14 +88,8 @@ init_variable()		/* Added N.Watazaki */
 	noexec			= FALSE;	/* debugging option */
 	force			= FALSE;
 	prof			= FALSE;
-#ifndef SUPPORT_LH7
-	compress_method = LZHUFF5_METHOD_NUM;
-#endif
-#ifdef SUPPORT_LH7
-	compress_method = LZHUFF7_METHOD_NUM;
-#endif
 
-	compress_method = DEFAULT_LZHUFF_METHOD;
+	compress_method = DEFAULT_LZHUFF_METHOD; /* defined in config.h */
 
 	header_level	= HEADER_LEVEL1;
 	quiet_mode		= 0;
@@ -285,12 +279,12 @@ main(argc, argv)
 		switch ((*p++)) {
 		case 'q':
 			switch (*p) {
-			case '0':
-			case '1':
+			case '0':           /* no quiet */
+			case '1':           /* no use the incremental indicator */
 				quiet_mode = *p - '0';
 				++p;
 				break;
-			case '2':
+			case '2':           /* no output */
 				++p;
                 /* fall through */
 			default:
