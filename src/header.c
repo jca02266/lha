@@ -482,8 +482,10 @@ get_extended_header(fp, hdr, header_size)
 
     for (; header_size != 0; whole_size += header_size = get_word()) {
         setup_get(data);
-        if (sizeof(data) < header_size)
-            fatal_error("header size too large.");
+        if (sizeof(data) < header_size) {
+            error("header size too large.");
+            exit(1);
+        }
 
         if (fread(data, header_size, 1, fp) == 0) {
             error("Invalid header (LHa file ?)");
@@ -1378,7 +1380,8 @@ write_header(fp, hdr)
         header_size = write_header_level2(data, hdr, pathname);
         break;
     default:
-        fatal_error("Unknown level header (level %d)", hdr->header_level);
+        error("Unknown level header (level %d)", hdr->header_level);
+        exit(1);
     }
 
     if (fwrite(data, header_size, 1, fp) == 0)
