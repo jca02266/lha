@@ -435,10 +435,15 @@ cmd_extract()
 		if (need_file(hdr.name)) {
 			pos = ftell(afp);
 			extract_one(afp, &hdr);
-#if 0 /* On MinGW, if afp == stdin, fseek() will succeed.
-         but next getc(afp) return EOF */
-			fseek(afp, pos + hdr.packed_size, SEEK_SET);
-#endif
+            /* when error occurred in extract_one(), should adjust
+               point of file stream */
+			if (afp != stdin)
+                fseek(afp, pos + hdr.packed_size, SEEK_SET);
+            else {
+                long pos2 = ftell(afp);
+                int i = pos + hdr.packed_size - pos2;
+				while (i-- > 0) fgetc(afp);
+            }
 		} else {
 			if (afp != stdin)
 				fseek(afp, hdr.packed_size, SEEK_CUR);
