@@ -120,110 +120,6 @@ put_bytes(buf, len)
     for (i = 0; i < len; i++)
         put_byte(buf[i]);
 }
-#if 0   /* no use */
-/* ------------------------------------------------------------------------ */
-static void
-msdos_to_unix_filename(name, len)
-	register char  *name;
-	register int    len;
-{
-	register int    i;
-
-#ifdef MULTIBYTE_FILENAME
-	for (i = 0; i < len; i++) {
-		if (MULTIBYTE_FIRST_P(name[i]) &&
-		    MULTIBYTE_SECOND_P(name[i + 1]))
-			i++;
-		else if (name[i] == '\\')
-			name[i] = '/';
-		else if (!noconvertcase && isupper(name[i]))
-			name[i] = tolower(name[i]);
-	}
-#else
-	for (i = 0; i < len; i++) {
-		if (name[i] == '\\')
-			name[i] = '/';
-		else if (!noconvertcase && isupper(name[i]))
-			name[i] = tolower(name[i]);
-	}
-#endif
-}
-
-/* ------------------------------------------------------------------------ */
-static void
-generic_to_unix_filename(name, len)
-	register char  *name;
-	register int    len;
-{
-	register int    i;
-	boolean         lower_case_used = FALSE;
-
-#ifdef MULTIBYTE_FILENAME
-	for (i = 0; i < len; i++) {
-		if (MULTIBYTE_FIRST_P(name[i]) &&
-		    MULTIBYTE_SECOND_P(name[i + 1]))
-			i++;
-		else if (islower(name[i])) {
-			lower_case_used = TRUE;
-			break;
-		}
-	}
-	for (i = 0; i < len; i++) {
-		if (MULTIBYTE_FIRST_P(name[i]) &&
-		    MULTIBYTE_SECOND_P(name[i + 1]))
-			i++;
-		else if (name[i] == '\\')
-			name[i] = '/';
-		else if (!noconvertcase && !lower_case_used && isupper(name[i]))
-			name[i] = tolower(name[i]);
-	}
-#else
-	for (i = 0; i < len; i++)
-		if (islower(name[i])) {
-			lower_case_used = TRUE;
-			break;
-		}
-	for (i = 0; i < len; i++) {
-		if (name[i] == '\\')
-			name[i] = '/';
-		else if (!noconvertcase && !lower_case_used && isupper(name[i]))
-			name[i] = tolower(name[i]);
-	}
-#endif
-}
-
-/* ------------------------------------------------------------------------ */
-static void
-macos_to_unix_filename(name, len)
-	register char  *name;
-	register int    len;
-{
-	register int    i;
-
-	for (i = 0; i < len; i++) {
-		if (name[i] == ':')
-			name[i] = '/';
-		else if (name[i] == '/')
-			name[i] = ':';
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-static void
-unix_to_generic_filename(name, len)
-	register char  *name;
-	register int    len;
-{
-	register int    i;
-
-	for (i = 0; i < len; i++) {
-		if (name[i] == '/')
-			name[i] = '\\';
-		else if (islower(name[i]))
-			name[i] = toupper(name[i]);
-	}
-}
-#endif /* 0 */
 
 /* added by Koji Arai */
 void
@@ -459,24 +355,6 @@ gettz()
                      * defined(HAVE_TZSET) */
 
 /* ------------------------------------------------------------------------ */
-#ifdef NOT_USED
-static struct tm *
-msdos_to_unix_stamp_tm(a)
-	long            a;
-{
-	static struct tm t;
-
-	t.tm_sec = (a & 0x1f) * 2;
-	t.tm_min = (a >> 5) & 0x3f;
-	t.tm_hour = (a >> 11) & 0x1f;
-	t.tm_mday = (a >> 16) & 0x1f;
-	t.tm_mon = ((a >> 16 + 5) & 0x0f) - 1;
-	t.tm_year = ((a >> 16 + 9) & 0x7f) + 80;
-	return &t;
-}
-#endif
-
-/* ------------------------------------------------------------------------ */
 static          time_t
 generic_to_unix_stamp(t)
 	long            t;
@@ -569,21 +447,413 @@ unix_to_generic_stamp(t)
 /* ------------------------------------------------------------------------ */
 /* build header functions													*/
 /* ------------------------------------------------------------------------ */
+
+/*
+ * extended header
+ *
+ *             size  field name
+ *  --------------------------------
+ *  base header:         :
+ *                2  next-header size  [*1]
+ *  --------------------------------------
+ *  ext header:   1  ext-type            ^
+ *                ?  contents            | [*1] next-header size
+ *                2  next-header size    v
+ *  --------------------------------------
+ *
+ */
+static int
+get_extended_header(fp, hdr, header_size)
+    FILE *fp;
+    LzHeader *hdr;
+    int header_size;
+{
+    char data[LZHEADER_STRAGE];
+    int name_length;
+    char dirname[FILENAME_LENGTH];
+    int dir_length = 0;
+    int i;
+    int whole_size = header_size;
+
+    if (hdr->header_level == 0)
+        return 0;
+
+    name_length = strlen(hdr->name);
+
+    for (; header_size != 0; whole_size += header_size = get_word()) {
+        setup_get(data);
+        if (sizeof(data) < header_size)
+            fatal_error("header size too large.");
+
+        if (fread(data, header_size, 1, fp) == 0) {
+            error("Invalid header (LHa file ?)");
+            return -1;
+        }
+        switch (get_byte()) {
+        case 0:
+            /* header crc */
+            setup_get(get_ptr + header_size - 3); /* FIXME: ignored? */
+            break;
+        case 1:
+            /* filename */
+            name_length =
+                get_bytes(hdr->name, header_size-3, sizeof(hdr->name)-1);
+            hdr->name[name_length] = 0;
+            break;
+        case 2:
+            /* directory */
+            dir_length = get_bytes(dirname, header_size-3, sizeof(dirname)-1);
+            dirname[dir_length] = 0;
+            break;
+        case 0x40:
+            /* MS-DOS attribute */
+            if (hdr->extend_type == EXTEND_MSDOS ||
+                hdr->extend_type == EXTEND_HUMAN ||
+                hdr->extend_type == EXTEND_GENERIC)
+                hdr->attribute = get_word();
+            break;
+        case 0x50:
+            /* UNIX permission */
+            if (hdr->extend_type == EXTEND_UNIX)
+                hdr->unix_mode = get_word();
+            break;
+        case 0x51:
+            /* UNIX gid and uid */
+            if (hdr->extend_type == EXTEND_UNIX) {
+                hdr->unix_gid = get_word();
+                hdr->unix_uid = get_word();
+            }
+            break;
+        case 0x52:
+            /* UNIX group name */
+            if (hdr->extend_type == EXTEND_UNIX) {
+                i = get_bytes(hdr->group, header_size-3, sizeof(hdr->group)-1);
+                hdr->group[i] = '\0';
+            }
+            break;
+        case 0x53:
+            /* UNIX user name */
+            if (hdr->extend_type == EXTEND_UNIX) {
+                i = get_bytes(hdr->user, header_size-3, sizeof(hdr->user)-1);
+                hdr->user[i] = '\0';
+            }
+            break;
+        case 0x54:
+            /* UNIX last modified time */
+            if (hdr->extend_type == EXTEND_UNIX)
+                hdr->unix_last_modified_stamp = (time_t) get_longword();
+            break;
+        default:
+            /* other headers */
+            setup_get(get_ptr + header_size - 3);
+            break;
+        }
+    }
+
+    if (dir_length) {
+        if (name_length + dir_length >= sizeof(hdr->name)) {
+            warning("the length of pathname \"%s%s\" is too long.",
+                    dirname, hdr->name);
+            name_length = sizeof(hdr->name) - dir_length - 1;
+            hdr->name[name_length] = 0;
+        }
+        strcat(dirname, hdr->name);
+        strcpy(hdr->name, dirname);
+        name_length += dir_length;
+    }
+
+    return whole_size;
+}
+
+/*
+ * level 0 header
+ *
+ *
+ * offset  size  field name
+ * ----------------------------------
+ *     0      1  header size    [*1]
+ *     1      1  header sum
+ *            ---------------------------------------
+ *     2      5  method ID                         ^
+ *     7      4  packed size    [*2]               |
+ *    11      4  original size                     |
+ *    15      2  time                              |
+ *    17      2  date                              |
+ *    19      1  attribute                         | [*1] header size (X+Y+22)
+ *    20      1  level (0x00 fixed)                |
+ *    21      1  name length                       |
+ *    22      X  pathname                          |
+ * X +22      2  file crc                          |
+ * X +24      Y  ext-header(old style)             v
+ * -------------------------------------------------
+ * X+Y+24   [*2] data
+ *            :
+ *
+ * ext-header(old style)
+ *     0      1  ext-type ('U')
+ *     1      1  minor version
+ *     2      4  UNIX time
+ *     6      2  mode
+ *     8      2  uid
+ *    10      2  gid
+ *
+ */
+static int
+get_header_level0(fp, hdr, data)
+    FILE *fp;
+    LzHeader *hdr;
+    char *data;
+{
+    int header_size;
+    int checksum;
+    int name_length;
+    int i;
+    int extend_size;
+
+    hdr->header_size = header_size = get_byte();
+    checksum = get_byte();
+
+    if (fread(data+I_NAME_LENGTH, header_size+2-I_NAME_LENGTH, 1, fp) == 0) {
+        error("Invalid header (LHarc file ?)");
+        return FALSE;   /* finish */
+    }
+
+    if (calc_sum(data + I_METHOD, header_size) != checksum) {
+        error("Checksum error (LHarc file?)");
+        return FALSE;
+    }
+
+    get_bytes(hdr->method, 5, sizeof(hdr->method));
+    hdr->packed_size = get_longword();
+    hdr->original_size = get_longword();
+    hdr->unix_last_modified_stamp = generic_to_unix_stamp(get_longword());
+    hdr->attribute = get_byte(); /* MS-DOS attribute */
+    hdr->header_level = get_byte();
+    name_length = get_byte();
+    i = get_bytes(hdr->name, name_length, sizeof(hdr->name)-1);
+    hdr->name[i] = '\0';
+
+    /* defaults for other type */
+    hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
+    hdr->unix_gid = 0;
+    hdr->unix_uid = 0;
+
+    extend_size = header_size+2 - name_length - 24;
+
+    if (extend_size < 0) {
+        if (extend_size == -2) {
+            /* CRC field does not given */
+            hdr->extend_type = EXTEND_GENERIC;
+            hdr->has_crc = FALSE;
+
+            return TRUE;
+        } 
+
+        error("Unkonwn header (lha file?)");
+        exit(1);
+    }
+
+    hdr->has_crc = TRUE;
+    hdr->crc = get_word();
+
+    if (extend_size == 0)
+        return TRUE;
+
+    hdr->extend_type = get_byte();
+    extend_size--;
+
+    if (hdr->extend_type == EXTEND_UNIX) {
+        if (extend_size >= 11) {
+            hdr->minor_version = get_byte();
+            hdr->unix_last_modified_stamp = (time_t) get_longword();
+            hdr->unix_mode = get_word();
+            hdr->unix_uid = get_word();
+            hdr->unix_gid = get_word();
+            extend_size -= 11;
+        } else {
+            hdr->extend_type = EXTEND_GENERIC;
+        }
+    }
+    if (extend_size > 0)
+        setup_get(get_ptr + extend_size);
+
+    return TRUE;
+}
+
+/*
+ * level 1 header
+ *
+ *
+ * offset   size  field name
+ * -----------------------------------
+ *     0       1  header size   [*1]
+ *     1       1  header sum
+ *             -------------------------------------
+ *     2       5  method ID                        ^
+ *     7       4  skip size     [*2]               |
+ *    11       4  original size                    |
+ *    15       2  time                             |
+ *    17       2  date                             |
+ *    19       1  attribute (0x20 fixed)           | [*1] header size (X+Y+25)
+ *    20       1  level (0x01 fixed)               |
+ *    21       1  name length                      |
+ *    22       X  filename                         |
+ * X+ 22       2  file crc                         |
+ * X+ 24       1  OS ID                            |
+ * X +25       Y  ???                              |
+ * X+Y+25      2  next-header size                 v
+ * -------------------------------------------------
+ * X+Y+27      Z  ext-header                       ^
+ *                 :                               |
+ * -----------------------------------             | [*2] skip size
+ * X+Y+Z+27       data                             |
+ *                 :                               v
+ * -------------------------------------------------
+ *
+ */
+static int
+get_header_level1(fp, hdr, data)
+    FILE *fp;
+    LzHeader *hdr;
+    char *data;
+{
+    int header_size, extend_size;
+    int checksum;
+    int name_length;
+    int i, dummy;
+
+    hdr->header_size = header_size = get_byte();
+    checksum = get_byte();
+
+    if (fread(data+I_NAME_LENGTH, header_size+2-I_NAME_LENGTH, 1, fp) == 0) {
+        error("Invalid header (LHarc file ?)");
+        return FALSE;   /* finish */
+    }
+
+    if (calc_sum(data + I_METHOD, header_size) != checksum) {
+        error("Checksum error (LHarc file?)");
+        return FALSE;
+    }
+
+    get_bytes(hdr->method, 5, sizeof(hdr->method));
+    hdr->packed_size = get_longword(); /* skip size */
+    hdr->original_size = get_longword();
+    hdr->unix_last_modified_stamp = generic_to_unix_stamp(get_longword());
+    hdr->attribute = get_byte(); /* 0x20 fixed */
+    hdr->header_level = get_byte();
+
+    name_length = get_byte();
+    i = get_bytes(hdr->name, name_length, sizeof(hdr->name)-1);
+    hdr->name[i] = '\0';
+
+    /* defaults for other type */
+    hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
+    hdr->unix_gid = 0;
+    hdr->unix_uid = 0;
+
+    hdr->has_crc = TRUE;
+    hdr->crc = get_word();
+    hdr->extend_type = get_byte();
+
+    dummy = header_size+2 - name_length - 27;
+    if (dummy > 0)
+        setup_get(get_ptr + dummy); /* skip old style extend header */
+
+    extend_size = get_word();
+    extend_size = get_extended_header(fp, hdr, extend_size);
+    if (extend_size == -1)
+        return FALSE;
+
+    /* On level 1 header, size fields should be adjusted. */
+    /* the `packed_size' field contains the extended header size. */
+    /* the `header_size' field does not. */
+    hdr->packed_size -= extend_size;
+    hdr->header_size += extend_size;
+
+    return TRUE;
+}
+
+/*
+ * level 2 header
+ *
+ *
+ * offset   size  field name
+ * --------------------------------------------------
+ *     0       2  total header size [*1]           ^
+ *             -----------------------             |
+ *     2       5  method ID                        |
+ *     7       4  packed size       [*2]           |
+ *    11       4  original size                    |
+ *    15       4  time                             |
+ *    19       1  RESERVED                         | [*1] total header size
+ *    20       1  level (0x02 fixed)               |      (X+26+(1))
+ *    21       2  file crc                         |
+ *    23       1  OS ID                            |
+ *    24       2  next-header size                 |
+ * -----------------------------------             |
+ *    26       X  ext-header                       |
+ *                 :                               |
+ * -----------------------------------             |
+ * X +26      (1) padding                          v
+ * -------------------------------------------------
+ * X +26+(1)      data                             ^
+ *                 :                               | [*2] packed size
+ *                 :                               v
+ * -------------------------------------------------
+ *
+ */
+static int
+get_header_level2(fp, hdr, data)
+    FILE *fp;
+    LzHeader *hdr;
+    char *data;
+{
+    int header_size, extend_size;
+    int padding;
+
+    hdr->header_size = header_size = get_word();
+
+    if (fread(data + I_NAME_LENGTH, 26 - I_NAME_LENGTH, 1, fp) == 0) {
+        error("Invalid header (LHarc file ?)");
+        return FALSE;   /* finish */
+    }
+
+    get_bytes(hdr->method, 5, sizeof(hdr->method));
+    hdr->packed_size = get_longword();
+    hdr->original_size = get_longword();
+    hdr->unix_last_modified_stamp = get_longword();
+    hdr->attribute = get_byte(); /* reserved */
+    hdr->header_level = get_byte();
+
+    /* defaults for other type */
+    hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
+    hdr->unix_gid = 0;
+    hdr->unix_uid = 0;
+
+    hdr->has_crc = TRUE;
+    hdr->crc = get_word();
+    hdr->extend_type = get_byte();
+    extend_size = get_word();
+
+    extend_size = get_extended_header(fp, hdr, extend_size);
+    if (extend_size == -1)
+        return FALSE;
+
+    padding = header_size - 26 - extend_size;
+    while (padding--)           /* padding should be 0 or 1 */
+        fgetc(fp);
+
+    /* FIXME: no collate the header CRC */
+
+    return TRUE;
+}
+
 boolean
 get_header(fp, hdr)
-	FILE           *fp;
-	register LzHeader *hdr;
+    FILE *fp;
+    LzHeader *hdr;
 {
-	int             header_size;
-	int             name_length;
-	char            data[LZHEADER_STRAGE];
-	char            dirname[FILENAME_LENGTH];
-	int             dir_length = 0;
-	int             checksum;
-	int             i;
-	char           *ptr;
-	int				extend_size;
-	int				dmy;
+    char data[LZHEADER_STRAGE];
 
     int archive_kanji_code = CODE_SJIS;
     int system_kanji_code = default_system_kanji_code;
@@ -592,255 +862,69 @@ get_header(fp, hdr)
     char *system_delim = "//";
     int filename_case = NONE;
 
-	memset(hdr, 0, sizeof(LzHeader));
+    memset(hdr, 0, sizeof(LzHeader));
 
-	if (((header_size = getc(fp)) == EOF) || (header_size == 0)) {
-		return FALSE;	/* finish */
-	}
+    setup_get(data);
 
-	if (fread(data + 1, I_NAME_LENGTH - 1, 1, fp) == 0) {
-		fatal_error("Invalid header (LHarc file ?)");
-		return FALSE;	/* finish */
-	}
-	setup_get(data + I_HEADER_LEVEL);
-	hdr->header_level = get_byte();
-
-	if (hdr->header_level >= 3) {
-		error("Unknown level header (level %d)", hdr->header_level);
-		return FALSE;
-	}
-
-	setup_get(data + I_HEADER_CHECKSUM);
-	checksum = get_byte();
-
-	if (hdr->header_level == 2) {
-		hdr->header_size = header_size += checksum*256;
-	} else {
-		hdr->header_size = header_size;
-	}
-
-    if (fread(data + I_NAME_LENGTH, header_size - I_NAME_LENGTH, 1, fp) == 0) {
-        fatal_error("Invalid header (LHarc file ?)");
-        return FALSE;	/* finish */
+    switch (fread(data, 1, I_NAME_LENGTH, fp)) {
+    case I_NAME_LENGTH:
+        break;
+    case 0:
+        return FALSE;           /* end of file */
+    case 1:
+        if (data[0] == '\0')    /* end mark */
+            return FALSE;
+        /* fall through */
+    default:
+        error("Invalid header (LHarc file ?)");
+        return FALSE;   /* finish */
     }
 
-	if (hdr->header_level != 2 &&
-	    fread(data + header_size, sizeof(char), 2, fp) < 2) {
-		fatal_error("Invalid header (LHarc file ?)");
-		return FALSE;	/* finish */
-	}
+    switch (data[I_HEADER_LEVEL]) {
+    case 0:
+        if (get_header_level0(fp, hdr, data) == FALSE)
+            return FALSE;
+        break;
+    case 1:
+        if (get_header_level1(fp, hdr, data) == FALSE)
+            return FALSE;
+        break;
+    case 2:
+        if (get_header_level2(fp, hdr, data) == FALSE)
+            return FALSE;
+        break;
+    default:
+        error("Unknown level header (level %d)", data[I_HEADER_LEVEL]);
+        return FALSE;
+    }
 
-	memcpy(hdr->method, data + I_METHOD, METHOD_TYPE_STRAGE);
-	setup_get(data + I_PACKED_SIZE);
-	hdr->packed_size = get_longword();
-	hdr->original_size = get_longword();
-	hdr->last_modified_stamp = get_longword();
-	hdr->attribute = get_byte();
-
-	if ((hdr->header_level = get_byte()) != 2) {
-		if (calc_sum(data + I_METHOD, header_size) != checksum)
-			warning("Checksum error (LHarc file?)");
-		name_length = get_byte();
-        i = get_bytes(hdr->name, name_length, sizeof(hdr->name)-1);
-		hdr->name[i] = '\0';
-	}
-	else {
-		hdr->unix_last_modified_stamp = hdr->last_modified_stamp;
-		name_length = 0;
-	}
-
-	/* defaults for other type */
-	hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
-	hdr->unix_gid = 0;
-	hdr->unix_uid = 0;
-
-	if (hdr->header_level == 0) {
-		extend_size = header_size - name_length -22;
-		if (extend_size < 0) {
-			if (extend_size == -2) {
-				hdr->extend_type = EXTEND_GENERIC;
-				hdr->has_crc = FALSE;
-			} else {
-				error("Unkonwn header (lha file?)");
-                exit(1);
-			}
-		} else {
-			hdr->has_crc = TRUE;
-			hdr->crc = get_word();
-		}
-
-		if (extend_size >= 1) {
-			hdr->extend_type = get_byte();
-			extend_size--;
-		}
-		if (hdr->extend_type == EXTEND_UNIX) {
-			if (extend_size >= 11) {
-				hdr->minor_version = get_byte();
-				hdr->unix_last_modified_stamp = (time_t) get_longword();
-				hdr->unix_mode = get_word();
-				hdr->unix_uid = get_word();
-				hdr->unix_gid = get_word();
-				extend_size -= 11;
-			} else {
-				hdr->extend_type = EXTEND_GENERIC;
-			}
-		}
-		while (extend_size-- > 0)
-			dmy = get_byte();
-	} else if (hdr->header_level == 1) {
-		hdr->has_crc = TRUE;
-		extend_size = header_size - name_length-25;
-		hdr->crc = get_word();
-		hdr->extend_type = get_byte();
-		while (extend_size-- > 0)
-			dmy = get_byte();
-	} else { /* level 2 */
-		hdr->has_crc = TRUE;
-		hdr->crc = get_word();
-		hdr->extend_type = get_byte();
-	}		
-
-	if (hdr->header_level > 0) {
-		/* Extend Header */
-		if (hdr->header_level != 2)
-			setup_get(data + hdr->header_size);
-		ptr = get_ptr;
-		while ((header_size = get_word()) != 0) {
-			if (hdr->header_level != 2 &&
-			((data + LZHEADER_STRAGE - get_ptr < header_size) ||
-			 fread(get_ptr, sizeof(char), header_size, fp) < header_size)) {
-				error("Invalid header (LHa file ?)");
-				return FALSE;
-			}
-			switch (get_byte()) {
-			case 0:
-				/*
-				 * header crc
-				 */
-				setup_get(get_ptr + header_size - 3);
-				break;
-			case 1:
-				/*
-				 * filename
-				 */
-                name_length =
-                    get_bytes(hdr->name, header_size-3, sizeof(hdr->name)-1);
-                hdr->name[name_length] = 0;
-				break;
-			case 2:
-				/*
-				 * directory
-				 */
-                dir_length =
-                    get_bytes(dirname, header_size-3, sizeof(dirname)-1);
-                dirname[dir_length] = 0;
-				break;
-			case 0x40:
-				/*
-				 * MS-DOS attribute
-				 */
-				if (hdr->extend_type == EXTEND_MSDOS ||
-				    hdr->extend_type == EXTEND_HUMAN ||
-				    hdr->extend_type == EXTEND_GENERIC)
-					hdr->attribute = get_word();
-				break;
-			case 0x50:
-				/*
-				 * UNIX permission
-				 */
-				if (hdr->extend_type == EXTEND_UNIX)
-					hdr->unix_mode = get_word();
-				break;
-			case 0x51:
-				/*
-				 * UNIX gid and uid
-				 */
-				if (hdr->extend_type == EXTEND_UNIX) {
-					hdr->unix_gid = get_word();
-					hdr->unix_uid = get_word();
-				}
-				break;
-			case 0x52:
-				/*
-				 * UNIX group name
-				 */
-                i = get_bytes(hdr->group, header_size-3, sizeof(hdr->group)-1);
-                hdr->group[i] = '\0';
-				break;
-			case 0x53:
-				/*
-				 * UNIX user name
-				 */
-                i = get_bytes(hdr->user, header_size-3, sizeof(hdr->user)-1);
-                hdr->user[i] = '\0';
-				break;
-			case 0x54:
-				/*
-				 * UNIX last modified time
-				 */
-				if (hdr->extend_type == EXTEND_UNIX)
-					hdr->unix_last_modified_stamp = (time_t) get_longword();
-				break;
-			default:
-				/*
-				 * other headers
-				 */
-				setup_get(get_ptr + header_size - 3);
-				break;
-			}
-		}
-		if (hdr->header_level != 2 && get_ptr - ptr != 2) {
-			hdr->packed_size -= get_ptr - ptr - 2;
-			hdr->header_size += get_ptr - ptr - 2;
-		}
-	}
-
-	switch (hdr->extend_type) {
-	case EXTEND_MSDOS:
+    /* filename conversion */
+    switch (hdr->extend_type) {
+    case EXTEND_MSDOS:
         filename_case = noconvertcase ? NONE : TO_LOWER;
-
-        /* fall through */
-	case EXTEND_HUMAN:
-		if (hdr->header_level == 2)
-			hdr->unix_last_modified_stamp = hdr->last_modified_stamp;
-		else
-			hdr->unix_last_modified_stamp =
-				generic_to_unix_stamp(hdr->last_modified_stamp);
-		break;
-
-#ifdef OSK
-	case EXTEND_OS68K:
-	case EXTEND_XOSK:
-#endif
-	case EXTEND_UNIX:
+        break;
+    case EXTEND_HUMAN:
+    case EXTEND_OS68K:
+    case EXTEND_XOSK:
+    case EXTEND_UNIX:
         filename_case = NONE;
+        break;
 
-		break;
-
-	case EXTEND_MACOS:
+    case EXTEND_MACOS:
         archive_delim = "\377/:\\";
                           /* `\' is for level 0 header and broken archive. */
         system_delim = "/://";
         filename_case = NONE;
+        break;
 
-		hdr->unix_last_modified_stamp =
-			generic_to_unix_stamp(hdr->last_modified_stamp, sizeof(hdr->name));
-		break;
-
-	default:
+    default:
         filename_case = noconvertcase ? NONE : TO_LOWER;
         /* FIXME: if small letter is included in filename,
            the generic_to_unix_filename() do not case conversion,
            but this code does not consider it. */
+        break;
+    }
 
-		if (hdr->header_level == 2)
-			hdr->unix_last_modified_stamp = hdr->last_modified_stamp;
-		else
-			hdr->unix_last_modified_stamp =
-				generic_to_unix_stamp(hdr->last_modified_stamp);
-	}
-
-    /* filename kanji code and delimiter conversion */
     if (optional_archive_kanji_code)
         archive_kanji_code = optional_archive_kanji_code;
     if (optional_system_kanji_code)
@@ -852,24 +936,13 @@ get_header(fp, hdr)
     if (optional_filename_case)
         filename_case = optional_filename_case;
 
-	if (dir_length) {
-        if (name_length + dir_length >= sizeof(hdr->name)) {
-            warning("the length of pathname \"%s%s\" is too long.",
-                    dirname, hdr->name);
-            name_length = sizeof(hdr->name) - dir_length - 1;
-            hdr->name[name_length] = 0;
-        }
-		strcat(dirname, hdr->name);
-		strcpy(hdr->name, dirname);
-		name_length += dir_length;
-	}
-
-    convert_filename(hdr->name, name_length, sizeof(hdr->name),
+    /* kanji code and delimiter conversion */
+    convert_filename(hdr->name, strlen(hdr->name), sizeof(hdr->name),
                      archive_kanji_code,
                      system_kanji_code,
                      archive_delim, system_delim, filename_case);
 
-	return TRUE;
+    return TRUE;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -892,7 +965,6 @@ init_header(name, v_stat, hdr)
 
 	hdr->packed_size = 0;
 	hdr->original_size = v_stat->st_size;
-	hdr->last_modified_stamp = unix_to_generic_stamp(v_stat->st_mtime);
 	hdr->attribute = GENERIC_ATTRIBUTE;
 	hdr->header_level = header_level;
 	strcpy(hdr->name, name);
@@ -942,10 +1014,10 @@ init_header(name, v_stat, hdr)
 			strcpy(&hdr->name[len++], "/");
 	}
 
-#ifdef S_IFLNK	
+#ifdef S_IFLNK
 	if (is_symlink(v_stat)) {
 		char	lkname[FILENAME_LENGTH];
-		int		len;	
+		int		len;
 		memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STRAGE);
 		hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
 		hdr->original_size = 0;
@@ -991,7 +1063,7 @@ write_header(nafp, hdr)
 	if (hdr->header_level == HEADER_LEVEL2)
 		put_longword((long) hdr->unix_last_modified_stamp);
 	else
-		put_longword(hdr->last_modified_stamp);
+		put_longword(unix_to_generic_stamp(hdr->unix_last_modified_stamp));
 
 	switch (hdr->header_level) {
 	case HEADER_LEVEL0:
