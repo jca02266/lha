@@ -4,7 +4,7 @@
 : ${lha=$(cd $lha_dir && pwd)/lha}
 : ${srcdir=@srcdir@}
 
-trap "rm -rf test-*" 0 1 2 3 15
+trap "rm -rf test-*; exit" 0 1 2 3 15
 
 typeset -i test_number=0 error_num=0
 error_tests=""
