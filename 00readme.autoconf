@@ -32,6 +32,19 @@ LHa for UNIX に関しては岡本継男さんのページ
 
   などとしてください。
 
+  ※ Cygwin や MinGW 等、Windows 環境では深いディレクトリでコンパイル
+     するとmake check が失敗する場合があります。これは長いパスの格納
+     チェックをするときに、Windows のフルパス長の制限にひっかかるため
+     です。このような場合は、以下のように configure を浅めのディレクト
+     リで実行してください。
+
+      例:
+	cd /tmp/build
+	sh ~/src/lha/configure ....
+	make
+	make check
+	make install
+
   autoconf/automake がインストールされている場合で、lha ソースや 
   configure.ac, Makefile.am をメンテナンスする場合は以下の手順になりま
   す。autoconf/automake のバージョンはそれぞれ autoconf 2.5x, automake
