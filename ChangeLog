@@ -3,7 +3,7 @@
 	* configure.ac: updated version.
 
 	* src/prototypes.h (str_safe_copy): newly added.
-	(build_backup_file, cmd_add, cmd_delete):
+	(build_standard_archive_name, build_backup_file):
 	added argument the size for build_standard_archive_name() and
 	build_backup_file().
 

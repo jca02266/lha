@@ -313,8 +313,8 @@ basename(char *s)
 }
 #endif
 
-/* This function is similar to strncpy() but `dst' is always terminated '\0'.
-   Return the copied string length. */
+/* This function is similar to strncpy() but `dst' is always
+   terminated by '\0'. Return the copied string length. */
 int
 str_safe_copy(char *dst, const char *src, int dstsz)
 {
