@@ -132,3 +132,19 @@ test -f test-tmp3-h1/test-tmp3/$file
 							check $?
 test -f test-tmp3-h2/test-tmp3/$file
 							check $?
+# the header size is 0x101 instead of 0x100 on level 2 header
+file=test-tmp9012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+touch $file
+							check $?
+$lha c2 test-tmp4-h2.lzh $file
+							check $?
+$lha vv test-tmp4-h2.lzh
+							check $?
+$lha vv test-tmp4-h2.lzh | grep '\[2\]$'
+							check $?
+$lha xw=test-tmp4 test-tmp4-h2.lzh
+							check $?
+test x"`ls -l test-tmp4-h2.lzh | awk '{print $5}'`" = x258
+							check $?
+test -f test-tmp4/$file
+							check $?
