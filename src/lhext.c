@@ -189,6 +189,15 @@ adjust_info(name, hdr)
                 chown(name, uid, gid);
         }
     }
+#if __CYGWIN__
+    else {
+        /* On Cygwin, execute permission should be set for .exe or .dll. */
+        mode_t m;
+
+        umask(m = umask(0));    /* get current umask */
+        chmod(name, 0777 & ~m);
+    }
+#endif
 }
 
 /* ------------------------------------------------------------------------ */
