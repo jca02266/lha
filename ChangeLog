@@ -18,7 +18,7 @@
 
 	* src/lha.h: ditto.
 
-	* src/vsnprintf.c: derived snprintf() which has BSD licence.
+	* src/vsnprintf.c: derived snprintf() which has the BSD licence.
 
 	* configure.ac: fix typo.
 	
@@ -57,7 +57,7 @@
 
 	* src/header.c (convert_filename): rename a function
 	`filename_conv()' to `convert_filename()'.
-	(sjis_to_utf8_static): no used the static variable.
+	(sjis_to_utf8_static): no use the static variable.
 	(utf8_to_sjis_static): ditto.
 
 	* src/lha.h: rename sjis_to_utf8_static() and utf8_to_sjis_static()
