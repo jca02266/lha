@@ -116,7 +116,6 @@ unsigned int decode P_((struct interfacing *interface));
 long copyfile P_((FILE *f1, FILE *f2, long size, int text_flg, unsigned int *crcp));
 int encode_stored_crc P_((FILE *ifp, FILE *ofp, long size, long *original_size_var, long *write_size_var));
 boolean archive_is_msdos_sfx1 P_((char *name));
-int strcasecmp P_((const char *p1, const char *p2));
 int xsnprintf P_((char *dest, size_t size, char *fmt, ...));
 char *xstrchr P_((const char *s, int c));
 char *xstrrchr P_((const char *s, int c));
@@ -125,7 +124,7 @@ char *xmemrchr P_((const char *s, int c, size_t n));
 char *basename P_((char *s));
 
 /* lharc.c */
-RETSIGTYPE interrupt(int signo);
+RETSIGTYPE interrupt P_((int signo));
 /* util.c */
 #if !HAVE_MEMMOVE
 void *memmove P_((void *dst, const void *src, size_t cnt));
@@ -135,6 +134,9 @@ char *strdup P_((char *buf));
 #endif
 #if !HAVE_MEMSET
 char *memset P_((char *s, int c, int n));
+#endif
+#if !HAVE_STRCASECMP
+int strcasecmp P_((const char *p1, const char *p2));
 #endif
 
 /* vsnprintf.c */
