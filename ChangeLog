@@ -1,3 +1,11 @@
+2002-07-29  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* released.
+
+	* configure.ac: updated version.
+
+	* 00readme.autoconf: described about header.c bug on original lha.
+
 2002-07-28  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/Makefile.am (Repository): added lha-test11.
@@ -13,7 +21,6 @@
 	* src/lharc.c (open_old_archive): ditto.
 
 	* src/lhlist.c (list_one): ditto.
-
 
 	* src/prototypes.h: updated.
 
