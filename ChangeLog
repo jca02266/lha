@@ -1,5 +1,9 @@
 2002-08-18  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lharc.c (print_version): version string is made here.
+
+	* src/lha_macro.h (LHA_VERSION): removed.
+
 	* src/slide.c (encode_alloc): used newly named `dicbit' macro.
 
 	* src/shuf.c (read_tree_p): ditto.
