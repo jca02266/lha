@@ -11,18 +11,19 @@ void start_indicator P_((char *name, long size, char *msg, long def_indicator_th
 void put_indicator P_((long int count));
 void finish_indicator2 P_((char *name, char *msg, int pcnt));
 void finish_indicator P_((char *name, char *msg));
-/* crcio.c */
-void make_crctable P_((void));
-unsigned int calccrc P_((unsigned int crc, unsigned char *p, unsigned int n));
+/* bitio.c */
 void fillbuf P_((int n));
 unsigned short getbits P_((int n));
 void putcode P_((int n, int x));
 void putbits P_((int n, int x));
+void init_getbits P_((void));
+void init_putbits P_((void));
+/* crcio.c */
+void make_crctable P_((void));
+unsigned int calccrc P_((unsigned int crc, unsigned char *p, unsigned int n));
 int fread_crc P_((unsigned int *crcp, unsigned char *p, int n, FILE *fp));
 void fwrite_crc P_((unsigned int *crcp, unsigned char *p, int n, FILE *fp));
 void init_code_cache P_((void));
-void init_getbits P_((void));
-void init_putbits P_((void));
 int fwrite_txt P_((unsigned char *p, int n, FILE *fp));
 int fread_txt P_((unsigned char *p, int n, FILE *fp));
 /* dhuf.c */
@@ -38,6 +39,7 @@ int decode_lzhuf P_((FILE *infp, FILE *outfp, long original_size, long packed_si
 int calc_sum P_((register char *p, register int len));
 void convert_filename P_((char *name, int len, int size, int from_code, int to_code, char *from_delim, char *to_delim, int case_to));
 boolean get_header P_((FILE *fp, LzHeader *hdr));
+boolean skip_msdos_sfx1_code P_((FILE *fp));
 void init_header P_((char *name, struct stat *v_stat, LzHeader *hdr));
 void write_header P_((FILE *fp, LzHeader *hdr));
 char *sjis_to_utf8 P_((char *dst, const char *src, size_t dstsize));
@@ -114,7 +116,6 @@ unsigned int decode P_((struct interfacing *interface));
 long copyfile P_((FILE *f1, FILE *f2, long size, int text_flg, unsigned int *crcp));
 int encode_stored_crc P_((FILE *ifp, FILE *ofp, long size, long *original_size_var, long *write_size_var));
 boolean archive_is_msdos_sfx1 P_((char *name));
-boolean skip_msdos_sfx1_code P_((FILE *fp));
 int strucmp P_((register char *s, register char *t));
 int xsnprintf P_((char *dest, size_t size, char *fmt, ...));
 char *xstrchr P_((const char *s, int c));
