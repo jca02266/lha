@@ -203,6 +203,8 @@ int fnmatch(const char *pattern, const char *string, int flags);
 
 #include "lha_macro.h"
 
+#define exit(n) lha_exit(n)
+
 struct encode_option {
 #if defined(__STDC__) || defined(AIX)
     void            (*output) ();

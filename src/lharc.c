@@ -86,7 +86,6 @@ init_variable()     /* Added N.Watazaki */
     delete_after_append = FALSE;
     generic_format      = FALSE;
 
-    remove_temporary_at_error               = FALSE;
     recover_archive_when_interrupt          = FALSE;
     remove_extracting_file_when_interrupt   = FALSE;
     get_filename_from_stdin                 = FALSE;
@@ -691,31 +690,37 @@ fatal_error(fmt, va_alist)
     else
         fputs("\n", stderr);
 
-    if (remove_temporary_at_error) {
-        if (temporary_fd != -1)
-            close(temporary_fd);
-        unlink(temporary_name);
-    }
-
     exit(1);
 }
 
-/* ------------------------------------------------------------------------ */
+void
+cleanup()
+{
+    if (temporary_fd != -1) {
+        close(temporary_fd);
+        temporary_fd = -1;
+        unlink(temporary_name);
+    }
+
+    if (recover_archive_when_interrupt) {
+        rename(backup_archive_name, archive_name);
+        recover_archive_when_interrupt = FALSE;
+    }
+    if (remove_extracting_file_when_interrupt) {
+        message("Removing: %s", writing_filename);
+        unlink(writing_filename);
+        remove_extracting_file_when_interrupt = FALSE;
+    }
+}
+
 RETSIGTYPE
 interrupt(signo)
     int signo;
 {
     message("Interrupted");
 
-    if (temporary_fd != -1)
-        close(temporary_fd);
-    unlink(temporary_name);
-    if (recover_archive_when_interrupt)
-        rename(backup_archive_name, archive_name);
-    if (remove_extracting_file_when_interrupt) {
-        message("Removing: %s", writing_filename);
-        unlink(writing_filename);
-    }
+    cleanup();
+
     signal(SIGINT, SIG_DFL);
 #ifdef SIGHUP
     signal(SIGHUP, SIG_DFL);
@@ -1318,4 +1323,14 @@ copy_old_one(oafp, nafp, hdr)
         writing_filename = temporary_name;
         copyfile(oafp, nafp, hdr->header_size + hdr->packed_size, 0, 0);
     }
+}
+
+#undef exit
+
+void
+lha_exit(status)
+    int status;
+{
+    cleanup();
+    exit(status);
 }

@@ -259,7 +259,6 @@ build_temporary_file()
     signal(SIGHUP, interrupt);
 #endif
 
-    remove_temporary_at_error = TRUE;
     temporary_fd = build_temporary_name();
     if (temporary_fd == -1)
         fatal_error("Cannot open temporary file \"%s\"", temporary_name);
@@ -340,8 +339,6 @@ temporary_to_new_archive_file(new_archive_size)
 
     recover_archive_when_interrupt = FALSE;
     unlink(temporary_name);
-
-    remove_temporary_at_error = FALSE;
 }
 
 /* ------------------------------------------------------------------------ */
