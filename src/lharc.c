@@ -822,27 +822,6 @@ cleaning_files(v_filec, v_filev)
 }
 
 /* ------------------------------------------------------------------------ */
-#ifdef NODIRECTORY
-/* please need your imprementation */
-boolean
-find_files(name, v_filec, v_filev)
-	char           *name;
-	int            *v_filec;
-	char         ***v_filev;
-{
-	return FALSE;		/* DUMMY */
-}
-
-/* ------------------------------------------------------------------------ */
-void
-free_files(filec, filev)
-	int             filec;
-	char          **filev;
-{
-	/* do nothing */
-}
-/* ------------------------------------------------------------------------ */
-#else
 boolean
 find_files(name, v_filec, v_filev)
 	char           *name;
@@ -915,7 +894,7 @@ free_files(filec, filev)
 {
 	free_sp(filev);
 }
-#endif
+
 /* ------------------------------------------------------------------------ */
 /*																			*/
 /* ------------------------------------------------------------------------ */

@@ -96,7 +96,6 @@ typedef int gid_t;
 #include <utime.h>
 #endif
 
-#ifndef NODIRECTORY
 #if HAVE_DIRENT_H
 # include <dirent.h>
 # define NAMLEN(dirent) strlen((dirent)->d_name)
@@ -116,7 +115,6 @@ typedef int gid_t;
 #  include "lhdir.h"
 # endif
 #endif
-#endif  /* NODIRECTORY */
 
 #ifdef __APPLE__  /* On MacOS X, use CoreFoundation for utf8 conversion */
 #include <CoreFoundation/CFString.h>

@@ -26,7 +26,7 @@ MKDIRPATH util.c
 # NEED_INCREMENTAL_INDICATOR append.c crcio.c lha.h	--enable-indicator
 # NEWSOS huf.c				use STDC_HEADERS
 # NOBSTRING lha_macro.h util.c		use memset(), memcpy()
-NODIRECTORY lha_macro.h lharc.c
+# NODIRECTORY lha_macro.h lharc.c	removed
 # NOFTRUNCATE lhadd.c util.c		replace with !HAVE_FTRUNCATE
 # NOINDEX lha_macro.h			use strchr(), strrchr()
 # NOMEMSET util.c			replace with !HAVE_MEMSET
