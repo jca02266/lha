@@ -821,6 +821,8 @@ init_header(name, v_stat, hdr)
     char *system_delim = "";
     int filename_case = NONE;
 
+    memset(hdr, 0, sizeof(LzHeader));
+
     if (optional_system_kanji_code)
         system_kanji_code = optional_system_kanji_code;
 
@@ -851,7 +853,7 @@ init_header(name, v_stat, hdr)
 	hdr->unix_uid = v_stat->st_uid;
 	hdr->unix_gid = v_stat->st_gid;
 
-#if MAKE_USER_NAME_HEADER
+#if INCLUDE_OWNER_NAME_IN_HEADER
 #if HAVE_GETPWUID
     {
         struct passwd *ent = getpwuid(hdr->unix_uid);
@@ -874,7 +876,7 @@ init_header(name, v_stat, hdr)
         }
     }
 #endif
-#endif /* MAKE_USER_NAME_HEADER */
+#endif /* INCLUDE_OWNER_NAME_IN_HEADER */
 	if (is_directory(v_stat)) {
 		bcopy(LZHDIRS_METHOD, hdr->method, METHOD_TYPE_STRAGE);
 		hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
