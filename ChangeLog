@@ -1,3 +1,9 @@
+2003-03-03  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/prototypes.h: updated.
+
+	* src/cproto.sh: improved.
+
 2003-02-24  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/prototypes.h: updated.
