@@ -14,7 +14,7 @@
 	* src/header.c (get_header): Should convert kanji code and path
 	separator for the level 0 header entry.
 	Should convert `\' to `/' for level 0 header (do always to make sure,
-	so cannot contain the `\' in filename).
+	SO CANNOT CONTAIN THE `\' IN FILENAME).
 	(init_header): Should not convert path separator here (Should do
 	in write_header).
 	(write_header): Did not contain the directory part in level 0
