@@ -66,7 +66,7 @@ init_variable()		/* Added N.Watazaki */
 
 	compress_method = DEFAULT_LZHUFF_METHOD; /* defined in config.h */
 
-	header_level	= HEADER_LEVEL1;
+	header_level	= HEADER_LEVEL2;
 	quiet_mode		= 0;
 
 #ifdef EUC
