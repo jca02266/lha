@@ -619,7 +619,7 @@ xstrdup(str)
 	char *str;
 {
     int len = strlen(str);
-	char *p = (char *)xmalloc(str + 1);
+	char *p = (char *)xmalloc(len + 1);
 	if (!p)
 		fatal_error("Not enough memory");
     strcpy(p, str);
