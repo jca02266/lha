@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------------------ */
 /* LHa for UNIX                                                             */
-/*              crcio.c -- crc input / output                               */
+/*              bitio.c -- bit stream                                       */
 /*                                                                          */
 /*      Modified                Nobutaka Watazaki                           */
 /*                                                                          */
@@ -52,7 +52,7 @@ putcode(n, x)           /* Write leftmost n bits of x */
         x <<= bitcount;
         if (compsize < origsize) {
             if (fwrite(&subbitbuf, 1, 1, outfile) == 0) {
-                fatal_error("Write error in crcio.c(putcode)");
+                fatal_error("Write error in bitio.c(putcode)");
             }
             compsize++;
         }
