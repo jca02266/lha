@@ -468,7 +468,7 @@ get_extended_header(fp, hdr, header_size)
     LzHeader *hdr;
     int header_size;
 {
-    char data[LZHEADER_STRAGE];
+    char data[LZHEADER_STORAGE];
     int name_length;
     char dirname[FILENAME_LENGTH];
     int dir_length = 0;
@@ -855,7 +855,7 @@ get_header(fp, hdr)
     FILE *fp;
     LzHeader *hdr;
 {
-    char data[LZHEADER_STRAGE];
+    char data[LZHEADER_STORAGE];
 
     int archive_kanji_code = CODE_SJIS;
     int system_kanji_code = default_system_kanji_code;
@@ -956,11 +956,11 @@ init_header(name, v_stat, hdr)
     memset(hdr, 0, sizeof(LzHeader));
 
 	if (compress_method == LZHUFF5_METHOD_NUM)  /* Changed N.Watazaki */
-		memcpy(hdr->method, LZHUFF5_METHOD, METHOD_TYPE_STRAGE);
+		memcpy(hdr->method, LZHUFF5_METHOD, METHOD_TYPE_STORAGE);
 	else if (compress_method)
-		memcpy(hdr->method, LZHUFF1_METHOD, METHOD_TYPE_STRAGE);
+		memcpy(hdr->method, LZHUFF1_METHOD, METHOD_TYPE_STORAGE);
 	else
-		memcpy(hdr->method, LZHUFF0_METHOD, METHOD_TYPE_STRAGE);
+		memcpy(hdr->method, LZHUFF0_METHOD, METHOD_TYPE_STORAGE);
 
 	hdr->packed_size = 0;
 	hdr->original_size = v_stat->st_size;
@@ -1006,7 +1006,7 @@ init_header(name, v_stat, hdr)
 #endif
 #endif /* INCLUDE_OWNER_NAME_IN_HEADER */
 	if (is_directory(v_stat)) {
-		memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STRAGE);
+		memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STORAGE);
 		hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
 		hdr->original_size = 0;
 		if (len > 0 && hdr->name[len - 1] != '/')
@@ -1017,7 +1017,7 @@ init_header(name, v_stat, hdr)
 	if (is_symlink(v_stat)) {
 		char	lkname[FILENAME_LENGTH];
 		int		len;
-		memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STRAGE);
+		memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STORAGE);
 		hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
 		hdr->original_size = 0;
 		len = readlink(name, lkname, sizeof(lkname));
@@ -1041,7 +1041,7 @@ write_header_level0(data, hdr, lzname)
     int header_size;
 
     setup_put(data);
-    memset(data, 0, LZHEADER_STRAGE);
+    memset(data, 0, LZHEADER_STORAGE);
 
     put_byte(0x00);             /* header size */
     put_byte(0x00);             /* check sum */
@@ -1115,7 +1115,7 @@ write_header_level1(data, hdr, lzname)
     }
 
     setup_put(data);
-    memset(data, 0, LZHEADER_STRAGE);
+    memset(data, 0, LZHEADER_STORAGE);
 
     put_byte(0x00);             /* header size */
     put_byte(0x00);             /* check sum */
@@ -1238,7 +1238,7 @@ write_header_level2(data, hdr, lzname)
     }
 
     setup_put(data);
-    memset(data, 0, LZHEADER_STRAGE);
+    memset(data, 0, LZHEADER_STORAGE);
 
     put_word(0x0000);           /* header size */
     put_bytes(hdr->method, 5);
@@ -1338,7 +1338,7 @@ write_header(fp, hdr)
     LzHeader       *hdr;
 {
     int header_size;
-    char data[LZHEADER_STRAGE];
+    char data[LZHEADER_STORAGE];
 
     int archive_kanji_code = CODE_SJIS;
     int system_kanji_code = default_system_kanji_code;

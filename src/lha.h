@@ -204,7 +204,7 @@ struct string_pool {
 
 typedef struct LzHeader {
 	int             header_size;
-	char            method[METHOD_TYPE_STRAGE];
+	char            method[METHOD_TYPE_STORAGE];
 	long            packed_size;
 	long            original_size;
 	unsigned char   attribute;

@@ -62,7 +62,7 @@ add_one(fp, nafp, hdr)
 #if HAVE_FTRUNCATE
 		ftruncate(fileno(nafp), next_pos);
 #endif
-		memcpy(hdr->method, LZHUFF0_METHOD, METHOD_TYPE_STRAGE);
+		memcpy(hdr->method, LZHUFF0_METHOD, METHOD_TYPE_STORAGE);
 	}
 	hdr->original_size = v_original_size;
 	hdr->packed_size = v_packed_size;

@@ -83,7 +83,7 @@
 #define LARC4_METHOD			"-lz4-"
 #define LZHDIRS_METHOD			"-lhd-"
 
-#define METHOD_TYPE_STRAGE		5
+#define METHOD_TYPE_STORAGE		5
 
 /* Added N.Watazaki ..V */
 #define LZHUFF0_METHOD_NUM		0
@@ -185,7 +185,7 @@
 #define UNIX_OTHER_EXEC_PERM	0000001
 #define UNIX_RW_RW_RW			0000666
 
-#define LZHEADER_STRAGE			4096
+#define LZHEADER_STORAGE		4096
 
 #define MAX_INDICATOR_COUNT		64
 
