@@ -1,3 +1,8 @@
+2002-07-21  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/lha-test10: should use /bin/ls instead of ls, since
+	/usr/ucb/ls puts size on 4th field (on Solaris).
+
 2002-07-18  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* released.
