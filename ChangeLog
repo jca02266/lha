@@ -1,7 +1,10 @@
 2002-07-18  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lhext.c (adjust_info): should use `struct utimbuf' for
+	`utime(2)' rather than `time_t' array.
+
 	* src/header.c (write_header): [BUG] should not write zero at the
-	first byte on level 2 header. adjust header size.
+	first byte on level 2 header. should adjust header size.
 
 	* tests/lha-test10: added tests for level 2 header.
 
