@@ -494,6 +494,44 @@ unix_to_generic_stamp(t)
 			(tm->tm_sec / 2)));
 }
 
+static unsigned long
+wintime_to_unix_stamp()
+{
+#if HAVE_UINT64_T
+    uint64_t t;
+    uint64_t epoch = 0x019db1ded53e8000; /* 1970-01-01 00:00:00 (UTC) */
+
+    t = get_longword();
+    t += (uint64_t)get_longword() << 32;
+    t = (t - epoch) / 10000000;
+    return t;
+#else
+    int i, borrow;
+    unsigned long t, q, x;
+    unsigned long wintime[8];
+    unsigned long epoch[8] = {0x01,0x9d,0xb1,0xde, 0xd5,0x3e,0x80,0x00};
+                                /* 1970-01-01 00:00:00 (UTC) */
+    /* wintime -= epoch */
+    borrow = 0;
+    for (i = 7; i >= 0; i--) {
+        wintime[i] = (unsigned)get_byte() - epoch[i] - borrow;
+        borrow = (wintime[i] > 0xff) ? 1 : 0;
+        wintime[i] &= 0xff;
+    }
+
+    /* q = wintime / 10000000 */
+    t = q = 0;
+    x = 10000000;               /* x: 24bit */
+    for (i = 0; i < 8; i++) {
+        t = (t << 8) + wintime[i]; /* 24bit + 8bit. t must be 32bit variable */
+        q <<= 8;                   /* q must be 32bit (time_t) */
+        q += t / x;
+        t %= x;     /* 16bit */
+    }
+    return q;
+#endif
+}
+
 /* ------------------------------------------------------------------------ */
 /* build header functions													*/
 /* ------------------------------------------------------------------------ */
@@ -516,6 +554,7 @@ unix_to_generic_stamp(t)
  *  on level 3 header:
  *    size field is 4 bytes
  */
+
 static long
 get_extended_header(fp, hdr, header_size, hcrc)
     FILE *fp;
@@ -575,7 +614,18 @@ get_extended_header(fp, hdr, header_size, hcrc)
             break;
         case 0x41:
             /* Windows time stamp (FILETIME structure) */
-            skip_bytes(header_size - n); /* ignored */
+            /* it is time in 100 nano seconds since 1601-01-01 00:00:00 */
+
+            skip_bytes(8); /* create time is ignored */
+
+            /* set last modified time */
+            if (hdr->header_level >= 2)
+                skip_bytes(8);  /* time_t has been already set */
+            else
+                hdr->unix_last_modified_stamp = wintime_to_unix_stamp();
+
+            skip_bytes(8); /* last access time is ignored */
+
             break;
         case 0x50:
             /* UNIX permission */

@@ -23,6 +23,14 @@
 #include <sys/stat.h>
 #include <signal.h>
 
+#if HAVE_INTTYPES_H
+# include <inttypes.h>
+#else
+# if HAVE_STDINT_H
+#  include <stdint.h>
+# endif
+#endif
+
 #if STDC_HEADERS
 # include <string.h>
 #else
@@ -79,6 +87,17 @@ typedef int uid_t;
 #endif
 #if !HAVE_GID_T
 typedef int gid_t;
+#endif
+
+#if !HAVE_UINT64_T
+# define HAVE_UINT64_T 1
+# if SIZEOF_LONG == 8
+    typedef unsigned long uint64_t;
+# elif HAVE_LONG_LONG
+    typedef unsigned long long uint64_t;
+# else
+#  undef HAVE_UINT64_T
+# endif
 #endif
 
 #if TIME_WITH_SYS_TIME
