@@ -943,8 +943,8 @@ build_temporary_name()
 #else
     {
         int flags;
-        mktemp(temporary_name);
 
+        mktemp(temporary_name);
         flags = O_CREAT|O_EXCL|O_RDWR;
 #ifdef O_BINARY
         flags |= O_BINARY;
