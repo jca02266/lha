@@ -335,12 +335,8 @@ extern int      encode_stored_crc();
 extern boolean	get_header();
 extern void		init_header();
 extern void		write_header();
-#ifdef __APPLE__
-extern char		*sjis_to_utf8_static(const char *);
-extern char		*utf8_to_sjis_static(const char *);
-#endif /* __APPLE__ */
-
-/* from header.c */
+extern char		*sjis_to_utf8(char *, const char *, size_t);
+extern char		*utf8_to_sjis(char *, const char *, size_t);
 void euc2sjis(int *p1, int *p2);
 void sjis2euc(int *p1, int *p2);
 
