@@ -9,7 +9,7 @@
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
-#define MAX_INDICATOR_COUNT     64
+#define MAX_INDICATOR_COUNT     58
 
 static size_t reading_size;
 
