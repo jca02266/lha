@@ -11,6 +11,8 @@
 
 2002-05-27  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test.in: use `seq` function instead of GNU sh-utils's seq.
+
 	* src/header.c (filename_conv): reverse condition and conversion
 	for filename case.
 

@@ -8,7 +8,7 @@
 /* ------------------------------------------------------------------------ */
 
 /* macro VERSION and PLATFORM are defined in config.h by configure script */
-#define LHA_VERSION "lha for unix version " VERSION " (" PLATFORM ")"
+#define LHA_VERSION "LHa for UNIX version " VERSION " (" PLATFORM ")"
 
 /* Most of System V, define TM_IN_SYS_TIME */
 #if	TM_IN_SYS_TIME
