@@ -99,40 +99,6 @@ encode_stored_crc(ifp, ofp, size, original_size_var, write_size_var)
 }
 
 /* ------------------------------------------------------------------------ */
-/*	convert path delimit
-	erreturns *filename														*/
-/* ------------------------------------------------------------------------ */
-unsigned char  *
-convdelim(path, delim)
-	unsigned char  *path;
-	unsigned char   delim;
-{
-	unsigned char   c;
-	unsigned char  *p;
-#ifdef MULTIBYTE_FILENAME
-	int             kflg;
-
-	kflg = 0;
-#endif
-	for (p = path; (c = *p) != 0; p++) {
-#ifdef MULTIBYTE_FILENAME
-		if (kflg) {
-			kflg = 0;
-		}
-		else if (MULTIBYTE_FIRST_P(c)) {
-			kflg = 1;
-		}
-		else
-#endif
-		if (c == '\\' || c == '/' || c == LHA_PATHSEP) {
-			*p = delim;
-			path = p + 1;
-		}
-	}
-	return path;
-}
-
-/* ------------------------------------------------------------------------ */
 /* If TRUE, archive file name is msdos SFX file name. */
 boolean
 archive_is_msdos_sfx1(name)
