@@ -172,12 +172,27 @@ adjust_info(name, hdr)
 			chmod(name, hdr->unix_mode);
 #endif
 		if (!getuid()){
+            uid_t uid = hdr->unix_uid;
+            gid_t gid = hdr->unix_gid;
+
+#if HAVE_GETPWNAM && HAVE_GETGRNAM
+            if (hdr->user[0]) {
+                struct passwd *ent = getpwnam(hdr->user);
+                if (ent) uid = ent->pw_uid;
+            }
+            if (hdr->group[0]) {
+                struct group *ent = getgrnam(hdr->group);
+                if (ent) gid = ent->gr_gid;
+            }
+#endif
+
 #if HAVE_LCHOWN
 			if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK)
-				lchown(name, hdr->unix_uid, hdr->unix_gid);
-			else
+				lchown(name, uid, gid);
+			else {
 #endif /* HAVE_LCHWON */
-				chown(name, hdr->unix_uid, hdr->unix_gid);
+				chown(name, uid, gid);
+            }
 		}
 		errno = 0;
 	}
