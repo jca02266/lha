@@ -1,4 +1,4 @@
-configration of LHa for UNIX ver 1.00 (see Makefile, SWITCHES macro.)
+configration of LHa for UNIX ver 1.14g (see Makefile, SWITCHES macro.)
 
 machine independed macros
 
@@ -7,7 +7,7 @@ machine independed macros
   ARCHIVENAME_EXTENTION	your default archive suffix. default is ".lzh".
   BACKUPNAME_EXTENTION	back up archive suffix. default is ".bak".
   TMP_FILENAME_TEMPLATE	temporary file template. default is "/tmp/lhXXXXXX".
-  SUPPORT_LH6		to use the -lh6- method, define SUPPORT_LH6
+  SUPPORT_LH7		to use the -lh7- method, define SUPPORT_LH7
 
 machine depended macros
 

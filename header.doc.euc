@@ -73,6 +73,9 @@ LHa for UNIX で使用されるヘッダ構造について	Mar. 2, 1992, Masaru Oki.
       -lh6-   32k sliding dictionary(max 256 bytes) + static Huffman
 			  + improved encoding of position and trees
 
+      -lh7-   64k sliding dictionary(max 256 bytes) + static Huffman
+			  + improved encoding of position and trees
+
       -lzs-   2k sliding dictionary(max 17 bytes)
 
       -lz4-   no compression

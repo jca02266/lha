@@ -1,4 +1,4 @@
-LHa for UNIX ver 1.14 コンフィグレーション (Makefile, SWITCHESマクロ参照)
+LHa for UNIX ver 1.14g コンフィグレーション (Makefile, SWITCHESマクロ参照)
 
 機種依存マクロは、MACHINES ファイルに設定例がありますので参照願います。
 
@@ -10,7 +10,7 @@ LHa for UNIX ver 1.14 コンフィグレーション (Makefile, SWITCHESマクロ参照)
   ARCHIVENAME_EXTENTION	デフォルトのアーカイブ拡張子。デフォルトは ".lzh" 。
   BACKUPNAME_EXTENTION	バックアップアーカイブの拡張子。デフォルトは ".bak" 。
   TMP_FILENAME_TEMPLATE	作業ファイルのテンプレート。
-  SUPPORT_LH6		-lh6- methodをサポートするときに定義します。
+  SUPPORT_LH7		-lh7- methodをサポートするときに定義します。
 
 機種依存マクロ
 

@@ -92,5 +92,16 @@ Compiler	egcs-1.1 release (egcs-2.91.57 19980901)(gcc-2.8.*相当？)
 変更　：　　　SWITCHESに-DSYSV_SYSTEM_DIR -BSD_INCLUDES -DAIXを追加
               MACHINEを-DSYSTIME_HAS_NO_TM -DTZSETに変更
 ----------------------------------------------------------------
+社名            Hewlett Packard
+マシン          HP9000 C240
+OS              HP-UX 10.20
+Compiler        cc
+変更事項        SWITCHES に -DUSESTRCASECMP を追加。
+                SWITCHES に -DNOBSTRING を追加。
+                Shift-JIS を使用するので -DEUCを削除し，
+                source内のEUCコードをShift-JISコードに変換。
+                OPTIMIZEに -Y -O +DAportable +DSportableを指定
+                portable指定はPA7000シリーズに対応するため
+----------------------------------------------------------------
 
 
