@@ -10,6 +10,7 @@
 /*  Ver. 1.13b Symbolic Link Bug Fix            1994.08.22  N.Watazaki      */
 /*  Ver. 1.14  Source All chagned               1995.01.14  N.Watazaki      */
 /*  Ver. 1.14i bug fixed                        2000.10.06  t.okamoto       */
+/*  Ver. 1.14i autoconfiscated & rewritten      2003.02.23  Koji Arai       */
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
@@ -23,7 +24,6 @@
 #define strrchr  xstrrchr
 #endif
 
-/* ------------------------------------------------------------------------ */
 static char    *get_ptr;
 #define GET_BYTE()      (*get_ptr++ & 0xff)
 
@@ -53,16 +53,14 @@ int default_system_kanji_code = MULTIBYTE_FILENAME;
 int default_system_kanji_code = NONE;
 #endif
 
-/* ------------------------------------------------------------------------ */
 int
 calc_sum(p, len)
-    register char  *p;
-    register int    len;
+    char *p;
+    int len;
 {
-    register int    sum;
+    int sum = 0;
 
-    for (sum = 0; len; len--)
-        sum += *p++;
+    while (len--) sum += *p++;
 
     return sum & 0xff;
 }
@@ -101,11 +99,10 @@ dump_skip_bytes(len)
 }
 #endif
 
-/* ------------------------------------------------------------------------ */
 static int
 get_word()
 {
-    int             b0, b1;
+    int b0, b1;
     int w;
 
 #if DUMP_HEADER
@@ -122,7 +119,6 @@ get_word()
     return w;
 }
 
-/* ------------------------------------------------------------------------ */
 static void
 put_word(v)
     unsigned int    v;
@@ -131,11 +127,10 @@ put_word(v)
     put_byte(v >> 8);
 }
 
-/* ------------------------------------------------------------------------ */
 static long
 get_longword()
 {
-    long            b0, b1, b2, b3;
+    long b0, b1, b2, b3;
     long l;
 
 #if DUMP_HEADER
@@ -154,10 +149,9 @@ get_longword()
     return l;
 }
 
-/* ------------------------------------------------------------------------ */
 static void
 put_longword(v)
-    long            v;
+    long v;
 {
     put_byte(v);
     put_byte(v >> 8);
@@ -349,79 +343,29 @@ convert_filename(name, len, size,
     }
 }
 
-/* ------------------------------------------------------------------------ */
-/*                                                                          */
-/* Generic stamp format:                                                    */
-/*                                                                          */
-/*  31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16                         */
-/* |<------- year ----->|<- month ->|<--- day ---->|                        */
-/*                                                                          */
-/*  15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0                         */
-/* |<--- hour --->|<---- minute --->|<- second*2 ->|                        */
-/*                                                                          */
-/* ------------------------------------------------------------------------ */
-
 /*
- * NOTE : If you don't have `gettimeofday(2)', or your gettimeofday(2)
- * returns bogus timezone information, try FTIME, MKTIME, TIMELOCAL or TZSET.
+ * Generic (MS-DOS style) time stamp format:
+ *
+ *  31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16
+ * |<------- year ----->|<- month ->|<--- day ---->|
+ *
+ *  15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+ * |<--- hour --->|<---- minute --->|<- second*2 ->|
+ *
  */
 
-#ifdef HAVE_FTIME
-#include <sys/timeb.h>
-#endif
-
-#if !defined(HAVE_MKTIME) && !defined(HAVE_TIMELOCAL)
-static long
-gettz()
-{
-#ifdef HAVE_TZSET
-#if defined(_MINIX)
-    extern long     timezone;       /* not defined in time.h */
-#endif
-
-    tzset();
-    return timezone;
-#elif HAVE_FTIME        
-    struct timeb    buf;
-
-    ftime(&buf);
-    return buf.timezone * 60L;
-#elif HAVE_STRUCT_TM_TM_GMTOFF
-    time_t tt;
-
-    time(&tt);
-    return -localtime(&tt)->tm_gmtoff;
-#elif GETTIMEOFDAY_HAS_2ND_ARG
-    struct timeval  tp;
-    struct timezone tzp;
-    gettimeofday(&tp, &tzp);/* specific to 4.3BSD */
-    /*
-     * return (tzp.tz_minuteswest * 60L + (tzp.tz_dsttime != 0 ? 60L *
-     * 60L : 0));
-     */
-    return (tzp.tz_minuteswest * 60L);
-#else
-    /* Compile error will be caused */
-    CANNOT GET TIMEZONE INFORMATION ON YOUR SYSTEM.
-    TAKE THE ANOTHER WAY.
-#endif
-}
-#endif
-
-/* ------------------------------------------------------------------------ */
-static          time_t
+static time_t
 generic_to_unix_stamp(t)
-    long            t;
+    long t;
 {
-#if defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL)
-    struct tm       dostm;
+    struct tm dostm;
 
     /*
      * special case:  if MSDOS format date and time were zero, then we
      * set time to be zero here too.
      */
     if (t == 0)
-        return (time_t) 0;
+        return 0;
 
     dostm.tm_sec = (t & 0x1f) * 2;
     dostm.tm_min = t >> 5 & 0x3f;
@@ -432,66 +376,27 @@ generic_to_unix_stamp(t)
     dostm.tm_isdst = -1;
 
 #if HAVE_MKTIME
-    return (time_t) mktime(&dostm);
-#else /* HAVE_TIMELOCAL is defined */
-    return (time_t) timelocal(&dostm);
+    return mktime(&dostm);
+#else
+    return timelocal(&dostm);
 #endif
-
-#else               /* defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) */
-    int             year, month, day, hour, min, sec;
-    long            longtime;
-    static unsigned int dsboy[12] = {0, 31, 59, 90, 120, 151,
-    181, 212, 243, 273, 304, 334};
-    unsigned int    days;
-
-    /*
-     * special case:  if MSDOS format date and time were zero, then we
-     * set time to be zero here too.
-     */
-    if (t == 0)
-        return (time_t) 0;
-
-    year = ((int) (t >> 16 + 9) & 0x7f) + 1980;
-    month = (int) (t >> 16 + 5) & 0x0f; /* 1..12 means Jan..Dec */
-    day = (int) (t >> 16) & 0x1f;   /* 1..31 means 1st,...31st */
-
-    hour = ((int) t >> 11) & 0x1f;
-    min = ((int) t >> 5) & 0x3f;
-    sec = ((int) t & 0x1f) * 2;
-
-    /* Calculate days since 1970.01.01 */
-    days = (365 * (year - 1970) +   /* days due to whole years */
-        (year - 1970 + 1) / 4 + /* days due to leap years */
-        dsboy[month - 1] +  /* days since beginning of this year */
-        day - 1);   /* days since beginning of month */
-
-    if ((year % 4 == 0) &&
-        (year % 100 != 0 || year % 400 == 0) &&     /* 1999.5.24 t.oka */
-        (month >= 3))   /* if this is a leap year and month */
-        days++;     /* is March or later, add a day */
-
-    /* Knowing the days, we can find seconds */
-    longtime = (((days * 24) + hour) * 60 + min) * 60 + sec;
-    longtime += gettz();    /* adjust for timezone */
-
-    /* LONGTIME is now the time in seconds, since 1970/01/01 00:00:00.  */
-    return (time_t) longtime;
-#endif              /* defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) */
 }
 
-/* ------------------------------------------------------------------------ */
 static long
 unix_to_generic_stamp(t)
-    time_t          t;
+    time_t t;
 {
-    struct tm      *tm = localtime(&t);
+    struct tm *tm = localtime(&t);
 
-    return ((((long) (tm->tm_year - 80)) << 25) +
-        (((long) (tm->tm_mon + 1)) << 21) +
-        (((long) tm->tm_mday) << 16) +
-        (long) ((tm->tm_hour << 11) +
-            (tm->tm_min << 5) +
-            (tm->tm_sec / 2)));
+    tm->tm_year -= 80;
+    tm->tm_mon += 1;
+
+    return ((long)(tm->tm_year << 25) +
+            (tm->tm_mon  << 21) +
+            (tm->tm_mday << 16) +
+            (tm->tm_hour << 11) +
+            (tm->tm_min  << 5) +
+            (tm->tm_sec / 2));
 }
 
 static unsigned long
@@ -531,10 +436,6 @@ wintime_to_unix_stamp()
     return q;
 #endif
 }
-
-/* ------------------------------------------------------------------------ */
-/* build header functions                                                   */
-/* ------------------------------------------------------------------------ */
 
 /*
  * extended header
@@ -1230,8 +1131,6 @@ seek_lha_header(fp)
             continue;
         /* found "-l??-" keyword (as METHOD type string) */
 
-        /* size and checksum validate check */
-
         /* level 0 or 1 header */
         if ((p[I_HEADER_LEVEL] == 0 || p[I_HEADER_LEVEL] == 1)
             && p[I_HEADER_SIZE] > 20
@@ -1256,7 +1155,6 @@ seek_lha_header(fp)
     return -1;
 }
 
-/* ------------------------------------------------------------------------ */
 void
 init_header(name, v_stat, hdr)
     char           *name;
@@ -1367,9 +1265,6 @@ write_unix_info(hdr)
         put_longword(hdr->unix_last_modified_stamp);
     }
 }
-
-/* ------------------------------------------------------------------------ */
-/* Write unix extended header or generic header. */
 
 static size_t
 write_header_level0(data, hdr, pathname)
