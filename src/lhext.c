@@ -272,8 +272,20 @@ extract_one(afp, hdr)
 				verbose = TRUE;
 			}
 
+#if __MINGW32__
+            {
+                int old_mode;
+                fflush(stdout);
+                old_mode = setmode(fileno(stdout), O_BINARY);
+#endif
+
 			crc = decode_lzhuf
 				(afp, stdout, hdr->original_size, hdr->packed_size, name, method);
+#if __MINGW32__
+                fflush(stdout);
+                setmode(fileno(stdout), old_mode);
+            }
+#endif
 			quiet = save_quiet;
 			verbose = save_verbose;
 		}
