@@ -16,13 +16,18 @@
 /* ------------------------------------------------------------------------ */
 static char    *get_ptr;
 
-int specific_archive_kanji_code = NONE;
-int specific_system_kanji_code = NONE;
-char *specific_archive_delim = NULL;
-char *specific_system_delim = NULL;
-int specific_filename_case = NONE;
+int optional_archive_kanji_code = NONE;
+int optional_system_kanji_code = NONE;
+char *optional_archive_delim = NULL;
+char *optional_system_delim = NULL;
+int optional_filename_case = NONE;
 
+#if __CYGWIN__
+/* Cygwin, HP-UX and other UNIX are able to use SJIS as native code. */
+int default_system_kanji_code = CODE_SJIS;
+#else
 int default_system_kanji_code = CODE_EUC;
+#endif
 /* ------------------------------------------------------------------------ */
 int
 calc_sum(p, len)
@@ -220,7 +225,7 @@ filename_conv(name, len, size,
 
             if (len == size - 1) /* check overflow */
                 len--;
-            memmove(name + i + 1, name, len - i);
+            memmove(name+i+1, name+i, len-i);
             name[i] = 0x8e;
             i++;
             len++;
@@ -516,8 +521,8 @@ get_header(fp, hdr)
 	int				extend_size;
 	int				dmy;
 
-    int archive_kanji_code = NONE;
-    int system_kanji_code = NONE;
+    int archive_kanji_code = CODE_SJIS;
+    int system_kanji_code = default_system_kanji_code;
     char *archive_delim = "";
     char *system_delim = "";
     int filename_case = NONE;
@@ -663,10 +668,6 @@ get_header(fp, hdr)
 					dirname[i] = (char) get_byte();
 				dirname[header_size - 3] = '\0';
 				dir_length = header_size - 3;
-
-                filename_conv(dirname, dir_length, sizeof(dirname),
-                              NONE, NONE, "\xff", "/", NONE);
-
 				break;
 			case 0x40:
 				/*
@@ -728,9 +729,7 @@ get_header(fp, hdr)
 
 	switch (hdr->extend_type) {
 	case EXTEND_MSDOS:
-        archive_kanji_code = CODE_SJIS;
-        system_kanji_code = default_system_kanji_code;
-        archive_delim = "\\";
+        archive_delim = "\xff\\";
         system_delim = "//";
         filename_case = noconvertcase ? NONE : TO_LOWER;
 
@@ -748,20 +747,15 @@ get_header(fp, hdr)
 	case EXTEND_XOSK:
 #endif
 	case EXTEND_UNIX:
-        archive_kanji_code = CODE_EUC;
-        /* Cygwin, HP-UX and other UNIX are able to use SJIS as native code. */
-        system_kanji_code = default_system_kanji_code;
-        archive_delim = "";
-        system_delim = "";
+        archive_delim = "\xff";
+        system_delim = "//";
         filename_case = NONE;
 
 		break;
 
 	case EXTEND_MACOS:
-        archive_kanji_code = CODE_SJIS;
-        system_kanji_code = default_system_kanji_code;
-        archive_delim = "/:";
-        system_delim = ":/";
+        archive_delim = "\xff/:";
+        system_delim = "/:/";
         filename_case = NONE;
 
 		hdr->unix_last_modified_stamp =
@@ -769,10 +763,8 @@ get_header(fp, hdr)
 		break;
 
 	default:
-        archive_kanji_code = NONE;
-        system_kanji_code = NONE;
-        archive_delim = "\\";
-        system_delim = "/";
+        archive_delim = "\xff\\";
+        system_delim = "//";
         filename_case = noconvertcase ? NONE : TO_LOWER;
         /* pending: if small letter is included in filename,
            the generic_to_unix_filename() do not case conversion,
@@ -786,34 +778,27 @@ get_header(fp, hdr)
 	}
 
     /* filename kanji code and delimiter conversion */
-    if (specific_archive_kanji_code)
-        archive_kanji_code = specific_archive_kanji_code;
-    if (specific_system_kanji_code)
-        system_kanji_code = specific_system_kanji_code;
-    if (specific_archive_delim)
-        archive_delim = specific_archive_delim;
-    if (specific_system_delim)
-        system_delim = specific_system_delim;
-    if (specific_filename_case)
-        filename_case = specific_filename_case;
-
-    filename_conv(hdr->name, name_length, sizeof(hdr->name),
-                  archive_kanji_code,
-                  system_kanji_code,
-                  archive_delim, system_delim, filename_case);
-
-    if (dir_length && hdr->extend_type != EXTEND_MACOS) {
-        filename_conv(dirname, dir_length, sizeof(dirname),
-                      archive_kanji_code,
-                      system_kanji_code,
-                      archive_delim, system_delim, filename_case);
-    }
+    if (optional_archive_kanji_code)
+        archive_kanji_code = optional_archive_kanji_code;
+    if (optional_system_kanji_code)
+        system_kanji_code = optional_system_kanji_code;
+    if (optional_archive_delim)
+        archive_delim = optional_archive_delim;
+    if (optional_system_delim)
+        system_delim = optional_system_delim;
+    if (optional_filename_case)
+        filename_case = optional_filename_case;
 
 	if (dir_length) {
 		strcat(dirname, hdr->name);
 		strcpy(hdr->name, dirname);
 		name_length += dir_length;
 	}
+
+    filename_conv(hdr->name, name_length, sizeof(hdr->name),
+                  archive_kanji_code,
+                  system_kanji_code,
+                  archive_delim, system_delim, filename_case);
 
 	return TRUE;
 }
@@ -826,6 +811,14 @@ init_header(name, v_stat, hdr)
 	LzHeader       *hdr;
 {
 	int             len;
+
+    int system_kanji_code = default_system_kanji_code;
+    char *archive_delim = "";
+    char *system_delim = "";
+    int filename_case = NONE;
+
+    if (optional_system_kanji_code)
+        system_kanji_code = optional_system_kanji_code;
 
 	if (compress_method == LZHUFF5_METHOD_NUM)  /* Changed N.Watazaki */
 		bcopy(LZHUFF5_METHOD, hdr->method, METHOD_TYPE_STRAGE);
@@ -874,12 +867,16 @@ init_header(name, v_stat, hdr)
 		sprintf(hdr->name, "%s|%s", hdr->name, lkname);
 	}
 #endif
+
 	if (generic_format) {
-        filename_conv(hdr->name, len, sizeof(hdr->name),
-                      default_system_kanji_code,
-                      default_system_kanji_code,
-                      "/", "\\", TO_UPPER);
+        filename_case = TO_UPPER;
+        archive_delim = "\\";
     }
+
+    filename_conv(hdr->name, len, sizeof(hdr->name),
+                  system_kanji_code,
+                  system_kanji_code, /* no change code */
+                  system_delim, archive_delim, filename_case);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -894,6 +891,13 @@ write_header(nafp, hdr)
 	char            data[LZHEADER_STRAGE];
 	char           *p;
 	char           *headercrc_ptr;
+    int archive_kanji_code = CODE_SJIS;
+    int system_kanji_code = default_system_kanji_code;
+
+    if (optional_archive_kanji_code)
+        archive_kanji_code = optional_archive_kanji_code;
+    if (optional_system_kanji_code)
+        system_kanji_code = optional_system_kanji_code;
 
 	bzero(data, LZHEADER_STRAGE);
 	bcopy(hdr->method, data + I_METHOD, METHOD_TYPE_STRAGE);
@@ -919,8 +923,8 @@ write_header(nafp, hdr)
 	put_byte(hdr->header_level);
 
     filename_conv(hdr->name, strlen(hdr->name), sizeof(hdr->name),
-                  default_system_kanji_code,
-                  default_system_kanji_code, /* no change code */
+                  system_kanji_code,
+                  archive_kanji_code, /* no change code */
                   "\xff\\/", "\xff\xff\xff", NONE);
 
 	if (hdr->header_level != HEADER_LEVEL2) {
@@ -1036,8 +1040,8 @@ write_header(nafp, hdr)
 		fatal_error("Cannot write to temporary file");
 
     filename_conv(hdr->name, strlen(hdr->name), sizeof(hdr->name),
-                  default_system_kanji_code,
-                  default_system_kanji_code, /* no change code */
+                  archive_kanji_code,
+                  system_kanji_code,
                   "\xff\\/", "///", NONE);
 }
 

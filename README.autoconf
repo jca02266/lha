@@ -1,7 +1,7 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiguration for LHa for UNIX version 1.14i
-                                        Tue, Jan 30 2001 by Koji Arai
+                                        Thu, Feb  1 2001 by Koji Arai
 
 このファイルはLHa for UNIX version 1.14i をautoconf、automake化
 したときのメモです。
@@ -17,7 +17,7 @@ autoconfiguration for LHa for UNIX version 1.14i
   IFNAMESファイルは、
      マクロ名 定義のあるファイル...  コメント
   という構成になっています。このファイルはautoconfと一緒に配布される
-  ifnamesコマンドで生成しました。
+  ifnamesコマンドの出力を元にしました。
   IFNAMESファイルの# で始まっている行は該当のマクロが置き換えられたり、
   configure コマンドのコマンドオプションで指定されるようになったことを
   示します。そのままの行はautoconfで判断する必要がないかまたは私が判断
@@ -67,12 +67,18 @@ autoconfiguration for LHa for UNIX version 1.14i
 ・アーカイブ中の漢字ファイル名
 
   オリジナルのLha for UNIX はアーカイブに格納するファイル名の漢字コー
-  ドに関して無頓着です。世の中SJISのUNIXやCygwinのような環境があるにも
-  関らず UNIX ヘッダのlha アーカイブファイル名を EUC と判断しています。
-  (コンパイル時に MULTIBYTE_CHAR を定義したとき)
+  ドに関して無頓着です。コンパイル時に MULTIBYTE_CHAR を定義したときでも
+  アーカイブ中のShift JISファイル名をEUCにすることもなく、EUCコード
+  のまま(正確にはシステムの漢字コードのまま)アーカイブに格納したりします。
 
-  autoconf版では、configure オプション --enable-multibyte-char により
-  漢字ファイル名が使用でき、システムの漢字コード、アーカイブ中の漢字コー
-  ドをオプションにより指定できるようにしました。(注: 嘘です。今のとこ
-  ろ src/header.c にある xxx_kanji_code を変更してコンパイルしなおす必
-  要があります)
+  autoconf版では、configure オプション --enable-multibyte-char (デフォ
+  ルト)により漢字ファイル名が使用でき、アーカイブに格納されるファイル名
+  の漢字コードをSJISに、システムファイル名の漢字コードをEUCにしました。
+
+  ※ Cygwinでは特別にシステムの漢字コードはSJISになります。
+
+  configure のコマンドラインオプションによりシステムの漢字コードを指定
+  できるように、そして lha のコマンドラインオプションによりアーカイブ、
+  システムの各漢字コードを指定できるようにするつもりですが、今のところ
+  header.cの冒頭にある XXX_kanji_code を書き換えてコンパイルしてくださ
+  い。
