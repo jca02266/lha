@@ -1,5 +1,16 @@
 2002-06-29  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/append.c: replace bcopy() with memcpy() or memmove().
+
+	* src/lha_macro.h: ditto.
+
+	* src/lhadd.c: ditto.
+
+	* src/lharc.c: ditto.
+
+	* src/header.c: ditto.
+	replace bzero() with memset().
+
 	* src/lhadd.c (cmd_add): exlclude the target archive. (reported on
 	the LHa BBS [28])
 
