@@ -1,3 +1,15 @@
+2003-03-23  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/header.c (convert_filename): support Samba CAP code (experimental).
+	(hex2int, int2hex, cap_to_sjis, sjis_to_cap): added for above.
+
+	* src/lha_macro.h (CODE_CAP): ditto.
+
+	* src/lharc.c (parse_option): added new command line options,
+	--system-kanji-code=xxx and --archive-kanji-code=xxx (experimental).
+
+	* 00readme.autoconf (Repository): described above features.
+
 2003-03-22  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lharc.c (init_variable): do not use HEADER_LEVELx macros.
