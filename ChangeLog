@@ -1,3 +1,8 @@
+2003-07-26  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/lha-test13: use `tr' instead of `printf` for printing 8 bit
+	characters.
+
 2003-07-25  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/lha-test14: `test -e' is unavailable on some systems.
