@@ -624,7 +624,7 @@ sort_files()
 /* ------------------------------------------------------------------------ */
 void *
 xmalloc(size)
-	int             size;
+    size_t size;
 {
     void *p = malloc(size);
 	if (!p)
@@ -635,8 +635,8 @@ xmalloc(size)
 /* ------------------------------------------------------------------------ */
 void *
 xrealloc(old, size)
-	void *old;
-	int size;
+    void *old;
+    size_t size;
 {
 	void *p = (char *) realloc(old, size);
 	if (!p)
