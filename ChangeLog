@@ -1,3 +1,7 @@
+2003-04-14  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/cproto.sh: The cproto 4.7a supports some gcc-specific keywords.
+
 2003-03-24  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: updated version.
