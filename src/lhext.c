@@ -150,13 +150,13 @@ adjust_info(name, hdr)
 	char           *name;
 	LzHeader       *hdr;
 {
-	time_t          utimebuf[2];
+    struct utimbuf utimebuf;
 
 	/* adjust file stamp */
-	utimebuf[0] = utimebuf[1] = hdr->unix_last_modified_stamp;
+	utimebuf.actime = utimebuf.modtime = hdr->unix_last_modified_stamp;
 
 	if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK)
-		utime(name, utimebuf);
+		utime(name, &utimebuf);
 
 	if (hdr->extend_type == EXTEND_UNIX
 	    || hdr->extend_type == EXTEND_OS68K
