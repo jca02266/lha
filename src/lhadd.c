@@ -488,16 +488,8 @@ cmd_add()
 	}
 
 	/* build temporary file */
-	if (!noexec) {
-        if (STREQU(new_archive_name, "-")) {
-            nafp = stdout;
-#if __MINGW32__
-            setmode(fileno(stdout), O_BINARY);
-#endif
-        }
-        else
-            nafp = build_temporary_file();
-    }
+	if (!noexec)
+		nafp = build_temporary_file();
 
 	/* find needed files when automatic update */
 	if (update_if_newer && cmd_filec == 0)
@@ -509,7 +501,7 @@ cmd_add()
 	if (cmd_filec == 0) {
 		if (oafp)
 			fclose(oafp);
-		if (!noexec && nafp != stdout)
+		if (!noexec)
 			fclose(nafp);
 		return;
 	}
@@ -545,7 +537,7 @@ cmd_add()
 	if (!noexec) {
 		write_archive_tail(nafp);
 		new_archive_size = ftell(nafp);
-		if (nafp != stdout) fclose(nafp);
+		fclose(nafp);
 	}
 
 	/* build backup archive file */
@@ -554,14 +546,14 @@ cmd_add()
 
 	report_archive_name_if_different();
 
-    if (nafp != stdout) {
-        /* copy temporary file to new archive file */
-        if (!noexec && rename(temporary_name, new_archive_name) < 0)
-            temporary_to_new_archive_file(new_archive_size);
+	/* copy temporary file to new archive file */
+	if (!noexec && (!strcmp(new_archive_name, "-") ||
+			rename(temporary_name, new_archive_name) < 0))
+		temporary_to_new_archive_file(new_archive_size);
 
-        /* set new archive file mode/group */
-        set_archive_file_mode();
-    }
+	/* set new archive file mode/group */
+	set_archive_file_mode();
+
 	/* remove archived files */
 	if (delete_after_append)
 		remove_files(cmd_filec, cmd_filev);
