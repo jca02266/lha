@@ -1,3 +1,7 @@
+2003-02-02  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/header.c, src/lharc.c: fix credit.
+
 2003-01-20  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lha.h (prev_char): discard unused variable `prev_char'.
