@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------------------ */
 /* LHa for UNIX                                                             */
-/*              slice.c -- sliding dictionary with percolating update       */
+/*              slide.c -- sliding dictionary with percolating update       */
 /*                                                                          */
 /*      Modified                Nobutaka Watazaki                           */
 /*                                                                          */
@@ -18,17 +18,14 @@ FILE *fout = NULL;
 static int noslide = 1;
 #endif
 
-/* ------------------------------------------------------------------------ */
-
 static unsigned long encoded_origsize;
 
-/* ------------------------------------------------------------------------ */
-
-static unsigned int *hash;
-static unsigned int *prev;
-
-/* static unsigned char  *text; */
-unsigned char *too_flag;
+/* variables for hash */
+struct hash {
+    unsigned int pos;
+    int too_flag;               /* if 1, matching candidate is too many */
+} *hash;
+static unsigned int *prev;      /* previous posiion associated with hash */
 
 /* hash function: it represents 3 letters from `pos' on `text' */
 #define INIT_HASH(pos) \
@@ -45,7 +42,7 @@ static struct encode_option encode_define[2] = {
     {(void (*) ()) output_dyn,
      (void (*) ()) encode_start_fix,
      (void (*) ()) encode_end_dyn},
-    /* lh4, 5,6 */
+    /* lh4, 5, 6, 7 */
     {(void (*) ()) output_st1,
      (void (*) ()) encode_start_st1,
      (void (*) ()) encode_end_st1}
@@ -54,7 +51,7 @@ static struct encode_option encode_define[2] = {
     {(int (*) ()) output_dyn,
      (int (*) ()) encode_start_fix,
      (int (*) ()) encode_end_dyn},
-    /* lh4, 5,6 */
+    /* lh4, 5, 6, 7 */
     {(int (*) ()) output_st1,
      (int (*) ()) encode_start_st1,
      (int (*) ()) encode_end_st1}
@@ -88,23 +85,18 @@ static struct decode_option decode_set;
 #define TXTSIZ (MAX_DICSIZ * 2L + MAXMATCH)
 #define HSHSIZ (((unsigned long)1) <<15)
 #define NIL 0
-#define LIMIT 0x100 /* chain 長の limit */
+#define LIMIT 0x100             /* limit of hash chain */
 
 static unsigned int txtsiz;
-
 static unsigned long dicsiz;
-
-static unsigned int hval;
-static int matchlen;
-static unsigned int matchpos;
-static unsigned int pos;
 static unsigned int remainder;
 
+static int matchlen;
+static unsigned int matchpos;
 
-/* ------------------------------------------------------------------------ */
 int
 encode_alloc(method)
-    int             method;
+    int method;
 {
     switch (method) {
     case LZHUFF1_METHOD_NUM:
@@ -139,31 +131,28 @@ encode_alloc(method)
 
     alloc_buf();
 
-    hash = (unsigned int*)xmalloc(HSHSIZ * sizeof(unsigned int));
+    hash = (struct hash*)xmalloc(HSHSIZ * sizeof(struct hash));
     prev = (unsigned int*)xmalloc(MAX_DICSIZ * sizeof(unsigned int));
     text = (unsigned char*)xmalloc(TXTSIZ);
-    too_flag = (unsigned char*)xmalloc(HSHSIZ);
 
     return method;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ポインタの初期化 */
-
-static void init_slide()
+static void
+init_slide()
 {
     unsigned int i;
 
     for (i = 0; i < HSHSIZ; i++) {
-        hash[i] = NIL;
-        too_flag[i] = 0;
+        hash[i].pos = NIL;
+        hash[i].too_flag = 0;
     }
 }
 
-/* 辞書を DICSIZ 分 前にずらす */
-
+/* update dictionary */
 static void
-update(crc)
+update_dict(pos, crc)
+    unsigned int *pos;
     unsigned int *crc;
 {
     unsigned int i, j;
@@ -176,11 +165,11 @@ update(crc)
     remainder += n;
     encoded_origsize += n;      /* total size of read bytes */
 
-    pos -= dicsiz;
+    *pos -= dicsiz;
     for (i = 0; i < HSHSIZ; i++) {
-        j = hash[i];
-        hash[i] = (j > dicsiz) ? j - dicsiz : NIL;
-        too_flag[i] = 0;
+        j = hash[i].pos;
+        hash[i].pos = (j > dicsiz) ? j - dicsiz : NIL;
+        hash[i].too_flag = 0;
     }
     for (i = 0; i < dicsiz; i++) {
         j = prev[i];
@@ -188,52 +177,71 @@ update(crc)
     }
 }
 
-
-/* 現在の文字列をチェーンに追加する */
-
-static void insert()
+/* associate position with token */
+static void
+insert_hash(token, pos)
+    unsigned int token;
+    unsigned int pos;
 {
-    prev[pos & (dicsiz - 1)] = hash[hval];
-    hash[hval] = pos;
+    prev[pos & (dicsiz - 1)] = hash[token].pos; /* chain the previous pos. */
+    hash[token].pos = pos;
 }
 
-
-/* 現在の文字列と最長一致する文字列を検索し、チェーンに追加する */
-
-static void match_insert()
+/* search the most long token matched to current token */
+static void
+search_dict(token, pos, min)
+    unsigned int token;         /* search token */
+    unsigned int pos;           /* position of token */
+    int min;                    /* min. length of matching string */
 {
-    unsigned int scan_pos, scan_end, len;
-    unsigned char *a, *b;
-    unsigned int chain, off, h, max;
+    unsigned int off, tok, max;
 
-    max = maxmatch; /* MAXMATCH; */
-    if (matchlen < THRESHOLD - 1) matchlen = THRESHOLD - 1;
+    if (min < THRESHOLD - 1) min = THRESHOLD - 1;
+
+    max = maxmatch;
     matchpos = pos;
+    matchlen = min;
+
+    if (hash[token].pos == NIL)
+        return;
 
     off = 0;
-    for (h = hval; too_flag[h] && off < maxmatch - THRESHOLD; ) {
+    for (tok = token; hash[tok].too_flag && off < maxmatch - THRESHOLD; ) {
+        /* If matching position is too many, The search key is
+           changed into following token from `off' (for speed). */
         ++off;
-        h = NEXT_HASH(h, pos+off);
+        tok = NEXT_HASH(tok, pos+off);
     }
-    if (off == maxmatch - THRESHOLD) off = 0;
+    if (off == maxmatch - THRESHOLD) {
+        off = 0;
+        tok = token;
+    }
+
     for (;;) {
-        chain = 0;
-        scan_pos = hash[h];
-        scan_end = (pos > dicsiz) ? pos + off - dicsiz : off;
+        unsigned int chain = 0;
+        unsigned int scan_off = hash[tok].pos;
+        int scan_pos = scan_off - off;
+        int scan_end = pos - dicsiz;
+        unsigned int len;
+
         while (scan_pos > scan_end) {
             chain++;
 
-            if (text[scan_pos + matchlen - off] == text[pos + matchlen]) {
+            if (text[scan_pos + matchlen] == text[pos + matchlen]) {
                 {
-                    a = text + scan_pos - off;  b = text + pos;
+                    /* collate token */
+                    unsigned char *a = &text[scan_pos];
+                    unsigned char *b = &text[pos];
+
                     for (len = 0; len < max && *a++ == *b++; len++);
                 }
 
                 if (len > matchlen) {
-                    matchpos = scan_pos - off;
-                    if ((matchlen = len) == max) {
+                    matchpos = scan_pos;
+                    matchlen = len;
+                    if (matchlen == max)
                         break;
-                    }
+
 #ifdef DEBUG
                     if (noslide) {
                       if (matchpos < dicsiz) {
@@ -244,37 +252,38 @@ static void match_insert()
 #endif
                 }
             }
-            scan_pos = prev[scan_pos & (dicsiz - 1)];
+            scan_off = prev[scan_off & (dicsiz - 1)];
+            scan_pos = scan_off - off;
         }
 
         if (chain >= LIMIT)
-            too_flag[h] = 1;
+            hash[tok].too_flag = 1;
 
-        if (matchlen > off + 2 || off == 0)
+        if (off == 0 || matchlen > off + 2)
             break;
         max = off + 2;
         off = 0;
-        h = hval;
+        tok = token;
     }
-    prev[pos & (dicsiz - 1)] = hash[hval];
-    hash[hval] = pos;
+
+    if (matchlen > remainder) matchlen = remainder;
 }
 
-
-/* ポインタを進め、辞書を更新し、ハッシュ値を更新する */
-
+/* slide dictionary */
 static void
-get_next(crc)
+next_token(token, pos, crc)
+    unsigned int *token;
+    unsigned int *pos;
     unsigned int *crc;
 {
     remainder--;
-    if (++pos >= txtsiz - maxmatch) {
-        update(crc);
+    if (++*pos >= txtsiz - maxmatch) {
+        update_dict(pos, crc);
 #ifdef DEBUG
         noslide = 0;
 #endif
     }
-    hval = NEXT_HASH(hval, pos);
+    *token = NEXT_HASH(*token, *pos);
 }
 
 unsigned int
@@ -283,7 +292,7 @@ encode(interface)
 {
     int lastmatchlen;
     unsigned int lastmatchoffset;
-    unsigned int crc;
+    unsigned int token, pos, crc;
 
 #ifdef DEBUG
     unsigned int addr;
@@ -301,8 +310,7 @@ encode(interface)
 
     INITIALIZE_CRC(crc);
 
-    /* encode_alloc(); */ /* allocate_memory(); */
-    init_slide();  
+    init_slide();
 
     encode_set.encode_start();
     memset(&text[0], ' ', TXTSIZ);
@@ -314,15 +322,20 @@ encode(interface)
     pos = dicsiz;
 
     if (matchlen > remainder) matchlen = remainder;
-    hval = INIT_HASH(pos);
 
-    insert();
+    token = INIT_HASH(pos);
+    insert_hash(token, pos);     /* associate token and pos */
+
     while (remainder > 0 && ! unpackable) {
-        lastmatchlen = matchlen;  lastmatchoffset = pos - matchpos - 1;
-        --matchlen;
-        get_next(&crc);  match_insert();
-        if (matchlen > remainder) matchlen = remainder;
+        lastmatchlen = matchlen;
+        lastmatchoffset = pos - matchpos - 1;
+
+        next_token(&token, &pos, &crc);
+        search_dict(token, pos, lastmatchlen-1);
+        insert_hash(token, pos);
+
         if (matchlen > lastmatchlen || lastmatchlen < THRESHOLD) {
+            /* output a letter */
             encode_set.output(text[pos - 1], 0);
 #ifdef DEBUG
             fprintf(fout, "%u C %02X\n", addr, text[pos-1]);
@@ -330,8 +343,9 @@ encode(interface)
 #endif
             count++;
         } else {
+            /* output length and offset */
             encode_set.output(lastmatchlen + (UCHAR_MAX + 1 - THRESHOLD),
-               (lastmatchoffset) & (dicsiz-1) );
+                              lastmatchoffset & (dicsiz-1) );
             --lastmatchlen;
 
 #ifdef DEBUG
@@ -349,13 +363,13 @@ encode(interface)
             }
 #endif
             while (--lastmatchlen > 0) {
-                get_next(&crc);  insert();
+                next_token(&token, &pos, &crc);
+                insert_hash(token, pos);
                 count++;
             }
-            get_next(&crc);
-            matchlen = THRESHOLD - 1;
-            match_insert();
-            if (matchlen > remainder) matchlen = remainder;
+            next_token(&token, &pos, &crc);
+            search_dict(token, pos, THRESHOLD - 1);
+            insert_hash(token, pos);
         }
     }
     encode_set.encode_end();
@@ -366,7 +380,6 @@ encode(interface)
     return crc;
 }
 
-/* ------------------------------------------------------------------------ */
 unsigned int
 decode(interface)
     struct interfacing *interface;
