@@ -965,7 +965,7 @@ euc2sjis(int *p1, int *p2)
     int rowoff = c1 < 0x5f ? 0x70 : 0xb0;
     int celoff = c1 % 2 ? (c2 > 0x5f ? 0x20 : 0x1f) : 0x7e;
     *p1 = ((c1 + 1) >> 1) + rowoff;
-    *p2 += celoff;
+    *p2 += celoff - 0x80;
 }
 
 void
