@@ -163,7 +163,7 @@ list_one(hdr)
 			((mode & UNIX_GROUP_EXEC_PERM) ? 'x' : '-');
 		modebits[7] = ((mode & UNIX_OTHER_READ_PERM) ? 'r' : '-');
 		modebits[8] = ((mode & UNIX_OTHER_WRITE_PERM) ? 'w' : '-');
-		modebits[9] = (mode & UNIX_STYCKYBIT) ? 't' :
+		modebits[9] = (mode & UNIX_STICKYBIT) ? 't' :
 			((mode & UNIX_OTHER_EXEC_PERM) ? 'x' : '-');
 		modebits[10] = 0;
 
