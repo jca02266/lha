@@ -21,54 +21,69 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method, read_sizep)
     unsigned int crc;
 
     interface.method = method;
-    interface.dicbit = 13;  /* method + 8; -lh5- */
     interface.infile = infp;
     interface.outfile = outfp;
     interface.original = original_size;
     interface.packed = packed_size;
     interface.read_size = 0;
 
-    *read_sizep = packed_size;
-
     switch (method) {
-    case LZHUFF0_METHOD_NUM:
-    case LARC4_METHOD_NUM:
-        start_indicator(name, original_size
-                  ,verify_mode ? "Testing " : "Melting ", 2048);
-        *read_sizep = copyfile(infp, (verify_mode ? NULL : outfp),
-                               original_size, 2, &crc);
+    case LZHUFF0_METHOD_NUM:    /* -lh0- */
+        interface.dicbit = LZHUFF0_DICBIT;
+        break;
+    case LZHUFF1_METHOD_NUM:    /* -lh1- */
+        interface.dicbit = LZHUFF1_DICBIT;
+        break;
+    case LZHUFF2_METHOD_NUM:    /* -lh2- */
+        interface.dicbit = LZHUFF2_DICBIT;
+        break;
+    case LZHUFF3_METHOD_NUM:    /* -lh2- */
+        interface.dicbit = LZHUFF3_DICBIT;
+        break;
+    case LZHUFF4_METHOD_NUM:    /* -lh4- */
+        interface.dicbit = LZHUFF4_DICBIT;
+        break;
+    case LZHUFF5_METHOD_NUM:    /* -lh5- */
+        interface.dicbit = LZHUFF5_DICBIT;
+        break;
+    case LZHUFF6_METHOD_NUM:    /* -lh6- */
+        interface.dicbit = LZHUFF6_DICBIT;
+        break;
+    case LZHUFF7_METHOD_NUM:    /* -lh7- */
+        interface.dicbit = LZHUFF7_DICBIT;
         break;
     case LARC_METHOD_NUM:       /* -lzs- */
-        interface.dicbit = 11;
-        start_indicator(name, original_size
-                ,verify_mode ? "Testing " : "Melting "
-                ,1 << interface.dicbit);
-        crc = decode(&interface);
-        *read_sizep = interface.read_size;
+        interface.dicbit = LARC_DICBIT;
         break;
-    case LZHUFF1_METHOD_NUM:        /* -lh1- */
-    case LZHUFF4_METHOD_NUM:        /* -lh4- */
-    case LARC5_METHOD_NUM:          /* -lz5- */
-        interface.dicbit = 12;
-        start_indicator(name, original_size
-                ,verify_mode ? "Testing " : "Melting "
-                ,1 << interface.dicbit);
-        crc = decode(&interface);
-        *read_sizep = interface.read_size;
+    case LARC5_METHOD_NUM:      /* -lz5- */
+        interface.dicbit = LARC5_DICBIT;
         break;
-    case LZHUFF6_METHOD_NUM:        /* -lh6- */ /* Added N.Watazaki (^_^) */
-#ifdef SUPPORT_LH7
-    case LZHUFF7_METHOD_NUM:                /* -lh7- */
-#endif
-        interface.dicbit = (method - LZHUFF6_METHOD_NUM) + 15;
-        /* fall through */
+    case LARC4_METHOD_NUM:      /* -lz4- */
+        interface.dicbit = LARC4_DICBIT;
+        break;
     default:
-        start_indicator(name, original_size
-                ,verify_mode ? "Testing " : "Melting "
-                ,1 << interface.dicbit);
+        warning("unknown method %d", method);
+        interface.dicbit = LZHUFF5_DICBIT; /* for backward compatibility */
+        break;
+    }
+
+    if (interface.dicbit == 0) { /* LZHUFF0_DICBIT or LARC4_DICBIT */
+        start_indicator(name,
+                        original_size,
+                        verify_mode ? "Testing " : "Melting ",
+                        2048);
+        *read_sizep = copyfile(infp, (verify_mode ? NULL : outfp),
+                               original_size, 2, &crc);
+    }
+    else {
+        start_indicator(name,
+                        original_size,
+                        verify_mode ? "Testing " : "Melting ",
+                        1 << interface.dicbit);
         crc = decode(&interface);
         *read_sizep = interface.read_size;
     }
+
     finish_indicator(name, verify_mode ? "Tested  " : "Melted  ");
 
     return crc;
