@@ -9,6 +9,8 @@
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
+#include <assert.h>
+
 #if HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
@@ -220,6 +222,7 @@ send_block( /* void */ )
 }
 
 /* ------------------------------------------------------------------------ */
+/* lh4, 5, 6 */
 void
 output_st1(c, p)
 	unsigned short  c;
@@ -268,32 +271,21 @@ alloc_buf( /* void */ )
 }
 
 /* ------------------------------------------------------------------------ */
+/* lh4, 5, 6 */
 void
 encode_start_st1( /* void */ )
 {
 	int             i;
 
-#if 0
-	if (dicbit <= (MAX_DICBIT - 2)) {
-		pbit = 4;	/* lh4,5 etc. */
-		np = 14;
-	} else {
-		pbit = 5;	/* lh6 */
-		np = 16;
-	}
-#endif
-
-	if (dicbit <= 13) {
-		pbit = 4;	/* lh4,5 etc. */
-		np = 14;
-	} else {
-		pbit = 5;	/* lh6,7 */
-		if (dicbit == 16)
-			np = 17;
-		else
-			np = 16;
-	}
-
+    switch (dicbit) {
+    case LZHUFF4_DICBIT:
+    case LZHUFF5_DICBIT: pbit = 4; np = LZHUFF5_DICBIT + 1; break;
+    case LZHUFF6_DICBIT: pbit = 5; np = LZHUFF6_DICBIT + 1; break;
+    case LZHUFF7_DICBIT: pbit = 5; np = LZHUFF7_DICBIT + 1; break;
+    default:
+        assert(0);
+    }
+        
 	for (i = 0; i < NC; i++)
 		c_freq[i] = 0;
 	for (i = 0; i < np; i++)
@@ -305,6 +297,7 @@ encode_start_st1( /* void */ )
 }
 
 /* ------------------------------------------------------------------------ */
+/* lh4, 5, 6 */
 void
 encode_end_st1( /* void */ )
 {
@@ -406,6 +399,7 @@ read_c_len( /* void */ )
 }
 
 /* ------------------------------------------------------------------------ */
+/* lh4, 5, 6, 7 */
 unsigned short
 decode_c_st1( /*void*/ )
 {
@@ -437,6 +431,7 @@ decode_c_st1( /*void*/ )
 }
 
 /* ------------------------------------------------------------------------ */
+/* lh4, 5, 6, 7 */
 unsigned short
 decode_p_st1( /* void */ )
 {
@@ -463,30 +458,19 @@ decode_p_st1( /* void */ )
 }
 
 /* ------------------------------------------------------------------------ */
+/* lh4, 5, 6, 7 */
 void
 decode_start_st1( /* void */ )
 {
-	if (dicbit <= 13)  {
-		np = 14;
-		pbit = 4;
-	} else {
-		if (dicbit == 16) {
-			np = 17; /* for -lh7- */
-		} else {
-			np = 16;
-		}
-		pbit = 5;
-	}
+    switch (dicbit) {
+    case LZHUFF4_DICBIT:
+    case LZHUFF5_DICBIT: pbit = 4; np = LZHUFF5_DICBIT + 1; break;
+    case LZHUFF6_DICBIT: pbit = 5; np = LZHUFF6_DICBIT + 1; break;
+    case LZHUFF7_DICBIT: pbit = 5; np = LZHUFF7_DICBIT + 1; break;
+    default:
+        assert(0);
+    }
 
-#if 0
-	if (dicbit <= 13)  {		/* 13 ... Changed N.Watazaki */
-		np = 14;
-		pbit = 4;
-	} else {
-		np = 16;
-		pbit = 5;
-	}
-#endif
 	init_getbits();
     init_code_cache();
 	blocksize = 0;

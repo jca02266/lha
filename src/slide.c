@@ -12,7 +12,7 @@
 #endif
 
 #include "lha.h"
-
+#include <assert.h>
 
 #ifdef DEBUG
 FILE *fout = NULL;
@@ -78,23 +78,7 @@ static struct decode_option decode_define[] = {
 static struct encode_option encode_set;
 static struct decode_option decode_set;
 
-#if 0
-static node     pos, matchpos, avail, *position, *parent, *prev;
-static int      remainder, matchlen;
-static unsigned char *level, *childcount;
-static unsigned long dicsiz;  /* t.okamoto */
-static unsigned short max_hash_val;
-static unsigned short hash1, hash2;
-#endif
-
-#ifdef SUPPORT_LH7
-#define DICSIZ (1L << 16)
-#define TXTSIZ (DICSIZ * 2L + MAXMATCH)
-#else
-#define DICSIZ (((unsigned long)1) << 15)
-#define TXTSIZ (DICSIZ * 2 + MAXMATCH)
-#endif
-
+#define TXTSIZ (MAX_DICSIZ * 2L + MAXMATCH)
 #define HSHSIZ (((unsigned long)1) <<15)
 #define NIL 0
 #define LIMIT 0x100	/* chain Ä¹¤Î limit */
@@ -115,20 +99,30 @@ int
 encode_alloc(method)
 	int             method;
 {
-	if (method == LZHUFF1_METHOD_NUM) {	/* Changed N.Watazaki */
-		encode_set = encode_define[0];
-		maxmatch = 60;
-		dicbit = 12;   /* 12 Changed N.Watazaki */
-	} else { /* method LH4(12),LH5(13),LH6(15) */
-		encode_set = encode_define[1];
-		maxmatch = MAXMATCH;
-		if (method == LZHUFF7_METHOD_NUM)
-			dicbit = LZHUFF7_DICBIT;	/* 16 bits */
-		else if (method == LZHUFF6_METHOD_NUM)
-			dicbit = LZHUFF6_DICBIT;	/* 15 bits */
-		else /* LH5  LH4 is not used */
-			dicbit = LZHUFF5_DICBIT;	/* 13 bits */
-	}
+    switch (method) {
+    case LZHUFF1_METHOD_NUM:
+        encode_set = encode_define[0];
+        maxmatch = 60;
+        dicbit = LZHUFF1_DICBIT;    /* 12 bits  Changed N.Watazaki */
+        break;
+    case LZHUFF5_METHOD_NUM:
+        encode_set = encode_define[1];
+        maxmatch = MAXMATCH;
+        dicbit = LZHUFF5_DICBIT;    /* 13 bits */
+        break;
+    case LZHUFF6_METHOD_NUM:
+        encode_set = encode_define[1];
+        maxmatch = MAXMATCH;
+        dicbit = LZHUFF6_DICBIT;    /* 15 bits */
+        break;
+    case LZHUFF7_METHOD_NUM:
+        encode_set = encode_define[1];
+        maxmatch = MAXMATCH;
+        dicbit = LZHUFF7_DICBIT;    /* 16 bits */
+        break;
+    default:
+        assert(0);
+    }
 
 	dicsiz = (((unsigned long)1) << dicbit);
 	txtsiz = dicsiz*2+maxmatch;
@@ -138,7 +132,7 @@ encode_alloc(method)
 	alloc_buf();
 
 	hash = (unsigned int*)xmalloc(HSHSIZ * sizeof(unsigned int));
-	prev = (unsigned int*)xmalloc(DICSIZ * sizeof(unsigned int));
+	prev = (unsigned int*)xmalloc(MAX_DICSIZ * sizeof(unsigned int));
 	text = (unsigned char*)xmalloc(TXTSIZ);
 	too_flag = (unsigned char*)xmalloc(HSHSIZ);
 
@@ -172,22 +166,14 @@ update(crc)
 	unsigned int i, j;
 	long n;
 
-#if 0
-	memmove(&text[0], &text[dicsiz], (unsigned)(txtsiz - dicsiz));
-#else
-	{
-		int m;
-		i = 0; j = dicsiz; m = txtsiz-dicsiz;
-		while (m-- > 0) {
-			text[i++] = text[j++];
-		}
-	}
-#endif
-	n = fread_crc(&crc, &text[(unsigned)(txtsiz - dicsiz)], 
-	                           (unsigned)dicsiz, infile);
+    assert(dicsiz > 0);
+    assert(txtsiz - dicsiz > 0);
+    memmove(&text[0], &text[dicsiz], txtsiz - dicsiz);
+
+    n = fread_crc(&crc, &text[txtsiz - dicsiz], dicsiz, infile);
 
 	remainder += n;
-	encoded_origsize += n;
+	encoded_origsize += n;      /* total size of read bytes */
 
 	pos -= dicsiz;
 	for (i = 0; i < HSHSIZ; i++) {
@@ -321,7 +307,7 @@ encode(interface)
 	init_slide();  
 
 	encode_set.encode_start();
-	memset(&text[0], ' ', (long)TXTSIZ);
+    memset(&text[0], ' ', TXTSIZ);
 
 	remainder = fread_crc(&crc, &text[dicsiz], txtsiz-dicsiz, infile);
 	encoded_origsize = remainder;
