@@ -2,6 +2,8 @@
 
 	* tests/lha-test.in (lha-test14): added to test the symbolic link file.
 
+	* tests/lha-test14: ditto.
+
 	* src/lhlist.c (list_one): use LzHeader.realname.
 
 	* src/lhext.c (extract_one): use LzHeader.realname.
