@@ -30,26 +30,34 @@ static unsigned int *prev;
 /* static unsigned char  *text; */
 unsigned char *too_flag;
 
+/* hash function: it represents 3 letters from `pos' on `text' */
+#define INIT_HASH(pos) \
+        ((( (text[(pos)] << 5) \
+           ^ text[(pos) + 1]  ) << 5) \
+           ^ text[(pos) + 2]         ) & (unsigned)(HSHSIZ - 1);
+#define NEXT_HASH(hash,pos) \
+        (((hash) << 5) \
+           ^ text[(pos) + 2]         ) & (unsigned)(HSHSIZ - 1);
 
 static struct encode_option encode_define[2] = {
 #if defined(__STDC__) || defined(AIX)
     /* lh1 */
     {(void (*) ()) output_dyn,
-        (void (*) ()) encode_start_fix,
-    (void (*) ()) encode_end_dyn},
+     (void (*) ()) encode_start_fix,
+     (void (*) ()) encode_end_dyn},
     /* lh4, 5,6 */
     {(void (*) ()) output_st1,
-        (void (*) ()) encode_start_st1,
-    (void (*) ()) encode_end_st1}
+     (void (*) ()) encode_start_st1,
+     (void (*) ()) encode_end_st1}
 #else
     /* lh1 */
     {(int (*) ()) output_dyn,
-        (int (*) ()) encode_start_fix,
-    (int (*) ()) encode_end_dyn},
+     (int (*) ()) encode_start_fix,
+     (int (*) ()) encode_end_dyn},
     /* lh4, 5,6 */
     {(int (*) ()) output_st1,
-        (int (*) ()) encode_start_st1,
-    (int (*) ()) encode_end_st1}
+     (int (*) ()) encode_start_st1,
+     (int (*) ()) encode_end_st1}
 #endif
 };
 
@@ -204,7 +212,8 @@ static void match_insert()
 
     off = 0;
     for (h = hval; too_flag[h] && off < maxmatch - THRESHOLD; ) {
-        h = ((h << 5) ^ text[pos + (++off) + 2]) & (unsigned)(HSHSIZ - 1);
+        ++off;
+        h = NEXT_HASH(h, pos+off);
     }
     if (off == maxmatch - THRESHOLD) off = 0;
     for (;;) {
@@ -265,7 +274,7 @@ get_next(crc)
         noslide = 0;
 #endif
     }
-    hval = ((hval << 5) ^ text[pos + 2]) & (unsigned)(HSHSIZ - 1);
+    hval = NEXT_HASH(hval, pos);
 }
 
 unsigned int
@@ -305,8 +314,7 @@ encode(interface)
     pos = dicsiz;
 
     if (matchlen > remainder) matchlen = remainder;
-    hval = ((((text[dicsiz] << 5) ^ text[dicsiz + 1]) << 5) 
-            ^ text[dicsiz + 2]) & (unsigned)(HSHSIZ - 1);
+    hval = INIT_HASH(pos);
 
     insert();
     while (remainder > 0 && ! unpackable) {
