@@ -28,9 +28,6 @@
 /* Define to 1 if you have the <fnmatch.h> header file. */
 #undef HAVE_FNMATCH_H
 
-/* Define to 1 if you have the `fork' function. */
-#undef HAVE_FORK
-
 /* Define to 1 if you have the `ftime' function. */
 #undef HAVE_FTIME
 
@@ -70,9 +67,6 @@
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
 
-/* Define to 1 if you have the `link' function. */
-#undef HAVE_LINK
-
 /* Define to 1 if the system has the type `long long'. */
 #undef HAVE_LONG_LONG
 
@@ -88,9 +82,6 @@
 /* Define to 1 if you have the `memset' function. */
 #undef HAVE_MEMSET
 
-/* Define to 1 if you have the `mkdir' function. */
-#undef HAVE_MKDIR
-
 /* Define to 1 if you have the `mkstemp' function. */
 #undef HAVE_MKSTEMP
 
@@ -102,9 +93,6 @@
 
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
-
-/* Define to 1 if you have the `rmdir' function. */
-#undef HAVE_RMDIR
 
 /* Define to 1 if the system has the type `ssize_t'. */
 #undef HAVE_SSIZE_T
@@ -194,20 +182,8 @@
 /* Define to 1 if `utime(file, NULL)' sets file's timestamp to the present. */
 #undef HAVE_UTIME_NULL
 
-/* Define to 1 if you have the `vfork' function. */
-#undef HAVE_VFORK
-
-/* Define to 1 if you have the <vfork.h> header file. */
-#undef HAVE_VFORK_H
-
 /* Define to 1 if you have the `vsnprintf' function. */
 #undef HAVE_VSNPRINTF
-
-/* Define to 1 if `fork' works. */
-#undef HAVE_WORKING_FORK
-
-/* Define to 1 if `vfork' works. */
-#undef HAVE_WORKING_VFORK
 
 /* Define to 1 if you want to ignore dot files with -X command line switch */
 #undef IGNORE_DOT_FILES
@@ -281,9 +257,3 @@
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
-
-/* Define to `int' if <sys/types.h> does not define. */
-#undef pid_t
-
-/* Define as `fork' if `vfork' does not work. */
-#undef vfork
