@@ -1,3 +1,9 @@
+2004-10-02  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/prototypes.h: updated.
+
+	* src/lharc.c: should accept a single option --help and --version.
+
 2004-09-29  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lharc.c (parse_option, parse_suboption): use getopt_long().
