@@ -1,5 +1,13 @@
 2003-07-21  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lharc.c (find_files): refined.
+
+	* tests/lha-test.in: should exit in trap. exit status will be
+	inherited on bash, ash and pdksh (but not zsh, Hmm..)
+
+	* src/lharc.c (find_files): uninitialized variable was caught by
+	Valgrind.
+
 	* src/prototypes.h: updated.
 
 	* src/append.c (encode_lzhuf): set actual copied size.
