@@ -1,5 +1,5 @@
 # -*- shell-script -*-
-message 'testing extracting to existent files (this test need the Ruby interpreter http://www.ruby-lang.org/)'
+message 'testing overriding existing files (this test need the Ruby interpreter http://www.ruby-lang.org/)'
 
 pty()
 {
