@@ -1,5 +1,7 @@
 2002-08-10  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/prototypes.h: updated.
+
 	* src/header.c (get_header_level2): check CRC value for reading
 	level 2 and 3 header.
 	(get_header_level3): ditto.
