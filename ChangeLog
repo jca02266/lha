@@ -1,5 +1,9 @@
 2002-08-26  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/header.c: fixed a comment.
+
+	* src/prototypes.h (strcmp_filename): removed.
+
 	* src/header.c (dump_skip_bytes): note "ignored" if data is ignored.
 
 	* src/header.c (wintime_to_unix_stamp): newly added for converting
