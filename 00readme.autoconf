@@ -93,20 +93,20 @@ LHa for UNIX に関しては岡本継男さんのページ
   より漢字ファイル名が使用でき、アーカイブに格納されるファイル名の漢字
   コードを SJIS 固定として扱います。
 
-  システムのファイル名の漢字コードは、以下の通り 
-  --enable-multibyte-filename の引数で決定します。
+  --enable-multibyte-filename の引数(システムのファイル名の漢字コード
+  指定)は、以下の通りです。
 
-  --enable-multibyte-filename=sjis
-	システムの漢字コードを SJIS として扱います。
-  --enable-multibyte-filename=euc
-	システムの漢字コードを EUC として扱います。
-  --enable-multibyte-filename=auto (または yes または引数なし)
-	システムの漢字コードを自動で判別します。自動といっても現状は、
-	Cygwin, MinGW, HP-UX の場合に SJIS、それ以外を EUC とみなすだけ
-	です。
-  --enable-multibyte-filename=no
-  --disable-multibyte-filename
-	ファイル名のマルチバイトサポートを無効にします。
+      --enable-multibyte-filename=sjis
+	    システムの漢字コードを SJIS として扱います。
+      --enable-multibyte-filename=euc
+	    システムの漢字コードを EUC として扱います。
+      --enable-multibyte-filename=auto (または yes または引数なし)
+	    システムの漢字コードを自動で判別します。自動といっても現状は、
+	    Cygwin, MinGW, HP-UX の場合に SJIS、それ以外を EUC とみなすだけ
+	    です。
+      --enable-multibyte-filename=no
+      --disable-multibyte-filename
+	    ファイル名のマルチバイトサポートを無効にします。
 
   デフォルトは、auto です。
 
