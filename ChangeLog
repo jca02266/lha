@@ -1,7 +1,7 @@
 2002-05-20  Koji Arai  <arai@fgsd.mt.nec.co.jp>
 
 	* src/lha.h: correct usage of mkstemp().
-	On MinGW, opened file cannot be removed.
+	On MinGW, opening file cannot be removed.
 
 	* src/lhadd.c (build_temporary_file): ditto.
 
@@ -16,7 +16,7 @@
 
 	* src/lharc.c (print_tiny_usage_and_exit): change credit.
 
-	* src/lha_macro.h: put PLATFORM in LHA_VERSION macro.
+	* src/lha_macro.h: put PLATFORM in a macro LHA_VERSION.
 
 	* src/lharc.c (print_version): ditto.
 
