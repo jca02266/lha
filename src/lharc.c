@@ -428,8 +428,13 @@ parse_option(int argc, char **argv)
 {
     char *cmd_char;
 
-    if (argc == 1) {
+    if (argv[1] == NULL || strcmp(argv[1], "--help") == 0) {
         print_usage();
+        exit(0);
+    }
+
+    if (strcmp(argv[1], "--version") == 0) {
+        print_version();
         exit(0);
     }
 
