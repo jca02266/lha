@@ -505,12 +505,15 @@ void
 fatal_error(msg)
 	char           *msg;
 {
-	message_1("Fatal error:", "", msg);
+    message_1("Fatal error:", "", msg);
 
-	if (remove_temporary_at_error)
-		unlink(temporary_name);
+    if (remove_temporary_at_error) {
+        if (temporary_fd != -1)
+            close(temporary_fd);
+        unlink(temporary_name);
+    }
 
-	exit(1);
+    exit(1);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -535,8 +538,8 @@ interrupt(signo)
 	errno = 0;
 	message("Interrupted\n", "");
 
-	if (temporary_fp)
-		fclose(temporary_fp);
+	if (temporary_fd != -1)
+		close(temporary_fd);
 	unlink(temporary_name);
 	if (recover_archive_when_interrupt)
 		rename(backup_archive_name, archive_name);
@@ -907,7 +910,7 @@ free_files(filec, filev)
 /*																			*/
 /* ------------------------------------------------------------------------ */
 /* Build temporary file name and store to TEMPORARY_NAME */
-void
+int
 build_temporary_name()
 {
 #ifdef TMP_FILENAME_TEMPLATE
@@ -918,11 +921,6 @@ build_temporary_name()
 	else {
 		sprintf(temporary_name, "%s/lhXXXXXX", extract_directory);
 	}
-#ifdef HAVE_MKSTEMP
-	mkstemp(temporary_name);
-#else
-	mktemp(temporary_name);
-#endif
 #else
 	char           *p, *s;
 
@@ -931,11 +929,12 @@ build_temporary_name()
 		if (*p == '/')
 			s = p;
 	strcpy((s ? s + 1 : temporary_name), "lhXXXXXX");
+#endif
 #ifdef HAVE_MKSTEMP
-	mkstemp(temporary_name);
+	return mkstemp(temporary_name);
 #else
 	mktemp(temporary_name);
-#endif
+    return open(temporary_name, O_CREAT|O_EXCL|O_RDWR|O_BINARY, 0600);
 #endif
 }
 

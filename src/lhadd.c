@@ -268,22 +268,24 @@ delete(oafp, nafp)
 static FILE    *
 build_temporary_file()
 {
-	int             old_umask;
-	FILE           *afp;
+    FILE *afp;
 
-	build_temporary_name();
-	signal(SIGINT, interrupt);
+    signal(SIGINT, interrupt);
 #ifdef SIGHUP
-	signal(SIGHUP, interrupt);
+    signal(SIGHUP, interrupt);
 #endif
 
-	old_umask = umask(077);
-	afp = xfopen(temporary_name, WRITE_BINARY);
-	remove_temporary_at_error = TRUE;
-	temporary_fp = afp;
-	umask(old_umask);
+    remove_temporary_at_error = TRUE;
+    temporary_fd = build_temporary_name();
+    if (fd == -1)
+        fatal_error(temporary_name);
 
-	return afp;
+    afp = fdopen(temporary_name, WRITE_BINARY);
+    if (afp == NULL)
+        fatal_error(temporary_name);
+
+
+    return afp;
 }
 
 /* ------------------------------------------------------------------------ */

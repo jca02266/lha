@@ -191,7 +191,7 @@ EXTERN long		reading_size;
 EXTERN unsigned int n_max;
 
 /* lhadd.c */
-EXTERN FILE		*temporary_fp;
+EXTERN int temporary_fd = -1;
 
 /* ------------------------------------------------------------------------ */
 /*	Functions																*/
