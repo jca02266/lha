@@ -86,7 +86,9 @@ main()
   if (strchr(s, '\xff') != s) return 1;
   return 0; /* ok */
 }
-], lha_cv_strchr_8bit_clean=yes,lha_cv_strchr_8bit_clean=no))
+], lha_cv_strchr_8bit_clean=yes,
+   lha_cv_strchr_8bit_clean=no,
+   lha_cv_strchr_8bit_clean=no))
 
 if test x$lha_cv_strchr_8bit_clean = xyes; then
   AC_DEFINE(STRCHR_8BIT_CLEAN, 1,
