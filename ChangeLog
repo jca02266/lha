@@ -1,5 +1,20 @@
 2002-07-28  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/crcio.c (fread_txt): responded to (gcc -Wall) compiler warnings.
+
+	* src/header.c (generic_to_unix_stamp): ditto.
+
+	* src/lha_macro.h: ditto.
+
+	* src/lhadd.c (delete): ditto.
+
+	* src/lharc.c (open_old_archive): ditto.
+
+	* src/lhlist.c (list_one): ditto.
+
+
+	* src/prototypes.h: updated.
+
 	* tests/lha-test.in: added lha-test11.
 
 	* tests/lha-test8: added tests for level 0 and 2 header.
