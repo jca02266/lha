@@ -29,13 +29,7 @@ decode_start_st0( /*void*/ )
     maxmatch = MAXMATCH;
     init_getbits();
     init_code_cache();
-#ifdef SUPPORT_LH7
-    np = 1 << (MAX_DICBIT - 7);
-#endif
-#ifndef SUPPORT_LH7
-    np = 1 << (MAX_DICBIT - 6);
-#endif
-
+    np = 1 << (LZHUFF3_DICBIT - 6);
 }
 
 /* ------------------------------------------------------------------------ */
