@@ -319,22 +319,28 @@ report_archive_name_if_different()
 }
 
 /* ------------------------------------------------------------------------ */
-#ifdef TMP_FILENAME_TEMPLATE
 void
 temporary_to_new_archive_file(new_archive_size)
 	long            new_archive_size;
 {
 	FILE           *oafp, *nafp;
 
-	oafp = xfopen(temporary_name, READ_BINARY);
 	if (!strcmp(new_archive_name, "-")) {
 		nafp = stdout;
 		writting_filename = "starndard output";
+#if __MINGW32__
+        setmode(fileno(stdout), O_BINARY);
+#endif
 	}
 	else {
+        unlink(new_archive_name);
+        if (rename(temporary_name, new_archive_name) == 0)
+            return;
 		nafp = xfopen(new_archive_name, WRITE_BINARY);
 		writting_filename = archive_name;
 	}
+
+	oafp = xfopen(temporary_name, READ_BINARY);
 	reading_filename = temporary_name;
 	copyfile(oafp, nafp, new_archive_size, 0);
 	if (nafp != stdout)
@@ -346,20 +352,6 @@ temporary_to_new_archive_file(new_archive_size)
 
 	remove_temporary_at_error = FALSE;
 }
-#else
-temporary_to_new_archive_file(new_archive_size)
-	long            new_archive_size;
-{
-	char           *p;
-	p = (char *) strrchr(new_archive_name, '/');
-	p = p ? p + 1 : new_archive_name;
-	unlink(new_archive_name);
-	if (rename(temporary_name, p) < 0) {
-		fprintf(stderr, "Can't rename temporary_name '%s'\n", new_archive_name);
-		exit(1);
-	}
-}
-#endif
 
 /* ------------------------------------------------------------------------ */
 static void
