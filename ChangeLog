@@ -1,9 +1,19 @@
 2003-02-23  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/prototypes.h: updated.
+
+	* src/util.c: `strucmp()' was replaced by `strcasecmp()'.
+
+	* src/util.c (archive_is_msdos_sfx1): ditto.
+
+	* src/lharc.c (open_old_archive): ditto.
+
+	* src/lha.h: ditto.
+
 	* src/util.c: discard `rename()', `mkdir()' and `rmdir()'.
 
 	* configure.ac: ditto.
-	
+
 	* config.h.in: ditto.
 
 	* src/header.c: added credit.
