@@ -36,7 +36,7 @@ void encode_end_dyn P_((void));
 int decode_lzhuf P_((FILE *infp, FILE *outfp, long original_size, long packed_size, char *name, int method));
 /* header.c */
 int calc_sum P_((register char *p, register int len));
-void convert_filename P_((register char *name, register int len, register int size, int from_code, int to_code, char *from_delim, char *to_delim, int case_to));
+void convert_filename P_((char *name, int len, int size, int from_code, int to_code, char *from_delim, char *to_delim, int case_to));
 boolean get_header P_((FILE *fp, LzHeader *hdr));
 void init_header P_((char *name, struct stat *v_stat, LzHeader *hdr));
 void write_header P_((FILE *fp, LzHeader *hdr));
