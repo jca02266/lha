@@ -7,7 +7,7 @@
 /*  Ver. 1.14d  Exchanging a search algorithm  1997.01.11    T.Okamoto      */
 /* ------------------------------------------------------------------------ */
 
-#if 1
+#if 0
 #define DEBUG 1
 #endif
 
