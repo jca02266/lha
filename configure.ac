@@ -139,11 +139,13 @@ fi
 
 # support kanji code conversion
 AC_SUBST(DEF_KCODE)
-AC_ARG_ENABLE(text_conv,
+AC_MSG_CHECKING(kanji code conversion on text file)
+AC_ARG_ENABLE(text-conv,
   AC_HELP_STRING([--enable-text-conv],
 		 [support text code convert from/to EUC [[default=yes]]]),
   , enable_text_conv=yes)
 
+AC_MSG_RESULT($enable_text_conv)
 if test $enable_text_conv = yes; then
   DEF_KCODE=-DEUC
 fi
@@ -153,8 +155,8 @@ AC_SUBST(SUPPORT_LZHUFF_METHOD)
 SUPPORT_LZHUFF_METHOD=-DSUPPORT_LH7
 
 # whether use the -lh567- method
-AC_MSG_CHECKING(default archive method is )
-AC_ARG_WITH(default_method,
+AC_MSG_CHECKING(default archive method)
+AC_ARG_WITH(default-method,
   AC_HELP_STRING([--with-default-method=[[567]]],
 		 [create the -lh[[567]]- archive default [[default=5]]]),
   [case $withval in
@@ -166,8 +168,8 @@ AC_MSG_RESULT(-lh$with_default_method-)
 AC_DEFINE_UNQUOTED(DEFAULT_LZHUFF_METHOD, LZHUFF${with_default_method}_METHOD_NUM, [Define it to 5, 6 or 7 which you want to use -lhX- method, default])
 
 # decide temporary path names
-AC_MSG_CHECKING(template of the temporary file is )
-AC_ARG_WITH(tmp_file,
+AC_MSG_CHECKING(template of the temporary file)
+AC_ARG_WITH(tmp-file,
   AC_HELP_STRING([--with-tmp-file=TEMPLATE],
 		 [temporary file template [[default=/tmp/lhXXXXXX]]]),
   [case $withval in
@@ -175,6 +177,7 @@ AC_ARG_WITH(tmp_file,
    no)   ;;
    esac],
   with_tmp_file=/tmp/lhXXXXXX)
+
 AC_MSG_RESULT($with_tmp_file)
 if test x"$with_tmp_file" != xno; then
   AC_DEFINE_UNQUOTED(TMP_FILENAME_TEMPLATE, "$with_tmp_file",
@@ -182,19 +185,22 @@ if test x"$with_tmp_file" != xno; then
 fi
 
 # incremental indicator
+AC_MSG_CHECKING(whether incremental indicator is needed)
 AC_ARG_ENABLE(indicator,
   AC_HELP_STRING([--enable-indicator],
 		 [need incremental indicator [[default=yes]]]),
   ,
   # default
   enable_indicator=yes)
+
+AC_MSG_RESULT($enable_indicator)
 if test "x$enable_indicator" = xyes; then
   AC_DEFINE(NEED_INCREMENTAL_INDICATOR, 1,
 	    [Define to 1 if you want to use the incremental indicator])
 fi
 
 # support multibyte filename
-AC_MSG_CHECKING(kanji code for filename is )
+AC_MSG_CHECKING(kanji code of filename)
 AC_ARG_ENABLE(multibyte-filename,
   AC_HELP_STRING([--enable-multibyte-filename],
 		 [support multibyte filename. specify kanji code (euc, sjis, utf8 or auto) [[default=auto]]]),,
@@ -233,24 +239,30 @@ if test x$enable_multibyte_filename != xno; then
 fi
 
 # make user/group name extented header
+AC_MSG_CHECKING(whether user/group name extended header is needed)
 AC_ARG_ENABLE(user-name-header,
   AC_HELP_STRING([--enable-user-name-header],
 		 [make user/group name extended header [[default=no]]]),
   ,
   # default
   enable_user_name_header=no)
+
+AC_MSG_RESULT($enable_user_name_header)
 if test "x$enable_user_name_header" = xyes; then
   AC_DEFINE(INCLUDE_OWNER_NAME_IN_HEADER, 1,
             [Define to 1 if you want to use the user/group name extened header])
 fi
 
 # backup old archive file
-AC_ARG_ENABLE(backup_archive,
+AC_MSG_CHECKING(whether backup file for old archive is left)
+AC_ARG_ENABLE(backup-archive,
   AC_HELP_STRING([--enable-backup-archive],
 		 [backup old archive [[default=no]]]),
   ,
   # default
   enable_backup_archive=no)
+
+AC_MSG_RESULT($enable_backup_archive)
 if test "x$enable_backup_archive" = xyes; then
   AC_DEFINE(BACKUP_OLD_ARCHIVE, 1,
 	    [Define to 1 if you want to leave an old archive])
