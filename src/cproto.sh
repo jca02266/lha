@@ -15,8 +15,6 @@ CPPFLAGS='-DSTDC_HEADERS=1
 	-DMULTIBYTE_FILENAME=1
 	-Dinterrupt=dummy__
 	-DNEED_INCREMENTAL_INDICATOR=1
-	-D__builtin_va_list=int
-	-D__extension__=
 '
 # `interrupt' is the reserved word for cproto.
 
