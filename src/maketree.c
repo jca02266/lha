@@ -170,5 +170,6 @@ make_tree(nparm, freqparm, lenparm, codeparm)
 }
 
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
 /* End: */

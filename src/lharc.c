@@ -37,7 +37,8 @@
 /*	Ver. 1.14  Source All chagned				1995.01.14	N.Watazaki		*/
 /*	Ver. 1.14b,c  Bug Fixed                     1996.03.07  t.okamoto		*/
 /*  Ver. 1.14d Version up                       1997.01.12  t.okamoto       */
-/*  Ver. 1.14f Bug Fixed                        1999.07.19  t.okamoto       */
+/*  Ver. 1.14g Bug Fixed                        2000.05.06  t.okamoto       */
+/*  Ver. 1.14i Modified                         2000.10.06  t.okamoto       */
 /* ------------------------------------------------------------------------ */
 #define LHA_MAIN_SRC
 
@@ -61,6 +62,7 @@ char            backup_archive_name[FILENAME_LENGTH];
 
 /* static functions */
 static void     sort_files();
+static void		print_version();
 
 char		    *extract_directory = NULL;
 char		  **xfilev;
@@ -85,12 +87,13 @@ init_variable()		/* Added N.Watazaki */
 	noexec			= FALSE;	/* debugging option */
 	force			= FALSE;
 	prof			= FALSE;
-#ifndef SUPPORT_LH6
+#ifndef SUPPORT_LH7
 	compress_method = LZHUFF5_METHOD_NUM;
 #endif
-#ifdef SUPPORT_LH6
-	compress_method = LZHUFF6_METHOD_NUM;
+#ifdef SUPPORT_LH7
+	compress_method = LZHUFF7_METHOD_NUM;
 #endif
+
 	header_level	= HEADER_LEVEL1;
 	quiet_mode		= 0;
 
@@ -117,6 +120,8 @@ init_variable()		/* Added N.Watazaki */
 	ignore_directory						= FALSE;
 	verify_mode								= FALSE;
 
+	noconvertcase							= FALSE;
+
 	extract_directory = NULL;
 	xfilec = 257;
 }
@@ -138,7 +143,7 @@ LHx      for MSDOS V C2.01 Copyright(C) 1990  H.Yoshizaki\n\
 LHx(arc) for OSK   V 2.01  Modified     1990  Momozou\n\
 LHa      for UNIX  V 1.00  Copyright(C) 1992  Masaru Oki\n\
 LHa      for UNIX  V 1.14  Modified     1995  Nobutaka Watazaki\n\
-LHa      for UNIX  V 1.14f Modified     1999  Tsugio Okamoto\n\
+LHa      for UNIX  V 1.14i Modified     2000  Tsugio Okamoto\n\
 ");
 	fprintf(stderr, "\
 usage: lha [-]{axelvudmcp[q[num]][vnfodizg012]}[w=<dir>] archive_file [file...]\n\
@@ -147,13 +152,24 @@ commands:                           options:\n\
  x,e EXtract from archive            v  verbose\n\
  l,v List / Verbose List             n  not execute\n\
  u   Update newer files to archive   f  force (over write at extract)\n\
- d   Delete from archive             t  FILES are TEXT file\n\
- m   Move to archive (means 'ad')    o[56] compression method (a/u)\n\
+ d   Delete from archive             t  FILES are TEXT file\n");
+#ifdef SUPPORT_LH7
+	fprintf(stderr, "\
+ m   Move to archive (means 'ad')    o[567] compression method (a/u)\n\
+");
+#endif
+#ifndef SUPPORT_LH7
+	fprintf(stderr, "\
+ m   Move to archive (means 'ad')    o  use LHarc compatible method (a/u)\n\
+");
+#endif
+	fprintf(stderr, "\
  c   re-Construct new archive        w=<dir> specify extract directory (a/u/m/x/e)\n\
  p   Print to STDOUT from archive    d  delete FILES after (a/u/c)\n\
  t   Test file CRC in archive        i  ignore directory path (x/e)\n\
                                      z  files not compress (a/u)\n\
-                                     g  [Generic] format (for compatibility)\n\
+                                     g  Generic format (for compatibility)\n\
+                                        or not convert case when extracting\n\
                                      0/1/2 header level (a/u)\n\
 ");
 #ifdef EUC
@@ -188,6 +204,12 @@ main(argc, argv)
 
 	if (ac < 2)
 		print_tiny_usage_and_exit();
+
+	if (strcmp(av[1], "--version") == 0) {
+		print_version();
+		exit(1);
+	}
+
 	if (ac < 3) {
 		cmd = CMD_LIST;
 		av--; /* argv--; */ /* 1999.7.18 */
@@ -293,6 +315,7 @@ main(argc, argv)
 			break;
 		case 'g':
 			generic_format = TRUE;
+			noconvertcase = TRUE;
 			header_level = 0;
 			break;
 		case 'd':
@@ -301,22 +324,28 @@ main(argc, argv)
 		case 'o':
 			switch (*p) {
 			case 0:
-                compress_method = LZHUFF1_METHOD_NUM;
-                header_level = 0;
-                break;
+				compress_method = LZHUFF1_METHOD_NUM;
+				header_level = 0;
+				break;
 			case '5':
-                compress_method = LZHUFF5_METHOD_NUM;
-                p++;
-                break;
+				compress_method = LZHUFF5_METHOD_NUM;
+				p++;
+				break;
+#ifdef SUPPORT_LH7
 			case '6':
-                compress_method = LZHUFF6_METHOD_NUM;
-                p++;
-                break;
+				compress_method = LZHUFF6_METHOD_NUM;
+				p++;
+				break;
+			case '7':
+				compress_method = LZHUFF7_METHOD_NUM;
+				p++;
+				break;
+#endif
 			default:
-                fprintf(stderr, "LHa: error option o%c\n", p[-1]);
-                exit(1);
+				fprintf(stderr, "LHa: error option o%c\n", p[-1]);
+				exit(1);
 			}
-     		break;
+			break;
 		case 'z':
 			compress_method = LZHUFF0_METHOD_NUM;	/* Changed N.Watazaki */
 			break;
@@ -366,7 +395,7 @@ work:
 			fatal_error("Virtual memory exhausted\n");
 		while (fgets(inpbuf, sizeof(inpbuf), stdin)) {
 		    /* delete \n if it exist */
-            i=0; p=inpbuf;
+			i=0; p=inpbuf;
 			while (i < sizeof(inpbuf) && p != 0) {
 			    if (*p == '\n') {
 				    *p = 0;
@@ -420,6 +449,18 @@ work:
 #endif
 
 	return 0;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* */
+/* ------------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------------ */
+static void
+print_version()
+{
+	fprintf(stderr, "%s\n", LHA_VERSION);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -864,7 +905,11 @@ build_temporary_name()
 	else {
 		sprintf(temporary_name, "%s/lhXXXXXX", extract_directory);
 	}
+#ifdef MKSTEMP
+	mkstemp(temporary_name);
+#else
 	mktemp(temporary_name);
+#endif
 #else
 	char           *p, *s;
 
@@ -873,7 +918,11 @@ build_temporary_name()
 		if (*p == '/')
 			s = p;
 	strcpy((s ? s + 1 : temporary_name), "lhXXXXXX");
+#ifdef MKSTEMP
+	mkstemp(temporary_name);
+#else
 	mktemp(temporary_name);
+#endif
 #endif
 }
 
@@ -1069,10 +1118,18 @@ copy_old_one(oafp, nafp, hdr)
 	else {
 		reading_filename = archive_name;
 		writting_filename = temporary_name;
-		copyfile(oafp, nafp, (long) (hdr->header_size + 2) + hdr->packed_size, 0);
+		if (hdr->header_level != 2) {
+			copyfile(oafp, nafp,
+					 (long) (hdr->header_size + 2) + hdr->packed_size, 0);
+		} else {
+			copyfile(oafp, nafp,
+					 (long) (hdr->header_size) + hdr->packed_size, 0);
+		}
 	}
 }
 
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
+/* compile-command:"gcc -c lharc.c" */
 /* End: */

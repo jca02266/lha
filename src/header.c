@@ -9,12 +9,9 @@
 /*	Ver. 1.10  Symbolic Link added				1993.10.01	N.Watazaki		*/
 /*	Ver. 1.13b Symbolic Link Bug Fix			1994.08.22	N.Watazaki		*/
 /*	Ver. 1.14  Source All chagned				1995.01.14	N.Watazaki		*/
-/*  Ver. 1.14e bug fixed						1999.05.27  T.Okamoto       */
+/*  Ver. 1.14i bug fixed						2000.10.06  t.okamoto       */
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
-
-void euc2sjis(int *p1, int *p2);
-void sjis2euc(int *p1, int *p2);
 
 /* ------------------------------------------------------------------------ */
 static char    *get_ptr;
@@ -93,47 +90,20 @@ msdos_to_unix_filename(name, len)
 	register int    i;
 
 #ifdef MULTIBYTE_CHAR
-#ifdef SUPPORT_X0201
-	for (i = 0; i < len; i++) {
-		/* modified by Koji Arai */
-		if (X0201_KANA_P(name[i])) {
-			int j;
-			for (j = len; j >= i; j--) {
-				name[j+1] = name[j]; /* no check over */
-			}
-			name[i] = 0x8e;
-			i++;
-			len++;
-		} else
-		if (MULTIBYTE_FIRST_P(name[i]) &&
-		    MULTIBYTE_SECOND_P(name[i + 1])) {
-			int c1, c2;
-			c1 = name[i]; c2 = name[i+1];
-			sjis2euc(&c1, &c2);
-			name[i] = c1; name[i+1] = c2;
-			i++;
-		}
-		else if (name[i] == '\\')
-			name[i] = '/';
-		else if (isupper(name[i]))
-			name[i] = tolower(name[i]);
-	}
-#else
 	for (i = 0; i < len; i++) {
 		if (MULTIBYTE_FIRST_P(name[i]) &&
 		    MULTIBYTE_SECOND_P(name[i + 1]))
 			i++;
 		else if (name[i] == '\\')
 			name[i] = '/';
-		else if (isupper(name[i]))
+		else if (!noconvertcase && isupper(name[i]))
 			name[i] = tolower(name[i]);
 	}
-#endif /* SUPPORT_X0201 */
 #else
 	for (i = 0; i < len; i++) {
 		if (name[i] == '\\')
 			name[i] = '/';
-		else if (isupper(name[i]))
+		else if (!noconvertcase && isupper(name[i]))
 			name[i] = tolower(name[i]);
 	}
 #endif
@@ -149,28 +119,6 @@ generic_to_unix_filename(name, len)
 	boolean         lower_case_used = FALSE;
 
 #ifdef MULTIBYTE_CHAR
-#ifdef SUPPORT_X0201
-	for (i = 0; i < len; i++) {
-		/* modified by Koji Arai */
-		if (X0201_KANA_P(name[i])) {
-			int j;
-			for (j = len; j >= i; j--) {
-				name[j+1] = name[j]; /* no check over */
-			}
-			name[i] = 0x8e;
-			i++;
-			len++;
-		} else
-
-		if (MULTIBYTE_FIRST_P(name[i]) &&
-		    MULTIBYTE_SECOND_P(name[i + 1]))
-			i++;
-		else if (islower(name[i])) {
-			lower_case_used = TRUE;
-			break;
-		}
-	}
-#else
 	for (i = 0; i < len; i++) {
 		if (MULTIBYTE_FIRST_P(name[i]) &&
 		    MULTIBYTE_SECOND_P(name[i + 1]))
@@ -180,14 +128,13 @@ generic_to_unix_filename(name, len)
 			break;
 		}
 	}
-#endif /* SUPPORT_X0201 */
 	for (i = 0; i < len; i++) {
 		if (MULTIBYTE_FIRST_P(name[i]) &&
 		    MULTIBYTE_SECOND_P(name[i + 1]))
 			i++;
 		else if (name[i] == '\\')
 			name[i] = '/';
-		else if (!lower_case_used && isupper(name[i]))
+		else if (!noconvertcase && !lower_case_used && isupper(name[i]))
 			name[i] = tolower(name[i]);
 	}
 #else
@@ -199,7 +146,7 @@ generic_to_unix_filename(name, len)
 	for (i = 0; i < len; i++) {
 		if (name[i] == '\\')
 			name[i] = '/';
-		else if (!lower_case_used && isupper(name[i]))
+		else if (!noconvertcase && !lower_case_used && isupper(name[i]))
 			name[i] = tolower(name[i]);
 	}
 #endif
@@ -213,45 +160,12 @@ macos_to_unix_filename(name, len)
 {
 	register int    i;
 
-/* modified by Koji Arai */
-#ifdef SUPPORT_X0201
-	for (i = 0; i < len; i ++) {
-		/* modified by Koji Arai */
-		if (X0201_KANA_P(name[i])) {
-			int j;
-			for (j = len; j >= i; j--) {
-				name[j+1] = name[j]; /* no check over */
-			}
-			name[i] = 0x8e;
-			i++;
-			len++;
-		} else
-
-		if (MULTIBYTE_FIRST_P (name[i]) &&
-			MULTIBYTE_SECOND_P (name[i+1])) {
-			int c1, c2;
-			c1 = name[i]; c2 = name[i+1];
-			sjis2euc(&c1, &c2);
-			name[i] = c1; name[i+1] = c2;
-			i ++;
-		}
-		else if (name[i] == ':')
-			name[i] = '/';
-		else if (name[i] == '/')
-			name[i] = ':';
-/*
-		else if (isupper (name[i]))
-			name[i] = tolower (name[i]);
-*/
-	}
-#else
 	for (i = 0; i < len; i++) {
 		if (name[i] == ':')
 			name[i] = '/';
 		else if (name[i] == '/')
 			name[i] = ':';
 	}
-#endif /* SUPPORT_X0201 */
 }
 
 /* ------------------------------------------------------------------------ */
@@ -454,10 +368,10 @@ gettz()
 #if !defined(HAVE_TZSET) && !defined(HAVE_FTIME)	/* maybe defined(HAVE_GETTIMEOFDAY) */
 {
 #ifdef HAVE_TM_GMTOFF
-        time_t tt;
+	time_t tt;
 
-        time(&tt);
-        return -localtime(&tt)->tm_gmtoff;
+	time(&tt);
+	return -localtime(&tt)->tm_gmtoff;
 #else /* HAVE_TM_GMTOFF */
 	struct timeval  tp;
 	struct timezone tzp;
@@ -633,7 +547,11 @@ get_header(fp, hdr)
 	setup_get(data + I_HEADER_CHECKSUM);
 	checksum = get_byte();
 
-	hdr->header_size = header_size;
+	if (hdr->header_level == 2) {
+		hdr->header_size = header_size + checksum*256;
+	} else {
+		hdr->header_size = header_size;
+	}
 	bcopy(data + I_METHOD, hdr->method, METHOD_TYPE_STRAGE);
 	setup_get(data + I_PACKED_SIZE);
 	hdr->packed_size = get_longword();
@@ -658,7 +576,6 @@ get_header(fp, hdr)
 	hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
 	hdr->unix_gid = 0;
 	hdr->unix_uid = 0;
-
 
 	if (hdr->header_level == 0) {
 		extend_size = header_size - name_length -22;
@@ -804,11 +721,6 @@ get_header(fp, hdr)
 			hdr->header_size += get_ptr - ptr - 2;
 		}
 	}
-	if (dir_length) {
-		strcat(dirname, hdr->name);
-		strcpy(hdr->name, dirname);
-		name_length += dir_length;
-	}
 
 	switch (hdr->extend_type) {
 	case EXTEND_MSDOS:
@@ -816,7 +728,7 @@ get_header(fp, hdr)
         system_kanji_code = default_system_kanji_code;
         archive_delim = "\\";
         system_delim = "//";
-        filename_case = TO_LOWER;
+        filename_case = noconvertcase ? NONE : TO_LOWER;
 
         /* fall through */
 	case EXTEND_HUMAN:
@@ -833,6 +745,7 @@ get_header(fp, hdr)
 #endif
 	case EXTEND_UNIX:
         archive_kanji_code = CODE_EUC;
+        /* Cygwin, HP-UX and other UNIX are able to use SJIS as native code. */
         system_kanji_code = default_system_kanji_code;
         archive_delim = "";
         system_delim = "";
@@ -856,7 +769,10 @@ get_header(fp, hdr)
         system_kanji_code = NONE;
         archive_delim = "\\";
         system_delim = "/";
-        filename_case = TO_LOWER;
+        filename_case = noconvertcase ? NONE : TO_LOWER;
+        /* pending: if small letter is included in filename,
+           the generic_to_unix_filename() do not case conversion,
+           but this code does not consider it. */
 
 		if (hdr->header_level == 2)
 			hdr->unix_last_modified_stamp = hdr->last_modified_stamp;
@@ -865,7 +781,7 @@ get_header(fp, hdr)
 				generic_to_unix_stamp(hdr->last_modified_stamp);
 	}
 
-    /* filename code and delimiter conversion */
+    /* filename kanji code and delimiter conversion */
     if (specific_archive_kanji_code)
         archive_kanji_code = specific_archive_kanji_code;
     if (specific_system_kanji_code)
@@ -882,9 +798,18 @@ get_header(fp, hdr)
                   system_kanji_code,
                   archive_delim, system_delim, filename_case);
 
-#if 0
-	printf("header level=%d\n", hdr->header_level); fflush(stdout);
-#endif
+    if (dir_length && hdr->extend_type != EXTEND_MACOS) {
+        filename_conv(dirname, dir_length, sizeof(dirname),
+                      archive_kanji_code,
+                      system_kanji_code,
+                      archive_delim, system_delim, filename_case);
+    }
+
+	if (dir_length) {
+		strcat(dirname, hdr->name);
+		strcpy(hdr->name, dirname);
+		name_length += dir_length;
+	}
 
 	return TRUE;
 }
@@ -1144,5 +1069,7 @@ sjis2euc(int *p1, int *p2)
 }
 
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
+/* compile-command:"gcc -c header.c" */
 /* End: */

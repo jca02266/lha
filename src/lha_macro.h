@@ -4,7 +4,10 @@
 /*		Modified          		Nobutaka Watazaki							*/
 /*																			*/
 /*	Ver. 1.14	Soruce All chagned				1995.01.14	N.Watazaki		*/
+/*	Ver. 1.14g	modified   						2000.05.06	T.OKAMOTO		*/
 /* ------------------------------------------------------------------------ */
+
+#define LHA_VERSION "lha for unix version 1.14g"
 
 /* Most of System V, define TM_IN_SYS_TIME */
 #if	TM_IN_SYS_TIME
@@ -102,6 +105,7 @@ typedef int				boolean;
   (((unsigned char)(c) >= 0x40) &&	\
    ((unsigned char)(c) < 0xfd) &&	\
    ((unsigned char)(c) != 0x7f))
+
 #define X0201_KANA_P(c)\
 	(0xa0 < (unsigned char)(c) && (unsigned char)(c) < 0xe0)
 
@@ -138,6 +142,7 @@ typedef int				boolean;
 #define LZHUFF4_METHOD			"-lh4-"
 #define LZHUFF5_METHOD			"-lh5-"
 #define LZHUFF6_METHOD			"-lh6-"
+#define LZHUFF7_METHOD			"-lh7-"
 #define LARC_METHOD				"-lzs-"
 #define LARC5_METHOD			"-lz5-"
 #define LARC4_METHOD			"-lz4-"
@@ -153,10 +158,11 @@ typedef int				boolean;
 #define LZHUFF4_METHOD_NUM		4
 #define LZHUFF5_METHOD_NUM		5
 #define LZHUFF6_METHOD_NUM		6
-#define LARC_METHOD_NUM			7
-#define LARC5_METHOD_NUM		8
-#define LARC4_METHOD_NUM		9
-#define LZHDIRS_METHOD_NUM		10
+#define LZHUFF7_METHOD_NUM		7
+#define LARC_METHOD_NUM			8
+#define LARC5_METHOD_NUM		9
+#define LARC4_METHOD_NUM		10
+#define LZHDIRS_METHOD_NUM		11
 /* Added N.Watazaki ..^ */
 
 #define I_HEADER_SIZE			0
@@ -403,7 +409,14 @@ char *strchr (), *strrchr ();
 */
 
 /* slide.c */
+#ifdef SUPPORT_LH7
+#define MAX_DICBIT			16      /* lh7 use 16bits */
+#endif
+
+#ifndef SUPPORT_LH7
 #define MAX_DICBIT			15      /* lh6 use 15bits */
+#endif
+
 #define MAX_DICSIZ			(1 << MAX_DICBIT)
 #define MATCHBIT			8	/* bits for MAXMATCH - THRESHOLD */
 #define MAXMATCH			256	/* formerly F (not more than UCHAR_MAX + 1) */
@@ -414,6 +427,8 @@ char *strchr (), *strrchr ();
 /* alphabet = {0, 1, 2, ..., NC - 1} */
 #define CBIT				9	/* $\lfloor \log_2 NC \rfloor + 1$ */
 #define USHRT_BIT			16	/* (CHAR_BIT * sizeof(ushort)) */
+
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
 /* End: */

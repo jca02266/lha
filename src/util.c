@@ -367,6 +367,9 @@ memset(s, c, n)
 	return s;
 }
 #endif
+
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
+/* compile-command:"gcc -c util.c" */
 /* End: */

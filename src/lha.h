@@ -4,6 +4,7 @@
 /*		Modified          		Nobutaka Watazaki							*/
 /*																			*/
 /*	Ver. 1.14 	Soruce All chagned				1995.01.14	N.Watazaki		*/
+/*	Ver. 1.14i 	Modified and bug fixed			2000.10.06	t.okamoto   	*/
 /* ------------------------------------------------------------------------ */
 /*
 	Included...
@@ -153,6 +154,8 @@ EXTERN int      archive_file_gid;
 EXTERN struct	interfacing interface;
 EXTERN node		*next;
 /* EXTERN unsigned short crc; */  /* 1996.8.13 t.okamoto */
+
+EXTERN int      noconvertcase; /* 2000.10.6 */
 
 /* slide.c */
 EXTERN int      unpackable;
@@ -321,5 +324,8 @@ void euc2sjis(int *p1, int *p2);
 void sjis2euc(int *p1, int *p2);
 
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
 /* End: */
+
+

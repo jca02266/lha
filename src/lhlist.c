@@ -104,7 +104,7 @@ list_header()
 	char           *p, *q;
 
 	if (verbose_listing) {
-		p = "PACKED    SIZE  RATIO     CRC  ";
+		p = "PACKED    SIZE  RATIO METHOD CRC";
 		q = "          NAME";
 	}
 	else {
@@ -257,7 +257,7 @@ list_one(hdr)
 		}
 
 	if (verbose)
-		printf("(%d)", hdr->header_level);
+		printf(" [%d]", hdr->header_level);
 	printf("\n");
 
 }
@@ -302,8 +302,10 @@ cmd_list()
 	list_files = 0;
 
 	/* open archive file */
-	if ((afp = open_old_archive()) == NULL)
-		fatal_error(archive_name);
+	if ((afp = open_old_archive()) == NULL) {
+		error(archive_name, "");
+		exit(1);
+	}
 	if (archive_is_msdos_sfx1(archive_name))
 		skip_msdos_sfx1_code(afp);
 
@@ -338,6 +340,9 @@ cmd_list()
 
 	return;
 }
+
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
+/* compile-command:"gcc -c lhlist.c" */
 /* End: */

@@ -19,8 +19,8 @@ make_table(nchar, bitlen, tablebits, table)
 	unsigned short  weight[17];	/* 0x10000ul >> bitlen */
 	unsigned short  start[17];	/* first code of bitlen */
 	unsigned short  total;
-	unsigned int    i;
-	int             j, k, l, m, n, avail;
+	unsigned int    i, l;
+	int             j, k, m, n, avail;
 	unsigned short *p;
 
 	avail = nchar;
@@ -42,7 +42,7 @@ make_table(nchar, bitlen, tablebits, table)
 		total += weight[i] * count[i];
 	}
 	if ((total & 0xffff) != 0)
-		error("Bad table (5)\n");
+		error("make_table()", "Bad table (5)\n");
 
 	/* shift data for make table. */
 	m = 16 - tablebits;
@@ -93,5 +93,6 @@ make_table(nchar, bitlen, tablebits, table)
 }
 
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
 /* End: */

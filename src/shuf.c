@@ -27,7 +27,13 @@ decode_start_st0( /*void*/ )
 	n_max = 286;
 	maxmatch = MAXMATCH;
 	init_getbits();
+#ifdef SUPPORT_LH7
+	np = 1 << (MAX_DICBIT - 7);
+#endif
+#ifndef SUPPORT_LH7
 	np = 1 << (MAX_DICBIT - 6);
+#endif
+
 }
 
 /* ------------------------------------------------------------------------ */
@@ -113,7 +119,11 @@ read_tree_p(/*void*/)
 	while (i < NP) {
 		pt_len[i] = getbits(LENFIELD);
 		if (++i == 3 && pt_len[0] == 1 && pt_len[1] == 1 && pt_len[2] == 1) {
+#ifdef SUPPORT_LH7
+			c = getbits(MAX_DICBIT - 7);
+#else
 			c = getbits(MAX_DICBIT - 6);
+#endif
 			for (i = 0; i < NP; i++)
 				c_len[i] = 0;
 			for (i = 0; i < 256; i++)
@@ -199,6 +209,8 @@ decode_p_st0(/*void*/)
 	}
 	return (j << 6) + getbits(6);
 }
+
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
 /* End: */

@@ -47,8 +47,12 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method)
 				,1 << interface.dicbit);
 		decode(&interface);
 		break;
-	case LZHUFF6_METHOD_NUM:		/* -lz6- */	/* Added N.Watazaki (^_^) */
-		interface.dicbit = 15;		
+	case LZHUFF6_METHOD_NUM:		/* -lh6- */	/* Added N.Watazaki (^_^) */
+#ifdef SUPPORT_LH7
+	case LZHUFF7_METHOD_NUM:                /* -lh7- */
+#endif
+	    interface.dicbit = (method - LZHUFF6_METHOD_NUM) + 15;
+		
 	default:
 		start_indicator(name, original_size
 				,verify_mode ? "Testing " : "Melting "
@@ -59,6 +63,8 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method)
 
 	return crc;
 }
+
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
 /* End: */

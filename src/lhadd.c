@@ -613,14 +613,13 @@ char *str2;
 	char *p, *q;
 
 	p = str1; q = str2;
-	
 	while (*p != 0 && *q != 0) {
 		if (*p == '|') {
 			if (*q == 0) return 0;
-			else return -1;
+			else if (*q != '|') return -1;
 		} else if (*q == '|') {
 			if (*p == 0) return 0;
-			else return 1;
+			else if (*q != '|') return 1;
 		} else if (*p != *q) break;
 		p++; q++;
 	}
@@ -629,5 +628,7 @@ char *str2;
 
 		
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
+/* compile-command:"gcc -c lhadd.c" */
 /* End: */

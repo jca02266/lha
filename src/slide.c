@@ -38,7 +38,7 @@ static struct encode_option encode_define[2] = {
 	{(void (*) ()) output_dyn,
 		(void (*) ()) encode_start_fix,
 	(void (*) ()) encode_end_dyn},
-	/* lh4, 5 */
+	/* lh4, 5,6 */
 	{(void (*) ()) output_st1,
 		(void (*) ()) encode_start_st1,
 	(void (*) ()) encode_end_st1}
@@ -47,7 +47,7 @@ static struct encode_option encode_define[2] = {
 	{(int (*) ()) output_dyn,
 		(int (*) ()) encode_start_fix,
 	(int (*) ()) encode_end_dyn},
-	/* lh4, 5 */
+	/* lh4, 5,6 */
 	{(int (*) ()) output_st1,
 		(int (*) ()) encode_start_st1,
 	(int (*) ()) encode_end_st1}
@@ -67,6 +67,8 @@ static struct decode_option decode_define[] = {
 	{decode_c_st1, decode_p_st1, decode_start_st1},
 	/* lh6 */
 	{decode_c_st1, decode_p_st1, decode_start_st1},
+	/* lh7 */
+	{decode_c_st1, decode_p_st1, decode_start_st1},
 	/* lzs */
 	{decode_c_lzs, decode_p_lzs, decode_start_lzs},
 	/* lz5 */
@@ -85,7 +87,10 @@ static unsigned short max_hash_val;
 static unsigned short hash1, hash2;
 #endif
 
-#if 1
+#ifdef SUPPORT_LH7
+#define DICSIZ (1L << 16)
+#define TXTSIZ (DICSIZ * 2L + MAXMATCH)
+#else
 #define DICSIZ (((unsigned long)1) << 15)
 #define TXTSIZ (DICSIZ * 2 + MAXMATCH)
 #endif
@@ -117,10 +122,12 @@ encode_alloc(method)
 	} else { /* method LH4(12),LH5(13),LH6(15) */
 		encode_set = encode_define[1];
 		maxmatch = MAXMATCH;
-		if (method == LZHUFF6_METHOD_NUM)
-			dicbit = MAX_DICBIT;		/* 15 bits */
+		if (method == LZHUFF7_METHOD_NUM)
+			dicbit = MAX_DICBIT; /* 16 bits */
+		else if (method == LZHUFF6_METHOD_NUM)
+			dicbit = MAX_DICBIT-1;		/* 15 bits */
 		else /* LH5  LH4 is not used */
-			dicbit = MAX_DICBIT - 2;	/* 13 bits */
+			dicbit = MAX_DICBIT - 3;	/* 13 bits */
 	}
 
 	dicsiz = (((unsigned long)1) << dicbit);
@@ -136,7 +143,7 @@ encode_alloc(method)
 	too_flag = (unsigned char*)malloc(HSHSIZ);
 
 	if (hash == NULL || prev == NULL || text == NULL || too_flag == NULL)
-        exit(207);
+		exit(207);
 
 	return method;
 }
@@ -306,7 +313,7 @@ struct interfacing *interface;
 	init_slide();  
 
 	encode_set.encode_start();
-	memset(&text[0], ' ', txtsiz);
+	memset(&text[0], ' ', (long)TXTSIZ);
 
 	remainder = fread_crc(&text[dicsiz], txtsiz-dicsiz, infile);
 	encoded_origsize = remainder;
@@ -314,7 +321,7 @@ struct interfacing *interface;
 
 	pos = dicsiz;
 
-    if (matchlen > remainder) matchlen = remainder;
+	if (matchlen > remainder) matchlen = remainder;
 	hval = ((((text[dicsiz] << 5) ^ text[dicsiz + 1]) << 5) 
 	        ^ text[dicsiz + 2]) & (unsigned)(HSHSIZ - 1);
 
@@ -371,7 +378,10 @@ void
 decode(interface)
 	struct interfacing *interface;
 {
-	int             i, j, k, c, dicsiz1, offset;
+	unsigned int i, j, k, c;
+	unsigned int dicsiz1, offset;
+	unsigned char *dtext;
+	
 
 #ifdef DEBUG
 	fout = fopen("de", "wt");
@@ -384,17 +394,18 @@ decode(interface)
 	origsize = interface->original;
 	compsize = interface->packed;
 	decode_set = decode_define[interface->method - 1];
+
 	crc = 0;
 	prev_char = -1;
-	dicsiz = 1 << dicbit;
-	text = (unsigned char *) malloc(dicsiz);
-	if (text == NULL)
+	dicsiz = 1L << dicbit;
+	dtext = (unsigned char *) malloc(dicsiz);
+	if (dtext == NULL)
 		/* error(MEMOVRERR, NULL); */
 		exit(errno);
-	memset(text, ' ', dicsiz);
+	for (i=0; i<dicsiz; i++) dtext[i] = 0x20;
 	decode_set.decode_start();
 	dicsiz1 = dicsiz - 1;
-	offset = (interface->method == 7) ? 0x100 - 2 : 0x100 - 3;
+	offset = (interface->method == LARC_METHOD_NUM) ? 0x100 - 2 : 0x100 - 3;
 	count = 0;
 	loc = 0;
 	while (count < origsize) {
@@ -403,9 +414,9 @@ decode(interface)
 #ifdef DEBUG
 		  fprintf(fout, "%u C %02X\n", count, c);
 #endif
-			text[loc++] = c;
+			dtext[loc++] = c;
 			if (loc == dicsiz) {
-				fwrite_crc(text, dicsiz, outfile);
+				fwrite_crc(dtext, dicsiz, outfile);
 				loc = 0;
 			}
 			count++;
@@ -418,14 +429,14 @@ decode(interface)
 #endif
 			count += j;
 			for (k = 0; k < j; k++) {
-				c = text[(i + k) & dicsiz1];
+				c = dtext[(i + k) & dicsiz1];
 
 #ifdef DEBUG
 				fprintf(fout, "%02X ", c & 0xff);
 #endif
-				text[loc++] = c;
+				dtext[loc++] = c;
 				if (loc == dicsiz) {
-					fwrite_crc(text, dicsiz, outfile);
+					fwrite_crc(dtext, dicsiz, outfile);
 					loc = 0;
 				}
 			}
@@ -435,10 +446,13 @@ decode(interface)
 		}
 	}
 	if (loc != 0) {
-		fwrite_crc(text, loc, outfile);
+		fwrite_crc(dtext, loc, outfile);
 	}
-	free(text);
+
+	free(dtext);
 }
+
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
 /* End: */

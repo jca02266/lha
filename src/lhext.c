@@ -19,7 +19,7 @@ static int      skip_flg = FALSE;	/* FALSE..No Skip , TRUE..Skip */
 static char	   *methods[] =
 {
 	LZHUFF0_METHOD, LZHUFF1_METHOD, LZHUFF2_METHOD, LZHUFF3_METHOD,
-	LZHUFF4_METHOD, LZHUFF5_METHOD, LZHUFF6_METHOD,
+	LZHUFF4_METHOD, LZHUFF5_METHOD, LZHUFF6_METHOD, LZHUFF7_METHOD,
 	LARC_METHOD, LARC5_METHOD, LARC4_METHOD,
 	LZHDIRS_METHOD,
 	NULL
@@ -164,8 +164,8 @@ adjust_info(name, hdr)
 #if HAVE_LCHOWN
 			if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK)
 				lchown(name, hdr->unix_uid, hdr->unix_gid);
-			else 
-#endif
+			else
+#endif /* HAVE_LCHWON */
 				chown(name, hdr->unix_uid, hdr->unix_gid);
 		}
 		errno = 0;
@@ -402,8 +402,7 @@ cmd_extract()
 			pos = ftell(afp);
 			extract_one(afp, &hdr);
 			fseek(afp, pos + hdr.packed_size, SEEK_SET);
-		}
-		else {
+		} else {
 			if (afp != stdin)
 				fseek(afp, hdr.packed_size, SEEK_CUR);
 			else {
@@ -419,6 +418,8 @@ cmd_extract()
 
 	return;
 }
+
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
 /* End: */

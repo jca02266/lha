@@ -5,6 +5,7 @@
 /*		Modified          		Nobutaka Watazaki							*/
 /*																			*/
 /*	Ver. 1.14 	Source All chagned				1995.01.14	N.Watazaki		*/
+/*	Ver. 1.14i 	Support LH7 & Bug Fixed			2000.10. 6	t.okamoto		*/
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
@@ -25,7 +26,7 @@ unsigned short  c_freq[2 * NC - 1], c_table[4096], c_code[NC], p_freq[2 * NP - 1
                 pt_table[256], pt_code[NPT], t_freq[2 * NT - 1];
 
 static unsigned char *buf;
-static unsigned short bufsiz;
+static unsigned int bufsiz;
 static unsigned short blocksize;
 static unsigned short output_pos, output_mask;
 static 			int	  pbit;
@@ -272,12 +273,25 @@ encode_start_st1( /* void */ )
 {
 	int             i;
 
+#if 0
 	if (dicbit <= (MAX_DICBIT - 2)) {
 		pbit = 4;	/* lh4,5 etc. */
 		np = 14;
 	} else {
 		pbit = 5;	/* lh6 */
 		np = 16;
+	}
+#endif
+
+	if (dicbit <= 13) {
+		pbit = 4;	/* lh4,5 etc. */
+		np = 14;
+	} else {
+		pbit = 5;	/* lh6,7 */
+		if (dicbit == 16)
+			np = 17;
+		else
+			np = 16;
 	}
 
 	for (i = 0; i < NC; i++)
@@ -308,7 +322,7 @@ read_pt_len(nn, nbit, i_special)
 	short           nbit;
 	short           i_special;
 {
-	short           i, c, n;
+	int           i, c, n;
 
 	n = getbits(nbit);
 	if (n == 0) {
@@ -451,17 +465,32 @@ decode_p_st1( /* void */ )
 void
 decode_start_st1( /* void */ )
 {
-	if (dicbit <= (MAX_DICBIT - 2))  {		/* 13 ... Changed N.Watazaki */
+	if (dicbit <= 13)  {
+		np = 14;
+		pbit = 4;
+	} else {
+		if (dicbit == 16) {
+			np = 17; /* for -lh7- */
+		} else {
+			np = 16;
+		}
+		pbit = 5;
+	}
+
+#if 0
+	if (dicbit <= 13)  {		/* 13 ... Changed N.Watazaki */
 		np = 14;
 		pbit = 4;
 	} else {
 		np = 16;
 		pbit = 5;
 	}
+#endif
 	init_getbits();
 	blocksize = 0;
 }
+
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
 /* End: */
-/* vi:set ts=4 */
