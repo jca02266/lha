@@ -1,7 +1,7 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiscated for LHa for UNIX version 1.14i
-                        Sat, Jun 29 2002 by Koji Arai <jca02266@nifty.ne.jp>
+			Mon, Jul 29 2002 by Koji Arai <jca02266@nifty.ne.jp>
 
 このファイルはLHa for UNIX version 1.14i をautoconf、automake化
 した(autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
@@ -117,8 +117,8 @@ LHa for UNIX に関しては岡本継男さんのページ
   システムの各漢字コードを指定できるようにするかもしれませんが、今のと
   ころ実装はしていません。
 
-  Mac OS X 用の utf8 <-> sjis 変換は、2002/6 に坂井浩人さんによって作
-  成されました。ありがとうございます。
+  Mac OS X 用の utf8 <-> sjis 変換は、2002/6 に坂井浩人さんに作成して
+  いただきました。ありがとうございます。
 
 ・標準入力からの展開ファイルの指定
 
@@ -143,7 +143,7 @@ LHa for UNIX に関しては岡本継男さんのページ
   残念ながら MinGW で isatty() がうまく動作しませんでしたから Windows 
   では使えないのでした。
 
-  オリジナルの仕様を復活させたい場合は、lharc.c の 380行目付近の #if 0 
+  オリジナルの仕様を復活させたい場合は、lharc.c の 360行目付近の #if 0 
   を #if 1 にしてください。
 
 ・拡張ヘッダ(ユーザ名/グループ名)のサポート
@@ -153,3 +153,70 @@ LHa for UNIX に関しては岡本継男さんのページ
   と一覧表示のときにヘッダにこの情報があれば ID に優先してこの情報が利
   用されます。作成は configure オプション --enable-user-name-header を
   指定して build した場合に有効になります。
+
+・header.c の書き換え
+
+  header.c の主要部分は作り変えられました。上記に示した変更に加えて
+  オリジナル lha 1.14i から以下の不具合が修正されました。
+
+    o level 2 header のバグ
+
+      長いファイル名を格納するなどにより total header size (アーカイブ
+      ヘッダの先頭 2 byte) が 256 以上になるときに不正なアーカイブが作
+      成されていました。特にヘッダ仕様としてヘッダ先頭が 0 になること
+      は避けなければならない点が考慮されていませんでした。
+
+    o level 1 header のバグ
+
+      ファイル名に対して拡張ヘッダを使用することがないため、230 バイト
+      を越えるファイル名(パス名ではない)をアーカイブに書く際に不正なアー
+      カイブが作成されていました。
+
+    o level 0 header のバグ
+
+      長いパス名に対して不正なアーカイブが作成されていました。
+      (autoconf 版では制限を越えたパス名は warning メッセージを出力し、
+      パス名を切り詰めます)
+
+      空の(ディレクトリ名情報のない) -lhd- ヘッダが作成されていました。
+
+	$ mkdir foo
+	$ lha c0 foo.lzh foo
+	$ lha v foo.lzh
+	 PERMSSN    UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP          NAME
+	---------- ----------- ------- ------- ------ ---------- ------------ -------------
+	drwxrwxr-x  1000/1000        0       0 ****** -lhd- 0000 Jul 29 00:18 
+	---------- ----------- ------- ------- ------ ---------- ------------ -------------
+	 Total         1 file        0       0 ******            Jul 29 00:18
+
+      なお、level 0 header で -lhd- method は使えないという説がある
+
+        http://kuwa.omosiro.com/x68k/KGARC/ARC/LHAHED15.ZIP
+
+      のですが、オリジナル lha (ver 2.55, 2.67) などは -lhd- method を 
+      level 0 header で作成します。
+
+    o g オプションを付けたときの level 0, 1, 2 header
+
+      g オプションは、アーカイブ作成のとき UNIX 固有の情報をアーカイブ
+      に作成するのを抑止すると man にはあるのですが、実際にはディレク
+      トリ情報まで抑止されていました。
+
+	$ mkdir foo
+	$ touch foo/bar
+	$ lha cg1 foo.lzh foo
+	$ lha foo.lzh 
+	 PERMSSN    UID  GID      SIZE  RATIO     STAMP           NAME
+	---------- ----------- ------- ------ ------------ --------------------
+	[generic]                    0 ****** Jul 29 00:02 bar
+	---------- ----------- ------- ------ ------------ --------------------
+	 Total         1 file        0 ****** Jul 29 00:02
+
+      autoconf 版では上記は foo/bar になります。(オリジナルはわざとそ
+      うしていたのかもしれませんが、そうする理由はないと判断しました)
+      g オプションで -lhd- の作成が抑止されるのは同じです。
+
+      なお、g オプションとヘッダレベルの指定を同時に行うときは上記のよ
+      うに g オプションを先に指定する必要があります。(lha c1g など) g 
+      オプションを後に指定すると level 0 header が作成されます(このオ
+      リジナル仕様はちょっとわかりにくいです)。
