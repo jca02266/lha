@@ -1,3 +1,10 @@
+2002-05-22  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/append.c, src/crcio.c, src/dhuf.c, src/extract.c, src/header.c, src/huf.c, src/larc.c, src/lhadd.c, src/lharc.c, src/lhdir.c, src/lhext.c, src/lhlist.c, src/maketbl.c, src/maketree.c, src/patmatch.c, src/shuf.c, src/slide.c, src/util.c:
+	added modeline for vi(m).
+
+	* src/lharc.c: backslash was missing.
+
 2002-05-20  Koji Arai  <arai@fgsd.mt.nec.co.jp>
 
 	* src/lharc.c (open_old_archive):  On MinGW, set binary stdin.
