@@ -291,6 +291,8 @@ main(argc, argv)
 				++p;
 				break;
 			case '2':
+				++p;
+                /* fall through */
 			default:
 				quiet = TRUE;
 				break;
