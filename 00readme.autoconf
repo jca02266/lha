@@ -10,26 +10,11 @@ LHa for UNIX に関しては岡本継男さんのページ
   <http://www2m.biglobe.ne.jp/~dolphin/lha/lha.htm>
 を参照してください。
 
-・マクロの置き換え
-
-  オリジナルの LHa for UNIX 1.14i で使われていたマクロは autoconf 標準
-  のマクロ名に置き換えられました。(IFNAMES ファイルに詳細が書かれてい
-  ます)
-
-  IFNAMESファイルは、
-     マクロ名 定義のあるファイル...  コメント
-  という構成になっています。このファイルはautoconfと一緒に配布される
-  ifnamesコマンドの出力を元にしました。
-  IFNAMESファイルの# で始まっている行は該当のマクロが置き換えられたり、
-  configure コマンドのコマンドオプションで指定されるようになったことを
-  示します。そのままの行はautoconfで判断する必要がないかまたは私が判断
-  できないため、そのまま放置したことを示します。
-
 ・コンパイルの手順
 
   コンパイルの手順は以下のようになります。
 
-    tar xvzf lha-114i.tar.gz
+    gzip -dc lha-114i.tar.gz | tar xvf -
     cd lha-114i
     patch -T -p1 < ../lha-1.14i-autoconf.diff
 
@@ -54,7 +39,7 @@ LHa for UNIX に関しては岡本継男さんのページ
   す。autoconf/automake のバージョンはそれぞれ autoconf 2.5x, automake
   1.6.x 以降での利用を前提としています。
 
-    tar xvzf lha-114i.tar.gz
+    gzip -dc lha-114i.tar.gz | tar xvf -
     cd lha-114i
     patch -p1 < ../lha-1.14i-autoconf.diff
 
@@ -66,6 +51,21 @@ LHa for UNIX に関しては岡本継男さんのページ
     make
     make check
     make install
+
+・マクロの置き換え
+
+  オリジナルの LHa for UNIX 1.14i で使われていたマクロは autoconf 標準
+  のマクロ名に置き換えられました。(IFNAMES ファイルに詳細が書かれてい
+  ます)
+
+  IFNAMESファイルは、
+     マクロ名 定義のあるファイル...  コメント
+  という構成になっています。このファイルはautoconfと一緒に配布される
+  ifnamesコマンドの出力を元にしました。
+  IFNAMESファイルの# で始まっている行は該当のマクロが置き換えられたり、
+  configure コマンドのコマンドオプションで指定されるようになったことを
+  示します。そのままの行はautoconfで判断する必要がないかまたは私が判断
+  できないため、そのまま放置したことを示します。
 
 ・-lh6-, -lh7- メソッドのアーカイブ作成
 
