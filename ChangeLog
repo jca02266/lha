@@ -57,7 +57,7 @@
 
 	* tests/lha-test4: Skip a test for the LHa for UNIX (original version).
 
-	* tests/lha-test3: Rewrite tests for generic format.
+	* tests/lha-test3: Rewrite tests for generic format archives.
 
 	* tests/lha-test2: Added tests for -lh0- method.
 	Moved from contents of lha-test3 (tests for print archive).
