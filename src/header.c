@@ -200,6 +200,7 @@ filename_conv(name, len, size,
 	register int    i;
 
 	for (i = 0; i < len; i ++) {
+#ifdef MULTIBYTE_CHAR
         if (from_code == CODE_EUC &&
             (unsigned char)name[i] == 0x8e) {
             if (to_code != CODE_SJIS) {
@@ -257,7 +258,7 @@ filename_conv(name, len, size,
 			i++;
             continue;
         }
-
+#endif /* MULTIBYTE_CHAR */
         {
             char *ptr;
 
