@@ -200,7 +200,7 @@ strdup(buf)
  */
 
 /* ------------------------------------------------------------------------ */
-#if defined(NOBSTRING) && !defined(__STDC__)
+#ifndef HAVE_MEMMOVE
 void           *
 memmove(dst, src, cnt)
 	register char  *dst, *src;
@@ -263,7 +263,7 @@ rename(from, to)
 #endif				/* !HAVE_FTRUNCATE */
 /* ------------------------------------------------------------------------ */
 
-#ifndef	HAVE_MKDIR
+#if !HAVE_MKDIR && HAVE_WORKING_FORK
 #ifndef	MKDIRPATH
 #define	MKDIRPATH	"/bin/mkdir"
 #endif
