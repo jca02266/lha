@@ -2,6 +2,8 @@
 
 	* released.
 
+	* src/lharc.c: added `--help' command line switch.
+
 	* Makefile.am: fixed EXTRA_DIST for 00readme.autoconf renaming.
 
 	* README.autoconf, 00readme.autoconf: renamed.
