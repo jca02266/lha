@@ -1,5 +1,11 @@
 2002-07-07  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lha.h: support de-ANSI variable arguments.
+
+	* src/lharc.c: ditto.
+
+	* src/util.c: ditto.
+
 	* src/Makefile.am (lha_SOURCES): added prototypes.h.
 
 	* src/lha.h: function prototyps moved to prototypes.h.
