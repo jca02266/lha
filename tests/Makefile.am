@@ -8,11 +8,10 @@ EXTRA_DIST =	lha-test2 \
 		lha-test7 \
 		lha-test8
 
+DISTCLEANFILES = test.log
+
 check-local:
 	bash ./lha-test
-
-dist-hook:
-	rm -f ./test.log
 
 lha-test: $(top_builddir)/config.status $(srcdir)/lha-test.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
