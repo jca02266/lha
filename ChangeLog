@@ -2,6 +2,10 @@
 
 	* released.
 
+	* src/prototypes.h: regenerated.
+
+	* src/cproto.sh: refined.
+
 	* configure.ac: updated version.
 
 	* configure.ac: should use `exit' rather than `return' on
