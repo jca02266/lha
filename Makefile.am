@@ -6,4 +6,4 @@ EXTRA_DIST = CHANGES.euc MACHINES.euc MACHINES2.euc PROBLEMS.euc README.euc \
 	change-114e.txt change-114g.txt change-114h.txt change-114i.txt \
 	config.eng config.jpn.euc \
 	header.doc.euc
-SUBDIRS= man src
+SUBDIRS= man src tests

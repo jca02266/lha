@@ -139,4 +139,5 @@ if test "x$enable_multibyte_char" = xyes; then
 fi
 
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])
+AC_CONFIG_FILES([tests/Makefile tests/lha-test])
 AC_OUTPUT
