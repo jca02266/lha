@@ -1,5 +1,9 @@
 2002-08-22  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* released.
+
+	* configure.ac: updated version.
+
 	* configure.ac: should use `exit' rather than `return' on
 	AC_TRY_RUN().  see the Autoconf manual.
 
@@ -70,7 +74,7 @@
 	print filename when test failed.
 
 	* tests/lha-test.in, tests/lha-test12, tests/lha-test13:
-	added tests converting text files.
+	added tests for converting text files.
 
 	* src/header.c (get_extended_header): recognize the Windows time
 	stamp header (0x41), but ignored.
