@@ -680,7 +680,7 @@ add_sp(sp, name, len)
 		sp->size *= 2;
 		sp->buffer = (char *) xrealloc(sp->buffer, sp->size * sizeof(char));
 	}
-	bcopy(name, sp->buffer + sp->used, len);
+	memmove(sp->buffer + sp->used, name, len);
 	sp->used += len;
 	sp->n++;
 }

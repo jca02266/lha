@@ -527,7 +527,7 @@ get_header(fp, hdr)
     char *system_delim = "";
     int filename_case = NONE;
 
-	bzero(hdr, sizeof(LzHeader));
+	memset(hdr, 0, sizeof(LzHeader));
 
 	if (((header_size = getc(fp)) == EOF) || (header_size == 0)) {
 		return FALSE;	/* finish */
@@ -559,7 +559,7 @@ get_header(fp, hdr)
 	} else {
 		hdr->header_size = header_size;
 	}
-	bcopy(data + I_METHOD, hdr->method, METHOD_TYPE_STRAGE);
+	memcpy(hdr->method, data + I_METHOD, METHOD_TYPE_STRAGE);
 	setup_get(data + I_PACKED_SIZE);
 	hdr->packed_size = get_longword();
 	hdr->original_size = get_longword();
@@ -827,11 +827,11 @@ init_header(name, v_stat, hdr)
         system_kanji_code = optional_system_kanji_code;
 
 	if (compress_method == LZHUFF5_METHOD_NUM)  /* Changed N.Watazaki */
-		bcopy(LZHUFF5_METHOD, hdr->method, METHOD_TYPE_STRAGE);
+		memcpy(hdr->method, LZHUFF5_METHOD, METHOD_TYPE_STRAGE);
 	else if (compress_method)
-		bcopy(LZHUFF1_METHOD, hdr->method, METHOD_TYPE_STRAGE);
+		memcpy(hdr->method, LZHUFF1_METHOD, METHOD_TYPE_STRAGE);
 	else
-		bcopy(LZHUFF0_METHOD, hdr->method, METHOD_TYPE_STRAGE);
+		memcpy(hdr->method, LZHUFF0_METHOD, METHOD_TYPE_STRAGE);
 
 	hdr->packed_size = 0;
 	hdr->original_size = v_stat->st_size;
@@ -878,7 +878,7 @@ init_header(name, v_stat, hdr)
 #endif
 #endif /* INCLUDE_OWNER_NAME_IN_HEADER */
 	if (is_directory(v_stat)) {
-		bcopy(LZHDIRS_METHOD, hdr->method, METHOD_TYPE_STRAGE);
+		memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STRAGE);
 		hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
 		hdr->original_size = 0;
 		if (len > 0 && hdr->name[len - 1] != '/')
@@ -889,7 +889,7 @@ init_header(name, v_stat, hdr)
 	if (is_symlink(v_stat)) {
 		char	lkname[256];    /* FIXME: no enough space */
 		int		len;	
-		bcopy(LZHDIRS_METHOD, hdr->method, METHOD_TYPE_STRAGE);
+		memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STRAGE);
 		hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
 		hdr->original_size = 0;
 		len = readlink(name, lkname, sizeof(lkname));
@@ -930,8 +930,8 @@ write_header(nafp, hdr)
     if (optional_system_kanji_code)
         system_kanji_code = optional_system_kanji_code;
 
-	bzero(data, LZHEADER_STRAGE);
-	bcopy(hdr->method, data + I_METHOD, METHOD_TYPE_STRAGE);
+	memset(data, 0, LZHEADER_STRAGE);
+	memcpy(data + I_METHOD, hdr->method, METHOD_TYPE_STRAGE);
 	setup_put(data + I_PACKED_SIZE);
 	put_longword(hdr->packed_size);
 	put_longword(hdr->original_size);
@@ -964,7 +964,7 @@ write_header(nafp, hdr)
 		else
 			name_length = strlen(hdr->name);
 		put_byte(name_length);
-		bcopy(p ? p : hdr->name, data + I_NAME, name_length);
+		memcpy(data + I_NAME, p ? p : hdr->name, name_length);
 		setup_put(data + I_NAME + name_length);
 	}
 

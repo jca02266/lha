@@ -42,7 +42,7 @@ encode_lzhuf(infp, outfp, size, original_size_var, packed_size_var,
 		copyfile(infp, outfp, size, 1);
 		*packed_size_var = *original_size_var = size;
 	}
-	bcopy("-lh -", hdr_method, 5);
+	memcpy(hdr_method, "-lh -", 5);
 	hdr_method[3] = interface.method + '0';
 
 	finish_indicator2(name, "Frozen",
