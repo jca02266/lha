@@ -1,5 +1,11 @@
 2002-05-27  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* README.autoconf: added E-Mail address.
+
+	* configure.ac: updated version and added bug report mail address.
+
+	* configure.in: updated version.
+
 	* released.
 
 	* README.autoconf: added `make check' on sample description.
