@@ -5,7 +5,7 @@
 
 	* src/lharc.c: backslash was missing.
 
-2002-05-20  Koji Arai  <arai@fgsd.mt.nec.co.jp>
+2002-05-20  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lharc.c (open_old_archive):  On MinGW, set binary stdin.
 
@@ -100,3 +100,90 @@
 
 	* header.c (default_system_kanji_code): On HP-UX, use Shift_JIS as
 	default kanji code.
+
+2001-02-03  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* README.autoconf, src/header.c: treat archive and system kanji
+	code, correctly.
+
+2001-01-31  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.in: mistakes for default archive method.
+
+	* src/header.c: directory separator 0xff must be transpose slash
+	at first.
+
+2001-01-29  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lharc.c: replace MKSTEMP with HAVE_MKSTEMP.
+	substitute DEFAULT_LZHUFF_METHOD for the `compress_method' variable (it's default value).
+
+	* src/lha_macro.h: use the VERSION macro (defined by configure) for
+	the LHA_VERSION definition.
+
+	* src/header.c: added condition whether the macro MULTIBYTE_CHAR
+	is defined or not.
+
+	* src/Makefile.am: added $(SUPPORT_LZHUFF_METHOD) in AM_CPPFLAGS.
+
+	* configure.in: change version number from 1.14f to 1.14i.
+	check function mkstemp().
+	replace --enable-lh6 option to --with-default-method=[567].
+
+	* config.h.in: added definitions of HAVE_MKSTEMP and
+	DEFAULT_LZHUFF_METHOD.
+
+	* IFNAMES: added a description about MKSTEMP.
+
+	* Makefile.am: added extra files.
+
+	* change-114f.txt, src/extract.c, src/header.c, src/huf.c, src/lha.h, src/lha_macro.h, src/lhadd.c, src/lharc.c, src/lhext.c, src/lhlist.c, src/maketbl.c, src/maketree.c, src/shuf.c, src/slide.c, src/util.c, src/dhuf.c, src/crcio.c:
+	merged changing from lha-1.14f to lha-1.14i.
+
+	* change-114i.txt, src/header.c, src/huf.c, src/lha.h, src/lharc.c:
+	import lha-114i
+
+	* src/huf.c, src/lharc.c, src/shuf.c, src/slide.c: import lha-114h
+
+	* Makefile, README.euc, change-114g.txt, change-114h.txt:
+	import lha-114h
+
+	* src/crcio.c, src/dhuf.c, src/extract.c, src/header.c, src/huf.c, src/lha.h, src/lha_macro.h, src/lhadd.c, src/lharc.c, src/lhext.c, src/util.c:
+	import lha-114g
+
+	* MACHINES2.euc, Makefile, README.euc, change-114g.txt, config.eng, config.jpn.euc, header.doc.euc, src/lhlist.c, src/maketbl.c, src/maketree.c, src/makezero.c, src/shuf.c, src/slide.c:
+	import lha-114g
+
+	* src/header.c, src/lha_macro.h: implemented kanji code conversion
+	on filename.
+
+	* src/header.c: fix bug in euc2sjis().
+
+1999-10-05  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/header.c: rename the macro HANKAKU_KATAKANA_P to the X0201_KANA_P
+
+1999-09-30  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* IFNAMES, configure.in, Makefile.in.org, README.autoconf, config.h.in, man/Makefile.am, src/Makefile.am, src/Makefile.in.org, Makefile.am, src/header.c, src/huf.c, src/larc.c, src/lha.h, src/lha_macro.h, src/lhadd.c, src/lharc.c, src/lhdir.c, src/lhdir.h, src/lhext.c, src/lhlist.c, src/makefile.dj, src/maketbl.c, src/maketree.c, src/patmatch.c, src/shuf.c, src/slide.c, src/util.c, Makefile, man/Makefile, src/Makefile, src/append.c, src/crcio.c, src/dhuf.c, src/extract.c:
+	use the autoconf/automake
+
+1999-08-28  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* Makefile: import the lha-114f
+
+	* change-114f.txt, config.jpn.euc, header.doc.euc: import the lha-114f
+
+	* CHANGES.euc, MACHINES.euc, PROBLEMS.euc, README.euc, change-114e.txt, config.eng:
+	import the lha-114f
+
+	* MACHINES2.euc, man/Makefile, man/lha.man, man/lha.n:
+	import the lha-114f
+
+	* src/append.c, src/crcio.c: import the lha-114f
+
+	* src/Makefile, src/lha.h, src/lha_macro.h, src/lharc.c, src/lhdir.c, src/lhdir.h, src/lhext.c, src/lhlist.c, src/makefile.dj, src/maketbl.c, src/maketree.c, src/patmatch.c, src/shuf.c, src/slide.c, src/util.c:
+	import the lha-114f
+
+	* src/dhuf.c, src/extract.c, src/header.c, src/huf.c, src/larc.c, src/lhadd.c:
+	import the lha-114f
