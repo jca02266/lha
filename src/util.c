@@ -132,7 +132,7 @@ strdup(buf)
 
     if ((p = (char *) malloc(strlen(buf) + 1)) == NULL)
         return NULL;
-    strcpy(p, buf);
+    strcpy(p, buf);             /* ok */
     return p;
 }
 #endif
@@ -312,3 +312,24 @@ basename(char *s)
 
 }
 #endif
+
+/* This function is similar to strncpy() but `dst' is always terminated '\0'.
+   Return the copied string length. */
+int
+str_safe_copy(char *dst, const char *src, int dstsz)
+{
+    int i;
+
+    if (dstsz < 1) return 0;
+
+    for (i = 0; i < dstsz; i++) {
+	if ((dst[i] = src[i]) == '\0')
+	    return i;
+    }
+
+    /* here is i == dstsz */
+    dst[--i] = '\0';	/* if eliminated this line,
+			   this function was same as strncpy(). */
+
+    return i;
+}
