@@ -56,7 +56,13 @@ add_one(fp, nafp, hdr)
 		fflush(nafp);
 		next_pos = ftell(nafp);
 #if HAVE_FTRUNCATE
-		ftruncate(fileno(nafp), next_pos);
+		if (ftruncate(fileno(nafp), next_pos) == -1)
+            error("cannot truncate archive");
+#elif HAVE_CHSIZE
+        if (chsize(fileno(nafp), next_pos) == -1)
+            error("cannot truncate archive");
+#else
+        CAUSE COMPILE ERROR
 #endif
 		memcpy(hdr->method, LZHUFF0_METHOD, METHOD_TYPE_STORAGE);
 	}

@@ -9,6 +9,9 @@
 /* Define to 1 if the 2nd argument of gettimeofday() is effective. */
 #undef GETTIMEOFDAY_HAS_2ND_ARG
 
+/* Define to 1 if you have the `chsize' function. */
+#undef HAVE_CHSIZE
+
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
 #undef HAVE_DIRENT_H

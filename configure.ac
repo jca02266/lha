@@ -58,7 +58,7 @@ AC_FUNC_FORK
 AC_FUNC_UTIME_NULL
 AC_CHECK_FUNCS(strchr strdup memcpy memset memmove strcasecmp)
 AC_CHECK_FUNCS(mktime timelocal tzset ftime gettimeofday utime)
-AC_CHECK_FUNCS(mkdir rmdir ftruncate lchown mkstemp link)
+AC_CHECK_FUNCS(mkdir rmdir ftruncate chsize lchown mkstemp link)
 AC_CHECK_FUNCS(getpwuid getgrgid getpwnam getgrnam)
 AC_CHECK_FUNCS(iconv)
 AC_REPLACE_FUNCS(vsnprintf)
