@@ -141,6 +141,15 @@ int utime(const char *, struct utimbuf *);
 # endif
 #endif
 
+#if HAVE_FNMATCH_H
+# include <fnmatch.h>
+#else
+int fnmatch(const char *pattern, const char *string, int flags);
+# define FNM_PATHNAME 1
+# define FNM_NOESCAPE 2
+# define FNM_PERIOD   4
+#endif
+
 #ifndef SEEK_SET
 #define SEEK_SET        0
 #define SEEK_CUR        1
@@ -296,6 +305,7 @@ EXTERN boolean  recover_archive_when_interrupt;
 EXTERN boolean  remove_extracting_file_when_interrupt;
 EXTERN boolean  get_filename_from_stdin;
 EXTERN boolean  ignore_directory;
+EXTERN char   **exclude_files;
 EXTERN boolean  verify_mode;
 
 /* Indicator flag */
