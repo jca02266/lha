@@ -15,6 +15,7 @@ END
 cproto -m -d \
 	-D STDC_HEADERS=1 -D HAVE_STRDUP=0 -D HAVE_MEMSET=0 -D HAVE_MEMMOVE=0 \
 	-D MULTIBYTE_FILENAME=1 -D RETSIGTYPE=void \
+	-D NEED_INCREMENTAL_INDICATOR=1 \
 	append.c crcio.c dhuf.c extract.c header.c \
 	huf.c larc.c lhadd.c lharc.c lhext.c \
 	lhlist.c maketbl.c maketree.c patmatch.c \
