@@ -87,5 +87,6 @@ test -f test-1/test-c
 # . $srcdir/lha-test6; cleanup		# this feature was removed.
 . $srcdir/lha-test7; cleanup
 . $srcdir/lha-test8; cleanup
+. $srcdir/lha-test9; cleanup
 
 exit $result

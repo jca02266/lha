@@ -1,0 +1,62 @@
+# -*- shell-script -*-
+message 'testing extracting to existent files (this test need the Ruby interpreter)'
+
+pty()
+{
+  count=$1; shift
+  input=$1; shift  # y, n, a or s
+
+  ruby <<EOF
+    require 'pty'
+
+    inp, out, fd = PTY.getpty("$*")
+
+    th = Thread.start {
+      $count.times {
+	out.puts "$input"
+      }
+    }
+
+    loop {
+      begin
+	print inp.gets
+      rescue Errno::EIO
+      rescue PTY::ChildExited
+	# p [\$!, \$!.status, \$?]
+	exit \$!.status >> 8
+      end
+    }
+EOF
+}
+
+mkdir test-tmp &&
+echo foo > test-tmp/test-a &&
+echo bar > test-tmp/test-b &&
+echo baz > test-tmp/test-c &&
+cp -pr test-tmp test-tmp2  &&
+$lha c test-tmp.lzh test-tmp
+							check $?
+$lha v test-tmp.lzh &&
+$lha v test-1.lzh
+							check $?
+
+# skip file
+pty 3 n  $lha xw=test-tmp test-1.lzh
+							check $?
+diff -r test-tmp test-tmp2
+							check $?
+# overwrite
+pty 3 y  $lha xw=test-tmp test-1.lzh
+							check $?
+diff -r test-1 test-tmp
+							check $?
+# overwrite all
+pty 1 a  $lha x test-tmp.lzh
+							check $?
+diff -r test-tmp test-tmp2
+							check $?
+# skip all
+pty 1 s	 $lha xw=test-tmp test-1.lzh
+							check $?
+diff -r test-tmp test-tmp2
+							check $?
