@@ -238,6 +238,21 @@ convert_filename(name, len, size,
     }
 #endif
 
+    /* special case: if `name' has small lettter, not convert case. */
+    if (from_code == CODE_SJIS && case_to == TO_LOWER) {
+        for (i = 0; i < len; i++) {
+#ifdef MULTIBYTE_FILENAME
+            if (SJIS_FIRST_P(name[i]))
+                i++;
+            else
+#endif
+            if (islower(name[i])) {
+                case_to = NONE;
+                break;
+            }
+        }
+    }
+
     for (i = 0; i < len; i ++) {
 #ifdef MULTIBYTE_FILENAME
         if (from_code == CODE_EUC &&
@@ -281,8 +296,8 @@ convert_filename(name, len, size,
             continue;
         }
         if (from_code == CODE_SJIS &&
-            SJC_FIRST_P(name[i]) &&
-            SJC_SECOND_P(name[i+1])) {
+            SJIS_FIRST_P(name[i]) &&
+            SJIS_SECOND_P(name[i+1])) {
             int c1, c2;
 
             if (to_code != CODE_EUC) {
@@ -1154,9 +1169,6 @@ get_header(fp, hdr)
 
     default:
         filename_case = noconvertcase ? NONE : TO_LOWER;
-        /* FIXME: if small letter is included in filename,
-           the generic_to_unix_filename() do not case conversion,
-           but this code does not consider it. */
         break;
     }
 
