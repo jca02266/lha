@@ -1,3 +1,8 @@
+2002-06-30  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lhadd.c (cmd_add): Missed to adjust the index when specified
+	adding file is same as the generating archive file.
+
 2002-06-29  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/header.c (convert_filename): rename a function
