@@ -31,7 +31,6 @@ LHa for UNIX に関しては岡本継男さんのページ
 
   コンパイルの手順は以下のようになります。
 
-
     tar xvzf lha-1.14i.tar.gz
     cd lha-1.14i
     patch -p1 < ../lha-1.14i-autoconf.diff
@@ -48,6 +47,25 @@ LHa for UNIX に関しては岡本継男さんのページ
 		--with-tmp-file=no
 
   などとしてください。
+
+  autoconf/automake がインストールされている場合で、lha ソースや 
+  configure.ac, Makefile.am をメンテナンスする場合は以下の手順になりま
+  す。autoconf/automake のバージョンはそれぞれ autoconf 2.5x, automake
+  1.6.x 以降での利用を前提としています。(configure.in も用意しているの
+  で autoconf 2.13 でもコンパイル可能かもしれませんが、あまり動作確認
+  されていません。configure.in はいずれ保守されなくなるかもしれません)
+
+    tar xvzf lha-1.14i.tar.gz
+    cd lha-1.14i
+    patch -p1 < ../lha-1.14i-autoconf.diff
+
+    aclocal
+    automake -a   # gcc でなければ -i オプションもつけてください
+    autoheader
+    autoconf
+    ./configure
+    make
+    make install
 
 ・-lh6-, -lh7- メソッドのアーカイブ作成
 
