@@ -1,5 +1,7 @@
 2002-07-06  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: updated version.
+
 	* tests/lha-test10: added testing the header level 0, 1 and 2.
 
 	* tests/lha-test.in: ditto.
