@@ -119,9 +119,6 @@ append_it(name, oafp, nafp)
 			oafp = NULL;
 			break;
 		} else {
-#if 0			
-			cmp = STRING_COMPARE(ahdr.name, hdr.name);
-#endif
 			/* for symbolic link. t.okamoto */
 			cmp = strcmp_filename(ahdr.name, hdr.name);
 			if (cmp < 0) {	/* SKIP */

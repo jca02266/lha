@@ -13,9 +13,6 @@
 #define	FALSE			0
 #define TRUE			1
 
-/* used by qsort() for alphabetic-sort */
-#define STRING_COMPARE(a,b)		strcmp((a),(b))
-
 #define FILENAME_LENGTH	1024
 
 #if defined __MINGW32__
