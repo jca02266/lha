@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(src/lha.h)
-AM_INIT_AUTOMAKE(lha, 1.14f)
+AM_INIT_AUTOMAKE(lha, 1.14i)
 AM_CONFIG_HEADER(config.h)
 
 AC_CANONICAL_HOST
@@ -61,7 +61,7 @@ AC_TYPE_SIGNAL
 AC_FUNC_UTIME_NULL
 AC_CHECK_FUNCS(strchr memcpy)
 AC_CHECK_FUNCS(mktime timelocal tzset ftime gettimeofday)
-AC_CHECK_FUNCS(mkdir rmdir strdup memset ftruncate lchown)
+AC_CHECK_FUNCS(mkdir rmdir strdup memset ftruncate lchown mkstemp)
 AC_CHECK_FUNCS(strcasecmp)
 
 AC_SUBST(LIBOBJS)
@@ -79,14 +79,22 @@ if test $enable_text_conv = yes; then
   DEF_KCODE=-DEUC
 fi
 
-dnl whether use the -lh6- method
-AC_ARG_ENABLE(lh6,
-  [  --enable-lh6            create the -lh6- archive default [default=no]],
-  , enable_lh6=no)
+# force support -lh7-
+AC_SUBST(SUPPORT_LZHUFF_METHOD)
+SUPPORT_LZHUFF_METHOD=-DSUPPORT_LH7
 
-if test "x$enable_lh6" = "xyes"; then
-  AC_DEFINE(SUPPORT_LH6, 1, [Define if you want to use the -lh6- method, default])
-fi
+dnl whether use the -lh567- method
+AC_MSG_CHECKING(default archive method is )
+AC_ARG_WITH(default_method,
+  [  --with-default-method=[567]  create the -lh[567]- archive default [default=5]],
+  [case $withval in
+   [567]) ;;
+   *) AC_MSG_ERROR(you should have specified 5, 6 or 7);;
+   esac],
+  with_default_method=5)
+
+AC_MSG_RESULT(lh$with_default_method)
+AC_DEFINE_UNQUOTED(DEFAULT_LZHUFF_METHOD, LZHUFF${with_default_method}_METHOD, [Define it to 5, 6 or 7 which you want to use -lhX- method, default])
 
 dnl decide path names
 AC_MSG_CHECKING(template of the temporary file is )
