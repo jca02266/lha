@@ -1,5 +1,7 @@
 2003-05-10  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: updated version.
+
 	* src/lhext.c (inquire_extract): warning if stdin is not tty,
 	because you cannot reply from stdin.
 	(extract_one): return actual read size from archive.
