@@ -1,5 +1,7 @@
 2003-07-22  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test.in: should exit with status in trap.
+
 	* src/shuf.c (decode_start_st0): wrong value was assigned.
 
 	* src/lha.h: discard `prof' variable.
@@ -25,8 +27,7 @@
 
 	* src/lharc.c (find_files): refined.
 
-	* tests/lha-test.in: should exit in trap. exit status will be
-	inherited on bash, ash and pdksh (but not zsh, Hmm..)
+	* tests/lha-test.in: should exit in trap.
 
 	* src/lharc.c (find_files): uninitialized variable was caught by
 	Valgrind.
