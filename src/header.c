@@ -644,7 +644,6 @@ get_extended_header(fp, hdr, header_size, hcrc)
             hdr->unix_last_modified_stamp = (time_t) get_longword();
             break;
         default:
-        skip:
             /* other headers */
             /* 0x39: multi-disk header
                0x3f: uncompressed comment
@@ -670,7 +669,6 @@ get_extended_header(fp, hdr, header_size, hcrc)
             break;
         }
 
-    next:
         if (hcrc)
             *hcrc = calccrc(*hcrc, data, header_size);
 
