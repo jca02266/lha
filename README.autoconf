@@ -37,6 +37,7 @@ LHa for UNIX に関しては岡本継男さんのページ
 
     ./configure
     make
+    make check
     make install
 
   MinGW 対応はα版です。ほとんどテストされていません(コンパイルを通し
@@ -65,6 +66,7 @@ LHa for UNIX に関しては岡本継男さんのページ
     autoconf
     ./configure
     make
+    make check
     make install
 
 ・-lh6-, -lh7- メソッドのアーカイブ作成
