@@ -1,3 +1,7 @@
+2003-07-11  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lharc.c (cleaning_files): should print errno.
+
 2003-05-23  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: use fseeko(), ftello() instead of fseek(), ftell().
