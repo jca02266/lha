@@ -1,3 +1,19 @@
+2003-07-21  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/prototypes.h: updated.
+
+	* src/cproto.sh: added `interface.c'.
+
+	* src/Makefile.am: ditto.
+
+	* src/indicator.c: separated from append.c.
+
+	* src/append.c: ditto.
+
+	* src/lha.h: ditto.
+
+	* src/lha_macro.h: ditto.
+
 2003-07-20  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: updated version.
