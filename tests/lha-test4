@@ -1,0 +1,33 @@
+message testing to delete files from archive.
+
+cp test-1.lzh test-tmp.lzh
+
+# do nothing
+$lha d test-tmp.lzh 2> test-stderr
+							check $?
+test -s test-stderr
+							check $?
+$lha d test-tmp.lzh test-a
+							check $?
+$lha xw=test-tmp test-tmp.lzh &&
+test ! -f test-tmp/test-a &&
+diff test-1/test-b test-tmp/test-b &&
+diff test-1/test-c test-tmp/test-c
+							check $?
+rm -rf test-tmp
+							check $?
+$lha d test-tmp.lzh test-b
+							check $?
+$lha xw=test-tmp test-tmp.lzh &&
+test ! -f test-tmp/test-a &&
+test ! -f test-tmp/test-b &&
+diff test-1/test-c test-tmp/test-c
+							check $?
+rm -rf test-tmp
+							check $?
+$lha d test-tmp.lzh test-c 2> test-stderr
+							check $?
+test -s test-stderr
+							check $?
+test ! -f test-tmp.lzh
+							check $?

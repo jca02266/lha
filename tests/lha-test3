@@ -1,0 +1,29 @@
+message testing to print lha archive.
+
+$lha co  test-tmp-m1.lzh test-a test-b test-c
+							check $?
+$lha co5 test-tmp-m5.lzh test-a test-b test-c
+							check $?
+$lha co6 test-tmp-m6.lzh test-a test-b test-c
+							check $?
+$lha co7 test-tmp-m7.lzh test-a test-b test-c
+							check $?
+
+$lha pq test-tmp-m1.lzh test-a | diff test-a -
+							check $?
+$lha pq test-tmp-m5.lzh test-a | diff test-a -
+							check $?
+$lha pq test-tmp-m6.lzh test-a | diff test-a -
+							check $?
+$lha pq test-tmp-m7.lzh test-a | diff test-a -
+							check $?
+
+cat test-[abc] > test-tmp-abc
+$lha pq test-tmp-m1.lzh | diff test-tmp-abc -
+							check $?
+$lha pq test-tmp-m5.lzh | diff test-tmp-abc -
+							check $?
+$lha pq test-tmp-m6.lzh | diff test-tmp-abc -
+							check $?
+$lha pq test-tmp-m7.lzh | diff test-tmp-abc -
+							check $?

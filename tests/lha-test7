@@ -1,0 +1,51 @@
+message testing to add/update files to archive.
+$lha a test-tmp.lzh test-c
+							check $?
+$lha a test-tmp.lzh test-b
+							check $?
+$lha u test-tmp.lzh test-a
+							check $?
+$lha xw=test-tmp test-tmp.lzh
+							check $?
+diff -r test-1 test-tmp
+							check $?
+(cd test-tmp
+ echo foo > test-a
+ echo bar > test-b
+ echo baz > test-c
+
+ # update with new files
+ $lha u ../test-tmp.lzh test-[abc]
+)
+							check $?
+
+# old files are in test-1 and in current directory
+# new files are in test-tmp
+
+$lha xw=test-tmp2 test-tmp.lzh
+							check $?
+diff -r test-tmp test-tmp2
+							check $?
+# no update with old files
+$lha u test-tmp.lzh test-[abc]
+
+$lha xw=test-tmp3 test-tmp.lzh
+							check $?
+diff -r test-tmp test-tmp3
+							check $?
+# replace with old files
+$lha a test-tmp.lzh test-[abc]
+
+$lha xw=test-tmp4 test-tmp.lzh
+							check $?
+diff -r test-1 test-tmp4
+							check $?
+# replace with new files
+(cd test-tmp &&
+ $lha a ../test-tmp.lzh test-[abc]
+)
+
+$lha xw=test-tmp5 test-tmp.lzh
+							check $?
+diff -r test-tmp test-tmp5
+							check $?

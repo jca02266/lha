@@ -1,0 +1,8 @@
+message testing to treat stdin/stdout as archive file.
+
+$lha c - test-a test-b test-c > test-tmp.lzh
+							check $?
+cat test-tmp.lzh | $lha xw=test-tmp -
+							check $?
+diff -r test-1 test-tmp
+							check $?

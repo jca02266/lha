@@ -1,0 +1,14 @@
+message testing to treat stdin/stdout as file list.
+message Warning: On MinGW, these tests will fail for now.
+cat <<EOF | $lha c test-tmp.lzh
+test-a
+test-b
+test-c
+EOF
+							check $?
+echo test-b | $lha xw=test-tmp test-tmp.lzh
+							check $?
+test ! -f test-tmp/test-a &&
+test ! -f test-tmp/test-c &&
+diff test-b test-tmp/test-b
+							check $?

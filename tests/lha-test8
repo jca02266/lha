@@ -1,0 +1,19 @@
+message testing timestamp
+$lha c test-tmp.lzh test-[abc]
+							check $?
+# show time stamp
+$lha v test-tmp.lzh
+ls -l test-[abc]
+
+$lha xw=test-tmp test-tmp.lzh
+							check $?
+diff -r test-1 test-tmp
+							check $?
+test test-a -nt test-tmp/test-a ||
+test test-a -ot test-tmp/test-a ||
+test test-b -nt test-tmp/test-b ||
+test test-b -ot test-tmp/test-b ||
+test test-c -nt test-tmp/test-c ||
+test test-c -ot test-tmp/test-c
+test $? -ne 0
+							check $?
