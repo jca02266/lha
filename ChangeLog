@@ -1,5 +1,8 @@
 2002-07-09  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lha.h, src/header.c: CoreFoundation header inclusion moved to
+	header.c.
+
 	* src/lha.h, src/lharc.c, IFNAMES: macro NODIRECTORY was removed.
 
 	* src/lha.h, src/lhadd.c, src/lharc.c, src/lhext.c: fixed
