@@ -4,7 +4,7 @@
 
 	* README.autoconf: added E-Mail address.
 
-	* configure.ac: updated version and added bug report mail address.
+	* configure.ac: updated version and added mail address for bug reports.
 
 	* configure.in: updated version.
 
