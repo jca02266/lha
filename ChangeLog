@@ -1,5 +1,7 @@
 2003-02-23  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/cproto.sh: improved.
+
 	* src/prototypes.h: updated.
 
 	* src/util.c: `strucmp()' was replaced by `strcasecmp()'.
