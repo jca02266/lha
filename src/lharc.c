@@ -64,7 +64,6 @@ init_variable()     /* Added N.Watazaki */
     verbose         = 0;
     noexec          = FALSE;    /* debugging option */
     force           = FALSE;
-    prof            = FALSE;
 
     compress_method = DEFAULT_LZHUFF_METHOD; /* defined in config.h */
 
@@ -285,9 +284,6 @@ parse_option(int argc, char **argv)
                 break;
             case 'f':
                 force = TRUE;
-                break;
-            case 'p':
-                prof = TRUE;
                 break;
             case 'v':
                 verbose++;
@@ -559,11 +555,6 @@ main(argc, argv)
         cmd_delete();
         break;
     }
-
-#ifdef USE_PROF
-    if (!prof)
-        exit(0);
-#endif
 
     if (error_occurred)
         return 1;
