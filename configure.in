@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT(src/lha.h)
-AM_INIT_AUTOMAKE(lha, 1.14i-ac20020527a)
+AM_INIT_AUTOMAKE(lha, 1.14i-ac20020605)
 AM_CONFIG_HEADER(config.h)
 
 AC_CANONICAL_HOST
