@@ -551,7 +551,7 @@ unix_to_generic_stamp(t)
  *           2 or 4  next-header size    v
  *  --------------------------------------
  *
- *  on level 0, 1, 2 header:
+ *  on level 1, 2 header:
  *    size field is 2 bytes
  *  on level 3 header:
  *    size field is 4 bytes
@@ -594,8 +594,8 @@ get_extended_header(fp, hdr, header_size, hcrc)
         case 0:
             /* header crc (CRC-16) */
             hdr->header_crc = get_word();
-            data[1] = 0;     /* clear buffer for CRC calculation. */
-            data[2] = 0;
+            /* clear buffer for CRC calculation. */
+            data[1] = data[2] = 0;
             skip_bytes(header_size - n - 2);
             break;
         case 1:
@@ -611,12 +611,7 @@ get_extended_header(fp, hdr, header_size, hcrc)
             break;
         case 0x40:
             /* MS-DOS attribute */
-            if (hdr->extend_type == EXTEND_MSDOS ||
-                hdr->extend_type == EXTEND_HUMAN ||
-                hdr->extend_type == EXTEND_GENERIC)
-                hdr->attribute = get_word();
-            else
-                goto skip;
+            hdr->attribute = get_word();
             break;
         case 0x41:
             /* Windows time stamp (FILETIME structure) */
@@ -627,44 +622,26 @@ get_extended_header(fp, hdr, header_size, hcrc)
             break;
         case 0x50:
             /* UNIX permission */
-            if (hdr->extend_type == EXTEND_UNIX)
-                hdr->unix_mode = get_word();
-            else
-                goto skip;
+            hdr->unix_mode = get_word();
             break;
         case 0x51:
             /* UNIX gid and uid */
-            if (hdr->extend_type == EXTEND_UNIX) {
-                hdr->unix_gid = get_word();
-                hdr->unix_uid = get_word();
-            }
-            else
-                goto skip;
+            hdr->unix_gid = get_word();
+            hdr->unix_uid = get_word();
             break;
         case 0x52:
             /* UNIX group name */
-            if (hdr->extend_type == EXTEND_UNIX) {
-                i = get_bytes(hdr->group, header_size-n, sizeof(hdr->group)-1);
-                hdr->group[i] = '\0';
-            }
-            else
-                goto skip;
+            i = get_bytes(hdr->group, header_size-n, sizeof(hdr->group)-1);
+            hdr->group[i] = '\0';
             break;
         case 0x53:
             /* UNIX user name */
-            if (hdr->extend_type == EXTEND_UNIX) {
-                i = get_bytes(hdr->user, header_size-n, sizeof(hdr->user)-1);
-                hdr->user[i] = '\0';
-            }
-            else
-                goto skip;
+            i = get_bytes(hdr->user, header_size-n, sizeof(hdr->user)-1);
+            hdr->user[i] = '\0';
             break;
         case 0x54:
             /* UNIX last modified time */
-            if (hdr->extend_type == EXTEND_UNIX)
-                hdr->unix_last_modified_stamp = (time_t) get_longword();
-            else
-                goto skip;
+            hdr->unix_last_modified_stamp = (time_t) get_longword();
             break;
         default:
         skip:
@@ -673,7 +650,7 @@ get_extended_header(fp, hdr, header_size, hcrc)
                0x3f: uncompressed comment
                0x42: 64bit large file size
                0x48-0x4f(?): reserved for authenticity verification
-               0x7d: capsulize header
+               0x7d: encapsulation
                0x7e: extended attribute -platform information
                0x7f: extended attribute -permission, owner-id and timestamp
                      (level 3 on OS/2)
@@ -683,7 +660,7 @@ get_extended_header(fp, hdr, header_size, hcrc)
                0xc7: compressed comment (dict size: 32768)
                0xc8: compressed comment (dict size: 65536)
                0xd0-0xdf(?): operating systemm specific information
-               0xfc: capsulize header (another opinion)
+               0xfc: encapsulation (another opinion)
                0xfe: extended attribute -platform information (another opinion)
                0xff: extended attribute -permission, owner-id and timestamp
                      (level 3 on UNLHA32) */
@@ -703,6 +680,7 @@ get_extended_header(fp, hdr, header_size, hcrc)
             whole_size += header_size = get_longword();
     }
 
+    /* concatenate dirname and filename */
     if (dir_length) {
         if (name_length + dir_length >= sizeof(hdr->name)) {
             warning("the length of pathname \"%s%s\" is too long.",
