@@ -367,7 +367,6 @@ memset(s, c, n)
 }
 #endif
 
-#include <stdarg.h>
 int
 xsnprintf(char *dest, size_t size, char *fmt, ...)
 {

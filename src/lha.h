@@ -21,8 +21,8 @@
 #include <sys/types.h>
 #include <sys/file.h>
 #include <sys/stat.h>
-
 #include <signal.h>
+#include <stdarg.h>
 
 #if HAVE_PWD_H
 # include <pwd.h>
