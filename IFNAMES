@@ -23,7 +23,7 @@ MKDIRPATH util.c
 # MSDOS lha_macro.h			removed
 # MULTIBYTE_CHAR header.c lha_macro.h util.c	--enable-multibyte-filename
 # NEED_INCREMENTAL_INDICATOR append.c crcio.c lha.h	--enable-indicator
-# NEWSOS huf.c				use HAVE_STDLIB_H ???
+# NEWSOS huf.c				use STDC_HEADERS
 # NOBSTRING lha_macro.h util.c		use memset(), memcpy()
 NODIRECTORY lha_macro.h lharc.c
 # NOFTRUNCATE lhadd.c util.c		replace with !HAVE_FTRUNCATE
