@@ -712,8 +712,10 @@ get_extended_header(fp, hdr, header_size, hcrc)
  * X +22      2  file crc (CRC-16)                 |
  * X +24      Y  ext-header(old style)             v
  * -------------------------------------------------
- * X+Y+24   [*2] data
- *            :
+ * X+Y+24        data                              ^
+ *                 :                               | [*2] packed size
+ *                 :                               v
+ * -------------------------------------------------
  *
  * ext-header(old style)
  *     0      1  ext-type ('U')

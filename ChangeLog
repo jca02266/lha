@@ -1,5 +1,8 @@
 2002-08-14  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/header.c: discarded warning message for the extended header,
+	`Windows time stamp' ignored.
+
 	* src/header.c: in spite of extended type value, read contents of
 	any ext headers.
 
