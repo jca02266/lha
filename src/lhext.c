@@ -240,7 +240,7 @@ extract_one(afp, hdr)
                   5, hdr->method, name);
 			return;
 		}
-		if (bcmp(hdr->method, methods[method], 5) == 0)
+		if (memcmp(hdr->method, methods[method], 5) == 0)
 			break;
 	}
 
@@ -253,7 +253,7 @@ extract_one(afp, hdr)
                       5, hdr->method, name);
 				return;
 			}
-			if (bcmp(hdr->method, methods[method], 5) == 0)
+			if (memcmp(hdr->method, methods[method], 5) == 0)
 				break;
 		}
 #endif

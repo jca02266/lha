@@ -325,6 +325,7 @@ typedef short   				node;
 # endif
 char *strchr (), *strrchr ();
 # if !HAVE_MEMCPY
+#  define memcmp(s1, s2, n) bcmp ((s1), (s2), (n))
 #  define memcpy(d, s, n) bcopy ((s), (d), (n))
 #  define memmove(d, s, n) bcopy ((s), (d), (n))
 # endif
