@@ -209,6 +209,9 @@
 /* Define to 1 if `vfork' works. */
 #undef HAVE_WORKING_VFORK
 
+/* Define to 1 if you want to ignore dot files with -X command line switch */
+#undef IGNORE_DOT_FILES
+
 /* Define to 1 if you want to use the user/group name extened header */
 #undef INCLUDE_OWNER_NAME_IN_HEADER
 

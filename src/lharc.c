@@ -163,6 +163,11 @@ commands:                           options:\n\
                                      w=<dir> specify extract directory (x/e)\n\
                                      x=<pattern>  eXclude files (a/u/c)\n\
 ");
+#if IGNORE_DOT_FILES            /* experimental feature */
+    fprintf(stderr, "\
+                                     X ignore dot files (a/u/c)\n\
+");
+#endif
 }
 
 static void
@@ -347,6 +352,10 @@ parse_option(int argc, char **argv)
                                                  sizeof(char*) * (i+2));
 
                 if (*p == 0) {
+                    if (*argv == 0) {
+                        print_tiny_usage();
+                        exit(2);
+                    }
                     exclude_files[i] = *argv++; argc--;
                     exclude_files[i+1] = 0;
                     goto next;
@@ -357,10 +366,25 @@ parse_option(int argc, char **argv)
                     p += strlen(p);
                 }
                 break;
+#if IGNORE_DOT_FILES            /* experimental feature */
+            case 'X':
+                for (i = 0; exclude_files && exclude_files[i]; i++)
+                    ;
+                exclude_files = (char**)xrealloc(exclude_files,
+                                                 sizeof(char*) * (i+2));
+
+                exclude_files[i] = xstrdup(".*");
+                exclude_files[i+1] = 0;
+                break;
+#endif
             case 'w':
                 if (*p == '=')
                     p++;
                 if (*p == 0) {
+                    if (*argv == 0) {
+                        print_tiny_usage();
+                        exit(2);
+                    }
                     extract_directory = *argv++; argc--;
                     goto next;
                 }

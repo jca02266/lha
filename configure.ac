@@ -269,6 +269,22 @@ if test "x$enable_backup_archive" = xyes; then
 	    [Define to 1 if you want to leave an old archive])
 fi
 
+# enable this option if you need to ignore '.file' files
+# (mainly for the Mac OS X) *experimental*
+AC_MSG_CHECKING(whether enable -X option which ignore dot files)
+AC_ARG_ENABLE(ignore-dot-files,
+  AC_HELP_STRING([--enable-ignore-dot-files],
+		 [enable -X option [[default=no]]]),
+  ,
+  # default
+  enable_ignore_dot_files=no)
+
+AC_MSG_RESULT($enable_ignore_dot_files)
+if test "x$enable_ignore_dot_files" = xyes; then
+  AC_DEFINE(IGNORE_DOT_FILES, 1,
+	    [Define to 1 if you want to ignore dot files with -X command line switch])
+fi
+
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile olddoc/Makefile])
 AC_CONFIG_FILES([tests/Makefile tests/lha-test])
 AC_OUTPUT
