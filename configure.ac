@@ -54,7 +54,7 @@ AC_CHECK_MEMBERS([struct tm.tm_gmtoff, struct stat.st_ino],,,
 AC_TYPE_SIGNAL
 AC_FUNC_FORK
 AC_FUNC_UTIME_NULL
-# checks readdir(). opendir() is checked and cached at AC_HEADER_DIRENT.
+# checks readdir(). opendir() has been checked and cached by AC_HEADER_DIRENT.
 AC_SEARCH_LIBS(readdir, [mingwex])
 AC_CHECK_FUNCS(strchr strdup memcpy memset memmove)
 AC_CHECK_FUNCS(mktime timelocal tzset ftime gettimeofday utime)
