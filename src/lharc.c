@@ -180,43 +180,274 @@ commands:                           options:\n\
 #endif
 }
 
+#include "getopt_long.h"
+
+/*
+  Parse LHA options
+*/
+static int
+parse_suboption(int argc, char **argv)
+{
+    char *short_options = "q[012]vnfto[567]dizg012ew:x:";
+    /* "[...]" means optional 1 byte argument (original extention) */
+    enum {
+        HELP_OPTION = 256,
+        VERSION_OPTION,
+        SYSTEM_KANJI_CODE_OPTION,
+        ARCHIVE_KANJI_CODE_OPTION,
+    };
+
+    struct option long_options[] = {
+        /* These options set a flag. */
+        {"help",    no_argument,       0, HELP_OPTION},
+        {"version", no_argument,       0, VERSION_OPTION},
+
+        {"system-kanji-code", required_argument, 0, SYSTEM_KANJI_CODE_OPTION},
+        {"archive-kanji-code", required_argument, 0, ARCHIVE_KANJI_CODE_OPTION},
+        {"extract-broken-archive", no_argument, &extract_broken_archive, 1},
+        {0, 0, 0, 0}
+    };
+    int i;
+
+    /* parse option */
+    while (1) {
+        int option_index = 0;
+        int c = getopt_long(argc, argv,
+                            short_options, long_options,
+                            &option_index);
+
+        if (c == -1) break;     /* end of options */
+
+        switch (c) {
+        case 0:
+            /* Already set a flag variable by the definition of the
+               long_options. */
+            break;
+        case '?':
+            /* Invalid option */
+            print_tiny_usage();
+            exit(2);
+        case HELP_OPTION:
+            print_usage();
+            exit(0);
+        case VERSION_OPTION:
+            print_version();
+            exit(0);
+        case 'q':
+            if (!optarg) {
+                /* In quiet mode, no confirm to overwrite */
+                force = TRUE;
+                quiet = TRUE;
+                break;
+            }
+
+            switch (*optarg) {
+            case '0':           /* no quiet */
+            case '1':           /* no use the incremental indicator */
+                quiet_mode = *optarg - '0';
+                break;
+            case '2':           /* no output */
+                /* fall through */
+            default:
+                force = TRUE;
+                quiet = TRUE;
+                break;
+            }
+            break;
+        case 'f':
+            force = TRUE;
+            break;
+        case 'v':
+            verbose++;
+            break;
+        case 't':
+            text_mode = TRUE;
+            break;
+#ifdef EUC
+        case 'e':
+            text_mode = TRUE;
+            euc_mode = TRUE;
+            break;
+#endif
+        case 'n':
+            noexec = TRUE;
+            break;
+        case 'g':
+            generic_format = TRUE;
+            noconvertcase = TRUE;
+            header_level = 0;
+            break;
+        case 'd':
+            delete_after_append = TRUE;
+            break;
+        case 'o':
+            if (!optarg) {
+                compress_method = LZHUFF1_METHOD_NUM;
+                header_level = 0;
+                break;
+            }
+            switch (*optarg) {
+            case '5':
+                compress_method = LZHUFF5_METHOD_NUM;
+                break;
+#ifdef SUPPORT_LH7
+            case '6':
+                compress_method = LZHUFF6_METHOD_NUM;
+                break;
+            case '7':
+                compress_method = LZHUFF7_METHOD_NUM;
+                break;
+#endif
+            default:
+                error("invalid compression method 'o%c'", *optarg);
+                return -1;
+            }
+            break;
+        case 'z':
+            compress_method = LZHUFF0_METHOD_NUM;   /* Changed N.Watazaki */
+            break;
+        case 'i':
+            ignore_directory = TRUE;
+            break;
+        case 'x':
+            if (!optarg) {
+                error("exclude files does not specified for `-x'");
+                exit(2);
+            }
+
+            for (i = 0; exclude_files && exclude_files[i]; i++)
+                ;
+            exclude_files = (char**)xrealloc(exclude_files,
+                                             sizeof(char*) * (i+2));
+
+            if (*optarg == '=')
+                optarg++;
+            exclude_files[i] = optarg;
+            exclude_files[i+1] = 0;
+
+            break;
+#if IGNORE_DOT_FILES            /* experimental feature */
+        case 'X':
+            for (i = 0; exclude_files && exclude_files[i]; i++)
+                ;
+            exclude_files = (char**)xrealloc(exclude_files,
+                                             sizeof(char*) * (i+2));
+
+            exclude_files[i] = xstrdup(".*");
+            exclude_files[i+1] = 0;
+            break;
+#endif
+        case 'w':
+            if (!optarg) {
+                error("working directory does not specified for `-w'");
+                exit(2);
+            }
+            if (*optarg == '=')
+                optarg++;
+
+            extract_directory = optarg;
+            break;
+        case '0':
+            header_level = 0;
+            break;
+        case '1':
+            header_level = 1;
+            break;
+        case '2':
+            header_level = 2;
+            break;
+        case SYSTEM_KANJI_CODE_OPTION:
+            if (!optarg) {
+                error("kanji code not specified for --%s",
+                      long_options[option_index].name);
+                return -1;
+            }
+            if (strcmp(optarg, "euc") == 0) {
+                optional_system_kanji_code = CODE_EUC;
+            }
+            else if (strcmp(optarg, "sjis") == 0) {
+                optional_system_kanji_code = CODE_SJIS;
+            }
+            else if (strcmp(optarg, "utf8") == 0) {
+                optional_system_kanji_code = CODE_UTF8;
+            }
+            else if (strcmp(optarg, "cap") == 0) {
+                optional_system_kanji_code = CODE_CAP;
+            }
+            else {
+                error("unknown kanji code \"%s\"", optarg);
+                return -1;
+            }
+        case ARCHIVE_KANJI_CODE_OPTION:
+            if (!optarg) {
+                error("kanji code not specified for --%s",
+                      long_options[option_index].name);
+                return -1;
+            }
+            if (strcmp(optarg, "euc") == 0) {
+                optional_archive_kanji_code = CODE_EUC;
+            }
+            else if (strcmp(optarg, "sjis") == 0) {
+                optional_archive_kanji_code = CODE_SJIS;
+            }
+            else if (strcmp(optarg, "utf8") == 0) {
+                optional_archive_kanji_code = CODE_UTF8;
+            }
+            else if (strcmp(optarg, "cap") == 0) {
+                optional_archive_kanji_code = CODE_CAP;
+            }
+            else {
+                error("unknown kanji code \"%s\"", optarg);
+                return -1;
+            }
+            break;
+
+        default:
+            error("unknown option `-%c'.", c);
+            return -1;
+        }
+    }
+
+    if (!archive_name) {
+        archive_name = argv[optind];
+        argv++;
+        argc--;
+    }
+
+    cmd_filec = argc - optind;
+    cmd_filev = argv + optind;
+
+    return 0;
+}
+
+/*
+  Parse LHA command and options.
+*/
 static int
 parse_option(int argc, char **argv)
 {
-    char *opt;
-    int i;
+    char *cmd_char;
 
-    argv++; argc--;             /* exclude command name */
-
-    if (argc < 1) {
+    if (argc == 1) {
         print_usage();
         exit(0);
     }
 
-    if (strcmp(*argv, "--help") == 0) {
-        print_usage();
-        exit(0);
-    }
-    if (strcmp(*argv, "--version") == 0) {
-        print_version();
-        exit(0);
-    }
-
-    if (argc == 1 && **argv != '-') {
-        archive_name = *argv++; argc--;
+    if (argc == 2 && *argv[1] != '-') {
+        archive_name = argv[1];
         cmd = CMD_LIST;
-        cmd_filec = argc;
-        cmd_filev = argv;
+        cmd_filec = 0;
+        cmd_filev = 0;
         return 0;
     }
 
-    opt = *argv++; argc--;
+    cmd_char = argv[1];
 
-    if (opt[0] == '-')
-        opt++;
+    if (cmd_char[0] == '-')
+        cmd_char++;
 
-    /* commands */
-    switch (*opt) {
+    /* parse commands */
+    switch (*cmd_char) {
     case 'x':
     case 'e':
         cmd = CMD_EXTRACT;
@@ -265,232 +496,26 @@ parse_option(int argc, char **argv)
         break;
 
     default:
-        error("unknown command `-%c'", *opt);
+        error("unknown command `-%c'", *cmd_char);
         return -1;
     }
 
-    /* options */
-    for (;;) {
-        char *p = opt+1;
-
-        while ( *p != 0 ) {
-            switch ((*p++)) {
-            case 'q':
-                switch (*p) {
-                case '0':           /* no quiet */
-                case '1':           /* no use the incremental indicator */
-                    quiet_mode = *p - '0';
-                    ++p;
-                    break;
-                case '2':           /* no output */
-                    ++p;
-                    /* fall through */
-                default:
-                    /* In quiet mode, no confirm to overwrite */
-                    force = TRUE;
-                    quiet = TRUE;
-                    break;
-                }
-                break;
-            case 'f':
-                force = TRUE;
-                break;
-            case 'v':
-                verbose++;
-                break;
-            case 't':
-                text_mode = TRUE;
-                break;
-#ifdef EUC
-            case 'e':
-                text_mode = TRUE;
-                euc_mode = TRUE;
-                break;
-#endif
-            case 'n':
-                noexec = TRUE;
-                break;
-            case 'g':
-                generic_format = TRUE;
-                noconvertcase = TRUE;
-                header_level = 0;
-                break;
-            case 'd':
-                delete_after_append = TRUE;
-                break;
-            case 'o':
-                switch (*p) {
-                case 0:
-                    compress_method = LZHUFF1_METHOD_NUM;
-                    header_level = 0;
-                    break;
-                case '5':
-                    compress_method = LZHUFF5_METHOD_NUM;
-                    p++;
-                    break;
-#ifdef SUPPORT_LH7
-                case '6':
-                    compress_method = LZHUFF6_METHOD_NUM;
-                    p++;
-                    break;
-                case '7':
-                    compress_method = LZHUFF7_METHOD_NUM;
-                    p++;
-                    break;
-#endif
-                default:
-                    error("invalid compression method 'o%c'", *p);
-                    return -1;
-                }
-                break;
-            case 'z':
-                compress_method = LZHUFF0_METHOD_NUM;   /* Changed N.Watazaki */
-                break;
-            case 'i':
-                ignore_directory = TRUE;
-                break;
-            case 'x':
-                if (*p == '=')
-                    p++;
-
-                for (i = 0; exclude_files && exclude_files[i]; i++)
-                    ;
-                exclude_files = (char**)xrealloc(exclude_files,
-                                                 sizeof(char*) * (i+2));
-
-                if (*p == 0) {
-                    if (*argv == 0) {
-                        error("exclude files does not specified for `-x'");
-                        return -1;
-                    }
-                    exclude_files[i] = *argv++; argc--;
-                    exclude_files[i+1] = 0;
-                    goto next;
-                }
-                else {
-                    exclude_files[i] = p;
-                    exclude_files[i+1] = 0;
-                    p += strlen(p);
-                }
-                break;
-#if IGNORE_DOT_FILES            /* experimental feature */
-            case 'X':
-                for (i = 0; exclude_files && exclude_files[i]; i++)
-                    ;
-                exclude_files = (char**)xrealloc(exclude_files,
-                                                 sizeof(char*) * (i+2));
-
-                exclude_files[i] = xstrdup(".*");
-                exclude_files[i+1] = 0;
-                break;
-#endif
-            case 'w':
-                if (*p == '=')
-                    p++;
-                if (*p == 0) {
-                    if (*argv == 0) {
-                        error("working directory does not specified for `-w'");
-                        return -1;
-                    }
-                    extract_directory = *argv++; argc--;
-                    goto next;
-                }
-                else {
-                    extract_directory = p;
-                    p += strlen(p);
-                }
-                break;
-            case '0':
-                header_level = 0;
-                break;
-            case '1':
-                header_level = 1;
-                break;
-            case '2':
-                header_level = 2;
-                break;
-            default:
-                error("unknown option `-%c'.", p[-1]);
-                return -1;
-            }
-        }
-
-    next:
-        opt = *argv;
-        if (!opt || opt[0] != '-')
-            break;
-
-        /* special archive name */
-        if (strcmp(opt, "-") == 0)
-            break;
-
-        /* GNU style long options */
-        if (opt[0] == '-' && opt[1] == '-') {
-            opt += 2;
-
-            if (strncmp(opt, "system-kanji-code=",
-                        sizeof("system-kanji-code=")-1) == 0) {
-                opt += sizeof("system-kanji-code=")-1;
-                if (strcmp(opt, "euc") == 0) {
-                    optional_system_kanji_code = CODE_EUC;
-                }
-                else if (strcmp(opt, "sjis") == 0) {
-                    optional_system_kanji_code = CODE_SJIS;
-                }
-                else if (strcmp(opt, "utf8") == 0) {
-                    optional_system_kanji_code = CODE_UTF8;
-                }
-                else if (strcmp(opt, "cap") == 0) {
-                    optional_system_kanji_code = CODE_CAP;
-                }
-                else {
-                    error("unknown kanji code \"%s\"", opt);
-                    return -1;
-                }
-            }
-            else if (strncmp(opt, "archive-kanji-code=",
-                             sizeof("archive-kanji-code=")-1) == 0) {
-                opt += sizeof("archive-kanji-code=")-1;
-                if (strcmp(opt, "euc") == 0) {
-                    optional_archive_kanji_code = CODE_EUC;
-                }
-                else if (strcmp(opt, "sjis") == 0) {
-                    optional_archive_kanji_code = CODE_SJIS;
-                }
-                else if (strcmp(opt, "utf8") == 0) {
-                    optional_archive_kanji_code = CODE_UTF8;
-                }
-                else if (strcmp(opt, "cap") == 0) {
-                    optional_archive_kanji_code = CODE_CAP;
-                }
-                else {
-                    error("unknown kanji code \"%s\"", opt);
-                    return -1;
-                }
-            }
-            else if (strncmp(opt, "extract-broken-archive",
-                             sizeof("extract-broken-archive")-1) == 0) {
-                extract_broken_archive = TRUE;
-            }
-            else {
-                error("unknown long option \"--%s\"", opt);
-                return -1;
-            }
-            argv++; argc--;
-            goto next;
-        }
-
-        argv++; argc--;
+    if (cmd_char[1] == '\0') {
+        /* argv[1] is command name */
+        argv[1] = argv[0];
+        argv++;
+        argc--;
+    }
+    else {
+        /* Eliminate command character
+           e.g.) lha  cv foo.lzh -> lha -v foo.lzh
+                 lha -cv foo.lzh -> lha -v foo.lzh
+        */
+        cmd_char[0] = '-';
+        argv[1] = cmd_char;
     }
 
-    if (!archive_name) {
-        archive_name = *argv++; argc--;
-    }
-
-    cmd_filec = argc;
-    cmd_filev = argv;
-
-    return 0;
+    return parse_suboption(argc, argv);
 }
 
 /* ------------------------------------------------------------------------ */
