@@ -2,4 +2,4 @@
 
 AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = 00readme.autoconf header.doc.euc
-SUBDIRS= man src tests olddoc
+SUBDIRS= man olddoc src tests
