@@ -25,8 +25,10 @@
 
 #if STDC_HEADERS
 # include <stdarg.h>
+# define va_init(a,b) va_start(a,b)
 #else
 # include <varargs.h>
+# define va_init(a,b) va_start(a)
 #endif
 
 #if HAVE_PWD_H

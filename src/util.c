@@ -368,12 +368,19 @@ memset(s, c, n)
 #endif
 
 int
+#if STDC_HEADERS
 xsnprintf(char *dest, size_t size, char *fmt, ...)
+#else
+xsnprintf(dest, size, fmt, va_alist)
+    char *dest, *fmt;
+    size_t size;
+    va_dcl
+#endif
 {
     int len;
     va_list v;
 
-    va_start(v, fmt);
+    va_init(v, fmt);
     len = vsnprintf(dest, size, fmt, v);
     va_end(v);
 

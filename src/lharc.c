@@ -466,14 +466,20 @@ print_version()
 }
 
 void
+#if PROTOTYPES
 message(char *fmt, ...)
+#else
+message(fmt, va_alist)
+    char *fmt;
+    va_dcl
+#endif
 {
     int errno_sv = errno;
     va_list v;
 
 	fprintf(stderr, "LHa: ");
 
-    va_start(v, fmt);
+    va_init(v, fmt);
     vfprintf(stderr, fmt, v);
     va_end(v);
 
@@ -484,14 +490,20 @@ message(char *fmt, ...)
 
 /* ------------------------------------------------------------------------ */
 void
+#if PROTOTYPES
 warning(char *fmt, ...)
+#else
+warning(fmt, va_alist)
+    char *fmt;
+    va_dcl
+#endif
 {
     int errno_sv = errno;
     va_list v;
 
 	fprintf(stderr, "LHa: Warning: ");
 
-    va_start(v, fmt);
+    va_init(v, fmt);
     vfprintf(stderr, fmt, v);
     va_end(v);
 
@@ -502,14 +514,20 @@ warning(char *fmt, ...)
 
 /* ------------------------------------------------------------------------ */
 void
+#if PROTOTYPES
 error(char *fmt, ...)
+#else
+error(fmt, va_alist)
+    char *fmt;
+    va_dcl
+#endif
 {
     int errno_sv = errno;
     va_list v;
 
 	fprintf(stderr, "LHa: Error: ");
 
-    va_start(v, fmt);
+    va_init(v, fmt);
     vfprintf(stderr, fmt, v);
     va_end(v);
 
@@ -519,14 +537,20 @@ error(char *fmt, ...)
 }
 
 void
+#if PROTOTYPES
 fatal_error(char *fmt, ...)
+#else
+fatal_error(fmt, va_alist)
+    char *fmt;
+    va_dcl
+#endif
 {
     int errno_sv = errno;
     va_list v;
 
 	fprintf(stderr, "LHa: Fatal error: ");
 
-    va_start(v, fmt);
+    va_init(v, fmt);
     vfprintf(stderr, fmt, v);
     va_end(v);
 
