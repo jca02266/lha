@@ -1,3 +1,7 @@
+2002-06-01  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* README.autoconf: `-i' switch of automake is deprecated.
+
 2002-05-29  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.in, configure.ac, config.h.in: checks having uid_t/gid_t.
