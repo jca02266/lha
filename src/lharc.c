@@ -65,7 +65,7 @@ init_variable()     /* Added N.Watazaki */
 
     compress_method = DEFAULT_LZHUFF_METHOD; /* defined in config.h */
 
-    header_level    = HEADER_LEVEL2;
+    header_level    = 2;        /* level 2 */
     quiet_mode      = 0;
 
 #ifdef EUC
@@ -392,13 +392,13 @@ parse_option(int argc, char **argv)
                 }
                 break;
             case '0':
-                header_level = HEADER_LEVEL0;
+                header_level = 0;
                 break;
             case '1':
-                header_level = HEADER_LEVEL1;
+                header_level = 1;
                 break;
             case '2':
-                header_level = HEADER_LEVEL2;
+                header_level = 2;
                 break;
             default:
                 error("Unknown option '%c'.", p[-1]);

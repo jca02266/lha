@@ -87,15 +87,15 @@
 /* Added N.Watazaki ..^ */
 
 #define LZHUFF0_DICBIT           0      /* no compress */
-#define LZHUFF1_DICBIT          12      /* 2^12 =  4k sliding dictionary */
-#define LZHUFF2_DICBIT          13      /* 2^13 =  8k sliding dictionary */
-#define LZHUFF3_DICBIT          13      /* 2^13 =  8k sliding dictionary */
-#define LZHUFF4_DICBIT          12      /* 2^12 =  4k sliding dictionary */
-#define LZHUFF5_DICBIT          13      /* 2^13 =  8k sliding dictionary */
-#define LZHUFF6_DICBIT          15      /* 2^15 = 32k sliding dictionary */
-#define LZHUFF7_DICBIT          16      /* 2^16 = 64k sliding dictionary */
-#define LARC_DICBIT             11      /* 2^11 =  2k sliding dictionary */
-#define LARC5_DICBIT            12      /* 2^12 =  4k sliding dictionary */
+#define LZHUFF1_DICBIT          12      /* 2^12 =  4KB sliding dictionary */
+#define LZHUFF2_DICBIT          13      /* 2^13 =  8KB sliding dictionary */
+#define LZHUFF3_DICBIT          13      /* 2^13 =  8KB sliding dictionary */
+#define LZHUFF4_DICBIT          12      /* 2^12 =  4KB sliding dictionary */
+#define LZHUFF5_DICBIT          13      /* 2^13 =  8KB sliding dictionary */
+#define LZHUFF6_DICBIT          15      /* 2^15 = 32KB sliding dictionary */
+#define LZHUFF7_DICBIT          16      /* 2^16 = 64KB sliding dictionary */
+#define LARC_DICBIT             11      /* 2^11 =  2KB sliding dictionary */
+#define LARC5_DICBIT            12      /* 2^12 =  4KB sliding dictionary */
 #define LARC4_DICBIT             0      /* no compress */
 
 #ifdef SUPPORT_LH7
@@ -130,9 +130,6 @@
 
 #define GENERIC_ATTRIBUTE               0x20
 #define GENERIC_DIRECTORY_ATTRIBUTE     0x10
-#define HEADER_LEVEL0                   0x00
-#define HEADER_LEVEL1                   0x01
-#define HEADER_LEVEL2                   0x02
 
 #define CURRENT_UNIX_MINOR_VERSION      0x00
 
@@ -197,7 +194,7 @@
 /* bitio.c */
 #define peekbits(n)     (bitbuf >> (sizeof(bitbuf)*8 - (n)))
 
-/* from crcio.c */
+/* crcio.c */
 #define CRCPOLY         0xA001      /* CRC-16 (x^16+x^15+x^2+1) */
 #define INITIALIZE_CRC(crc) ((crc) = 0)
 #define UPDATE_CRC(crc, c) \
@@ -255,6 +252,5 @@
 */
 
 /* slide.c */
-#define MATCHBIT            8   /* bits for MAXMATCH - THRESHOLD */
 #define MAXMATCH            256 /* formerly F (not more than UCHAR_MAX + 1) */
 #define THRESHOLD           3   /* choose optimal value */

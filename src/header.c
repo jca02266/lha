@@ -10,6 +10,8 @@
 /*  Ver. 1.13b Symbolic Link Bug Fix            1994.08.22  N.Watazaki      */
 /*  Ver. 1.14  Source All chagned               1995.01.14  N.Watazaki      */
 /*  Ver. 1.14i bug fixed                        2000.10.06  t.okamoto       */
+/*  Ver. 1.14i Contributed UTF-8 convertion for Mac OS X                    */
+/*                                              2002.06.29  Hiroto Sakai    */
 /*  Ver. 1.14i autoconfiscated & rewritten      2003.02.23  Koji Arai       */
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
@@ -344,13 +346,13 @@ convert_filename(name, len, size,
 }
 
 /*
- * Generic (MS-DOS style) time stamp format:
+ * Generic (MS-DOS style) time stamp format (localtime):
  *
  *  31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16
- * |<------- year ----->|<- month ->|<--- day ---->|
+ * |<---- year-1980 --->|<- month ->|<--- day ---->|
  *
  *  15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
- * |<--- hour --->|<---- minute --->|<- second*2 ->|
+ * |<--- hour --->|<---- minute --->|<- second/2 ->|
  *
  */
 
@@ -358,27 +360,22 @@ static time_t
 generic_to_unix_stamp(t)
     long t;
 {
-    struct tm dostm;
+    struct tm tm;
 
-    /*
-     * special case:  if MSDOS format date and time were zero, then we
-     * set time to be zero here too.
-     */
-    if (t == 0)
-        return 0;
+#define subbits(n, off, len) (((n) >> (off)) & ((1 << (len))-1))
 
-    dostm.tm_sec = (t & 0x1f) * 2;
-    dostm.tm_min = t >> 5 & 0x3f;
-    dostm.tm_hour = t >> 11 & 0x1f;
-    dostm.tm_mday = t >> 16 & 0x1f;
-    dostm.tm_mon = (t >> (16+5) & 0x0f) - 1;    /* 0..11 */
-    dostm.tm_year = (t >> (16+9) & 0x7f) + 80;
-    dostm.tm_isdst = -1;
+    tm.tm_sec  = subbits(t,  0, 5) * 2;
+    tm.tm_min  = subbits(t,  5, 6);
+    tm.tm_hour = subbits(t, 11, 5);
+    tm.tm_mday = subbits(t, 16, 5);
+    tm.tm_mon  = subbits(t, 21, 4) - 1;
+    tm.tm_year = subbits(t, 25, 7) + 80;
+    tm.tm_isdst = -1;
 
 #if HAVE_MKTIME
-    return mktime(&dostm);
+    return mktime(&tm);
 #else
-    return timelocal(&dostm);
+    return timelocal(&tm);
 #endif
 }
 
@@ -1531,7 +1528,7 @@ write_header(fp, hdr)
     if (generic_format)
         filename_case = TO_UPPER;
 
-    if (hdr->header_level == HEADER_LEVEL0) {
+    if (hdr->header_level == 0) {
         archive_delim = "\\";
     }
 
