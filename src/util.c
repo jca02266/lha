@@ -228,7 +228,7 @@ memmove(dst, src, cnt)
  * Masaru Oki 92.01.28 added mkdir() and rmdir() by Tomohiro Ishikawa
  */
 
-#if !defined(HAVE_FTRUNCATE) && !defined(_MINIX)
+#if !defined(HAVE_FTRUNCATE) && !defined(_MINIX) && HAVE_LINK
 
 /* ------------------------------------------------------------------------ */
 int
