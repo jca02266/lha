@@ -39,7 +39,6 @@
 /*  Ver. 1.14d Version up                       1997.01.12  t.okamoto       */
 /*  Ver. 1.14g Bug Fixed                        2000.05.06  t.okamoto       */
 /*  Ver. 1.14i Modified                         2000.10.06  t.okamoto       */
-/*             Modified for Mac OS X            2002.06.03  H.Sakai         */
 /* ------------------------------------------------------------------------ */
 #define LHA_MAIN_SRC
 
@@ -123,8 +122,7 @@ LHx(arc) for OSK   V 2.01  Modified     1990  Momozou\n\
 LHa      for UNIX  V 1.00  Copyright(C) 1992  Masaru Oki\n\
 LHa      for UNIX  V 1.14  Modified     1995  Nobutaka Watazaki\n\
 LHa      for UNIX  V 1.14i Modified     2000  Tsugio Okamoto\n\
-                           Modified     2002  Hiroto Sakai\n\
-                    Autoconfiscated 2001,2002 Koji Arai\n\
+                   Autoconfiscated 2001-2003  Koji Arai\n\
 ");
     fprintf(stderr, "\
 usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\

@@ -1683,7 +1683,7 @@ write_header(fp, hdr)
 
 #if MULTIBYTE_FILENAME
 
-#if defined(__APPLE__)
+#if defined(__APPLE__)  /* Added by Hiroto Sakai */
 
 #include <CoreFoundation/CFString.h>
 #include <CoreFoundation/CFStringEncodingExt.h>
