@@ -1,3 +1,7 @@
+2003-03-12  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/header.c (wintime_to_unix_stamp): should cast to unsigned type.
+
 2003-03-03  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/prototypes.h: updated.
