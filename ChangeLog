@@ -1,9 +1,11 @@
 2003-12-13  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: updated version.
+
 	* src/lhext.c (extract_one, cmd_extract): preserve directory
 	timestamp. Thanks Akihiro Iriyama.
 
-	* src/lhext.c (add_dirinfo, adjust_dirinfo): newly added
+	* src/lhext.c (add_dirinfo, adjust_dirinfo): newly added.
 
 2003-09-28  Koji Arai  <jca02266@nifty.ne.jp>
 
