@@ -869,15 +869,15 @@ get_header(fp, hdr)
 
     setup_get(data);
 
-	if ((end_mark = getc(fp)) == EOF || end_mark == 0) {
-		return FALSE;	/* finish */
-	}
+    if ((end_mark = getc(fp)) == EOF || end_mark == 0) {
+        return FALSE;           /* finish */
+    }
     data[0] = end_mark;
 
     if (fread(data + 1, I_NAME_LENGTH - 1, 1, fp) == 0) {
-		error("Invalid header (LHarc file ?)");
-		return FALSE;	/* finish */
-	}
+        error("Invalid header (LHarc file ?)");
+        return FALSE;           /* finish */
+    }
 
     switch (data[I_HEADER_LEVEL]) {
     case 0:
