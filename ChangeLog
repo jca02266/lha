@@ -1,5 +1,7 @@
 2003-02-17  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: updated version.
+
 	* src/fnmatch.h: no need to include <sys/cdefs.h>. it does not
 	exist on MinGW.
 
