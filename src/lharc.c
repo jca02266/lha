@@ -94,6 +94,8 @@ init_variable()		/* Added N.Watazaki */
 	compress_method = LZHUFF7_METHOD_NUM;
 #endif
 
+	compress_method = DEFAULT_LZHUFF_METHOD;
+
 	header_level	= HEADER_LEVEL1;
 	quiet_mode		= 0;
 
@@ -905,7 +907,7 @@ build_temporary_name()
 	else {
 		sprintf(temporary_name, "%s/lhXXXXXX", extract_directory);
 	}
-#ifdef MKSTEMP
+#ifdef HAVE_MKSTEMP
 	mkstemp(temporary_name);
 #else
 	mktemp(temporary_name);
@@ -918,7 +920,7 @@ build_temporary_name()
 		if (*p == '/')
 			s = p;
 	strcpy((s ? s + 1 : temporary_name), "lhXXXXXX");
-#ifdef MKSTEMP
+#ifdef HAVE_MKSTEMP
 	mkstemp(temporary_name);
 #else
 	mktemp(temporary_name);
