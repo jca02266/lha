@@ -91,7 +91,9 @@ case `$lha --version 2>&1` in
 *pc-cygwin*|*pc-mingw*)
     message testing extracting to existent files ... skip;;
 *)
-    . $srcdir/lha-test9; cleanup ;;
+    . $srcdir/lha-test9; cleanup
+    ;;
 esac
+. $srcdir/lha-test10; cleanup
 
 exit $result

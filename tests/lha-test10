@@ -1,0 +1,26 @@
+# -*- shell-script -*-
+message testing header level 0, 1 and 2
+$lha c0  test-tmp-h0.lzh test-1
+							check $?
+$lha c1  test-tmp-h1.lzh test-1
+							check $?
+$lha c2  test-tmp-h2.lzh test-1
+							check $?
+$lha xw=test-tmp-h0  test-tmp-h0.lzh
+							check $?
+$lha xw=test-tmp-h1  test-tmp-h1.lzh
+							check $?
+$lha xw=test-tmp-h2  test-tmp-h2.lzh
+							check $?
+$lha vv test-tmp-h0.lzh | grep '\[0\]$'
+							check $?
+$lha vv test-tmp-h1.lzh | grep '\[1\]$'
+							check $?
+$lha vv test-tmp-h2.lzh | grep '\[2\]$'
+							check $?
+diff -r test-1 test-tmp-h0
+							check $?
+diff -r test-1 test-tmp-h1/test-1
+							check $?
+diff -r test-1 test-tmp-h2/test-1
+							check $?
