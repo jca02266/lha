@@ -1,5 +1,9 @@
 2002-07-18  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* released.
+
+	* configure.ac: updated version.
+
 	* src/lhext.c (adjust_info): should use `struct utimbuf' for
 	`utime(2)' rather than `time_t' array.
 
