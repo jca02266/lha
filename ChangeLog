@@ -1,5 +1,9 @@
 2003-02-23  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/util.c: discard `rename()', `mkdir()' and `rmdir()'.
+
+	* configure.ac: ditto.
+	
 	* src/header.c: added credit.
 	no longer use `ftime()', `tzset()', `localtime()' and `gettimeofday()'.
 
