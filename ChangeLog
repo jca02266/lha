@@ -1,3 +1,29 @@
+2004-09-27  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.ac: updated version.
+
+	* src/prototypes.h (str_safe_copy): newly added.
+	(build_backup_file, cmd_add, cmd_delete):
+	added argument the size for build_standard_archive_name() and
+	build_backup_file().
+
+	* src/header.c (init_header): use str_safe_copy() instead of strcpy().
+
+	* src/lhadd.c (build_backup_file, cmd_add, cmd_delete):
+	added argument the size for build_standard_archive_name() and
+	build_backup_file().
+
+	* src/lhext.c (make_parent_path): use str_safe_copy() instead of strcpy().
+	(extract_one): ditto.
+
+	* src/lharc.c (find_files): use str_safe_copy() instead of strcpy().
+	(build_temporary_name): ditto.
+	(modify_filename_extention): ditto.
+	(build_backup_name): ditto.
+	(build_standard_archive_name): ditto.
+
+	* src/util.c (str_safe_copy): newly added.
+
 2004-09-26  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/header.c: fixed typo.
