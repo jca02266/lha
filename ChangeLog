@@ -1,5 +1,24 @@
 2003-07-27  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test2: no need to set $FILENAME.
+	* tests/lha-test3: ditto.
+	* tests/lha-test4: ditto.
+	* tests/lha-test5: ditto.
+	* tests/lha-test6: ditto.
+	* tests/lha-test7: ditto.
+	* tests/lha-test8: ditto.
+	* tests/lha-test9: ditto.
+	* tests/lha-test10: ditto.
+	* tests/lha-test11: ditto.
+	* tests/lha-test12: ditto.
+	* tests/lha-test13: ditto.
+	* tests/lha-test14: ditto.
+	* tests/lha-test15: ditto.
+
+	* tests/lha-test1: newly added.
+
+	* tests/lha-test.in: improved.
+
 	* src/prototypes.h: updated.
 
 	* src/lha.h (exit): defined as lha_exit().
