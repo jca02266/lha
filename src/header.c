@@ -243,7 +243,7 @@ filename_conv(name, len, size,
 		}
         if (from_code == CODE_SJIS &&
             SJC_FIRST_P(name[i]) &&
-            SJC_SECOND_P(name[i + 1])) {
+            SJC_SECOND_P(name[i+1])) {
 			int c1, c2;
 
             if (to_code != CODE_EUC) {
@@ -254,7 +254,8 @@ filename_conv(name, len, size,
 			c1 = (unsigned char)name[i];
             c2 = (unsigned char)name[i+1];
 			sjis2euc(&c1, &c2);
-			name[i] = c1; name[i+1] = c2;
+			name[i] = c1;
+            name[i+1] = c2;
 			i++;
             continue;
         }
@@ -661,9 +662,11 @@ get_header(fp, hdr)
 				for (i = 0; i < header_size - 3; i++)
 					dirname[i] = (char) get_byte();
 				dirname[header_size - 3] = '\0';
-				/* convdelim(dirname, DELIM);       is it needed ?
-                   comment it by Koji Arai*/
 				dir_length = header_size - 3;
+
+                filename_conv(dirname, dir_length, sizeof(dirname),
+                              NONE, NONE, "\xff", "/", NONE);
+
 				break;
 			case 0x40:
 				/*
