@@ -23,6 +23,11 @@
 
 /* ------------------------------------------------------------------------ */
 static char    *get_ptr;
+#define setup_get(PTR)	(get_ptr = (PTR))
+#define get_byte()		(*get_ptr++ & 0xff)
+#define put_ptr			get_ptr
+#define setup_put(PTR)	(put_ptr = (PTR))
+#define put_byte(c)		(*put_ptr++ = (char)(c))
 
 int optional_archive_kanji_code = NONE;
 int optional_system_kanji_code = NONE;
@@ -94,6 +99,27 @@ put_longword(v)
 	put_byte(v >> 24);
 }
 
+static int
+get_bytes(buf, len, size)
+    char *buf;
+    int len, size;
+{
+    int i;
+    for (i = 0; i < len && i < size; i++)
+        buf[i] = get_ptr[i];
+    get_ptr += len;
+    return i;
+}
+
+static void
+put_bytes(buf, len)
+    char *buf;
+    int len;
+{
+    int i;
+    for (i = 0; i < len; i++)
+        put_byte(buf[i]);
+}
 #if 0   /* no use */
 /* ------------------------------------------------------------------------ */
 static void
@@ -615,9 +641,8 @@ get_header(fp, hdr)
 		if (calc_sum(data + I_METHOD, header_size) != checksum)
 			warning("Checksum error (LHarc file?)");
 		name_length = get_byte();
-		for (i = 0; i < name_length; i++)
-			hdr->name[i] = (char) get_byte();
-		hdr->name[name_length] = '\0';
+        i = get_bytes(hdr->name, name_length, sizeof(hdr->name)-1);
+		hdr->name[i] = '\0';
 	}
 	else {
 		hdr->unix_last_modified_stamp = hdr->last_modified_stamp;
@@ -698,23 +723,17 @@ get_header(fp, hdr)
 				/*
 				 * filename
 				 */
-				for (i = 0; i < header_size-3 && i < sizeof(hdr->name)-1; i++)
-					hdr->name[i] = (char) get_byte();
-				hdr->name[i] = '\0';
-				name_length = i;
-                for (; i < header_size-3; i++)
-                    get_byte();
+                name_length =
+                    get_bytes(hdr->name, header_size-3, sizeof(hdr->name)-1);
+                hdr->name[name_length] = 0;
 				break;
 			case 2:
 				/*
 				 * directory
 				 */
-				for (i = 0; i < header_size-3 && i < sizeof(dirname)-1; i++)
-					dirname[i] = (char) get_byte();
-				dirname[i] = '\0';
-				dir_length = i;
-                for (; i < header_size-3; i++)
-                    get_byte();
+                dir_length =
+                    get_bytes(dirname, header_size-3, sizeof(dirname)-1);
+                dirname[dir_length] = 0;
 				break;
 			case 0x40:
 				/*
@@ -745,21 +764,15 @@ get_header(fp, hdr)
 				/*
 				 * UNIX group name
 				 */
-                for (i = 0; i < header_size-3 && i < sizeof(hdr->group)-1; i++)
-                    hdr->group[i] = get_byte();
+                i = get_bytes(hdr->group, header_size-3, sizeof(hdr->group)-1);
                 hdr->group[i] = '\0';
-                for (; i < header_size-3; i++)
-                    get_byte();
 				break;
 			case 0x53:
 				/*
 				 * UNIX user name
 				 */
-                for (i = 0; i < header_size-3 && i < sizeof(hdr->user)-1; i++)
-                    hdr->user[i] = get_byte();
+                i = get_bytes(hdr->user, header_size-3, sizeof(hdr->user)-1);
                 hdr->user[i] = '\0';
-                for (; i < header_size-3; i++)
-                    get_byte();
 				break;
 			case 0x54:
 				/*
@@ -840,6 +853,12 @@ get_header(fp, hdr)
         filename_case = optional_filename_case;
 
 	if (dir_length) {
+        if (name_length + dir_length >= sizeof(hdr->name)) {
+            warning("the length of pathname \"%s%s\" is too long.",
+                    dirname, hdr->name);
+            name_length = sizeof(hdr->name) - dir_length - 1;
+            hdr->name[name_length] = 0;
+        }
 		strcat(dirname, hdr->name);
 		strcpy(hdr->name, dirname);
 		name_length += dir_length;
@@ -1081,25 +1100,22 @@ write_header(nafp, hdr)
 			put_word(hdr->unix_uid);
 
             {
-                int i, len = strlen(hdr->group);
+                int len = strlen(hdr->group);
                 if (len > 0) {
                     put_word(len + 3);
                     put_byte(0x52);	/* group name */
-                    for (i = 0; i < len; i++)
-                        put_byte(hdr->group[i]);
+                    put_bytes(hdr->group, len);
                 }
 
                 len = strlen(hdr->user);
                 if (len > 0) {
                     put_word(len + 3);
                     put_byte(0x53);	/* user name */
-                    for (i = 0; i < len; i++)
-                        put_byte(hdr->user[i]);
+                    put_bytes(hdr->user, len);
                 }
             }
 
             if (hdr->header_level == 1) {
-                int i;
                 if (p = strrchr(lzname, LHA_PATHSEP))
                     name_length = strlen(++p);
                 else {
@@ -1108,18 +1124,14 @@ write_header(nafp, hdr)
                 }
                 put_word(name_length + 3);
                 put_byte(1);	/* filename */
-                for (i = 0; i < name_length; i++)
-                    put_byte(*p++);
+                put_bytes(p, name_length);
             }
 
 			if (p = strrchr(lzname, LHA_PATHSEP)) {
-				int             i;
-
 				name_length = p - lzname + 1;
 				put_word(name_length + 3);
 				put_byte(2);	/* dirname */
-				for (i = 0; i < name_length; i++)
-					put_byte(lzname[i]);
+                put_bytes(lzname, name_length);
 			}
 		}		/* if generic .. */
 
@@ -1137,7 +1149,6 @@ write_header(nafp, hdr)
 			data[I_HEADER_SIZE] = header_size;
 			data[I_HEADER_CHECKSUM] = calc_sum(data + I_METHOD, header_size);
 		} else {		/* header level 2 */
-			int             i;
 			if (p = strrchr(lzname, LHA_PATHSEP))
 				name_length = strlen(++p);
 			else {
@@ -1146,8 +1157,7 @@ write_header(nafp, hdr)
 			}
 			put_word(name_length + 3);
 			put_byte(1);	/* filename */
-			for (i = 0; i < name_length; i++)
-				put_byte(*p++);
+            put_bytes(p, name_length);
 		}		/* if he.. != HEAD_LV2 */
 		header_size = put_ptr - data;
 	}

@@ -231,13 +231,6 @@
 #define ROOT_C      0
 #define ROOT_P      TREESIZE_C
 
-/* header.c */
-#define setup_get(PTR)	(get_ptr = (PTR))
-#define get_byte()		(*get_ptr++ & 0xff)
-#define put_ptr			get_ptr
-#define setup_put(PTR)	(put_ptr = (PTR))
-#define put_byte(c)		(*put_ptr++ = (char)(c))
-
 /* huf.c */
 #define NP			(MAX_DICBIT + 1)
 #define NT			(USHRT_BIT + 3)
