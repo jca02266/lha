@@ -23,7 +23,7 @@ check() {
   if [[ $status -eq 0 ]]; then
     message test $test_number ... ok
   else
-    message test $test_number ... at line $lineno failed
+    message test $test_number ... failed at line $lineno
     ((error_num = error_num + 1))
     error_tests="$error_tests #$test_number"
     result=1
