@@ -118,6 +118,15 @@ static void
 print_tiny_usage()
 {
     fprintf(stderr, "\
+usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
+  commands:  [axelvudmcpt]\n\
+  options:   [q[012]vnfto[567]dizg012e[w=<dir>|x=<pattern>]]\n");
+}
+
+static void
+print_usage()
+{
+    fprintf(stderr, "\
 LHarc    for UNIX  V 1.02  Copyright(C) 1989  Y.Tagawa\n\
 LHx      for MSDOS V C2.01 Copyright(C) 1990  H.Yoshizaki\n\
 LHx(arc) for OSK   V 2.01  Modified     1990  Momozou\n\
@@ -126,10 +135,10 @@ LHa      for UNIX  V 1.14  Modified     1995  Nobutaka Watazaki\n\
 LHa      for UNIX  V 1.14i Modified     2000  Tsugio Okamoto\n\
                    Autoconfiscated 2001-2003  Koji Arai\n\
 ");
+
+    print_tiny_usage();
+
     fprintf(stderr, "\
-usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
-  commands:  [axelvudmcpt]\n\
-  options:   [q[012]vnfto[567]dizg012e[w=<dir>|x=<pattern>]]\n\
 commands:                           options:\n\
  a   Add(or replace) to archive      q{num} quiet (num:quiet mode)\n\
  x,e EXtract from archive            v  verbose\n\
@@ -170,7 +179,7 @@ commands:                           options:\n\
 #endif
 }
 
-static void
+static int
 parse_option(int argc, char **argv)
 {
     char *opt;
@@ -179,12 +188,12 @@ parse_option(int argc, char **argv)
     argv++; argc--;             /* exclude command name */
 
     if (argc < 1) {
-        print_tiny_usage();
+        print_usage();
         exit(0);
     }
 
     if (strcmp(*argv, "--help") == 0) {
-        print_tiny_usage();
+        print_usage();
         exit(0);
     }
     if (strcmp(*argv, "--version") == 0) {
@@ -192,12 +201,12 @@ parse_option(int argc, char **argv)
         exit(0);
     }
 
-    if (argc == 1) {
+    if (argc == 1 && **argv != '-') {
         archive_name = *argv++; argc--;
         cmd = CMD_LIST;
         cmd_filec = argc;
         cmd_filev = argv;
-        return;
+        return 0;
     }
 
     opt = *argv++; argc--;
@@ -255,8 +264,8 @@ parse_option(int argc, char **argv)
         break;
 
     default:
-        print_tiny_usage();
-        exit(2);
+        error("unknown command -`%c'", *opt);
+        return -1;
     }
 
     /* options */
@@ -330,7 +339,7 @@ parse_option(int argc, char **argv)
 #endif
                 default:
                     error("invalid compression method 'o%c'", *p);
-                    exit(2);
+                    return -1;
                 }
                 break;
             case 'z':
@@ -350,8 +359,8 @@ parse_option(int argc, char **argv)
 
                 if (*p == 0) {
                     if (*argv == 0) {
-                        print_tiny_usage();
-                        exit(2);
+                        error("exclude files does not specified for `-x'");
+                        return -1;
                     }
                     exclude_files[i] = *argv++; argc--;
                     exclude_files[i+1] = 0;
@@ -379,8 +388,8 @@ parse_option(int argc, char **argv)
                     p++;
                 if (*p == 0) {
                     if (*argv == 0) {
-                        print_tiny_usage();
-                        exit(2);
+                        error("working directory does not specified for `-w'");
+                        return -1;
                     }
                     extract_directory = *argv++; argc--;
                     goto next;
@@ -400,8 +409,8 @@ parse_option(int argc, char **argv)
                 header_level = 2;
                 break;
             default:
-                error("Unknown option '%c'.", p[-1]);
-                exit(2);
+                error("unknown option -`%c'.", p[-1]);
+                return -1;
             }
         }
 
@@ -434,8 +443,8 @@ parse_option(int argc, char **argv)
                     optional_system_kanji_code = CODE_CAP;
                 }
                 else {
-                    print_tiny_usage();
-                    exit(2);
+                    error("unknown kanji code \"%s\"", opt);
+                    return -1;
                 }
             }
             else if (strncmp(opt, "archive-kanji-code=",
@@ -454,9 +463,13 @@ parse_option(int argc, char **argv)
                     optional_archive_kanji_code = CODE_CAP;
                 }
                 else {
-                    print_tiny_usage();
-                    exit(2);
+                    error("unknown kanji code \"%s\"", opt);
+                    return -1;
                 }
+            }
+            else {
+                error("unknown long option \"--%s\"", opt);
+                return -1;
             }
             argv++; argc--;
             goto next;
@@ -465,10 +478,14 @@ parse_option(int argc, char **argv)
         argv++; argc--;
     }
 
-    archive_name = *argv++; argc--;
+    if (!archive_name) {
+        archive_name = *argv++; argc--;
+    }
 
     cmd_filec = argc;
     cmd_filev = argv;
+
+    return 0;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -483,9 +500,15 @@ main(argc, argv)
 
     init_variable();        /* Added N.Watazaki */
 
-    parse_option(argc, argv);
+    if (parse_option(argc, argv) == -1) {
+        fputs("\n", stderr);
+        print_tiny_usage();
+        exit(2);
+    }
 
     if (!archive_name) {
+        error("archive file does not specified");
+        fputs("\n", stderr);
         print_tiny_usage();
         exit(2);
     }
