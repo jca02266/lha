@@ -37,9 +37,9 @@ int decode_lzhuf P_((FILE *infp, FILE *outfp, long original_size, long packed_si
 /* header.c */
 int calc_sum P_((register char *p, register int len));
 void convert_filename P_((register char *name, register int len, register int size, int from_code, int to_code, char *from_delim, char *to_delim, int case_to));
-boolean get_header P_((FILE *fp, register LzHeader *hdr));
+boolean get_header P_((FILE *fp, LzHeader *hdr));
 void init_header P_((char *name, struct stat *v_stat, LzHeader *hdr));
-void write_header P_((FILE *nafp, LzHeader *hdr));
+void write_header P_((FILE *fp, LzHeader *hdr));
 char *sjis_to_utf8 P_((char *dst, const char *src, size_t dstsize));
 char *utf8_to_sjis P_((char *dst, const char *src, size_t dstsize));
 void euc2sjis P_((int *p1, int *p2));
