@@ -28,8 +28,8 @@
 /*  Ver. 0.04  LHa for UNIX	beta version		1992.01.20  M.Oki			*/
 /*  Ver. 1.00  LHa for UNIX	Fixed				1992.03.19  M.Oki			*/
 /*																			*/
-/*  Ver. 1.10  for Symblic Link					1993.06.25  N.Watazaki		*/
-/*  Ver. 1.11  for Symblic Link	Bug Fixed		1993.08.18  N.Watazaki		*/
+/*  Ver. 1.10  for Symbolic Link				1993.06.25  N.Watazaki		*/
+/*  Ver. 1.11  for Symbolic Link Bug Fixed		1993.08.18  N.Watazaki		*/
 /*  Ver. 1.12  for File Date Check				1993.10.28  N.Watazaki		*/
 /*  Ver. 1.13  Bug Fixed (Idicator calcurate)	1994.02.21  N.Watazaki		*/
 /*  Ver. 1.13a Bug Fixed (Sym. Link delete)		1994.03.11  N.Watazaki		*/

@@ -354,7 +354,7 @@ extract_one(afp, hdr)
 	else if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_DIRECTORY
 			 || (hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK
 			 || method == LZHDIRS_METHOD_NUM) {
-		/* ↑これで、Symblic Link は、大丈夫か？ */
+		/* ↑これで、Symbolic Link は、大丈夫か？ */
 		if (!ignore_directory && !verify_mode) {
 			if (noexec) {
 				if (quiet != TRUE)
