@@ -6,6 +6,9 @@
 /* Define it to 5, 6 or 7 which you want to use -lhX- method, default */
 #undef DEFAULT_LZHUFF_METHOD
 
+/* Define to 1 if the 2nd argument of gettimeofday() is effective. */
+#undef GETTIMEOFDAY_HAS_2ND_ARG
+
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
 #undef HAVE_DIRENT_H
