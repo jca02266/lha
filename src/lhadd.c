@@ -25,8 +25,7 @@ add_one(fp, nafp, hdr)
 	reading_filename = hdr->name;
 	writing_filename = temporary_name;
 
-	if (!fp && generic_format)	/* [generic] doesn't need directory
-					 * info. */
+	if (!fp && generic_format)	/* [generic] doesn't need directory info. */
 		return;
 	header_pos = ftell(nafp);
 	write_header(nafp, hdr);/* DUMMY */
