@@ -59,4 +59,4 @@ USE_PROF lharc.c
 # USHRT_MAX lha_macro.h
 # _MINIX header.c lha_macro.h util.c	use AC_MINIX in configure.in
 __STDC__ huf.c lha.h lha_macro.h slide.c util.c
-sony_news huf.c
+# sony_news huf.c			use HAVE_SYS_PARAM_H
