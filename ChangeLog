@@ -1,3 +1,11 @@
+2002-09-03  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* released.
+
+	* 00readme.autoconf: modified for stable release.
+
+	* configure.ac: updated version.
+
 2002-09-01  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/Makefile.am (EXTRA_DIST): lha-test12, lha-test13 and
