@@ -4,6 +4,8 @@
 
 	* configure.ac: ditto.
 	
+	* config.h.in: ditto.
+
 	* src/header.c: added credit.
 	no longer use `ftime()', `tzset()', `localtime()' and `gettimeofday()'.
 
