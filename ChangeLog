@@ -1,5 +1,7 @@
 2004-10-02  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lharc.c (print_tiny_usage): added long option helps.
+
 	* src/prototypes.h: updated.
 
 	* src/lharc.c: should accept a single option --help and --version.
