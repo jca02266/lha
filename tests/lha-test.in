@@ -84,7 +84,7 @@ test -f test-1/test-c
 . $srcdir/lha-test3; cleanup
 . $srcdir/lha-test4; cleanup
 . $srcdir/lha-test5; cleanup
-# . $srcdir/lha-test6; cleanup		# this feature is removed.
+# . $srcdir/lha-test6; cleanup		# this feature was removed.
 . $srcdir/lha-test7; cleanup
 . $srcdir/lha-test8; cleanup
 
