@@ -68,7 +68,7 @@ fi
 
 # checking whether 8 bit clean or not
 AC_CACHE_CHECK([whether strchr()/strrchr() is 8bit clean],
-  [lha_cv_strchr_8bit_clean],
+  [lha_cv_func_strchr_8bit_clean],
   AC_TRY_RUN([
 #if STDC_HEADERS
 # include <string.h>
@@ -83,17 +83,17 @@ char *strchr (), *strrchr ();
 main()
 {
   char *s = "\377";
-  if (strchr(s, 0xff) != s) return 1;
-  if (strchr(s, '\377') != s) return 1;
-  if (strrchr(s, 0xff) != s) return 1;
-  if (strrchr(s, '\377') != s) return 1;
-  return 0; /* ok */
+  if (strchr(s, 0xff) != s) exit(1);
+  if (strchr(s, '\377') != s) exit(1);
+  if (strrchr(s, 0xff) != s) exit(1);
+  if (strrchr(s, '\377') != s) exit(1);
+  exit(0); /* ok */
 }
-], lha_cv_strchr_8bit_clean=yes,
-   lha_cv_strchr_8bit_clean=no,
-   lha_cv_strchr_8bit_clean=no))
+], lha_cv_func_strchr_8bit_clean=yes,
+   lha_cv_func_strchr_8bit_clean=no,
+   lha_cv_func_strchr_8bit_clean=no))
 
-if test x$lha_cv_strchr_8bit_clean = xyes; then
+if test x$lha_cv_func_strchr_8bit_clean = xyes; then
   AC_DEFINE(STRCHR_8BIT_CLEAN, 1,
 	    [Define to 1 if strchr()/strrchr() works correctly.])
 fi
