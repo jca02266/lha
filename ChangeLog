@@ -1,3 +1,7 @@
+2003-07-25  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/lha-test14: `test -e' is unavailable on some systems.
+
 2003-07-22  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/lha-test.in: should exit with status in trap.
