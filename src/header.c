@@ -91,10 +91,10 @@ dump_skip_bytes(len)
 {
     if (len == 0) return;
     if (verbose_listing && verbose > 1) {
-        printf("%02d %2d:", get_ptr - start_ptr, len);
+        printf("%02d %2d: ", get_ptr - start_ptr, len);
         while (len--)
-            printf(" 0x%02x", GET_BYTE());
-        printf("\n");
+            printf("0x%02x ", GET_BYTE());
+        printf("... ignored\n");
     }
     else
         get_ptr += len;
