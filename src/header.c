@@ -22,7 +22,7 @@ char *optional_archive_delim = NULL;
 char *optional_system_delim = NULL;
 int optional_filename_case = NONE;
 
-#if __CYGWIN__
+#if defined(__CYGWIN__) || defined(__hpux)
 /* Cygwin, HP-UX and other UNIX are able to use SJIS as native code. */
 int default_system_kanji_code = CODE_SJIS;
 #else
