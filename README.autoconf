@@ -1,7 +1,7 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiguration for LHa for UNIX version 1.14i
-		        Sat, Jun  1 2002 by Koji Arai <jca02266@nifty.ne.jp>
+		        Sat, Jun  4 2002 by Koji Arai <jca02266@nifty.ne.jp>
 
 このファイルはLHa for UNIX version 1.14i をautoconf、automake化
 した(autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
@@ -120,3 +120,11 @@ LHa for UNIX に関しては岡本継男さんのページ
     lha x bar.lzh `echo foo.txt`
 
   残念ながら MinGW で isatty() がうまく動作しませんでした。
+
+・拡張ヘッダ(ユーザ名/グループ名)のサポート
+
+  ユーザ名、グループ名の拡張ヘッダ(0x52, 0x53)を作成するようにしました
+  (デフォルトはoff)。詳細は header.doc.euc を参照してください。展開と
+  一覧表示のときにヘッダにこの情報があれば ID に優先します。作成は 
+  configure オプション --enable-user-name-header を指定してbuild した
+  ときに有効になります。
