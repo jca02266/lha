@@ -298,8 +298,15 @@ build_backup_file()
 #ifdef SIGHUP
 		signal(SIGHUP, SIG_IGN);
 #endif
-		if (rename(archive_name, backup_archive_name) < 0)
+		if (rename(archive_name, backup_archive_name) < 0) {
+#if __MINGW32__
+            /* On MinGW, cannot rename when
+               newfile (backup_archive_name) already exists */
+            if (unlink(backup_archive_name) < 0 ||
+                rename(archive_name, backup_archive_name) < 0)
+#endif
 			fatal_error(archive_name);
+        }
 		recover_archive_when_interrupt = TRUE;
 		signal(SIGINT, interrupt);
 #ifdef SIGHUP
