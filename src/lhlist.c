@@ -254,16 +254,17 @@ list_one(hdr)
 
 	print_size(hdr->packed_size, hdr->original_size);
 
-	if (verbose_listing)
+	if (verbose_listing) {
 		if (hdr->has_crc)
 			printf(" %s %04x", method, hdr->crc);
 		else
 			printf(" %s ****", method);
+    }
 
 	printf(" ");
 	print_stamp(hdr->unix_last_modified_stamp);
 
-	if (!verbose)
+	if (!verbose) {
 		if ((mode & UNIX_FILE_SYMLINK) != UNIX_FILE_SYMLINK)
 			printf(" %s", hdr->name);
 		else {
@@ -273,7 +274,7 @@ list_one(hdr)
 			b2 = strtok(NULL, "|");
 			printf(" %s -> %s", b1, b2);
 		}
-
+    }
 	if (verbose)
 		printf(" [%d]", hdr->header_level);
 	printf("\n");

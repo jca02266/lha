@@ -304,7 +304,7 @@ fread_txt(p, n, fp)
 				c = '\r';
 			}
 #ifdef EUC
-			else if (euc_mode && (c == 0x8E || 0xA0 < c && c < 0xFF)) {
+			else if (euc_mode && (c == 0x8E || (0xA0 < c && c < 0xFF))) {
 				int             d = fgetc(fp);
 				if (d == EOF) {
 					*p++ = c;

@@ -33,14 +33,11 @@
 #endif
 
 #define SJC_FIRST_P(c)			\
-  (((unsigned char)(c) >= 0x80) &&	\
-   (((unsigned char)(c) < 0xa0) ||	\
-    ((unsigned char)(c) >= 0xe0) &&	\
-    ((unsigned char)(c) < 0xfd)))
+  (((unsigned char)(c) >= 0x80 && (unsigned char)(c) < 0xa0) ||	\
+   ((unsigned char)(c) >= 0xe0 && (unsigned char)(c) < 0xfd))
 #define SJC_SECOND_P(c)			\
-  (((unsigned char)(c) >= 0x40) &&	\
-   ((unsigned char)(c) < 0xfd) &&	\
-   ((unsigned char)(c) != 0x7f))
+  (((unsigned char)(c) >= 0x40 && (unsigned char)(c) < 0xfd) &&	\
+    (unsigned char)(c) != 0x7f)
 
 #define X0201_KANA_P(c)\
 	(0xa0 < (unsigned char)(c) && (unsigned char)(c) < 0xe0)

@@ -1065,7 +1065,8 @@ open_old_archive()
 		else
 			return NULL;
 	}
-	if (p = strrchr(archive_name, '.')) {
+    p = strrchr(archive_name, '.');
+	if (p) {
 		if (strucmp(".LZH", p) == 0
 		    || strucmp(".LZS", p) == 0
 		    || strucmp(".COM", p) == 0	/* DOS SFX */

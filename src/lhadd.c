@@ -237,11 +237,12 @@ delete(oafp, nafp)
 		b2 = strtok(NULL, "|");
 		if (need_file(b1)) {	/* skip */
 			fseek(oafp, ahdr.packed_size, SEEK_CUR);
-			if (noexec || !quiet)
+			if (noexec || !quiet) {
 				if (b2 != NULL)
 					message("delete %s -> %s", b1, b2);
 				else
 					message("delete %s", b1);
+            }
 		}
 		else {		/* copy */
 			if (noexec) {

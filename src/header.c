@@ -373,8 +373,8 @@ generic_to_unix_stamp(t)
 	dostm.tm_min = t >> 5 & 0x3f;
 	dostm.tm_hour = t >> 11 & 0x1f;
 	dostm.tm_mday = t >> 16 & 0x1f;
-	dostm.tm_mon = (t >> 16 + 5 & 0x0f) - 1;	/* 0..11 */
-	dostm.tm_year = (t >> 16 + 9 & 0x7f) + 80;
+	dostm.tm_mon = (t >> (16+5) & 0x0f) - 1;	/* 0..11 */
+	dostm.tm_year = (t >> (16+9) & 0x7f) + 80;
 #if 0
 	dostm.tm_isdst = 0;	/* correct? */
 #endif
