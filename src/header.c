@@ -993,7 +993,7 @@ write_header(nafp, hdr)
 
 	if (hdr->header_level != HEADER_LEVEL2) {
         if (hdr->header_level == HEADER_LEVEL0 ||
-            (p = strchr(lzname, LHA_PATHSEP)) == 0)
+            (p = strrchr(lzname, LHA_PATHSEP)) == 0)
             p = lzname;
         else
             ++p;
