@@ -344,7 +344,6 @@ EXTERN unsigned short maxmatch;
 EXTERN unsigned long decode_count;
 EXTERN unsigned long loc;           /* short -> long .. Changed N.Watazaki */
 EXTERN unsigned char *text;
-EXTERN int      prev_char;
 
 /* huf.c */
 #ifndef LHA_MAIN_SRC  /* t.okamoto 96/2/20 */

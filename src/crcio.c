@@ -156,8 +156,7 @@ fwrite_txt(p, n, fp)
                 break;
 #endif
         }
-
-        prev_char = *p++;
+        p++;
     }
     return (ferror(fp));
 }

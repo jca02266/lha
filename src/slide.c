@@ -403,7 +403,6 @@ decode(interface)
     decode_set = decode_define[interface->method - 1];
 
     INITIALIZE_CRC(crc);
-    prev_char = -1;
     dicsiz = 1L << dicbit;
     dtext = (unsigned char *)xmalloc(dicsiz);
     memset(dtext, 0, dicsiz);
