@@ -427,7 +427,10 @@ cmd_extract()
 		if (need_file(hdr.name)) {
 			pos = ftell(afp);
 			extract_one(afp, &hdr);
+#if 0 /* On MinGW, if afp == stdin, fseek() will succeed.
+         but next getc(afp) return EOF */
 			fseek(afp, pos + hdr.packed_size, SEEK_SET);
+#endif
 		} else {
 			if (afp != stdin)
 				fseek(afp, hdr.packed_size, SEEK_CUR);
