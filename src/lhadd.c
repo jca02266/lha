@@ -81,7 +81,7 @@ append_it(name, oafp, nafp)
 	int             filec;
 	char          **filev;
 	int             i;
-	struct stat     stbuf /*, lstbuf*/;
+	struct stat     stbuf;
 
 	boolean         directory, symlink;
 
@@ -98,85 +98,70 @@ append_it(name, oafp, nafp)
 #endif
 	init_header(name, &stbuf, &hdr);
 
-	if (!directory && !noexec) {
-		if (symlink)
-			fp = NULL;
-		else {
-			fp = fopen(name, READ_BINARY);
-			if (!fp) {
-				error("Cannot open file \"%s\": %s", name, strerror(errno));
-				return oafp;
-			}
-		}
-	}
-	else {
-		fp = NULL;
-	}
+    fp = NULL;
+    if (!directory && !symlink && !noexec) {
+        fp = fopen(name, READ_BINARY);
+        if (!fp) {
+            error("Cannot open file \"%s\": %s", name, strerror(errno));
+            return oafp;
+        }
+    }
 
+    cmp = 0;                    /* avoid compiler warnings `uninitialized' */
 	while (oafp) {
 		old_header = ftell(oafp);
 		if (!get_header(oafp, &ahdr)) {
+            /* end of archive or error occurred */
 			fclose(oafp);
 			oafp = NULL;
 			break;
-		} else {
-			cmp = strcmp(ahdr.name, hdr.name);
-			if (cmp < 0) {	/* SKIP */
-				/* copy old to new */
-				if (!noexec) {
-					fseek(oafp, old_header, SEEK_SET);
-					copy_old_one(oafp, nafp, &ahdr);
-				}
-				else
-					fseek(oafp, ahdr.packed_size, SEEK_CUR);
-			} else if (cmp == 0) {	/* REPLACE */
-				/* drop old archive's */
-				fseek(oafp, ahdr.packed_size, SEEK_CUR);
-				break;
-			} else {	/* cmp > 0, INSERT */
-				fseek(oafp, old_header, SEEK_SET);
-				break;
-			}
 		}
-	}
 
-	if (update_if_newer) {
-		if (!oafp ||	/* not in archive */
-		    cmp > 0 ||	/* // */
-		    ahdr.unix_last_modified_stamp <	/* newer than archive's */
-		    hdr.unix_last_modified_stamp) {
-			if (noexec)
-				printf("ADD %s\n", name);
-			else
-				add_one(fp, nafp, &hdr);
-		} else {		/* cmp == 0 *//* copy old to new */
-			if (!noexec) {
-				fseek(oafp, old_header, SEEK_SET);
-				copy_old_one(oafp, nafp, &ahdr);
-			}
-		}
-	} else {
-		if (!oafp || cmp > 0) {	/* not in archive or dropped */
-			if (noexec)
-				printf("ADD %s\n", name);
-			else
-				add_one(fp, nafp, &hdr);
-		}
-		else {		/* cmp == 0 */
-			/* replace */
-			if (noexec)
-				printf("REPLACE\n");
-			else
-				add_one(fp, nafp, &hdr);
-		}
-	}
+        cmp = strcmp(ahdr.name, hdr.name);
+        if (cmp < 0) {          /* SKIP */
+            /* copy old to new */
+            if (!noexec) {
+                fseek(oafp, old_header, SEEK_SET);
+                copy_old_one(oafp, nafp, &ahdr);
+            }
+            else
+                fseek(oafp, ahdr.packed_size, SEEK_CUR);
+        } else if (cmp == 0) {  /* REPLACE */
+            /* drop old archive's */
+            fseek(oafp, ahdr.packed_size, SEEK_CUR);
+            break;
+        } else {                /* cmp > 0, INSERT */
+            fseek(oafp, old_header, SEEK_SET);
+            break;
+        }
+    }
 
-	if (!directory) {
-		if (!noexec)
-			if (!symlink)
-				fclose(fp);
-	}
-	else {			/* recurcive call */
+    if (!oafp || cmp > 0) { /* not in archive */
+        if (noexec)
+            printf("ADD %s\n", name);
+        else
+            add_one(fp, nafp, &hdr);
+    }
+    else {		/* cmp == 0 */
+        if (!update_if_newer ||
+            ahdr.unix_last_modified_stamp < hdr.unix_last_modified_stamp) {
+                                /* newer than archive's */
+            if (noexec)
+                printf("REPLACE %s\n", name);
+            else
+                add_one(fp, nafp, &hdr);
+        }
+        else {                  /* copy old to new */
+            if (!noexec) {
+                fseek(oafp, old_header, SEEK_SET);
+                copy_old_one(oafp, nafp, &ahdr);
+            }
+        }
+    }
+
+    if (fp) fclose(fp);
+
+	if (directory) {			/* recursive call */
 		if (find_files(name, &filec, &filev)) {
 			for (i = 0; i < filec; i++)
 				oafp = append_it(filev[i], oafp, nafp);
@@ -484,6 +469,7 @@ cmd_add()
 	}
 
 	/* build temporary file */
+    nafp = NULL;                /* avoid compiler warnings `uninitialized' */
 	if (!noexec)
 		nafp = build_temporary_file();
 
@@ -530,6 +516,8 @@ cmd_add()
 		}
 		fclose(oafp);
 	}
+
+    new_archive_size = 0;       /* avoid compiler warnings `uninitialized' */
 	if (!noexec) {
 		write_archive_tail(nafp);
 		new_archive_size = ftell(nafp);
@@ -585,6 +573,7 @@ cmd_delete()
 	}
 
 	/* build temporary file */
+    nafp = NULL;                /* avoid compiler warnings `uninitialized' */
 	if (!noexec)
 		nafp = build_temporary_file();
 
@@ -592,6 +581,7 @@ cmd_delete()
 	delete(oafp, nafp);
 	fclose(oafp);
 
+    new_archive_size = 0;       /* avoid compiler warnings `uninitialized' */
 	if (!noexec) {
 		write_archive_tail(nafp);
 		new_archive_size = ftell(nafp);
