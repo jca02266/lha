@@ -20,6 +20,7 @@ check() {
     message test $test_number ... ok
   else
     message test $test_number ... failed
+    result=1
   fi
 }
 
@@ -39,7 +40,7 @@ test -s test-1.lzh
 							check $?
 
 $lha l test-1.lzh
-check $?
+							check $?
 
 test -d test-1 || mkdir test-1
 mv test-[abc] test-1
@@ -52,30 +53,104 @@ diff test-1/test-b test-b
 diff test-1/test-c test-c
 							check $?
 
-message testing to lh5, lh6, lh7 methods
-$lha co5 test-2.lzh test-a test-b test-c
+message testing to generic, lh5, lh6 and lh7 method archive
+$lha co  test-m1.lzh test-a test-b test-c
 							check $?
-$lha co6 test-3.lzh test-a test-b test-c
+$lha co5 test-m5.lzh test-a test-b test-c
 							check $?
-$lha co7 test-4.lzh test-a test-b test-c
+$lha co6 test-m6.lzh test-a test-b test-c
 							check $?
-$lha v test-2.lzh | grep lh5
+$lha co7 test-m7.lzh test-a test-b test-c
 							check $?
-$lha v test-3.lzh | grep lh6
+$lha v test-m1.lzh | grep lh1
 							check $?
-$lha v test-4.lzh | grep lh7
+$lha v test-m5.lzh | grep lh5
+							check $?
+$lha v test-m6.lzh | grep lh6
+							check $?
+$lha v test-m7.lzh | grep lh7
 							check $?
 
+$lha xw=test-m1 test-m1.lzh
+							check $?
+$lha xw=test-m5 test-m5.lzh
+							check $?
+$lha xw=test-m6 test-m6.lzh
+							check $?
+$lha xw=test-m7 test-m7.lzh
+							check $?
+
+diff -r test-1 test-m1
+							check $?
+diff -r test-1 test-m5
+							check $?
+diff -r test-1 test-m6
+							check $?
+diff -r test-1 test-m7
+							check $?
+
+message testing to print lha archive
+
+for f in test-a test-b test-c
+do
+  cat <<EOF > $f.p
+::::::::
+$f
+::::::::
+EOF
+  cat $f >> $f.p
+done
+$lha p test-m1.lzh test-a | diff test-a.p -
+							check $?
+$lha p test-m5.lzh test-a | diff test-a.p -
+							check $?
+$lha p test-m6.lzh test-a | diff test-a.p -
+							check $?
+$lha p test-m7.lzh test-a | diff test-a.p -
+							check $?
+
+cat test-[abc].p > test-abc.p
+$lha p test-m1.lzh | diff test-abc.p -
+							check $?
+$lha p test-m5.lzh | diff test-abc.p -
+							check $?
+$lha p test-m6.lzh | diff test-abc.p -
+							check $?
+$lha p test-m7.lzh | diff test-abc.p -
+							check $?
+
+message testing to delete files from archive
+
+cp test-m5.lzh test-2.lzh
+
+# do nothing
+$lha d test-2.lzh 2> test-stderr
+							check $?
+test -s test-stderr
+							check $?
+$lha d test-2.lzh test-a
+							check $?
 $lha xw=test-2 test-2.lzh
+diff -r test-m5 test-2 2>&1 | grep -v '^Only in test-m5: test-a'
+test $? -eq 1
 							check $?
-$lha xw=test-3 test-3.lzh
+rm -rf test-2
+
+$lha d test-2.lzh test-b
 							check $?
-$lha xw=test-4 test-4.lzh
+$lha xw=test-2 test-2.lzh
+diff -r test-m5 test-2 2>&1 |
+    grep -v '^Only in test-m5: test-a$' |
+    grep -v '^Only in test-m5: test-b$'
+test $? -eq 1
+							check $?
+rm -rf test-2
+
+$lha d test-2.lzh test-c 2> test-stderr
+							check $?
+test -s test-stderr
+							check $?
+test ! -f test-2.lzh
 							check $?
 
-diff -r test-1 test-2
-							check $?
-diff -r test-1 test-3
-							check $?
-diff -r test-1 test-4
-							check $?
+exit $result
