@@ -526,6 +526,7 @@ cmd_add()
             for (j = i; j < cmd_filec-1; j++)
                 cmd_filev[j] = cmd_filev[j+1];
             cmd_filec--;
+            i--;
             continue;
         }
         oafp = append_it(cmd_filev[i], oafp, nafp);
