@@ -85,7 +85,7 @@
 	* src/lhext.c (adjust_info): should use `struct utimbuf' for
 	`utime(2)' rather than `time_t' array.
 
-	* src/header.c (write_header): [BUG] should not write zero at the
+	* src/header.c (write_header): [BUG]: should not write zero at the
 	first byte on level 2 header. should adjust header size.
 
 	* tests/lha-test10: added tests for level 2 header.
@@ -100,11 +100,11 @@
 
 2002-07-17  Koji Arai  <jca02266@nifty.ne.jp>
 
-	* src/header.c (get_header): [BUG] Could not read level 2 header
+	* src/header.c (get_header): [BUG]: Could not read level 2 header
 	when the header size is grater than 256.
 	(convert_filename): Should use the `FILENAME_LENGTH' macro rather
 	than 256.
-	(write_header): [BUG] Suppress to overflow the header size when
+	(write_header): [BUG]: Suppress to overflow the header size when
 	long filename is written in level 0 or 1 header. On level 1
 	header, always use the extended filename header instead of the
 	base header.
@@ -180,9 +180,9 @@
 	separator for the level 0 header entry.
 	Should convert `\' to `/' for level 0 header (do always to make sure,
 	SO CANNOT CONTAIN THE `\' IN FILENAME).
-	(init_header): Should not convert path separator here (Should do
+	(init_header): [BUG]: Should not convert path separator here (Should do
 	in write_header()).
-	(write_header): should set pathname (contains directory part) to
+	(write_header): [BUG]: should set pathname (contains directory part) to
 	the LzHeader.name field on level 0 header archive even if the
 	archive methods is -lhd-.
 
