@@ -495,8 +495,9 @@ cmd_add()
     }
 
     for (i = 0; i < cmd_filec; i++) {
+        int j;
+
         if (strcmp(cmd_filev[i], archive_name) == 0) {
-            int j;
             /* exclude target archive */
             warning("specified file \"%s\" is the generating archive. skip",
                     cmd_filev[i]);
@@ -506,7 +507,16 @@ cmd_add()
             i--;
             continue;
         }
+
+        /* exclude files specified by -x option */
+        for (j = 0; exclude_files && exclude_files[j]; j++) {
+            if (fnmatch(exclude_files[j], basename(cmd_filev[i]),
+                        FNM_PATHNAME|FNM_NOESCAPE|FNM_PERIOD) == 0)
+                goto next;
+        }
+
         oafp = append_it(cmd_filev[i], oafp, nafp);
+    next:
     }
 
     if (oafp) {
