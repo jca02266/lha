@@ -1,4 +1,14 @@
+2002-05-28  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.ac, config.h.in: use new autoconf macro, AC_CHECK_MEMBERS().
+
+	* IFNAMES, configure.in, src/header.c, src/lharc.c: replaced with
+	new macro name.
+
 2002-05-27  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/header.c (filename_conv): reverse condition and conversion
+	for filename case.
 
 	* README.autoconf: added description abount `get_filename_from_stdin' feature.
 
