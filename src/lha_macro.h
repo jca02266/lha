@@ -98,6 +98,15 @@
 #define LARC5_DICBIT            12      /* 2^12 =  4k sliding dictionary */
 #define LARC4_DICBIT             0      /* no compress */
 
+#ifdef SUPPORT_LH7
+#define MAX_DICBIT			LZHUFF7_DICBIT      /* lh7 use 16bits */
+#endif
+#ifndef SUPPORT_LH7
+#define MAX_DICBIT			LZHUFF6_DICBIT      /* lh6 use 15bits */
+#endif
+
+#define MAX_DICSIZ			(1L << MAX_DICBIT)
+
 #define EXTEND_GENERIC			0
 #define EXTEND_UNIX				'U'
 #define EXTEND_MSDOS			'M'
@@ -246,15 +255,6 @@
 */
 
 /* slide.c */
-#ifdef SUPPORT_LH7
-#define MAX_DICBIT			LZHUFF7_DICBIT      /* lh7 use 16bits */
-#endif
-
-#ifndef SUPPORT_LH7
-#define MAX_DICBIT			LZHUFF6_DICBIT      /* lh6 use 15bits */
-#endif
-
-#define MAX_DICSIZ			(1 << MAX_DICBIT)
 #define MATCHBIT			8	/* bits for MAXMATCH - THRESHOLD */
 #define MAXMATCH			256	/* formerly F (not more than UCHAR_MAX + 1) */
 #define THRESHOLD			3	/* choose optimal value */

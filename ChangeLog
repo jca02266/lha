@@ -1,5 +1,18 @@
 2002-11-11  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/util.c (skip_msdos_sfx1_code): move to header.c
+
+	* src/header.c (skip_msdos_sfx1_code): ditto.
+	some macro moved from lha_macro.h.
+
+	* src/lha_macro.h: ditto.
+
+	* tests/lha-test15: newly added for testing self extracting archive.
+
+	* tests/lha-test.in: ditto.
+
+	* tests/Makefile.am: ditto.
+
 	* configure.ac: refined messages.
 
 2002-10-26  Koji Arai  <jca02266@nifty.ne.jp>
