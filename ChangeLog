@@ -2,6 +2,8 @@
 
 	* released.
 
+	* 00readme.autoconf: note for builds on MS-Windows.
+
 	* configure.ac: updated version.
 
 	* Makefile.am: added Hacking_of_LHa in EXTRA_DIST.
