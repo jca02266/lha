@@ -135,15 +135,12 @@ encode_alloc(method)
 
 	if (hash) return method;
 
-	if (alloc_buf() == NULL) exit(207); /* I don't know this 207. */
+	alloc_buf();
 
-	hash = (unsigned int*)malloc(HSHSIZ * sizeof(unsigned int));
-	prev = (unsigned int*)malloc(DICSIZ * sizeof(unsigned int));
-	text = (unsigned char*)malloc(TXTSIZ);
-	too_flag = (unsigned char*)malloc(HSHSIZ);
-
-	if (hash == NULL || prev == NULL || text == NULL || too_flag == NULL)
-		exit(207);
+	hash = (unsigned int*)xmalloc(HSHSIZ * sizeof(unsigned int));
+	prev = (unsigned int*)xmalloc(DICSIZ * sizeof(unsigned int));
+	text = (unsigned char*)xmalloc(TXTSIZ);
+	too_flag = (unsigned char*)xmalloc(HSHSIZ);
 
 	return method;
 }
@@ -398,10 +395,7 @@ decode(interface)
 	crc = 0;
 	prev_char = -1;
 	dicsiz = 1L << dicbit;
-	dtext = (unsigned char *) malloc(dicsiz);
-	if (dtext == NULL)
-		/* error(MEMOVRERR, NULL); */
-		exit(errno);
+	dtext = (unsigned char *)xmalloc(dicsiz);
 	for (i=0; i<dicsiz; i++) dtext[i] = 0x20;
 	decode_set.decode_start();
 	dicsiz1 = dicsiz - 1;
