@@ -50,8 +50,7 @@ count_leaf(node, nchar, leaf_num, depth) /* call with node = root */
 }
 
 static void
-make_len(root, nchar, bitlen, sort, leaf_num)
-    int root;
+make_len(nchar, bitlen, sort, leaf_num)
     int nchar;
     unsigned char *bitlen;
     unsigned short *sort;       /* sorted characters */
@@ -171,7 +170,7 @@ make_tree(nchar, freq, bitlen, code)
         count_leaf(root, nchar, leaf_num, 0);
 
         /* make bitlen */
-        make_len(root, nchar, bitlen, code, leaf_num);
+        make_len(nchar, bitlen, code, leaf_num);
 
         /* make code table */
         make_code(nchar, bitlen, code, leaf_num);
