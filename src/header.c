@@ -406,8 +406,8 @@ wintime_to_unix_stamp()
     uint64_t t;
     uint64_t epoch = 0x019db1ded53e8000; /* 1970-01-01 00:00:00 (UTC) */
 
-    t = get_longword();
-    t += (uint64_t)get_longword() << 32;
+    t = (unsigned long)get_longword();
+    t |= (uint64_t)(unsigned long)get_longword() << 32;
     t = (t - epoch) / 10000000;
     return t;
 #else
