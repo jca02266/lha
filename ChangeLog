@@ -1,3 +1,20 @@
+2002-07-11  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/Makefile.am (EXTRA_DIST): lha-test9 and lha-test10 were missed.
+
+	* src/lharc.c (print_tiny_usage): no exit here.
+
+	* src/header.c (ConvertEncodingByIconv): newly added.
+	Thanks to Hiroto Sakai.
+
+	* configure.ac, config.h.in: Checking to have iconv() for utf-8
+	conversion.
+
+	* configure.ac: Checking whether strrchr() is 8 bit clean or not.
+	On Mac OS X, strchr() can handle 8 bit characters, but strrchr()
+	cannot.
+	Should use '\377' rather than '\xff' for de-ANSI compiler.
+
 2002-07-10  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* released.
@@ -6,7 +23,8 @@
 
 	* src/header.c: change hex codes '\xff' to octal codes '\377'.
 
-	* tests/lha-test.in: Skip the lha-test9. (this test is imcomplete, yet)
+	* tests/lha-test.in: Skip the lha-test9. (this test is imcomplete
+	for now)
 
 	* tests/lha-test10: Should extract directory even if the archive
 	header was level 0.
@@ -16,7 +34,7 @@
 	Should convert `\' to `/' for level 0 header (do always to make sure,
 	SO CANNOT CONTAIN THE `\' IN FILENAME).
 	(init_header): Should not convert path separator here (Should do
-	in write_header).
+	in write_header()).
 	(write_header): Did not contain the directory part in level 0
 	archive.
 
