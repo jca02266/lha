@@ -22,7 +22,9 @@ pty()
 	print inp.gets
       rescue Errno::EIO
       rescue PTY::ChildExited
-	# p [\$!, \$!.status, \$?]
+        if \$!.status & 0xff != 0
+	  STDERR.puts [\$!, \$!.status, \$?].inspect
+	end
 	exit \$!.status >> 8
       end
     }
@@ -41,21 +43,29 @@ $lha v test-1.lzh
 							check $?
 
 # skip file
+rm -rf test-tmp &&
+cp -pr test-tmp2 test-tmp &&
 pty 3 n  $lha xw=test-tmp test-1.lzh
 							check $?
 diff -r test-tmp test-tmp2
 							check $?
 # overwrite
+rm -rf test-tmp &&
+cp -pr test-tmp2 test-tmp &&
 pty 3 y  $lha xw=test-tmp test-1.lzh
 							check $?
 diff -r test-1 test-tmp
 							check $?
 # overwrite all
+rm -rf test-tmp &&
+cp -pr test-1 test-tmp &&
 pty 1 a  $lha x test-tmp.lzh
 							check $?
 diff -r test-tmp test-tmp2
 							check $?
 # skip all
+rm -rf test-tmp &&
+cp -pr test-tmp2 test-tmp &&
 pty 1 s	 $lha xw=test-tmp test-1.lzh
 							check $?
 diff -r test-tmp test-tmp2
