@@ -7,3 +7,8 @@ cat test-tmp.lzh | $lha xw=test-tmp -
 							check $? $LINENO
 diff -r test-1 test-tmp
 							check $? $LINENO
+# output to pipe
+$lha c - test-a test-b test-c | $lha xw=test-tmp2 -
+							check $? $LINENO
+diff -r test-1 test-tmp2
+							check $? $LINENO
