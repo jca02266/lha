@@ -1,3 +1,4 @@
+# -*- shell-script -*-
 message testing to delete files from archive.
 
 cp test-1.lzh test-tmp.lzh

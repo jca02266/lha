@@ -1,3 +1,4 @@
+# -*- shell-script -*-
 message testing to lh0, lh1, lh5, lh6 and lh7 method archive.
 $lha cz  test-tmp-m0.lzh test-a test-b test-c
 							check $?

@@ -1,3 +1,4 @@
+# -*- shell-script -*-
 message testing to treat stdin/stdout as archive file.
 
 $lha c - test-a test-b test-c > test-tmp.lzh

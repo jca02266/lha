@@ -1,3 +1,4 @@
+# -*- shell-script -*-
 message testing to add/update files to archive.
 $lha a test-tmp.lzh test-c
 							check $?

@@ -1,3 +1,4 @@
+# -*- shell-script -*-
 message testing to generic format archive.
 $lha czg  test-tmp-m0g.lzh test-a test-b test-c
 							check $?

@@ -1,3 +1,4 @@
+# -*- shell-script -*-
 message testing timestamp
 $lha c test-tmp.lzh test-[abc]
 							check $?
