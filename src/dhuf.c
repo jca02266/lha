@@ -342,3 +342,6 @@ encode_end_dyn( /* void */ )
 {
 	putcode(7, 0);
 }
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

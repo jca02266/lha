@@ -83,3 +83,6 @@ decode_start_lz5( /*void*/ )
 	memset(&text[256 * 13 + 512 + 18], 0, 128);
 	memset(&text[256 * 13 + 512 + 128 + 18], ' ', 128 - 18);
 }
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

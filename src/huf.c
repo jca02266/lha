@@ -12,8 +12,10 @@
 #include <sys/param.h>
 #endif
 
-#if defined(__STDC__) || defined(NEWSOS)
+#if STDC_HEADERS
 #include <stdlib.h>
+#else
+extern char *malloc ();
 #endif
 
 /* ------------------------------------------------------------------------ */
@@ -459,3 +461,7 @@ decode_start_st1( /* void */ )
 	init_getbits();
 	blocksize = 0;
 }
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */
+/* vi:set ts=4 */

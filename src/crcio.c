@@ -356,3 +356,6 @@ calc_header_crc(p, n)		/* Thanks T.Okamoto */
 		UPDATE_CRC(*p++);
 	return crc;
 }
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

@@ -168,3 +168,7 @@ make_tree(nparm, freqparm, lenparm, codeparm)
 	make_code(nparm, lenparm, codeparm);
 	return k;		/* return root */
 }
+
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

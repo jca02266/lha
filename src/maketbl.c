@@ -91,3 +91,7 @@ make_table(nchar, bitlen, tablebits, table)
 		start[k] = l;
 	}
 }
+
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

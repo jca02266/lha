@@ -81,7 +81,36 @@ msdos_to_unix_filename(name, len)
 {
 	register int    i;
 
+#define HANKAKU_KATAKANA_P(c)\
+	(0xa0 < (unsigned char)(c) && (unsigned char)(c) < 0xe0)
+
 #ifdef MULTIBYTE_CHAR
+#ifdef SUPPORT_X0201
+	for (i = 0; i < len; i++) {
+		/* modified by Koji Arai */
+		if (HANKAKU_KATAKANA_P(name[i])) {
+			int j;
+			for (j = len; j >= i; j--) {
+				name[j+1] = name[j]; /* no check over */
+			}
+			name[i] = 0x8e;
+			i++;
+			len++;
+		} else
+		if (MULTIBYTE_FIRST_P(name[i]) &&
+		    MULTIBYTE_SECOND_P(name[i + 1])) {
+			int c1, c2;
+			c1 = name[i]; c2 = name[i+1];
+			sjis2euc(&c1, &c2);
+			name[i] = c1; name[i+1] = c2;
+			i++;
+		}
+		else if (name[i] == '\\')
+			name[i] = '/';
+		else if (isupper(name[i]))
+			name[i] = tolower(name[i]);
+	}
+#else
 	for (i = 0; i < len; i++) {
 		if (MULTIBYTE_FIRST_P(name[i]) &&
 		    MULTIBYTE_SECOND_P(name[i + 1]))
@@ -91,6 +120,7 @@ msdos_to_unix_filename(name, len)
 		else if (isupper(name[i]))
 			name[i] = tolower(name[i]);
 	}
+#endif /* SUPPORT_X0201 */
 #else
 	for (i = 0; i < len; i++) {
 		if (name[i] == '\\')
@@ -111,6 +141,28 @@ generic_to_unix_filename(name, len)
 	boolean         lower_case_used = FALSE;
 
 #ifdef MULTIBYTE_CHAR
+#ifdef SUPPORT_X0201
+	for (i = 0; i < len; i++) {
+		/* modified by Koji Arai */
+		if (HANKAKU_KATAKANA_P(name[i])) {
+			int j;
+			for (j = len; j >= i; j--) {
+				name[j+1] = name[j]; /* no check over */
+			}
+			name[i] = 0x8e;
+			i++;
+			len++;
+		} else
+
+		if (MULTIBYTE_FIRST_P(name[i]) &&
+		    MULTIBYTE_SECOND_P(name[i + 1]))
+			i++;
+		else if (islower(name[i])) {
+			lower_case_used = TRUE;
+			break;
+		}
+	}
+#else
 	for (i = 0; i < len; i++) {
 		if (MULTIBYTE_FIRST_P(name[i]) &&
 		    MULTIBYTE_SECOND_P(name[i + 1]))
@@ -120,6 +172,7 @@ generic_to_unix_filename(name, len)
 			break;
 		}
 	}
+#endif /* SUPPORT_X0201 */
 	for (i = 0; i < len; i++) {
 		if (MULTIBYTE_FIRST_P(name[i]) &&
 		    MULTIBYTE_SECOND_P(name[i + 1]))
@@ -152,12 +205,45 @@ macos_to_unix_filename(name, len)
 {
 	register int    i;
 
+/* modified by Koji Arai */
+#ifdef SUPPORT_X0201
+	for (i = 0; i < len; i ++) {
+		/* modified by Koji Arai */
+		if (HANKAKU_KATAKANA_P(name[i])) {
+			int j;
+			for (j = len; j >= i; j--) {
+				name[j+1] = name[j]; /* no check over */
+			}
+			name[i] = 0x8e;
+			i++;
+			len++;
+		} else
+
+		if (MULTIBYTE_FIRST_P (name[i]) &&
+			MULTIBYTE_SECOND_P (name[i+1])) {
+			int c1, c2;
+			c1 = name[i]; c2 = name[i+1];
+			sjis2euc(&c1, &c2);
+			name[i] = c1; name[i+1] = c2;
+			i ++;
+		}
+		else if (name[i] == ':')
+			name[i] = '/';
+		else if (name[i] == '/')
+			name[i] = ':';
+/*
+		else if (isupper (name[i]))
+			name[i] = tolower (name[i]);
+*/
+	}
+#else
 	for (i = 0; i < len; i++) {
 		if (name[i] == ':')
 			name[i] = '/';
 		else if (name[i] == '/')
 			name[i] = ':';
 	}
+#endif /* SUPPORT_X0201 */
 }
 
 /* ------------------------------------------------------------------------ */
@@ -194,35 +280,35 @@ unix_to_generic_filename(name, len)
  */
 
 /* choose one */
-#if defined(MKTIME)
-#ifdef TIMELOCAL
-#undef TIMELOCAL
+#if defined(HAVE_MKTIME)
+#ifdef HAVE_TIMELOCAL
+#undef HAVE_TIMELOCAL
 #endif
-#endif				/* defined(MKTIME) */
+#endif				/* defined(HAVE_MKTIME) */
 
-#if defined(MKTIME) || defined(TIMELOCAL)
-#ifdef TZSET
-#undef TZSET
+#if defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL)
+#ifdef HAVE_TZSET
+#undef HAVE_TZSET
 #endif
-#endif				/* defined(MKTIME) || defined(TIMELOCAL) */
+#endif				/* defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) */
 
-#if defined(MKTIME) || defined(TIMELOCAL) || defined(TZSET)
-#ifdef FTIME
-#undef FTIME
+#if defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) || defined(HAVE_TZSET)
+#ifdef HAVE_FTIME
+#undef HAVE_FTIME
 #endif
 #endif
 
-#if defined(MKTIME) || defined(TIMELOCAL) || defined(TZSET) || defined(FTIME)
-#ifdef GETTIMEOFDAY
-#undef GETTIMEOFDAY
+#if defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) || defined(HAVE_TZSET) || defined(HAVE_FTIME)
+#ifdef HAVE_GETTIMEOFDAY
+#undef HAVE_GETTIMEOFDAY
 #endif
 #else
-#ifndef GETTIMEOFDAY
-#define GETTIMEOFDAY		/* use gettimeofday() */
+#ifndef HAVE_GETTIMEOFDAY
+#define HAVE_GETTIMEOFDAY		/* use gettimeofday() */
 #endif
 #endif
 
-#ifdef FTIME
+#ifdef HAVE_FTIME
 #include <sys/timeb.h>
 #endif
 
@@ -235,15 +321,15 @@ TIMEZONE_HOOK
 /* Which do you like better, `TIMEZONE_HOOK' or `TIMEZONE_HOOK;' ? */
 #endif
 
-#if defined(TZSET) && defined(_MINIX)
+#if defined(HAVE_TZSET) && defined(_MINIX)
 extern long     timezone;		/* not defined in time.h */
 #endif
 
 /* ------------------------------------------------------------------------ */
-#if defined(FTIME) || defined(GETTIMEOFDAY) || defined(TZSET)
+#if defined(HAVE_FTIME) || defined(HAVE_GETTIMEOFDAY) || defined(HAVE_TZSET)
 static long
 gettz()
-#ifdef TZSET
+#ifdef HAVE_TZSET
 {
 	tzset();
 	return timezone;
@@ -251,7 +337,7 @@ gettz()
 #endif
 
 /* ------------------------------------------------------------------------ */
-#if !defined(TZSET) && defined(FTIME)
+#if !defined(HAVE_TZSET) && defined(HAVE_FTIME)
 {
 	struct timeb    buf;
 
@@ -261,14 +347,14 @@ gettz()
 #endif
 
 /* ------------------------------------------------------------------------ */
-#if !defined(TZSET) && !defined(FTIME)	/* maybe defined(GETTIMEOFDAY) */
+#if !defined(HAVE_TZSET) && !defined(HAVE_FTIME)	/* maybe defined(HAVE_GETTIMEOFDAY) */
 {
-#ifdef HAVE_TM_ZONE
+#ifdef HAVE_TM_GMTOFF
         time_t tt;
 
         time(&tt);
         return -localtime(&tt)->tm_gmtoff;
-#else /* HAVE_TM_ZONE */
+#else /* HAVE_TM_GMTOFF */
 	struct timeval  tp;
 	struct timezone tzp;
 	gettimeofday(&tp, &tzp);/* specific to 4.3BSD */
@@ -277,11 +363,11 @@ gettz()
 	 * 60L : 0));
 	 */
 	return (tzp.tz_minuteswest * 60L);
-#endif /* HAVE_TM_ZONE */
+#endif /* HAVE_TM_GMTOFF */
 }
 #endif
-#endif				/* defined(FTIME) || defined(GETTIMEOFDAY) ||
-				 * defined(TZSET) */
+#endif				/* defined(HAVE_FTIME) || defined(HAVE_GETTIMEOFDAY) ||
+				 * defined(HAVE_TZSET) */
 
 /* ------------------------------------------------------------------------ */
 #ifdef NOT_USED
@@ -305,7 +391,7 @@ msdos_to_unix_stamp_tm(a)
 static          time_t
 generic_to_unix_stamp(t)
 	long            t;
-#if defined(MKTIME) || defined(TIMELOCAL)
+#if defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL)
 {
 	struct tm       dostm;
 
@@ -326,14 +412,14 @@ generic_to_unix_stamp(t)
 	dostm.tm_isdst = 0;	/* correct? */
 #endif
 	dostm.tm_isdst = -1;    /* correct? */
-#ifdef MKTIME
+#ifdef HAVE_MKTIME
 	return (time_t) mktime(&dostm);
-#else				/* maybe defined(TIMELOCAL) */
+#else				/* maybe defined(HAVE_TIMELOCAL) */
 	return (time_t) timelocal(&dostm);
 #endif
 }
 
-#else				/* defined(MKTIME) || defined(TIMELOCAL) */
+#else				/* defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) */
 {
 	int             year, month, day, hour, min, sec;
 	long            longtime;
@@ -374,7 +460,7 @@ generic_to_unix_stamp(t)
 	/* LONGTIME is now the time in seconds, since 1970/01/01 00:00:00.  */
 	return (time_t) longtime;
 }
-#endif				/* defined(MKTIME) || defined(TIMELOCAL) */
+#endif				/* defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) */
 
 /* ------------------------------------------------------------------------ */
 static long
@@ -538,6 +624,7 @@ get_header(fp, hdr)
 				for (i = 0; i < header_size - 3; i++)
 					hdr->name[i] = (char) get_byte();
 				hdr->name[header_size - 3] = '\0';
+				name_length = header_size - 3; /* modified by Koji Arai */
 				break;
 			case 2:
 				/*
@@ -750,7 +837,7 @@ write_header(nafp, hdr)
 
 	convdelim(hdr->name, DELIM2);
 	if (hdr->header_level != HEADER_LEVEL2) {
-		if (p = (char *) rindex(hdr->name, DELIM2))
+		if (p = (char *) strrchr(hdr->name, DELIM2))
 			name_length = strlen(++p);
 		else
 			name_length = strlen(hdr->name);
@@ -808,7 +895,7 @@ write_header(nafp, hdr)
 			put_word(hdr->unix_gid);
 			put_word(hdr->unix_uid);
 
-			if (p = (char *) rindex(hdr->name, DELIM2)) {
+			if (p = (char *) strrchr(hdr->name, DELIM2)) {
 				int             i;
 
 				name_length = p - hdr->name + 1;
@@ -834,7 +921,7 @@ write_header(nafp, hdr)
 			data[I_HEADER_CHECKSUM] = calc_sum(data + I_METHOD, header_size);
 		} else {		/* header level 2 */
 			int             i;
-			if (p = (char *) rindex(hdr->name, DELIM2))
+			if (p = (char *) strrchr(hdr->name, DELIM2))
 				name_length = strlen(++p);
 			else {
 				p = hdr->name;
@@ -863,3 +950,40 @@ write_header(nafp, hdr)
 
 	convdelim(hdr->name, DELIM);
 }
+
+#ifdef SUPPORT_X0201
+/*
+ * SJIS <-> EUC 変換関数
+ * 「日本語情報処理」	ソフトバンク(株)
+ *	より抜粋(by Koji Arai)
+ */
+void
+euc2sjis(int *p1, int *p2)
+{
+    unsigned char c1 = *p1 & 0x7f;
+    unsigned char c2 = *p2 & 0x7f;
+    int rowoff = c1 < 0x5f ? 0x70 : 0xb0;
+    int celoff = c1 % 2 ? (c2 > 0x5f ? 0x20 : 0x1f) : 0x7e;
+    *p1 = ((c1 + 1) >> 1) + rowoff;
+    *p2 += celoff;
+}
+
+void
+sjis2euc(int *p1, int *p2)
+{
+    unsigned char c1 = *p1;
+    unsigned char c2 = *p2;
+    int adjust = c2 < 0x9f;
+    int rowoff = c1 < 0xa0 ? 0x70 : 0xb0;
+    int celoff = adjust ? (c2 > 0x7f ? 0x20 : 0x1f) : 0x7e;
+    *p1 = ((c1 - rowoff) << 1) - adjust;
+    *p2 -= celoff;
+
+    *p1 |= 0x80;
+    *p2 |= 0x80;
+}
+#endif /* SUPPORT_X0201 */
+
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

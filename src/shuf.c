@@ -199,3 +199,6 @@ decode_p_st0(/*void*/)
 	}
 	return (j << 6) + getbits(6);
 }
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

@@ -33,3 +33,7 @@ typedef struct {
 extern DIR     		 *opendir();
 extern struct direct *readdir();
 extern int			 closedir();
+
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

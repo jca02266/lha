@@ -6,36 +6,39 @@
 /*	Ver. 1.14	Soruce All chagned				1995.01.14	N.Watazaki		*/
 /* ------------------------------------------------------------------------ */
 
-/* Most of System V, define SYSTIME_HAS_NO_TM */
-#ifdef	SYSTIME_HAS_NO_TM
-#include <time.h>
-#else
+/* Most of System V, define TM_IN_SYS_TIME */
+#if	TM_IN_SYS_TIME
 #include <sys/time.h>
-#endif	/* SYSTIME_HAS_NO_TM */
+#else
+#include <time.h>
+#endif	/* TM_IN_SYS_TIME */
 
 /* ------------------------------------------------------------------------ */
 /*	Directory Access Stuff													*/
 /* ------------------------------------------------------------------------ */
 #ifndef NODIRECTORY
-#ifdef SYSV_SYSTEM_DIR
-
-#include <dirent.h>
+#if HAVE_DIRENT_H
+# include <dirent.h>
+# define NAMLEN(dirent) strlen((dirent)->d_name)
+#else
+# define dirent direct
+# define NAMLEN(dirent) (dirent)->d_namlen
+# if HAVE_SYS_NDIR_H
+#  include <sys/ndir.h>
+# endif
+# if HAVE_SYS_DIR_H
+#  include <sys/dir.h>
+# endif
+# if HAVE_NDIR_H
+#  include <ndir.h>
+# endif
+# ifdef NONSYSTEM_DIR_LIBRARY			/* no use ?? */
+#  include "lhdir.h"
+# endif
+#endif
 
 #define DIRENTRY	struct dirent
-#define NAMLEN(p)	strlen (p->d_name)
 
-#else	/* not SYSV_SYSTEM_DIR */
-
-#ifdef NONSYSTEM_DIR_LIBRARY
-#include "lhdir.h"
-#else
-#include <sys/dir.h>
-#endif	/* not NONSYSTEM_DIR_LIBRARY */
-
-#define DIRENTRY		struct direct
-#define NAMLEN(p)		p->d_namlen
-
-#endif	/* not SYSV_SYSTEM_DIR */
 #endif  /* NODIRECTORY */
 
 /* ------------------------------------------------------------------------ */
@@ -98,7 +101,7 @@ typedef int				boolean;
 #define SJC_SECOND_P(c)			\
   (((unsigned char)(c) >= 0x40) &&	\
    ((unsigned char)(c) < 0xfd) &&	\
-   ((ungigned char)(c) != 0x7f))
+   ((unsigned char)(c) != 0x7f))
 
 #ifdef MULTIBYTE_CHAR
 #define MULTIBYTE_FIRST_P	SJC_FIRST_P
@@ -298,20 +301,22 @@ typedef short   				node;
 /* ------------------------------------------------------------------------ */
 /*	Memory and String function												*/
 /* ------------------------------------------------------------------------ */
-#include <string.h>
+#if STDC_HEADERS
+# include <string.h>
+#else
+# ifndef HAVE_STRCHR
+#  define strchr index
+#  define strrchr rindex
+# endif
+char *strchr (), *strrchr ();
+# ifdef HAVE_MEMCPY
+#  define bcmp(a,b,n)	memcmp((a),(b),(n))
+#  define bzero(d,n)	memset((d),0,(n))
+#  define bcopy(s,d,n)	memmove((d),(s),(n))
+# endif
+#endif
 
-#ifdef NOINDEX
-#define index			strchr
-#define rindex			strrchr
-#endif	/* NOINDEX */
-
-#ifdef NOBSTRING
-#define bcmp(a,b,n)		memcmp ((a),(b),(n))
-#define bzero(d,n)		memset((d),0,(n))
-#define bcopy(s,d,n)	memmove((d),(s),(n))
-#endif	/* NOBSTRING */
-
-#ifdef USESTRCASECMP
+#if HAVE_STRCASECMP
 #define strucmp(p,q)	strcasecmp((p),(q))
 #endif
 
@@ -401,3 +406,6 @@ typedef short   				node;
 /* alphabet = {0, 1, 2, ..., NC - 1} */
 #define CBIT				9	/* $\lfloor \log_2 NC \rfloor + 1$ */
 #define USHRT_BIT			16	/* (CHAR_BIT * sizeof(ushort)) */
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

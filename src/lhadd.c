@@ -61,7 +61,7 @@ add_one(fp, nafp, hdr)
 					  &v_original_size, &v_packed_size);
 		fflush(nafp);
 		next_pos = ftell(nafp);
-#ifndef NOFTRUNCATE
+#if HAVE_FTRUNCATE
 		ftruncate(fileno(nafp), next_pos);
 #endif
 		bcopy(LZHUFF0_METHOD, hdr->method, METHOD_TYPE_STRAGE);
@@ -344,7 +344,7 @@ temporary_to_new_archive_file(new_archive_size)
 	long            new_archive_size;
 {
 	char           *p;
-	p = (char *) rindex(new_archive_name, '/');
+	p = (char *) strrchr(new_archive_name, '/');
 	p = p ? p + 1 : new_archive_name;
 	unlink(new_archive_name);
 	if (rename(temporary_name, p) < 0) {
@@ -628,3 +628,6 @@ char *str2;
 }
 
 		
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

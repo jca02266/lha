@@ -1,0 +1,42 @@
+# -*- Mode: text ; Coding: euc-japan -*-
+
+autoconfiguration for LHa for UNIX version 1.14f
+					Thu, Sep 30 1999 by Koji Arai
+
+このファイルはLHa for UNIX version 1.14f をautoconf、automake化
+したときのメモです。
+
+・マクロの置き換え
+
+  オリジナルのlha-1.14f で使われていたマクロはautoconf標準のマクロ名に
+  置き換えられました。(IFNAMESファイルに詳細が書かれています)
+
+  IFNAMESファイルは、
+     マクロ名 定義のあるファイル...  コメント
+  という構成になっています。このファイルはautoconfと一緒に配布される
+  ifnamesコマンドで生成しました。
+  IFNAMESファイルの# で始まっている行は該当のマクロが置き換えられたり、
+  configure コマンドのコマンドオプションで指定されるようになったことを
+  示します。そのままの行はautoconfで判断する必要がないかまたは私が判断
+  できないため、そのまま放置したことを示します。
+
+・GPL
+  automake は、--foreign 付きで処理しました。いくつかのGNUユーティリティ
+  (config.guess, config.sub, install-sh, missing, mkinstalldirs)が含ま
+  れているため、GPL2が記述されたファイルCOPYINGを同梱しましたが、
+  Lha for UNIX自体はGPLに従っていないと思います。
+
+・-lh6-メソッドのアーカイブ作成
+
+  lha 1.14f では、SUPPORT_LH6の定義を行わなければ、-lh6-メソッドのアー
+  カイブを作成できませんでした。このことは別に構わないのですが
+  SUPPORT_LH6を定義するとデフォルトで-lh6-メソッドのアーカイブ作成を強
+  制されてしまいます。そこで、もう少し柔軟にlha利用者がこれらを選択で
+  きるようSUPPORT_LH6の挙動をデフォルトで作成するアーカイブメソッドの
+  変更にし、このマクロ定義(configureでは--enable-lh6フラグ)のあるなし
+  によらず、o6オプションで- lh6-アーカイブを作成できるようにしました。
+
+  また、configureのデフォルトはSUPPORT_LH6を定義しません。従って、デフォ
+  ルトで作成されるアーカイブのメソッドは-lh5-です。(上で述べた通り、
+  lhaの o6 オプションによりいつでも-lh6-で作成でき、configureオプショ
+  ンによりデフォルトの挙動を変更することができます)

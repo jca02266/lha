@@ -160,13 +160,13 @@ adjust_info(name, hdr)
 		if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK)
 			chmod(name, hdr->unix_mode);
 #endif
-		if (!getuid()) {
-#ifndef HAVE_NO_LCHOWN
-            if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK)
-			    lchown(name, hdr->unix_uid, hdr->unix_gid);
-			else
-#endif /* HAVE_NO_LCHWON */
-			    chown(name, hdr->unix_uid, hdr->unix_gid);
+		if (!getuid()){
+#if HAVE_LCHOWN
+			if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK)
+				lchown(name, hdr->unix_uid, hdr->unix_gid);
+			else 
+#endif
+				chown(name, hdr->unix_uid, hdr->unix_gid);
 		}
 		errno = 0;
 	}
@@ -186,8 +186,8 @@ extract_one(afp, hdr)
 	boolean         save_quiet, save_verbose, up_flag;
 	char           *q = hdr->name, c;
 
-	if (ignore_directory && rindex(hdr->name, '/')) {
-		q = (char *) rindex(hdr->name, '/') + 1;
+	if (ignore_directory && strrchr(hdr->name, '/')) {
+		q = (char *) strrchr(hdr->name, '/') + 1;
 	}
 	else {
 		if (*q == '/') {
@@ -419,3 +419,6 @@ cmd_extract()
 
 	return;
 }
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

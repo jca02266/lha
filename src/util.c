@@ -182,7 +182,7 @@ skip_msdos_sfx1_code(fp)
  */
 
 /* ------------------------------------------------------------------------ */
-#ifdef NOSTRDUP
+#ifndef HAVE_STRDUP
 char           *
 strdup(buf)
 	char           *buf;
@@ -229,7 +229,7 @@ memmove(dst, src, cnt)
  * Masaru Oki 92.01.28 added mkdir() and rmdir() by Tomohiro Ishikawa
  */
 
-#if defined(NOFTRUNCATE) && !defined(_MINIX)
+#if !defined(HAVE_FTRUNCATE) && !defined(_MINIX)
 
 /* ------------------------------------------------------------------------ */
 int
@@ -261,10 +261,10 @@ rename(from, to)
 		return (-1);
 	return (0);
 }
-#endif				/* NOFTRUNCATE */
+#endif				/* !HAVE_FTRUNCATE */
 /* ------------------------------------------------------------------------ */
 
-#ifdef	NOMKDIR
+#ifndef	HAVE_MKDIR
 #ifndef	MKDIRPATH
 #define	MKDIRPATH	"/bin/mkdir"
 #endif
@@ -329,7 +329,7 @@ mkdir(path, mode)
  * strucmp modified: Oct 29 1991 by Masaru Oki
  */
 
-#ifndef USESTRCASECMP
+#ifndef HAVE_STRCASECMP
 static int
 my_toupper(n)
 	register int    n;
@@ -354,7 +354,7 @@ strucmp(s, t)
 #endif
 
 /* ------------------------------------------------------------------------ */
-#ifdef NOMEMSET
+#ifndef HAVE_MEMSET
 /* Public Domain memset(3) */
 char           *
 memset(s, c, n)
@@ -367,3 +367,6 @@ memset(s, c, n)
 	return s;
 }
 #endif
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

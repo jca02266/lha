@@ -96,3 +96,6 @@ closedir(dirp)
 	close(dirp->dd_fd);
 	free(dirp);
 }
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

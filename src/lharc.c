@@ -147,18 +147,8 @@ commands:                           options:\n\
  x,e EXtract from archive            v  verbose\n\
  l,v List / Verbose List             n  not execute\n\
  u   Update newer files to archive   f  force (over write at extract)\n\
- d   Delete from archive             t  FILES are TEXT file\n");
-#ifdef SUPPORT_LH6
-	fprintf(stderr, "\
+ d   Delete from archive             t  FILES are TEXT file\n\
  m   Move to archive (means 'ad')    o[56] compression method (a/u)\n\
-");
-#endif
-#ifndef SUPPORT_LH6
-	fprintf(stderr, "\
- m   Move to archive (means 'ad')    o  use LHarc compatible method (a/u)\n\
-");
-#endif
-	fprintf(stderr, "\
  c   re-Construct new archive        w=<dir> specify extract directory (a/u/m/x/e)\n\
  p   Print to STDOUT from archive    d  delete FILES after (a/u/c)\n\
  t   Test file CRC in archive        i  ignore directory path (x/e)\n\
@@ -318,12 +308,10 @@ main(argc, argv)
                 compress_method = LZHUFF5_METHOD_NUM;
                 p++;
                 break;
-#ifdef SUPPORT_LH6
 			case '6':
                 compress_method = LZHUFF6_METHOD_NUM;
                 p++;
                 break;
-#endif
 			default:
                 fprintf(stderr, "LHa: error option o%c\n", p[-1]);
                 exit(1);
@@ -821,7 +809,7 @@ find_files(name, v_filec, v_filev)
 		newname[len + n] = '\0';
 		if (GETSTAT(newname, &fil_stbuf) < 0)
 			continue;
-#ifdef NO_INODE
+#ifndef HAVE_ST_INO
 		if ( dp->d_name[0] != '.' ||
 			(n != 1 &&
 			 (dp->d_name[1] != '.' ||
@@ -1001,7 +989,7 @@ open_old_archive()
 		else
 			return NULL;
 	}
-	if (p = (char *) rindex(archive_name, '.')) {
+	if (p = (char *) strrchr(archive_name, '.')) {
 		if (strucmp(".LZH", p) == 0
 		    || strucmp(".LZS", p) == 0
 		    || strucmp(".COM", p) == 0	/* DOS SFX */
@@ -1085,3 +1073,6 @@ copy_old_one(oafp, nafp, hdr)
 	}
 }
 
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

@@ -9,6 +9,11 @@
 	Included...
 		lharc.h		interface.h		slidehuf.h
 */
+
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
@@ -310,3 +315,11 @@ extern unsigned 		short calccrc();
 /* from lhadd.c */
 extern int		encode_lzhuf();
 extern int      encode_stored_crc();
+
+/* from header.c */
+void euc2sjis(int *p1, int *p2);
+void sjis2euc(int *p1, int *p2);
+
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

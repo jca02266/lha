@@ -59,3 +59,6 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method)
 
 	return crc;
 }
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

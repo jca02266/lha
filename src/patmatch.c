@@ -37,3 +37,7 @@ patmatch(p, s, f)
 	}
 	return (!*s);		/* p exhausted, ret true if s exhausted */
 }
+
+/* Local Variables: */
+/* tab-width : 4 */
+/* End: */

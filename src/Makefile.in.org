@@ -48,5 +48,6 @@ clean:
 moreclean:
 	rm -f core *.o lha.tar lha.tar.Z *~ \#* *.orig
 
-install:
+install: lha
+	strip lha
 	$(INSTALL) $(INSTALLBIN) lha $(BINDIR)/lha
