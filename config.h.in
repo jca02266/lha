@@ -53,6 +53,9 @@
 /* Define if you have the mkdir function.  */
 #undef HAVE_MKDIR
 
+/* Define if you have the mkstemp function.  */
+#undef HAVE_MKSTEMP
+
 /* Define if you have the mktime function.  */
 #undef HAVE_MKTIME
 
@@ -110,8 +113,8 @@
 /* Define if your struct stat has st_ino */
 #undef HAVE_ST_INO
 
-/* Define if you want to use the -lh6- method, default */
-#undef SUPPORT_LH6
+/* Define it to 5, 6 or 7 which you want to use -lhX- method, default */
+#undef DEFAULT_LZHUFF_METHOD
 
 /* temporary file template */
 #undef TMP_FILENAME_TEMPLATE
