@@ -98,6 +98,7 @@ void copy_old_one P_((FILE *oafp, FILE *nafp, LzHeader *hdr));
 void lha_exit P_((int status));
 /* lhext.c */
 void cmd_extract P_((void));
+int is_directory_traversal P_((char *string));
 /* lhlist.c */
 void cmd_list P_((void));
 /* maketbl.c */
