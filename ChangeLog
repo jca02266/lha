@@ -1,3 +1,20 @@
+2003-02-24  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/prototypes.h: updated.
+
+	* src/maketree.c: hate global variables.
+
+	* src/lha_macro.h: refined.
+
+	* src/huf.c: refined.
+
+	* src/util.c (strdup): defined more properly.
+	(memset): ditto.
+
+	* prototypes.h: ditto.
+
+	* cproto.sh: ditto.
+
 2003-02-23  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/cproto.sh: improved.
