@@ -189,10 +189,9 @@ adjust_info(name, hdr)
 #if HAVE_LCHOWN
 			if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK)
 				lchown(name, uid, gid);
-			else {
+			else
 #endif /* HAVE_LCHWON */
 				chown(name, uid, gid);
-            }
 		}
 		errno = 0;
 	}
