@@ -32,6 +32,11 @@ AC_HEADER_TIME
 AC_STRUCT_TM
 AC_STRUCT_TIMEZONE
 
+AC_CHECK_TYPE(uid_t, int)
+AC_CHECK_TYPE(gid_t, int)
+AC_DEFINE(HAVE_UID_T, 1, [dummy macro])
+AC_DEFINE(HAVE_GID_T, 1, [dummy macro])
+
 AC_CACHE_CHECK([for tm_gmtoff in struct tm], ac_cv_member_struct_tm_tm_gmtoff,
 [AC_TRY_COMPILE([
 #if TM_IN_SYS_TIME

@@ -29,6 +29,7 @@ AC_HEADER_TIME
 AC_STRUCT_TM
 AC_STRUCT_TIMEZONE
 
+AC_CHECK_TYPES([uid_t, gid_t])
 AC_CHECK_MEMBERS([struct tm.tm_gmtoff, struct stat.st_ino],,,
 [
 #if HAVE_SYS_TYPES_H

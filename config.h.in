@@ -34,6 +34,9 @@
 /* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
+/* Define to 1 if the system has the type `gid_t'. */
+#undef HAVE_GID_T
+
 /* Define to 1 if you have the <grp.h> header file. */
 #undef HAVE_GRP_H
 
@@ -145,6 +148,9 @@
 
 /* Define to 1 if you have the `tzset' function. */
 #undef HAVE_TZSET
+
+/* Define to 1 if the system has the type `uid_t'. */
+#undef HAVE_UID_T
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
