@@ -179,6 +179,13 @@ AC_MSG_RESULT($enable_multibyte_filename)
 if test x$enable_multibyte_filename != xno; then
   AC_DEFINE_UNQUOTED(MULTIBYTE_FILENAME, $enable_multibyte_filename,
       [Define to CODE_EUC or CODE_SJIS if you want to use multibyte filename])
+
+  case $target_os in
+  darwin*)
+	# for multibyte filename
+	LDFLAGS="$LDFLAGS -framework CoreFoundation"
+	;;
+  esac
 fi
 
 # make user/group name extented header
