@@ -199,8 +199,7 @@ main(argc, argv)
 	ac = argc;
 	av = (char **)xmalloc( sizeof(char*)*argc );
 	for (i=0; i<argc; i++) {
-	  if ((av[i] = strdup( argv[i] )) == NULL)
-		fatal_error("not enough memory\n");
+        av[i] = xstrdup( argv[i] );
 	}
 
 	if (ac < 2)
@@ -414,8 +413,7 @@ work:
 			}
 			if (strlen(inpbuf) < 1)
 				continue;
-			if ((xfilev[cmd_filec++] = (char *) strdup(inpbuf)) == NULL)
-				fatal_error("Virtual memory exhausted\n");
+			xfilev[cmd_filec++] = xstrdup(inpbuf);
 		}
 		xfilev[cmd_filec] = NULL;
 		cmd_filev = xfilev;
@@ -613,6 +611,18 @@ xrealloc(old, size)
 	char           *p = (char *) realloc(old, size);
 	if (!p)
 		fatal_error("Not enough memory");
+	return p;
+}
+
+char *
+xstrdup(str)
+	char *str;
+{
+    int len = strlen(str);
+	char *p = (char *)xmalloc(str + 1);
+	if (!p)
+		fatal_error("Not enough memory");
+    strcpy(p, str);
 	return p;
 }
 

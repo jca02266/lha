@@ -66,6 +66,7 @@ extern char    *getenv();
 
 extern char    *xmalloc();
 extern char    *xrealloc();
+extern char    *xstrdup();
 
 /* external variables */
 extern int      errno;
