@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([LHa for UNIX], 1.14i-ac20030713, jca02266@nifty.ne.jp, lha)
+AC_INIT([LHa for UNIX], 1.14i-ac20030719, jca02266@nifty.ne.jp, lha)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
@@ -68,6 +68,8 @@ AC_REPLACE_FUNCS(vsnprintf fnmatch)
 if test $ac_header_dirent = no; then
   AC_LIBOBJ(lhdir)
 fi
+
+AC_CHECK_DECLS([basename])
 
 # checking whether 8 bit clean or not
 AC_CACHE_CHECK([whether strchr()/strrchr() is 8bit clean],

@@ -61,7 +61,7 @@ char *memset P_((char *s, int c, size_t n));
 #if !HAVE_STRCASECMP
 int strcasecmp P_((const char *p1, const char *p2));
 #endif
-#if !HAVE_BASENAME
+#if defined HAVE_DECL_BASENAME && !HAVE_DECL_BASENAME
 char *basename P_((char *s));
 #endif
 
