@@ -18,6 +18,7 @@ LHA_MAIN_SRC lha.h lha_macro.h
 # LONG_MAX lha_macro.h
 # LONG_MIN lha_macro.h
 MKDIRPATH util.c
+# MKSTEMP lharc.c			replace with HAVE_MKSTEMP
 # MKTIME header.c			replace with HAVE_MKTIME
 MSDOS lha_macro.h
 # MULTIBYTE_CHAR header.c lha_macro.h util.c	--enable-multibyte-filename
