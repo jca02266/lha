@@ -247,6 +247,7 @@ extract_one(afp, hdr)
 
 	if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_REGULAR
 		&& method != LZHDIRS_METHOD_NUM) {
+    extract_regular:
 #if 0
 		for (method = 0;; method++) {
 			if (methods[method] == NULL) {
@@ -408,7 +409,10 @@ extract_one(afp, hdr)
 		}
 	}
 	else {
-		error("Unknown information: \"%s\"", name);
+        if (force)              /* force extract */
+            goto extract_regular;
+        else
+            error("Unknown file type: \"%s\". use `f' option to force extract.", name);
 	}
 
 	if (!output_to_stdout)
