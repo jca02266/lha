@@ -97,8 +97,7 @@ void cmd_list P_((void));
 /* maketbl.c */
 void make_table P_((int nchar, unsigned char bitlen[], int tablebits, unsigned short table[]));
 /* maketree.c */
-void make_code P_((int n, unsigned char len[], unsigned short code[]));
-short make_tree P_((int nparm, unsigned short freqparm[], unsigned char lenparm[], unsigned short codeparm[]));
+short make_tree P_((int nchar, unsigned short *freq, unsigned char *bitlen, unsigned short *code));
 /* patmatch.c */
 int patmatch P_((register char *p, register char *s, int f));
 /* shuf.c */
