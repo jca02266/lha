@@ -1,5 +1,9 @@
 2002-07-29  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/header.c: should use error() instead of fatal_error().
+
+	* src/prototypes.h: updated.
+
 	* released.
 
 	* configure.ac: updated version.
@@ -8,7 +12,7 @@
 
 2002-07-28  Koji Arai  <jca02266@nifty.ne.jp>
 
-	* tests/Makefile.am (Repository): added lha-test11.
+	* tests/Makefile.am: added lha-test11.
 
 	* src/crcio.c (fread_txt): responded to (gcc -Wall) compiler warnings.
 
