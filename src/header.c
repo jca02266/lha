@@ -175,22 +175,25 @@ get_bytes(buf, len, size)
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
         printf("%02d %2d: \"", get_ptr - start_ptr, len);
-#endif
-    for (i = 0; i < len && i < size; i++) {
-        buf[i] = get_ptr[i];
-#if DUMP_HEADER
+
+    for (i = 0; i < len; i++) {
+        if (i < size) buf[i] = get_ptr[i];
+
         if (verbose_listing && verbose > 1) {
             if (isprint(buf[i]))
                 printf("%c", buf[i]);
             else
                 printf("\\x%02x", (unsigned char)buf[i]);
         }
-#endif
     }
-#if DUMP_HEADER
+
     if (verbose_listing && verbose > 1)
         printf("\"\n");
+#else
+    for (i = 0; i < len && i < size; i++)
+        buf[i] = get_ptr[i];
 #endif
+
     get_ptr += len;
     return i;
 }
@@ -347,15 +350,15 @@ convert_filename(name, len, size,
 }
 
 /* ------------------------------------------------------------------------ */
-/*																			*/
-/* Generic stamp format:						 							*/
-/*																			*/
-/* 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16							*/
-/* |<-------- year ------->|<- month ->|<-- day -->|						*/
-/*																			*/
-/* 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0							*/
-/* |<--- hour --->|<---- minute --->|<- second*2 ->|						*/
-/*																			*/
+/*                                                                          */
+/* Generic stamp format:                                                    */
+/*                                                                          */
+/*  31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16                         */
+/* |<------- year ----->|<- month ->|<--- day ---->|                        */
+/*                                                                          */
+/*  15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0                         */
+/* |<--- hour --->|<---- minute --->|<- second*2 ->|                        */
+/*                                                                          */
 /* ------------------------------------------------------------------------ */
 
 /*
