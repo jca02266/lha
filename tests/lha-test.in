@@ -34,12 +34,12 @@ check()
   typeset status=$1
   typeset lineno=$2
   if [[ $status -eq 0 ]]; then
-    echo    $FILENAME-$test_number ... ok >&2
-    echo    $FILENAME-$test_number ... ok at line $lineno
+    echo    "$FILENAME #$test_number ... ok" >&2
+    echo    "$FILENAME #$test_number ... ok at line $lineno"
   else
-    message $FILENAME-$test_number ... failed at line $lineno
+    message "$FILENAME #$test_number ... failed at line $lineno"
     ((error_num = error_num + 1))
-    error_tests="$error_tests #$test_number"
+    error_tests="$error_tests $FILENAME #$test_number"
     result=1
   fi
 }
