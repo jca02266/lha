@@ -294,9 +294,12 @@ main(argc, argv)
 				++p;
                 /* fall through */
 			default:
+                /* In quiet mode, no confirm to overwrite */
+                force = TRUE;
 				quiet = TRUE;
 				break;
 			}
+            break;
 		case 'f':
 			force = TRUE;
 			break;
