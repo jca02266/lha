@@ -653,8 +653,6 @@ get_header(fp, hdr)
 		}
 		while (extend_size-- > 0)
 			dmy = get_byte();
-		if (hdr->extend_type == EXTEND_UNIX)
-			return TRUE;
 	} else if (hdr->header_level == 1) {
 		hdr->has_crc = TRUE;
 		extend_size = header_size - name_length-25;
@@ -770,6 +768,7 @@ get_header(fp, hdr)
 	switch (hdr->extend_type) {
 	case EXTEND_MSDOS:
         archive_delim = "\xff\\";
+                          /* `\' is for level 0 header and broken archive. */
         system_delim = "//";
         filename_case = noconvertcase ? NONE : TO_LOWER;
 
@@ -787,15 +786,17 @@ get_header(fp, hdr)
 	case EXTEND_XOSK:
 #endif
 	case EXTEND_UNIX:
-        archive_delim = "\xff";
+        archive_delim = "\xff\\";
+                          /* `\' is for level 0 header and broken archive. */
         system_delim = "//";
         filename_case = NONE;
 
 		break;
 
 	case EXTEND_MACOS:
-        archive_delim = "\xff/:";
-        system_delim = "/:/";
+        archive_delim = "\xff/:\\";
+                          /* `\' is for level 0 header and broken archive. */
+        system_delim = "/://";
         filename_case = NONE;
 
 		hdr->unix_last_modified_stamp =
@@ -804,6 +805,7 @@ get_header(fp, hdr)
 
 	default:
         archive_delim = "\xff\\";
+                          /* `\' is for level 0 header and broken archive. */
         system_delim = "//";
         filename_case = noconvertcase ? NONE : TO_LOWER;
         /* FIXME: if small letter is included in filename,
@@ -852,15 +854,7 @@ init_header(name, v_stat, hdr)
 {
 	int             len;
 
-    int system_kanji_code = default_system_kanji_code;
-    char *archive_delim = "";
-    char *system_delim = "";
-    int filename_case = NONE;
-
     memset(hdr, 0, sizeof(LzHeader));
-
-    if (optional_system_kanji_code)
-        system_kanji_code = optional_system_kanji_code;
 
 	if (compress_method == LZHUFF5_METHOD_NUM)  /* Changed N.Watazaki */
 		memcpy(hdr->method, LZHUFF5_METHOD, METHOD_TYPE_STRAGE);
@@ -934,16 +928,6 @@ init_header(name, v_stat, hdr)
             error("file name is too long (%s -> %.*s)", hdr->name, len, lkname);
 	}
 #endif
-
-	if (generic_format) {
-        filename_case = TO_UPPER;
-        archive_delim = "\\";
-    }
-
-    convert_filename(hdr->name, len, sizeof(hdr->name),
-                     system_kanji_code,
-                     system_kanji_code, /* no change code */
-                     system_delim, archive_delim, filename_case);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -958,9 +942,13 @@ write_header(nafp, hdr)
 	char            data[LZHEADER_STRAGE];
 	char           *p;
 	char           *headercrc_ptr;
+
     int archive_kanji_code = CODE_SJIS;
     int system_kanji_code = default_system_kanji_code;
-	char            lzname[256];
+    char *archive_delim = "\xff";
+    char *system_delim = "/";
+    int filename_case = NONE;
+	char lzname[256];
 
     if (optional_archive_kanji_code)
         archive_kanji_code = optional_archive_kanji_code;
@@ -990,19 +978,30 @@ write_header(nafp, hdr)
 
 	put_byte(hdr->header_level);
 
+    if (generic_format)
+        filename_case = TO_UPPER;
+
+	if (hdr->header_level == HEADER_LEVEL0) {
+        archive_delim = "\\";
+    }
+
     strncpy(lzname, hdr->name, sizeof(lzname));
     convert_filename(lzname, strlen(lzname), sizeof(lzname),
                      system_kanji_code,
                      archive_kanji_code,
-                     "\xff\\/", "\xff\xff\xff", NONE);
+                     system_delim, archive_delim, filename_case);
 
 	if (hdr->header_level != HEADER_LEVEL2) {
-		if (p = strrchr(lzname, LHA_PATHSEP))
-			name_length = strlen(++p);
-		else
-			name_length = strlen(lzname);
+        if (hdr->header_level == HEADER_LEVEL0 ||
+            (p = strchr(lzname, LHA_PATHSEP)) == 0)
+            p = lzname;
+        else
+            ++p;
+        /* level 0 header: write pathname (contain the directory part) */
+        /* level 1 header: write filename (basename) */
+        name_length = strlen(p);
 		put_byte(name_length);
-		memcpy(data + I_NAME, p ? p : lzname, name_length);
+		memcpy(data + I_NAME, p, name_length);
 		setup_put(data + I_NAME + name_length);
 	}
 
