@@ -1,3 +1,8 @@
+2002-12-31  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lhext.c (adjust_info): On Cygwin, execute permission should
+	be set for .exe or .dll.
+
 2002-12-28  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lha_macro.h (peekbits): newly added.
