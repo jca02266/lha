@@ -22,9 +22,9 @@ check() {
   typeset lineno=$2
   if [[ $status -eq 0 ]]; then
     message test $test_number ... ok
-    echo at line $lineno
+    echo at line $lineno in $FILENAME
   else
-    message test $test_number ... failed at line $lineno
+    message test $test_number ... failed at line $lineno in $FILENAME
     ((error_num = error_num + 1))
     error_tests="$error_tests #$test_number"
     result=1
@@ -39,6 +39,9 @@ cleanup()
 # create test data
 
 message testing $lha
+
+# the `FILENAME' variable should be set the each test filename.
+FILENAME=lha-test
 message testing to create/list/extract lha archive.
 
 typeset -i i=0

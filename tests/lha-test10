@@ -1,4 +1,5 @@
 # -*- shell-script -*-
+FILENAME=lha-test10
 message testing header level 0, 1, 2 and each generic headers
 $lha c0  test-tmp-h0.lzh test-1
 							check $? $LINENO

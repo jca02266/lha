@@ -1,4 +1,5 @@
 # -*- shell-script -*-
+FILENAME=lha-test9
 message 'testing overriding existing files (this test need the Ruby interpreter http://www.ruby-lang.org/)'
 
 pty()

@@ -1,4 +1,5 @@
 # -*- shell-script -*-
+FILENAME=lha-test2
 message testing to lh0, lh1, lh5, lh6 and lh7 method archive.
 $lha cz  test-tmp-m0.lzh test-a test-b test-c
 							check $? $LINENO
@@ -70,7 +71,7 @@ $lha pq test-tmp-m6.lzh | diff test-tmp-abc -
 							check $? $LINENO
 $lha pq test-tmp-m7.lzh | diff test-tmp-abc -
 							check $? $LINENO
-# 0 byte files should be frozen with the -lh0- method.
+# empty file should be frozen with the -lh0- method.
 touch test-tmp-0byte
 							check $? $LINENO
 $lha c test-tmp-0byte.lzh test-tmp-0byte
@@ -78,4 +79,13 @@ $lha c test-tmp-0byte.lzh test-tmp-0byte
 $lha v test-tmp-0byte.lzh
 							check $? $LINENO
 $lha v test-tmp-0byte.lzh | grep lh0
+							check $? $LINENO
+# uncompressed file should be frozen with the -lh0- method.
+echo foobar > test-tmp-small
+							check $? $LINENO
+$lha c test-tmp-small.lzh test-tmp-small
+							check $? $LINENO
+$lha v test-tmp-small.lzh
+							check $? $LINENO
+$lha v test-tmp-small.lzh | grep lh0
 							check $? $LINENO

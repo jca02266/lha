@@ -1,4 +1,5 @@
 # -*- shell-script -*-
+FILENAME=lha-test12
 message testing the end of line conversion.
 
 # NL to CR NL in archive

@@ -1,4 +1,5 @@
 # -*- shell-script -*-
+FILENAME=lha-test8
 message testing timestamp
 # level 0 header
 $lha c0 test-tmp-h0.lzh test-[abc]

@@ -1,4 +1,5 @@
 # -*- shell-script -*-
+FILENAME=lha-test13
 message testing the kanji code conversion.
 
 printf '\xb4\xc1\xbb\xfa\xc9\xbd\n' > test-tmp-euc
@@ -9,7 +10,7 @@ printf '\x8a\xbf\x8e\x9a\x95\x5c\n' > test-tmp-sjis
 $lha c test-tmp-euc.lzh test-tmp-euc
 							check $? $LINENO
 # file size is too small, so no compressed
-$lha v test-tmp-euc.lzh | grep lh0
+$lha v test-tmp-euc.lzh | egrep lh0
 							check $? $LINENO
 # no convert
 $lha xw=test-tmp-euc-d test-tmp-euc.lzh
@@ -30,7 +31,7 @@ test $? -ne 0
 $lha ce test-tmp-sjis.lzh test-tmp-euc
 							check $? $LINENO
 # file size is too small, so no compressed
-$lha v test-tmp-euc.lzh | grep lh0
+$lha v test-tmp-euc.lzh | egrep lh0
 							check $? $LINENO
 # no convert (CR NL to NL)
 $lha xtw=test-tmp-sjis-d test-tmp-sjis.lzh
@@ -53,7 +54,7 @@ done
 # no convert
 $lha c test-tmp-euc2.lzh test-tmp-euc2
 							check $? $LINENO
-$lha v test-tmp-euc2.lzh | grep 'lh[567]'
+$lha v test-tmp-euc2.lzh | egrep 'lh[567]'
 							check $? $LINENO
 # no convert
 $lha xw=test-tmp-euc2-d test-tmp-euc2.lzh
@@ -73,7 +74,7 @@ test $? -ne 0
 # euc to sjis (NL to CR NL)
 $lha ce test-tmp-sjis2.lzh test-tmp-euc2
 							check $? $LINENO
-$lha v test-tmp-euc2.lzh | grep 'lh[567]'
+$lha v test-tmp-euc2.lzh | egrep 'lh[567]'
 							check $? $LINENO
 # no convert (CR NL to NL)
 $lha xtw=test-tmp-sjis2-d test-tmp-sjis2.lzh
