@@ -12,8 +12,8 @@ int
 decode_lzhuf(infp, outfp, original_size, packed_size, name, method, read_sizep)
     FILE           *infp;
     FILE           *outfp;
-    long            original_size;
-    long            packed_size;
+    size_t          original_size;
+    size_t          packed_size;
     char           *name;
     int             method;
     size_t         *read_sizep;

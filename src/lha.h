@@ -265,8 +265,8 @@ typedef struct LzHeader {
 struct interfacing {
     FILE            *infile;
     FILE            *outfile;
-    unsigned long   original;
-    unsigned long   packed;
+    size_t          original;
+    size_t          packed;
     size_t          read_size;
     int             dicbit;
     int             method;
@@ -342,10 +342,10 @@ EXTERN int      noconvertcase; /* 2000.10.6 */
 
 /* slide.c */
 EXTERN int      unpackable;
-EXTERN unsigned long origsize, compsize;
+EXTERN size_t origsize, compsize;
 EXTERN unsigned short dicbit;
 EXTERN unsigned short maxmatch;
-EXTERN unsigned long decode_count;
+EXTERN size_t decode_count;
 EXTERN unsigned long loc;           /* short -> long .. Changed N.Watazaki */
 EXTERN unsigned char *text;
 
@@ -359,7 +359,7 @@ EXTERN unsigned short p_freq[], pt_table[], pt_code[], t_freq[];
 
 /* append.c */
 #ifdef NEED_INCREMENTAL_INDICATOR
-EXTERN long     indicator_count;
+EXTERN size_t   indicator_count;
 EXTERN long     indicator_threshold;
 #endif
 

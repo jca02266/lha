@@ -8,7 +8,7 @@
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
-static long reading_size;
+static size_t reading_size;
 
 /* ------------------------------------------------------------------------ */
 int
@@ -16,13 +16,13 @@ encode_lzhuf(infp, outfp, size, original_size_var, packed_size_var,
          name, hdr_method)
     FILE           *infp;
     FILE           *outfp;
-    long            size;
-    long           *original_size_var;
-    long           *packed_size_var;
+    size_t          size;
+    size_t         *original_size_var;
+    size_t         *packed_size_var;
     char           *name;
     char           *hdr_method;
 {
-    static int      method = -1;
+    static int method = -1;
     unsigned int crc;
 
     if (method < 0) {
@@ -56,7 +56,7 @@ encode_lzhuf(infp, outfp, size, original_size_var, packed_size_var,
 void
 start_indicator(name, size, msg, def_indicator_threshold)
     char           *name;
-    long            size;
+    size_t          size;
     char           *msg;
     long            def_indicator_threshold;
 {

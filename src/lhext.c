@@ -429,7 +429,7 @@ void
 cmd_extract()
 {
     LzHeader        hdr;
-    long            pos;
+    off_t           pos;
     FILE           *afp;
     size_t read_size;
 

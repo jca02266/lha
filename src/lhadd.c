@@ -19,8 +19,8 @@ add_one(fp, nafp, hdr)
     FILE           *fp, *nafp;
     LzHeader       *hdr;
 {
-    long            header_pos, next_pos, org_pos, data_pos;
-    long            v_original_size, v_packed_size;
+    off_t header_pos, next_pos, org_pos, data_pos;
+    size_t v_original_size, v_packed_size;
 
     reading_filename = hdr->name;
     writing_filename = temporary_name;
@@ -185,7 +185,7 @@ find_update_files(oafp)
     char            name[FILENAME_LENGTH];
     struct string_pool sp;
     LzHeader        hdr;
-    long            pos;
+    off_t           pos;
     struct stat     stbuf;
     int             len;
 
@@ -218,8 +218,8 @@ static void
 delete(oafp, nafp)
     FILE           *oafp, *nafp;
 {
-    LzHeader        ahdr;
-    long            old_header_pos;
+    LzHeader ahdr;
+    off_t old_header_pos;
 
     old_header_pos = ftello(oafp);
     while (get_header(oafp, &ahdr)) {

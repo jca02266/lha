@@ -15,7 +15,7 @@
  */
 #include <errno.h>
 
-long
+size_t
 copyfile(f1, f2, size, text_flg, crcp)  /* return: size of source file */
     FILE *f1;
     FILE *f2;
@@ -25,7 +25,7 @@ copyfile(f1, f2, size, text_flg, crcp)  /* return: size of source file */
 {
     unsigned short  xsize;
     char *buf;
-    long rsize = 0;
+    size_t rsize = 0;
 
     if (!text_mode)
         text_flg = 0;
