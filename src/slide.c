@@ -346,12 +346,12 @@ struct interfacing *interface;
 			addr += lastmatchlen +1 ;
 
 			{
-			  int t,cc;
-			for (t=0; t<lastmatchlen+1; t++) {
-			  cc = text[(pos-(lastmatchoffset)) & (dicsiz-1)];
-			  fprintf(fout, "%02X ", cc);
-			}
-			fprintf(fout, "\n");
+                int t,cc;
+                for (t=0; t<lastmatchlen+1; t++) {
+                    cc = text[pos - lastmatchoffset - 2 + t];
+                    fprintf(fout, "%02X ", cc);
+                }
+                fprintf(fout, "\n");
 			}
 #endif
 			while (--lastmatchlen > 0) {
