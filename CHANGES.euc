@@ -1,0 +1,169 @@
+/* CHANGES (In Japanese) */
+LHx 0.01 -> 0.02
+
+	Usage の f オプションの説明表示がずれるのを直した。
+	lhadd.c の 49 行目の Warning (&hdr->method)を修正した。
+	strucmp.c の toupper() を static 関数に変更した。
+	lharc.h の malloc(),realloc() の返り値の宣言(Warning)を修正。
+	lhadd.c の 336 行目の copyfile() に第4引数 0 を追加。
+	malloc 関連の Warning を修正(cast)した。
+	patmatch.c の toupper を行なう条件に islower() を追加。
+	stdlib.h をインクルードする箇所に || defined(sony_news) を追加。
+	-lh0- のファイルをテストすると内容を表示するバグを修正。
+	展開時ヘッダレベル1に対応した。
+	crcio.c で putc() の代わりに fwrite() を使用するよう変更。
+	_errmsg() を使用しないよう変更。
+	石川@三菱電機さんの rename.c を付属。
+	memset() のないマシンのために memset.c を追加。(書き下ろし)
+
+LHx 0.02 -> LHa 0.03
+	名称を LHx から LHa に変更。
+	owner が root のときのみ chown() するよう変更。
+	本間隆之さんの timezone 関係のパッチを含めた。
+	lharc.c の135 行目を #endif /* MULTIBYTE_CHAR */ に変更。
+	g option 使用時にディレクトリ以下を圧縮できないバグを修正。
+	z option なしで標準入力からファイル名を読み込むように変更。
+	put_indicator() を append.c から crcio.c に移した。
+	crcio.c で fwrite() の返り値の比較対象を EOF から 0 に修正。
+	アーカイブ名に - を使用することで標準入出力を利用可能にした。
+	倉島@東大さんの EUC パッチを含めた。
+	ヘッダ関係を lharc.c から分離し header.c とした。
+	archive_is_msdos_sfx1() と skip_msdos_sfx1_code() を util.c に移した。
+	圧縮および展開をヘッダレベル1,2 に対応。
+	デフォルトのヘッダレベルを 1 に変更。
+	デフォルトの圧縮方式を -lh5- に変更。h オプションを廃止。
+	無圧縮格納(z)オプションを追加。
+	LHarc 互換形式圧縮(o)オプションを追加。
+	標準入力のリダイレクト時にオーバーライト確認をしないよう変更。
+	uchar,ushort,uint,ulong を使用しないよう変更。typedef.h を削除。
+
+LHa 0.03 -> LHa 0.04 (beta)
+	-lh0- file で e, t option を有効にした。(by 倉島@東大さん)
+	引数にアーカイブのみ指定時に list 表示するよう変更。(by 倉島@東大さん)
+	-DMKTIME でタイムスタンプが正常でないバグを修正。(by 渡邊@東北大さん)
+	NEED_INCREMENTAL_INDICATOR 設定時の変数宣言を追加した。
+	lhadd.c の encode_stored_crc() の宣言の綴を修正した。(by 本間隆之さん)
+	NULL が 0 でなくても動作するよう slide.c を変更した。
+	header.c の fwrite() で返り値を NULL ではなく 0 と比較するよう変更。
+	圧縮形式が正しくない時 Segmentation fault するバグを修正。
+	ディレクトリの圧縮形式を -lhd- にするよう変更。
+	strdup.c の strlib.h 読み込みの条件を修正。
+	header level 2 で圧縮できないバグを修正した。
+	386MINIX に対応。(by youchan@日経MIX さん)
+	サブディレクトリのアーカイブと同名のファイルを圧縮できるようにした。
+	-DNOFTRUNCATE で石川@三菱電機さんの rename() を使うよう変更。
+	TITAN でコンパイルできるよう(?) lharc.h を変更。
+
+LHa 0.04 -> LHa 0.05
+	append.c で使用していた ushort を unsigned short に修正。
+	日付の年を 1991 から 1992 に修正。
+	-DFTIME, -DTIMELOCAL パッチを追加。(by 本間隆之さん)
+	オブジェクトファイルのサフィックスを選択可能にした。
+	-DNOMKDIR パッチを追加。(by 石川@三菱電機さん)
+	標準入力からのファイル名の入力数を無制限にした。(by 佐藤 治@PFUさん)
+	rename.c, strdup,c, strucmp.c, memmove.c を util.c に集めた。
+	archive file の suffix が .lzh に束縛されないようにした。
+	slidehuf.h の __STDC__ の部分に AIX の判定を追加した。
+	slidehuf.h,intrface.h の関数宣言に extern を追加した。
+
+LHa 0.05 -> LHa 0.06
+	USESTRCASECMP を追加し、strucmp の定義を #ifndef で括った。
+	#elif などを使用しないよう変更。
+	Makefile をトップディレクトリに用意。
+	NEED_INCREMENT_INDICATOR 定義で z option 使用時のバグを退治。
+	header level 2 のヘッダサイズが食い違うバグを修正。
+	maketree.c で defined(_MINIX) が無駄とのことなので削除。
+
+LHa 0.06 -> LHa 1.00
+	圧縮サイズの判定ルーチンのバグを修正。
+	NOMEMSET を用意し、memset() を util.c に移した。
+
+LHa 1.00 -> LHa 1.10
+	lharc.h の FILE ATTRIBUTES に is_symlink を追加。
+	lhadd.c の append_it()関数 の stat を lstat に変更し、処理を追加して
+	シンボリック・リンクに対応した。
+	（シンボリック・リンクはディレクトリと同じ扱いになってます。）
+	シンボリック・リンクに対応させるため lhlist.c を変更して、圧縮ファイル内
+	のリスト表示の際に、ls -al と同じような表示に変更。
+	圧縮ファイル内のファイルを削除する際に、デフォルトでファイル名を表示
+	するように変更。 (quiet オプション可）
+	w オプション（ワークディレクトリの指定）を圧縮の際のワークディレクトリ
+	を指定可能に変更。
+
+LHa 1.10 -> LHa 1.11
+	lhext.c の inquire_extract() の関数に 'S'(Skip) を追加。
+	展開時のタイムスタンプ一応比較対応。
+
+LHa 1.11 -> LHa 1.12
+	タイムスタンプ対応のため、extract_one（) の関数の展開時の処理を大幅追加。
+	ローカル変数、skip_flg (FALSE..No Skip , TRUE..Skip)を追加。
+
+LHa 1.12 -> LHa 1.13
+	S_IFLNK のマクロがあったので対応するように変更。　このことに関連して
+	lhadd.c の append_it()関数 の lstat を GETSTAT に変更した。
+	長いファイル名の時に、core dump するのは append.c の MAX_INDICATOR_COUNT
+	の m の値が０になっていたので、if 文の (m<0) を (m<1) に修正。
+
+LHa 1.13 -> LHa 1.13a
+	シンボリックリンクファイルがターゲットとなった場合に、append_it の
+	fclose(fp) が、fp == NULL となっていたために core dump するバグを修正。
+	シンボリックリンクが、ターゲットファイルをなった際にうまく削除できない
+	Bug を修正。(by あにぃ さん）
+	
+LHa 1.13a -> LHa 1.13b
+	圧縮の際に更新してないのに、Symblic Link のファイル名のみ常時表示して
+	いた.
+	シンボリックリンクファイルをアーカイブファイルからリンク名で削除できなか
+	った.
+	Symbolic Link 先のファイル名を取得する際に、失敗していた.
+	展開時に、Symbolic Link ファイルのみタイムスタンプ比較を忘れていた.
+	以上のシンボリックリンクファイル関係の Bug を修正した.
+
+	q Option で、INDICATOR を可変に出来るように変更.
+	t option を使用すると CRC Error で Test と extract ができない Bug と
+	Header Level 2 の書庫が MS_DOS 版 LHa で解凍できない Bug と
+	-1 -2 と -g Option の併用が出来ない Bug を修正. (by 岡本@北大）
+
+    また、Makefile 中の 機種異存マクロの記述場所を SWITCHES から MACHINE
+	に変更しました.   
+
+LHa 1.13b -> LHa 1.13c
+	展開の際に、ファイルが存在していると確認のメッセージが表示されるが
+	そのファイルのどの項目を選んでも一つ目は展開されてしまう Bug を
+	修正.
+
+LHa 1.13c -> LHa 1.14
+	気まぐれで、-lh6- の展開のみ出来るように処理を追加。
+	ソースリストの見直しを行った。
+
+LHa 1.14 -> LHa 1.14a (以下 t.okamoto)
+	圧縮書庫を作れないバグを修正。
+	
+LHa 1.14a -> LHa 1.14b
+	シンボリックリンクの先が存在しない時、書庫に追加できないバグを
+	修正した。書庫に存在するシンボリックリンクのファイルと同名のファ
+	イルを書庫に追加しようとしても、追加できないバグを修正。
+	また、いくつかのシンボリックリンク関係のバグを修正した。
+
+LHa 1.14b -> LHa 1.14c
+	前バージョンのバグ修正の際に、新たなバグを付加してしまった点を
+	修正した（lhadd.c）。
+	書庫内のファイル表示の際、setuid してある場合 's' のフラグを
+	見えるようにした。
+	一部ソースの void をコメントに直して改良を行なった。
+	LHa 1.00 に入っていた config.eng を入れ直した。
+
+LHa 1.14c -> LHa 1.14d
+	FreeBSD でのバグの修正。MS-DOS で作成した書庫のファイルスタンプが
+	ずれて表示されるバグを修正した(header.c)。SWITCHES に HAVE_TM_ZONE
+	を追加することでバグは修正される。(by yav さん)
+	二重定義をしていた部分を修正。二重定義を発見できるコンパイラーで
+	エラーまたは警告がたくさん出るということは、無くなったと思います。
+
+        -lh6- 圧縮形式の圧縮を可能にしました。圧縮アルゴリズムに hash 法
+        を使った物に変更しました。
+
+        開発環境を FreeBSD にしました。
+
+LHa 1.14d -> LHa 1.14e
+	change-114e.txtに記述しています。

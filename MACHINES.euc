@@ -1,0 +1,454 @@
+----------------------------------------------------------------
+社名		Sun Microsystems
+マシン		Sun3/80,SPARCstation
+OS		SunOS 4.0.3, 4.1.1, 4.1.2, 4.1.3(+JLE)
+Compiler	cc,gcc -traditional
+変更事項	SWITCHES に -DFTIME -DUSESTRCASECMP を追加
+備考		sun
+---------------------------------------------------------------
+社名		東芝
+マシン		AS3000
+OS		AS3.3(SunOS 3.3)
+Compiler	/bin/cc
+変更事項	SWITCHES に -DSTRDUP を追加
+備考		sun
+----------------------------------------------------------------
+社名		SONY
+マシン		NWS-1460/1750
+OS		NEWS-OS 3.3a, 3.4
+Compiler	cc,gcc -traditional
+変更事項	SWITCHES に -DNOSTRDUP を追加
+備考		sony_news
+----------------------------------------------------------------
+社名		SONY
+マシン		NWS-1830/1850
+OS		NEWS-OS 4.0.1C/4.1C
+Compiler	cc,gcc
+変更事項	SWITCHES に -DNOSTRDUP を追加
+備考		sony_news
+----------------------------------------------------------------
+社名		SONY
+マシン		NWS-3260/3460/3860
+OS		NEWS-OS 3.91R/4.1R
+Compiler	cc,gcc version 1.40
+変更事項	SWITCHES に -DNOSTRDUP を追加
+備考		sony_news
+---------------------------------------------------------------
+社名		OMRON
+マシン		SX-9100 Mr.
+OS		UniOS-U/Sigma 1.40
+Compiler	/bin/cc
+変更事項	SWITCHES に -DUSG -DSYSTIME_HAS_NO_TM -DNOBSTRING -DNOINDEX
+		-DNOSTRDUP -DNODIRECTORY -DNOFTRUNCATE -Zu を追加
+備考
+----------------------------------------------------------------
+社名		OMRON
+マシン		LUNA (SX-9100/DT)
+OS		UNIOS-B 1.50,2.00
+Compiler	/bin/cc,gcc version 1.40
+変更事項	SWITCHES に -DFTIME -DNOSTRDUP を追加
+備考
+---------------------------------------------------------------
+社名		OMRON
+マシン		LUNA-II
+OS		Mach 2.5 Vers 1.40
+Compiler	/bin/cc
+変更事項	SWITCHES に -DNOSTRDUP -DFTIME -DUSESTRCASECMP を追加
+備考
+----------------------------------------------------------------
+社名		OMRON
+マシン		LUNA-88K
+OS		Mach 2.5 vers 1.33
+Compiler	/bin/cc,gcc-1.40
+変更事項	SWITCHES に -DFTIME -DNOSTRDUP を追加
+備考
+----------------------------------------------------------------
+社名		OMRON
+マシン		LUNA(SX-9100DT)
+OS		UniOS-U/Sigma 2.01
+Compiler	/bin/cc
+変更事項	SWITCHES に -Zu -DSYSV_SYSTEM_DIR -DSYSTIME_HAS_NO_TM
+		-DNOFTRUNCATE -DNOSTRDUP -DNOBSTRING -DUSG -DNOINDEX を追加
+備考		uniosu
+----------------------------------------------------------------
+社名		OMRON
+マシン		SX-9100Σ
+OS		OMRONIX-Σ
+Compiler	/bin/cc
+変更事項	SWITCHES に -Zu -DNONSYSTEM_DIR_LIBRARY -DSYSTIME_HAS_NO_TM
+		-DNOFTRUNCATE -DNOBSTRING -DUSG -DNOINDEX を追加,LIBRARYOBJS
+		に lhdir.o を追加
+備考
+----------------------------------------------------------------
+社名		NeXT
+マシン		NeXT station/Cube
+OS		NeXT OS 2.1, 2.1J
+Compiler	/bin/cc NeXT Release 2.0
+変更事項	SWITCHES に -DNOSTRDUP を追加
+備考
+----------------------------------------------------------------
+社名		DEC
+マシン		DEC5100,DEC Station 3100,MicroVAX-3600
+OS		ULTRIX V4.0, 4.1, 4.2
+Compiler	cc
+変更事項	SWITCHES に -DUSESTRCASECMP -DNOSTRDUP を追加
+備考		ultrix
+----------------------------------------------------------------
+社名		Panasonic
+マシン		BE
+OS		BE-OS 1.3
+Compiler	gcc version 1.37.1
+変更事項	SWITCHES に -DSYSV_SYSTEM_DIR -DSYSTIME_HAS_NO_TM -DTZSET
+		-DNOFTRUNCATE を追加
+備考
+----------------------------------------------------------------
+社名		MIPS
+マシン		RS3230/3330
+OS		RISC/os 4.51,4.52
+Compiler	/bsd43/bin/cc
+変更事項	SWITCHES に -DNOSTRDUP を追加
+備考
+----------------------------------------------------------------
+社名		Sequent Computer Systems, Inc.
+マシン		Symmetry
+OS		DYNIX(R) V3.0.17.v3 NFS  #2()
+Compiler	cc
+変更事項	SWITCHES に -DJIS -DNOSTRDUP -DNOMEMSET を追加
+備考
+----------------------------------------------------------------
+社名		Solbourne
+マシン		Series 5/600
+OS		OS/MP 4.0D_Export
+Compiler	cc,gcc -traditional
+変更事項
+備考
+----------------------------------------------------------------
+社名		三菱電機
+マシン		ME100/200/250/350/400/520/550
+OS		ME/UX C00,C10,C20 (System V/68 Release R3V4)
+Compiler	cc
+変更事項	SWITCHES に -DSYSV_SYSTEM_DIR -DNOFTRUNCATE を追加
+備考
+----------------------------------------------------------------
+社名		三菱電機
+マシン		ME1100/1200/1300/1500
+OS		ME/UX (68020) C01版 (SYSV R2)
+Compiler	cc
+変更事項	SWITCHES に -DNONSYSTEM_DIR_LIBRARY -DNOFTRUNCATE
+		-DSYSTIME_HAS_NO_TM -DNOBSTRING -DUSG -DNOSTRDUP -DNOMKDIR
+		-DTZSET -DNOINDEX を追加,LIBRARYOBJS に lhdir.o を追加
+備考
+----------------------------------------------------------------
+社名		三菱電機
+マシン		FAS350(FA-workstation)
+OS		ISI-4.3BSD
+Compiler	/bin/cc
+変更事項	SWITCHES に -DFTIME -DNOSTRDUP を追加
+備考
+----------------------------------------------------------------
+社名		NEC
+マシン		EWS4800/10,20,30,50,60
+OS		EWS-UX/V R8.1
+Compiler	cc,gcc -traditional
+変更事項	SWITCHES に -I/usr/ucbinclude -DSYSTIME_HAS_NO_TM -DTZSET
+		-DUSG -DNOINDEX を追加,LDFLAGS=-ldir を追加
+備考
+----------------------------------------------------------------
+社名		NEC
+マシン		EWS4800/220
+OS		EWS-UX/V (Rel 4.0)R2.1
+Compiler	/bin/cc
+変更事項	SWITCHES に -DMKTIME -DNOINDEX -DSYSV_SYSTEM_DIR -DUSG を追加
+備考
+----------------------------------------------------------------
+社名		NEC
+マシン		EWS4800/220
+OS		EWS-UX/V (Rel 4.0)R2.1
+Compiler	/usr/ucb/cc
+変更事項	SWITCHES に -DMKTIME を追加
+備考
+----------------------------------------------------------------
+社名		NEC
+マシン		PC-9801
+OS		PC-UX/V R3.2
+Compiler	cc
+変更事項	SWITCHES に -DNOFTRUNCATE  -DTZSET -DSYSV_SYSTEM_DIR
+		-DSYSTIME_HAS_NO_TM -DNOBSTRING -DUSG -DNOINDEX を追加
+備考
+----------------------------------------------------------------
+社名		NEC
+マシン		PC-9801
+OS		PC-UX/V R3.0B
+Compiler	cc および gcc-2.0
+変更事項	SWITCHES に -DUSG -DSYSV_SYSTEM_DIR -DSYSTIME_HAS_NO_TM
+		-DTZSET -DNOBSTRING -DNOFTRUNCATE -DNOINDEX を追加
+備考		gcc でコンパイルする場合は、-traditional オプションを
+		つける。
+----------------------------------------------------------------
+社名		Hewlett Packard
+マシン		HP9000 s300/s400
+OS		HP-UX7.03
+Compiler	cc
+変更事項	EUC を使用する場合は SWITCHES に -DNOBSTRING を追加。
+		Shift-JIS を使用する場合はSWITCHESに -DNOBSTRING を追加し
+		-DEUC を削除。
+備考		hpux
+----------------------------------------------------------------
+社名		Hewlett Packard
+マシン		HP9000 s800
+OS		HP-UX7.00
+Compiler	cc
+変更事項	EUC を使用する場合は SWITCHES に -DNOBSTRING を追加。
+		Shift-JIS を使用する場合はSWITCHESに -DNOBSTRING を追加し
+		-DEUC を削除。
+備考		hpux
+----------------------------------------------------------------
+社名		Hewlett Packard
+マシン		HP9000 s300/s400
+OS		HP-UX8.0
+Compiler	cc
+変更事項	SWITCHES に -DUSESTRCASECMP を追加。Shift-JIS を使用する場合
+		はさらに -DEUCを削除。
+備考		hpux
+----------------------------------------------------------------
+社名		Hewlett Packard
+マシン		HP9000 s700
+OS		HP-UX 8.05,8.07
+Compiler	cc
+変更事項	SWITCHES に -DUSESTRCASECMP を追加。Shift-JIS を使用する場合
+		はさらに -DEUCを削除。
+備考		hpux
+----------------------------------------------------------------
+社名		Hewlett Packard
+マシン		HP apollo s400t,s25t
+OS		DOMAIN/OS SR10.3
+Compiler	cc Ver 6.8
+変更事項	(SYSTYPE=bsd4.3,ENVIRON=bsd)
+備考
+----------------------------------------------------------------
+社名		DOMAIN
+マシン		DN4500F
+OS		DOMAIN/OS SR10.2
+Compiler	cc Ver 6.7
+変更事項	SWITCHES に -U__STDC__ を追加(SYSTYPE=bsd4.3,ENVIRON=bsd)
+備考
+----------------------------------------------------------------
+社名		DOMAIN
+マシン		DSP10000
+OS		DOMAIN/OS SR10.2p
+Compiler	cc Ver 6.7p (PRISM)
+変更事項	SWITCHES に -U__STDC__ を追加(SYSTYPE=bsd4.3,ENVIRON=bsd)
+備考
+----------------------------------------------------------------
+社名		日立
+マシン		HIDIC V90/45
+OS		RENIX-V
+Compiler	/bin/cc
+変更事項	SWITCHES に -DTZSET -DSYSTIME_HAS_NO_TM -DSYSV_SYSTEM_DIR
+		-DNOBSTRING -DUSG -DNOINDEX -DNOFTRUNCATE を追加
+備考
+----------------------------------------------------------------
+社名		日立
+マシン		2050/32E
+OS		HI-UX (ver.不明)
+Compiler	cc
+変更事項	SWITCHES に -DTZSET -DSYSTIME_HAS_NO_TM -DSYSV_SYSTEM_DIR
+		-DNOBSTRING -DUSG -DNOINDEX を追加
+備考
+----------------------------------------------------------------
+社名		東芝
+マシン		J3100SGT
+OS		UX/386 (SysVR3)
+Compiler	/bin/cc
+変更事項	SWITCHES に -DTZSET -DSYSV_SYSTEM_DIR -DNOBSTRING -DUSG
+		-DNOINDEX -DNOFTRUNCATE を追加
+備考
+----------------------------------------------------------------
+社名		富士通
+マシン		G150/160
+OS		SX/G E14
+Compiler	cc
+変更事項	SWITCHIES に -DNONSYSTEM_DIR_LIBRARY -DNOSTRDUP -DTZSET
+		-DNOBSTRING -DUSG -DNOINDEX -DNOFTRUNCATE -DSYSTIME_HAS_NO_TM
+		を追加,LDFLAGS=-lu を追加
+備考
+----------------------------------------------------------------
+社名		富士通
+マシン		VP2200 MODEL 10
+OS		UXP/M V10L10
+Compiler	BSD Compatibility Package の cc (/usr/ucb/cc)
+変更事項	LDFLAGS=-lucb を追加
+備考
+----------------------------------------------------------------
+社名		富士通
+マシン		Mシリーズ
+OS		UTS/M V22L20
+Compiler	cc
+変更事項        SWITCHIES に -DNODIRECTORY -DNOSTRDUP -DTZSET -DNOBSTRING
+		-DUSG -DNOINDEX -DNOFTRUNCATE -DSYSTIME_HAS_NO_TMを追加
+備考
+----------------------------------------------------------------
+社名		PFU
+マシン		Astation 240
+OS		SX/A E60B
+Compiler	/bin/cc
+変更事項	SWITCHES に -DSYSV_SYSTEM_DIR -DSYSTEM_HAS_NO_TM -DUSG
+		-DNOINDEX を追加
+備考		SXA
+----------------------------------------------------------------
+社名            PFU
+マシン          A60 / Astation 350
+OS              SX/A  E50/E60B
+Compiler        /bin/cc
+変更事項        SWITCHES に -DSYSV_SYSTEM_DIR -DNOBSTRING -DNOFTRUNCATE
+		-DUSG -DEUC -DNEED_INCREMENTAL_INDICATOR を追加
+備考		本当は -DNOFTRUNCATE はE50でのみ必要
+----------------------------------------------------------------
+社名		EPSON/NEC/IBM
+マシン		PC-386GE/PC-9801NS/IBM PC-AT
+OS		MINIX 1.5.10 + MIX 386 patch
+Compiler	MIX版gcc
+変更事項	SWITCHES を -DEUC -DNOSTRDUP -D_MINIX -D_POSIX_SOURCE
+		-DSYSTIME_HAS_NO_TM -DSYSV_SYSTEM_DIR -DNOFTRUNCATE
+		-DNOBSTRING -DUSG -DNOINDEX -DTZSET に変更
+		CC を gcc に変更
+		OPTIMIZE から -g を削除
+備考		(1) maketree.cでUINT_MAXの評価がCPPエラーになったら
+		/usr/local/lib/include/gcc-limits.hを
+		/usr/local/lib/include/limits.hにmvまたはlnするか、
+		その部分の#if #endifをコメントアウトすること
+	(これは、MIX版gccの問題です。 最新版gccでは解決されています。)
+		(2) コンパイル後以下のコマンドを実行し、メモリサイズを
+		    変更すること
+			chmem =500000 lha
+----------------------------------------------------------------
+社名		Silicon Graphics
+マシン		IRIS200
+OS		IRIX 2.2
+Compiler	/usr/bin/cc
+変更事項
+備考
+---------------------------------------------------------------------
+社名		Silicon Graphics
+マシン		IRIS 4D/25GT,4D/310GTX
+OS		IRIX System V Release 3.3.1
+Compiler	/usr/bin/cc
+変更事項	SWITCHES に -DSYSV_SYSTEM_DIR  -DNOBSTRING -DNOINDEX を追加
+----------------------------------------------------------------
+社名		クボタコンピュータ
+マシン		TITAN3000
+OS		OS 3.0.3,OS 4.1
+Compiler	/bin/cc
+変更事項	SWITCHES に -DNOINDEX -DSYSV_SYSTEM_DIR	を追加
+備考		titan
+----------------------------------------------------------------
+社名		クボタコンピュータ
+マシン		TITAN1500
+OS		OS 2.5
+Compiler	cc
+変更事項	SWITCHES に -DNOINDEX -DSYSV_SYSTEM_DIR -DSYSTIME_HAS_NO_TM
+		を追加
+備考		titan
+----------------------------------------------------------------
+社名		クボタコンピュータ
+マシン		TITAN VISTRA800ex/VISTRA800b
+OS		2.0
+Compiler	/usr/ucb/cc
+変更事項	SWITCHES に -DSYSV_SYSTEM_DIR -DSYSTIME_HAS_NO_TM を追加
+備考		titan
+----------------------------------------------------------------
+社名		IBM
+マシン		RISC System/6000 POWERstation 530
+OS		AIX version 3.1
+Compiler	/bin/cc
+変更事項	SWITCHES に -DSYSV_SYSTEM_DIR -D_BSD_INCLUDES -DAIX を追加
+備考
+----------------------------------------------------------------
+社名		Convex
+マシン		Mini Super Computer C-201,C-230,C-240
+OS		ConvexOS V.8.1, v9.1.6 (BSD 4.2)
+Compiler	/bin/cc V4.0
+変更事項	SWITCHES に -DSYSV_SYSTEM_DIR を追加, CC に -pcc を追加
+備考		__convexc__
+----------------------------------------------------------------
+社名		電産
+マシン		WORKS-3000, idea 2010
+OS		DEVOS V3 (4.3 More/bsd/NFS)
+Compiler	gcc -traditional  (gcc 1.40)
+変更事項	SWITCHES に -DFTIME -DNOSTRDUP を追加
+備考
+------------------------------------------------------------------------
+社名		SONY
+マシン		NWS-1860
+OS		NEWS-OS 4.2.1C
+Compiler	cc
+変更事項	SWITCHES に -DNOSTRDUP を追加
+備考		sony_news
+------------------------------------------------------------------------
+社名		SONY
+マシン		NWS-3870
+OS		NEWS-OS 4.2.1R
+Compiler	cc
+変更事項	SWITCHES に -DNOSTRDUP を追加
+備考		sony_news
+------------------------------------------------------------------------
+社名		富士通
+マシン		DS/90 7750 (Single CPU type)
+OS		UNIX_System_V 4.0.0 V10L20 Y92121
+Compiler	cc
+変更事項	SWITCHES に -DEUC -DUSG -DSYSV_SYSTEM_DIR -DNOBSTRING 
+                -DSYSTIME_HAS_NO_TM -DNOINDEX を追加
+備考
+----------------------------------------------------------------
+社名		DEC
+マシン		DECstation 5000/25
+OS		ULTRIX V4.3
+Compiler	cc
+変更事項	SWITCHES に -DUSESTRCASECMP -DNOSTRDUP -DNOINDEX
+				-DNOBSTRING を追加
+備考		ultrix
+----------------------------------------------------------------
+社名		DEC
+マシン		DEC 3000/300
+OS		DEC OSF/1 V1.3A
+Compiler	cc
+変更事項	SWITCHES に -DSYSV_SYSTEM_DIR -DNOINDEX -DNOBSTRING を追加
+備考		osf
+----------------------------------------------------------------
+社名		Silicon Graphics
+マシン		INDY, INDIGO, ONYX
+OS		IRIX Release 5.1
+Compiler	cc
+変更事項	SWITCHES に -DSYSV_SYSTEM_DIR  -DNOBSTRING -DNOINDEX を追加
+----------------------------------------------------------------
+社名		Apple
+マシン		Quadra 950
+OS		A/UX 3.0
+Compiler	cc
+変更事項	SWITCHES に -DNOSTRDUP  -DTZSET を追加
+----------------------------------------------------------------
+マシン		不明（Pentium133MHz)
+OS		BSDI BSD/OS 2.0
+Compiler	cc(gcc)
+変更事項	SWITCHES から -DFTIME を削除する。
+----------------------------------------------------------------
+マシン		IBM-PC/AT 互換機（Pentium133MHz)
+OS		FreeBSD 2.1.0 Release
+Compiler	gcc
+変更事項	SWITCHES から -DFTIME を削除し、
+                -DHAVE_TM_ZONE を追加する。
+----------------------------------------------------------------
+マシン		不明（Pentium99MHz)
+OS		Linux 1.2.13(POSIX)
+Compiler	cc(gcc)
+変更事項	特に変更なし。
+----------------------------------------------------------------
+社名            Hewlett Packard
+マシン          HP9000 s720
+OS              HP-UX 9.01
+Compiler        c89
+変更事項        SWITCHES に -DUSESTRCASECMP を追加。
+                SWITCHES に -D_HPUX_SOURCE を追加。
+                Shift-JIS を使用する場合はさらに -DEUCを削除。
+                OPTIMIZE には -O だけを指定
+----------------------------------------------------------------
