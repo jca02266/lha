@@ -1,9 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(lha, 1.14i)
+AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
-
-AC_CANONICAL_HOST
 
 AC_DEFINE_UNQUOTED(PLATFORM, "$ac_cv_host",
 		   [the type of system on which the package will run.])
