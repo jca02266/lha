@@ -1,7 +1,7 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiscated for LHa for UNIX version 1.14i
-			Fri, Nov 15 2002 by Koji Arai <jca02266@nifty.ne.jp>
+			Mon, Dec 16 2002 by Koji Arai <jca02266@nifty.ne.jp>
 
 このファイルは LHa for UNIX version 1.14i を autoconf、automake 化した
 (autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
@@ -266,3 +266,15 @@ LHa for UNIX に関しては岡本継男さんのページ
   level 1 header のアーカイブに対して、Windows timestamp 拡張ヘッダ
   を出力する LHA アーカイバが存在するかどうかは未確認です。あまり、
   役に立たない修正だった気がしますがせっかく作ったので残してます:-)
+
+・-x オプション
+
+  圧縮対象のファイルから除外されるパターンを指定する -x オプションを追
+  加しました。これに伴い、
+
+    lha c -x '*.o' -x='*.a' -x'*.c' src.lzh src
+
+  といった指定ができるよう、オプション解析部は変更されました。
+  本バージョンの usage は以下のようになります。
+
+    usage: lha [-]<command><option> [-<option> ...] archive_file [file...]
