@@ -346,9 +346,11 @@ EXTERN long		indicator_count;
 EXTERN long		indicator_threshold;
 #endif
 
-/* crcio.c */
+/* bitio.c */
 EXTERN FILE		*infile, *outfile;
 EXTERN unsigned short bitbuf;
+
+/* crcio.c */
 EXTERN unsigned int crctable[UCHAR_MAX + 1];
 EXTERN int      dispflg;
 
