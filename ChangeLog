@@ -1,3 +1,17 @@
+2002-08-05  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* config.h.in (BACKUP_OLD_ARCHIVE): added.
+
+	* configure.ac: added a command line switch `--enable-backup-archive'.
+
+	* src/lhadd.c (cmd_add): if `backup_old_archive' is true, no
+	backup archive.
+	(cmd_delete): ditto.
+
+	* src/lharc.c (init_variable): initialize `backup_old_archive'.
+
+	* src/lha.h (backup_old_archive): added for nobackup.
+
 2002-08-02  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lha_macro.h, src/lha.h, src/header.c, src/lhadd.c: Fixed
