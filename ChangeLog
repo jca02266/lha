@@ -75,7 +75,7 @@
 	(get_header_level0): set total header size to
 	`LzHeader.header_size' even if level 0 or 1 header is read.
 	(get_header_level1): ditto.
-	
+
 	* src/append.c (encode_lzhuf): encode(), decode() and copyfile()
 	were changed.
 	(put_indicator): moved from crcio.c.
