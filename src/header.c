@@ -174,15 +174,24 @@ get_bytes(buf, len, size)
 
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
-        printf("%02d %2d: ", get_ptr - start_ptr, len);
+        printf("%02d %2d: \"", get_ptr - start_ptr, len);
 #endif
-    for (i = 0; i < len && i < size; i++)
+    for (i = 0; i < len && i < size; i++) {
         buf[i] = get_ptr[i];
-    get_ptr += len;
+#if DUMP_HEADER
+        if (verbose_listing && verbose > 1) {
+            if (isprint(buf[i]))
+                printf("%c", buf[i]);
+            else
+                printf("\\x%02x", (unsigned char)buf[i]);
+        }
+#endif
+    }
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
-        printf("\"%*.*s\"\n", i, i, buf);
+        printf("\"\n");
 #endif
+    get_ptr += len;
     return i;
 }
 
