@@ -1,3 +1,21 @@
+2003-05-10  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lhext.c (inquire_extract): warning if stdin is not tty,
+	because you cannot reply from stdin.
+	(extract_one): return actual read size from archive.
+	(cmd_extract): fix a bug: skip correct size when error occurred.
+
+	* tests/lha-test5: added tests for above.
+
+	* src/lha.h (struct interfacing): added a member `read_size'.
+
+	* src/extract.c (decode_lzhuf): added an argument `pointer of
+	read_size'.
+
+	* src/prototypes.h: ditto.
+
+	* src/slide.c (decode): set actual read size to interface->read_size.
+
 2003-04-14  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/cproto.sh: The cproto 4.7a supports some gcc-specific keywords.
