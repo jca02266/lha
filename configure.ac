@@ -98,6 +98,44 @@ if test x$lha_cv_strchr_8bit_clean = xyes; then
 	    [Define to 1 if strchr()/strrchr() works correctly.])
 fi
 
+# checking whether the 2nd argument of gettimeofday() is effective or not.
+# note that this timezone argument is obsolete.
+AC_CACHE_CHECK([whether the 2nd argument of gettimeofday() is effective],
+  [lha_cv_func_gettimeofday_2nd_arg],
+  AC_TRY_RUN([
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
+main()
+{
+    struct timeval tv;
+    struct timezone tz;
+
+    tz.tz_minuteswest = -1;
+    if (gettimeofday(&tv, &tz) == -1)
+        exit(1);
+
+    if (tz.tz_minuteswest == -1)
+        exit(1);	/* no given the timezone information */
+
+    exit(0);
+}], lha_cv_func_gettimeofday_2nd_arg=yes,
+   lha_cv_func_gettimeofday_2nd_arg=no,
+   lha_cv_func_gettimeofday_2nd_arg=no))
+
+if test x$lha_cv_func_gettimeofday_2nd_arg = xyes; then
+  AC_DEFINE(GETTIMEOFDAY_HAS_2ND_ARG, 1,
+	    [Define to 1 if the 2nd argument of gettimeofday() is effective.])
+fi
+
 # support kanji code conversion
 AC_SUBST(DEF_KCODE)
 AC_ARG_ENABLE(text_conv,
