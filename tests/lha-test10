@@ -18,11 +18,11 @@ $lha vv test-tmp-h1.lzh
 							check $? $LINENO
 $lha vv test-tmp-h2.lzh
 							check $? $LINENO
-$lha vv test-tmp-h0.lzh | grep '\[0\]$'
+$lha vv test-tmp-h0.lzh | egrep '\[0\].?$'
 							check $? $LINENO
-$lha vv test-tmp-h1.lzh | grep '\[1\]$'
+$lha vv test-tmp-h1.lzh | egrep '\[1\].?$'
 							check $? $LINENO
-$lha vv test-tmp-h2.lzh | grep '\[2\]$'
+$lha vv test-tmp-h2.lzh | egrep '\[2\].?$'
 							check $? $LINENO
 diff -r test-1 test-tmp-h0/test-1
 							check $? $LINENO
@@ -57,11 +57,11 @@ $lha vv test-tmp2-h1.lzh
 							check $? $LINENO
 $lha vv test-tmp2-h2.lzh
 							check $? $LINENO
-$lha vv test-tmp2-h0.lzh | grep '\[0\]$'
+$lha vv test-tmp2-h0.lzh | egrep '\[0\].?$'
 							check $? $LINENO
-$lha vv test-tmp2-h1.lzh | grep '\[1\]$'
+$lha vv test-tmp2-h1.lzh | egrep '\[1\].?$'
 							check $? $LINENO
-$lha vv test-tmp2-h2.lzh | grep '\[2\]$'
+$lha vv test-tmp2-h2.lzh | egrep '\[2\].?$'
 							check $? $LINENO
 diff test-a test-tmp2-h0/test-tmp-d1/test-a
 							check $? $LINENO
@@ -139,13 +139,13 @@ $lha vv test-tmp3-h1.lzh
 							check $? $LINENO
 $lha vv test-tmp3-h2.lzh
 							check $? $LINENO
-$lha vv test-tmp3-hg.lzh | grep '\[0\]$'
+$lha vv test-tmp3-hg.lzh | egrep '\[0\].?$'
 							check $? $LINENO
-$lha vv test-tmp3-h0.lzh | grep '\[0\]$'
+$lha vv test-tmp3-h0.lzh | egrep '\[0\].?$'
 							check $? $LINENO
-$lha vv test-tmp3-h1.lzh | grep '\[1\]$'
+$lha vv test-tmp3-h1.lzh | egrep '\[1\].?$'
 							check $? $LINENO
-$lha vv test-tmp3-h2.lzh | grep '\[2\]$'
+$lha vv test-tmp3-h2.lzh | egrep '\[2\].?$'
 							check $? $LINENO
 test -f test-tmp3-hg/$(echo test-tmp3/$file | cut -c-233)
 							check $? $LINENO
@@ -163,7 +163,7 @@ $lha c2 test-tmp4-h2.lzh $file
 							check $? $LINENO
 $lha vv test-tmp4-h2.lzh
 							check $? $LINENO
-$lha vv test-tmp4-h2.lzh | grep '\[2\]$'
+$lha vv test-tmp4-h2.lzh | egrep '\[2\].?$'
 							check $? $LINENO
 $lha xw=test-tmp4 test-tmp4-h2.lzh
 							check $? $LINENO
