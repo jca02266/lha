@@ -615,9 +615,6 @@ get_extended_header(fp, hdr, header_size, hcrc)
             break;
         case 0x41:
             /* Windows time stamp (FILETIME structure) */
-            if (verbose)
-                message("extended header 0x%02x(Windows time stamp) ignored",
-                        ext_type);
             skip_bytes(header_size - n); /* ignored */
             break;
         case 0x50:
@@ -650,8 +647,8 @@ get_extended_header(fp, hdr, header_size, hcrc)
                0x42: 64bit large file size
                0x48-0x4f(?): reserved for authenticity verification
                0x7d: encapsulation
-               0x7e: extended attribute -platform information
-               0x7f: extended attribute -permission, owner-id and timestamp
+               0x7e: extended attribute - platform information
+               0x7f: extended attribute - permission, owner-id and timestamp
                      (level 3 on OS/2)
                0xc4: compressed comment (dict size: 4096)
                0xc5: compressed comment (dict size: 8192)
@@ -660,8 +657,8 @@ get_extended_header(fp, hdr, header_size, hcrc)
                0xc8: compressed comment (dict size: 65536)
                0xd0-0xdf(?): operating systemm specific information
                0xfc: encapsulation (another opinion)
-               0xfe: extended attribute -platform information (another opinion)
-               0xff: extended attribute -permission, owner-id and timestamp
+               0xfe: extended attribute - platform information(another opinion)
+               0xff: extended attribute - permission, owner-id and timestamp
                      (level 3 on UNLHA32) */
             if (verbose)
                 warning("unknown extended header 0x%02x", ext_type);
