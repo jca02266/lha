@@ -144,4 +144,13 @@ test -s test-stderr
 test ! -f test-2.lzh
 							check $?
 
+
+message testing to stdin/stdout archive
+
+$lha c - test-a test-b test-c > test-3.lzh
+							check $?
+cat test-3.lzh | $lha xw=test-3 -
+							check $?
+diff -r test-m5 test-3
+							check $?
 exit $result
