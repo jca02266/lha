@@ -152,6 +152,9 @@
 /* the type of system on which the package will run. */
 #undef PLATFORM
 
+/* Define if compiler has function prototypes */
+#undef PROTOTYPES
+
 /* Define as the return type of signal handlers (`int' or `void'). */
 #undef RETSIGTYPE
 
@@ -179,3 +182,6 @@
 
 /* Define to 1 if you need to in order for `stat' and other things to work. */
 #undef _POSIX_SOURCE
+
+/* Define to empty if `const' does not conform to ANSI C. */
+#undef const
