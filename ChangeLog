@@ -6,7 +6,7 @@
 
 	* configure.in, configure.ac, config.h.in: checks having uid_t/gid_t.
 
-	* src/lha.h: typedef `int' if no have uid_t/gid_t.
+	* src/lha.h: define uid_t/gid_t as `int' if no have it.
 
 	* src/lhext.c (adjust_info): mismatched braces.
 
