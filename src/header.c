@@ -599,11 +599,22 @@ get_extended_header(fp, hdr, header_size, hcrc)
                 hdr->extend_type == EXTEND_HUMAN ||
                 hdr->extend_type == EXTEND_GENERIC)
                 hdr->attribute = get_word();
+            else
+                goto skip;
+            break;
+        case 0x41:
+            /* Windows time stamp (FILETIME structure) */
+            if (verbose)
+                message("extended header 0x%02x(Windows time stamp) ignored",
+                        ext_type);
+            skip_bytes(header_size - n); /* ignored */
             break;
         case 0x50:
             /* UNIX permission */
             if (hdr->extend_type == EXTEND_UNIX)
                 hdr->unix_mode = get_word();
+            else
+                goto skip;
             break;
         case 0x51:
             /* UNIX gid and uid */
@@ -611,6 +622,8 @@ get_extended_header(fp, hdr, header_size, hcrc)
                 hdr->unix_gid = get_word();
                 hdr->unix_uid = get_word();
             }
+            else
+                goto skip;
             break;
         case 0x52:
             /* UNIX group name */
@@ -618,6 +631,8 @@ get_extended_header(fp, hdr, header_size, hcrc)
                 i = get_bytes(hdr->group, header_size-n, sizeof(hdr->group)-1);
                 hdr->group[i] = '\0';
             }
+            else
+                goto skip;
             break;
         case 0x53:
             /* UNIX user name */
@@ -625,14 +640,37 @@ get_extended_header(fp, hdr, header_size, hcrc)
                 i = get_bytes(hdr->user, header_size-n, sizeof(hdr->user)-1);
                 hdr->user[i] = '\0';
             }
+            else
+                goto skip;
             break;
         case 0x54:
             /* UNIX last modified time */
             if (hdr->extend_type == EXTEND_UNIX)
                 hdr->unix_last_modified_stamp = (time_t) get_longword();
+            else
+                goto skip;
             break;
         default:
+        skip:
             /* other headers */
+            /* 0x39: multi-disk header
+               0x3f: uncompressed comment
+               0x42: 64bit large file size
+               0x48-0x4f(?): reserved for authenticity verification
+               0x7d: capsulize header
+               0x7e: extended attribute -platform information
+               0x7f: extended attribute -permission, owner-id and timestamp
+                     (level 3 on OS/2)
+               0xc4: compressed comment (dict size: 4096)
+               0xc5: compressed comment (dict size: 8192)
+               0xc6: compressed comment (dict size: 16384)
+               0xc7: compressed comment (dict size: 32768)
+               0xc8: compressed comment (dict size: 65536)
+               0xd0-0xdf(?): operating systemm specific information
+               0xfc: capsulize header (another opinion)
+               0xfe: extended attribute -platform information (another opinion)
+               0xff: extended attribute -permission, owner-id and timestamp
+                     (level 3 on UNLHA32) */
             if (verbose)
                 warning("unknown extended header 0x%02x", ext_type);
             skip_bytes(header_size - n);
