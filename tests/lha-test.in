@@ -25,6 +25,12 @@ check() {
   fi
 }
 
+seq() {
+  awk 'BEGIN {
+    for (i = 0; i < '$1'; i++) print i
+  }'
+}
+
 message testing $lha
 message testing to create/list/extract lha archive.
 
