@@ -132,7 +132,7 @@ LHx(arc) for OSK   V 2.01  Modified     1990  Momozou\n\
 LHa      for UNIX  V 1.00  Copyright(C) 1992  Masaru Oki\n\
 LHa      for UNIX  V 1.14  Modified     1995  Nobutaka Watazaki\n\
 LHa      for UNIX  V 1.14i Modified     2000  Tsugio Okamoto\n\
-                   Autoconfiscated 2001-2003  Koji Arai\n\
+                   Autoconfiscated 2001-2004  Koji Arai\n\
 ");
 
     print_tiny_usage();
