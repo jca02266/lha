@@ -1,5 +1,9 @@
 2003-07-21  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: updated version.
+
+	* 00readme.autoconf: described largefiles.
+
 	* src/header.c (get_header): avoid valgrind warning, `Source and
 	destination overlap in strncpy()'.
 
