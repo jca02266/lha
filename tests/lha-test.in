@@ -6,7 +6,8 @@
 
 trap "rm -rf test-*" 0 1 2 3 15
 
-declare -i test_number=0
+declare -i test_number=0 error_num=0
+error_tests=""
 
 exec > test.log
 
@@ -22,6 +23,8 @@ check() {
     message test $test_number ... ok
   else
     message test $test_number ... failed
+    ((error_num = error_num + 1))
+    error_tests="$error_tests #$test_number"
     result=1
   fi
 }
@@ -95,5 +98,10 @@ case `$lha --version 2>&1` in
     ;;
 esac
 . $srcdir/lha-test10; cleanup
+
+if (( $error_num != 0 )); then
+  echo $error_num tests failed! >&2
+  echo test number: $error_tests >&2
+fi
 
 exit $result
