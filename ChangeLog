@@ -1,5 +1,10 @@
 2002-07-07  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* IFNAMES: NOVOID was removed.
+
+	* src/lharc.c (main): terminate with exit status 2 when specified
+	command line switches is wrong,
+
 	* configure.ac, config.h.in: added checking utime.h existent.
 
 	* configure.ac: checked utime.h existent.
