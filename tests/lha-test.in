@@ -6,7 +6,7 @@
 
 trap "rm -rf test-*" 0 1 2 3 15
 
-declare -i test_number=0 error_num=0
+typeset -i test_number=0 error_num=0
 error_tests=""
 
 exec > test.log
@@ -18,8 +18,8 @@ message() {
 
 check() {
   ((test_number = test_number + 1))
-  local status=$1
-  local lineno=$2
+  typeset status=$1
+  typeset lineno=$2
   if [[ $status -eq 0 ]]; then
     message test $test_number ... ok
     echo at line $lineno
@@ -29,12 +29,6 @@ check() {
     error_tests="$error_tests #$test_number"
     result=1
   fi
-}
-
-seq() {
-  awk 'BEGIN {
-    for (i = 0; i < '$1'; i++) print i
-  }'
 }
 
 cleanup()
@@ -47,7 +41,8 @@ cleanup()
 message testing $lha
 message testing to create/list/extract lha archive.
 
-for i in `seq 100`
+typeset -i i=0
+while (( i++ < 100 ))
 do
     echo foo >> test-a
 done
