@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(lha, 1.14i-ac20020522)
+AC_INIT(lha, 1.14i-ac20020525)
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
@@ -14,16 +14,16 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_MINIX
 AM_C_PROTOTYPES
-AC_C_CONST
 
 dnl Checks for libraries.
 
 dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h limits.h sys/file.h sys/time.h)
+AC_CHECK_HEADERS(fcntl.h limits.h sys/file.h sys/param.h sys/time.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
 AC_HEADER_TIME
 AC_STRUCT_TM
 AC_STRUCT_TIMEZONE
@@ -57,10 +57,11 @@ fi
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
+AC_FUNC_FORK
 AC_FUNC_UTIME_NULL
-AC_CHECK_FUNCS(strchr memcpy)
-AC_CHECK_FUNCS(mktime timelocal tzset ftime gettimeofday)
-AC_CHECK_FUNCS(mkdir rmdir strdup memset ftruncate lchown mkstemp)
+AC_CHECK_FUNCS(strchr strdup memcpy memset memmove)
+AC_CHECK_FUNCS(mktime timelocal tzset ftime gettimeofday utime)
+AC_CHECK_FUNCS(mkdir rmdir ftruncate lchown mkstemp)
 AC_CHECK_FUNCS(strcasecmp link)
 
 if test $ac_header_dirent = no; then
@@ -110,7 +111,7 @@ AC_ARG_WITH(tmp_file,
 AC_MSG_RESULT($with_tmp_file)
 if test x"$with_tmp_file" != xno; then
   AC_DEFINE_UNQUOTED(TMP_FILENAME_TEMPLATE, "$with_tmp_file",
-    [temporary file template])
+    [temporary file template for mktemp/mkstemp])
 fi
 
 dnl incremental indicator
