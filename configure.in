@@ -93,8 +93,8 @@ AC_ARG_WITH(default_method,
    esac],
   with_default_method=5)
 
-AC_MSG_RESULT(lh$with_default_method)
-AC_DEFINE_UNQUOTED(DEFAULT_LZHUFF_METHOD, LZHUFF${with_default_method}_METHOD, [Define it to 5, 6 or 7 which you want to use -lhX- method, default])
+AC_MSG_RESULT(-lh$with_default_method-)
+AC_DEFINE_UNQUOTED(DEFAULT_LZHUFF_METHOD, LZHUFF${with_default_method}_METHOD_NUM, [Define it to 5, 6 or 7 which you want to use -lhX- method, default])
 
 dnl decide path names
 AC_MSG_CHECKING(template of the temporary file is )
