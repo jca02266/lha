@@ -12,6 +12,7 @@
 	* IFNAMES (sony_news): updated.
 
 	* configure.ac, configure.in (AC_INIT): added autoconfiscated date.
+	show `lha --version'.
 
 2002-05-22  Koji Arai  <jca02266@nifty.ne.jp>
 
