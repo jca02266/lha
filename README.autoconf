@@ -45,7 +45,7 @@ LHa for UNIX に関しては岡本継男さんのページ
 
     ./configure CC='gcc -mno-cygwin'
 		--build=i686-pc-mingw32
-		--with-tmp-file=c:/tmp/lhXXXXXX
+		--with-tmp-file=no
 
   などとしてください。
 

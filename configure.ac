@@ -70,7 +70,8 @@ fi
 dnl support kanji code conversion
 AC_SUBST(DEF_KCODE)
 AC_ARG_ENABLE(text_conv,
-  [  --enable-text-conv      support text code convert from/to EUC [default=yes]],
+  AC_HELP_STRING([--enable-text-conv],
+		 [support text code convert from/to EUC [[default=yes]]]),
   , enable_text_conv=yes)
 
 if test $enable_text_conv = yes; then
@@ -84,7 +85,8 @@ SUPPORT_LZHUFF_METHOD=-DSUPPORT_LH7
 dnl whether use the -lh567- method
 AC_MSG_CHECKING(default archive method is )
 AC_ARG_WITH(default_method,
-  [  --with-default-method=[567]  create the -lh[567]- archive default [default=5]],
+  AC_HELP_STRING([--with-default-method=[[567]]],
+		 [create the -lh[[567]]- archive default [[default=5]]]),
   [case $withval in
    [567]) ;;
    *) AC_MSG_ERROR(you should have specified 5, 6 or 7);;
@@ -94,22 +96,27 @@ AC_ARG_WITH(default_method,
 AC_MSG_RESULT(-lh$with_default_method-)
 AC_DEFINE_UNQUOTED(DEFAULT_LZHUFF_METHOD, LZHUFF${with_default_method}_METHOD_NUM, [Define it to 5, 6 or 7 which you want to use -lhX- method, default])
 
-dnl decide path names
+dnl decide temporary path names
 AC_MSG_CHECKING(template of the temporary file is )
 AC_ARG_WITH(tmp_file,
-  [  --with-tmp-file=TEMPLATE temporary file template [default=/tmp/lhXXXXXX]],
+  AC_HELP_STRING([--with-tmp-file=TEMPLATE],
+		 [temporary file template [[default=/tmp/lhXXXXXX]]]),
   [case $withval in
-   yes|no) AC_MSG_ERROR(you should have specified path name);;
+   yes)  with_tmp_file=/tmp/lhXXXXXX ;;
+   no)   ;;
    esac],
   with_tmp_file=/tmp/lhXXXXXX)
 
 AC_MSG_RESULT($with_tmp_file)
-AC_DEFINE_UNQUOTED(TMP_FILENAME_TEMPLATE, "$with_tmp_file",
-  [temporary file template])
+if test x"$with_tmp_file" != xno; then
+  AC_DEFINE_UNQUOTED(TMP_FILENAME_TEMPLATE, "$with_tmp_file",
+    [temporary file template])
+fi
 
 dnl incremental indicator
 AC_ARG_ENABLE(indicator,
-  [  --enable-indicator      need incremental indicator [default=yes]],
+  AC_HELP_STRING([--enable-indicator],
+		 [need incremental indicator [[default=yes]]]),
   ,
   # default
   enable_indicator=yes)
@@ -120,7 +127,8 @@ fi
 
 dnl support multibyte filename
 AC_ARG_ENABLE(multibyte-char,
-  [  --enable-multibyte-char support multibyte(sjis) filename [default=yes]],
+  AC_HELP_STRING([--enable-multibyte-char],
+		 [support multibyte filename [[default=yes]]]),
   ,
   # default
   enable_multibyte_char=yes)
