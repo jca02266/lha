@@ -91,7 +91,7 @@ LHa for UNIX に関しては岡本継男さんのページ
   アーカイブ中のShift JISファイル名をEUCにすることもなく、EUCコード
   のまま(正確にはシステムの漢字コードのまま)アーカイブに格納したりします。
 
-  autoconf版では、configure オプション --enable-multibyte-char (デフォ
+  autoconf版では、configure オプション --enable-multibyte-filename (デフォ
   ルト)により漢字ファイル名が使用でき、アーカイブに格納されるファイル名
   の漢字コードをSJISに、システムファイル名の漢字コードをEUCにしました。
 
