@@ -393,3 +393,29 @@ xmemrchr(const char *s, int c, size_t n)
     return p;
 }
 #endif
+
+#ifndef HAVE_BASENAME
+char *
+basename(char *s)
+{
+    int len;
+    char *t;
+
+    if (!s || *s == 0)
+        return ".";
+
+    /* strip trailing slashs */
+    t = s + strlen(s) - 1;
+    while (s != t && *t == '/')
+        *t-- = '\0';
+    if (s == t)
+        return s;
+
+    t = strrchr(s, '/');
+    if (t)
+        return t + 1;
+    else
+        return s;
+
+}
+#endif
