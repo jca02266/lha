@@ -1031,229 +1031,358 @@ init_header(name, v_stat, hdr)
 
 /* ------------------------------------------------------------------------ */
 /* Write unix extended header or generic header. */
-void
-write_header(nafp, hdr)
-	FILE           *nafp;
-	LzHeader       *hdr;
+
+static int
+write_header_level0(data, hdr, lzname)
+    LzHeader *hdr;
+    char *data, *lzname;
 {
-	int             header_size;
-	int             name_length;
-	char            data[LZHEADER_STRAGE];
-	char           *p;
-	char           *headercrc_ptr;
+    int limit;
+    int name_length;
+    int header_size;
+
+    setup_put(data);
+    memset(data, 0, LZHEADER_STRAGE);
+
+    put_byte(0x00);             /* header size */
+    put_byte(0x00);             /* check sum */
+    put_bytes(hdr->method, 5);
+    put_longword(hdr->packed_size);
+    put_longword(hdr->original_size);
+    put_longword(unix_to_generic_stamp(hdr->unix_last_modified_stamp));
+    put_byte(hdr->attribute);
+    put_byte(hdr->header_level); /* level 0 */
+
+    /* level 0 header: write pathname (contain the directory part) */
+    name_length = strlen(lzname);
+    if (generic_format)
+        limit = 255 - I_GENERIC_HEADER_BOTTOM + 2;
+    else
+        limit = 255 - I_UNIX_EXTEND_BOTTOM + 2;
+
+    if (name_length > limit) {
+        warning("the length of pathname \"%s\" is too long.", lzname);
+        name_length = limit;
+    }
+    put_byte(name_length);
+    put_bytes(lzname, name_length);
+    put_word(hdr->crc);
+
+    if (generic_format) {
+        header_size = I_GENERIC_HEADER_BOTTOM + name_length - 2;
+        data[I_HEADER_SIZE] = header_size;
+        data[I_HEADER_CHECKSUM] = calc_sum(data + I_METHOD, header_size);
+    } else {
+        /* write old-style extend header */
+        put_byte(EXTEND_UNIX);
+        put_byte(CURRENT_UNIX_MINOR_VERSION);
+        put_longword(hdr->unix_last_modified_stamp);
+        put_word(hdr->unix_mode);
+        put_word(hdr->unix_uid);
+        put_word(hdr->unix_gid);
+
+        /* size of extended header is 12 */
+        header_size = I_UNIX_EXTEND_BOTTOM + name_length - 2;
+        data[I_HEADER_SIZE] = header_size;
+        data[I_HEADER_CHECKSUM] = calc_sum(data + I_METHOD, header_size);
+    }
+
+    return header_size + 2;
+}
+
+static int
+write_header_level1(data, hdr, lzname)
+    LzHeader *hdr;
+    char *data, *lzname;
+{
+    int name_length, dir_length, limit;
+    char *basename, *dirname;
+    int header_size;
+    char *extend_header_top;
+    int extend_header_size;
+
+    basename = strrchr(lzname, LHA_PATHSEP);
+    if (basename) {
+        basename++;
+        name_length = strlen(basename);
+        dirname = lzname;
+        dir_length = basename - dirname;
+    }
+    else {
+        basename = lzname;
+        name_length = strlen(basename);
+        dirname = "";
+        dir_length = 0;
+    }
+
+    setup_put(data);
+    memset(data, 0, LZHEADER_STRAGE);
+
+    put_byte(0x00);             /* header size */
+    put_byte(0x00);             /* check sum */
+    put_bytes(hdr->method, 5);
+    put_longword(hdr->packed_size);
+    put_longword(hdr->original_size);
+    put_longword(unix_to_generic_stamp(hdr->unix_last_modified_stamp));
+    put_byte(0x20);
+    put_byte(hdr->header_level); /* level 1 */
+
+    /* level 1 header: write filename (basename only) */
+    limit = 255 - 27 + 2;
+    if (name_length > limit) {
+        put_byte(0);            /* name length */
+    }
+    else {
+        put_byte(name_length);
+        put_bytes(basename, name_length);
+    }
+
+    put_word(hdr->crc);
+
+    if (generic_format)
+        put_byte(0x00);
+    else
+        put_byte(EXTEND_UNIX);
+
+    /* write extend header from here. */
+
+    extend_header_top = put_ptr+2; /* +2 for the field `next header size' */
+    header_size = extend_header_top - data - 2;
+
+    /* write filename and dirname */
+
+    if (name_length > limit) {
+        put_word(name_length + 3); /* size */
+        put_byte(0x01);         /* filename */
+        put_bytes(basename, name_length);
+    }
+
+    if (dir_length > 0) {
+        put_word(dir_length + 3); /* size */
+        put_byte(0x02);         /* dirname */
+        put_bytes(dirname, dir_length);
+    }
+
+    if (!generic_format) {
+        /* UNIX specific informations */
+
+        put_word(5);            /* size */
+        put_byte(0x50);         /* permission */
+        put_word(hdr->unix_mode);
+
+        put_word(7);            /* size */
+        put_byte(0x51);         /* gid and uid */
+        put_word(hdr->unix_gid);
+        put_word(hdr->unix_uid);
+
+        if (hdr->group[0]) {
+            int len = strlen(hdr->group);
+            put_word(len + 3);  /* size */
+            put_byte(0x52);     /* group name */
+            put_bytes(hdr->group, len);
+        }
+
+        if (hdr->user[0]) {
+            int len = strlen(hdr->user);
+            put_word(len + 3);  /* size */
+            put_byte(0x53);     /* user name */
+            put_bytes(hdr->user, len);
+        }
+
+        if (hdr->header_level == 1) {
+            put_word(7);        /* size */
+            put_byte(0x54);     /* time stamp */
+            put_longword(hdr->unix_last_modified_stamp);
+        }
+    }       /* if generic .. */
+
+    put_word(0x0000);           /* next header size */
+
+    extend_header_size = put_ptr - extend_header_top;
+    /* On level 1 header, the packed size field is contains the ext-header */
+    hdr->packed_size += put_ptr - extend_header_top;
+
+    /* put `skip size' */
+    setup_put(data + I_PACKED_SIZE);
+    put_longword(hdr->packed_size);
+
+    data[I_HEADER_SIZE] = header_size;
+    data[I_HEADER_CHECKSUM] = calc_sum(data + I_METHOD, header_size);
+
+    return header_size + extend_header_size + 2;
+}
+
+static int
+write_header_level2(data, hdr, lzname)
+    LzHeader *hdr;
+    char *data, *lzname;
+{
+    int name_length, dir_length;
+    char *basename, *dirname;
+    int header_size;
+    char *extend_header_top;
+    char *headercrc_ptr;
+    unsigned short  hcrc;
+
+    basename = strrchr(lzname, LHA_PATHSEP);
+    if (basename) {
+        basename++;
+        name_length = strlen(basename);
+        dirname = lzname;
+        dir_length = basename - dirname;
+    }
+    else {
+        basename = lzname;
+        name_length = strlen(basename);
+        dirname = "";
+        dir_length = 0;
+    }
+
+    setup_put(data);
+    memset(data, 0, LZHEADER_STRAGE);
+
+    put_word(0x0000);           /* header size */
+    put_bytes(hdr->method, 5);
+    put_longword(hdr->packed_size);
+    put_longword(hdr->original_size);
+    put_longword(hdr->unix_last_modified_stamp);
+    put_byte(0x20);
+    put_byte(hdr->header_level); /* level 2 */
+
+    put_word(hdr->crc);
+
+    if (generic_format)
+        put_byte(0x00);
+    else
+        put_byte(EXTEND_UNIX);
+
+    /* write extend header from here. */
+
+    extend_header_top = put_ptr+2; /* +2 for the field `next header size' */
+
+    /* write common header */
+    put_word(5);
+    put_byte(0x00);
+    headercrc_ptr = put_ptr;
+    put_word(0x0000);           /* header CRC */
+
+    /* write filename and dirname */
+    /* must have this header, even if the name_length is 0. */
+    put_word(name_length + 3);  /* size */
+    put_byte(0x01);             /* filename */
+    put_bytes(basename, name_length);
+
+    if (dir_length > 0) {
+        put_word(dir_length + 3); /* size */
+        put_byte(0x02);         /* dirname */
+        put_bytes(dirname, dir_length);
+    }
+
+    if (!generic_format) {
+        /* UNIX specific informations */
+
+        put_word(5);            /* size */
+        put_byte(0x50);         /* permission */
+        put_word(hdr->unix_mode);
+
+        put_word(7);            /* size */
+        put_byte(0x51);         /* gid and uid */
+        put_word(hdr->unix_gid);
+        put_word(hdr->unix_uid);
+
+        if (hdr->group[0]) {
+            int len = strlen(hdr->group);
+            put_word(len + 3);  /* size */
+            put_byte(0x52);     /* group name */
+            put_bytes(hdr->group, len);
+        }
+
+        if (hdr->user[0]) {
+            int len = strlen(hdr->user);
+            put_word(len + 3);  /* size */
+            put_byte(0x53);     /* user name */
+            put_bytes(hdr->user, len);
+        }
+
+        if (hdr->header_level == 1) {
+            put_word(7);        /* size */
+            put_byte(0x54);     /* time stamp */
+            put_longword(hdr->unix_last_modified_stamp);
+        }
+    }       /* if generic .. */
+
+    put_word(0x0000);           /* next header size */
+
+    header_size = put_ptr - data;
+    if ((header_size & 0xff) == 0) {
+        /* cannot put zero at the first byte on level 2 header. */
+        /* adjust header size. */
+        put_byte(0);            /* padding */
+        header_size++;
+    }
+
+    /* put hader size */
+    setup_put(data + I_HEADER_SIZE);
+    put_word(header_size);
+
+    /* put hader CRC in extended header */
+    hcrc = calc_header_crc(data, (unsigned int) header_size);
+    setup_put(headercrc_ptr);
+    put_word(hcrc);
+
+    return header_size;
+}
+
+void
+write_header(fp, hdr)
+    FILE           *fp;
+    LzHeader       *hdr;
+{
+    int header_size;
+    char data[LZHEADER_STRAGE];
 
     int archive_kanji_code = CODE_SJIS;
     int system_kanji_code = default_system_kanji_code;
     char *archive_delim = "\377";
     char *system_delim = "/";
     int filename_case = NONE;
-	char lzname[FILENAME_LENGTH];
+    char pathname[FILENAME_LENGTH];
 
     if (optional_archive_kanji_code)
         archive_kanji_code = optional_archive_kanji_code;
     if (optional_system_kanji_code)
         system_kanji_code = optional_system_kanji_code;
 
-	memset(data, 0, LZHEADER_STRAGE);
-	memcpy(data + I_METHOD, hdr->method, METHOD_TYPE_STRAGE);
-	setup_put(data + I_PACKED_SIZE);
-	put_longword(hdr->packed_size);
-	put_longword(hdr->original_size);
-
-	if (hdr->header_level == HEADER_LEVEL2)
-		put_longword((long) hdr->unix_last_modified_stamp);
-	else
-		put_longword(unix_to_generic_stamp(hdr->unix_last_modified_stamp));
-
-	switch (hdr->header_level) {
-	case HEADER_LEVEL0:
-		put_byte(hdr->attribute);
-		break;
-	case HEADER_LEVEL1:
-	case HEADER_LEVEL2:
-		put_byte(0x20);
-		break;
-	}
-
-	put_byte(hdr->header_level);
-
     if (generic_format)
         filename_case = TO_UPPER;
 
-	if (hdr->header_level == HEADER_LEVEL0) {
+    if (hdr->header_level == HEADER_LEVEL0) {
         archive_delim = "\\";
     }
 
-    strncpy(lzname, hdr->name, sizeof(lzname));
-    convert_filename(lzname, strlen(lzname), sizeof(lzname),
+    strncpy(pathname, hdr->name, sizeof(pathname));
+    pathname[sizeof(pathname)-1] = 0;
+    convert_filename(pathname, strlen(pathname), sizeof(pathname),
                      system_kanji_code,
                      archive_kanji_code,
                      system_delim, archive_delim, filename_case);
 
-	if (hdr->header_level != HEADER_LEVEL2) {
-        int limit;
-        /* level 0 header: write pathname (contain the directory part) */
-        /* level 1 header: write filename (basename only) */
-        if (hdr->header_level == HEADER_LEVEL0 ||
-            (p = strrchr(lzname, LHA_PATHSEP)) == 0)
-            p = lzname;
-        else
-            ++p;
-        name_length = strlen(p);
+    switch (hdr->header_level) {
+    case 0:
+        header_size = write_header_level0(data, hdr, pathname);
+        break;
+    case 1:
+        header_size = write_header_level1(data, hdr, pathname);
+        break;
+    case 2:
+        header_size = write_header_level2(data, hdr, pathname);
+        break;
+    default:
+        fatal_error("Unknown level header (level %d)", hdr->header_level);
+    }
 
-        limit = 255 - I_UNIX_EXTEND_BOTTOM + 2;
-        if (header_level == 0) {
-            if (generic_format)
-                limit = 255 - I_GENERIC_HEADER_BOTTOM + 2;
-
-            if (name_length > limit) {
-                warning("the length of pathname \"%s\" is too long.", p);
-                name_length = limit;
-            }
-        }
-
-        if (header_level == 1) {
-            put_byte(0);
-        }
-        else {
-            put_byte(name_length);
-            memcpy(data + I_NAME, p, name_length);
-            setup_put(data + I_NAME + name_length);
-        }
-	}
-
-	put_word(hdr->crc);
-	if (header_level == HEADER_LEVEL0) {
-		if (generic_format) {
-			header_size = I_GENERIC_HEADER_BOTTOM - 2 + name_length;
-			data[I_HEADER_SIZE] = header_size;
-			data[I_HEADER_CHECKSUM] = calc_sum(data + I_METHOD, header_size);
-		} else {
-			/* write old-style extend header */
-			put_byte(EXTEND_UNIX);
-			put_byte(CURRENT_UNIX_MINOR_VERSION);
-			put_longword((long) hdr->unix_last_modified_stamp);
-			put_word(hdr->unix_mode);
-			put_word(hdr->unix_uid);
-			put_word(hdr->unix_gid);
-			header_size = I_UNIX_EXTEND_BOTTOM - 2 + name_length;
-			data[I_HEADER_SIZE] = header_size;
-			data[I_HEADER_CHECKSUM] = calc_sum(data + I_METHOD, header_size);
-		}
-	} else {
-		/* write extend header. */
-		char           *ptr;
-
-		if (generic_format)
-			put_byte(0x00);
-		else
-			put_byte(EXTEND_UNIX);
-
-		ptr = put_ptr;
-		if (hdr->header_level == HEADER_LEVEL2) {
-			/* write common header */
-			put_word(5);
-			put_byte(0x00);
-			headercrc_ptr = put_ptr;
-			put_word(0x0000);
-		}
-
-		if (generic_format) {
-			header_size = put_ptr - data;	/* +2 for last 0x0000 */
-		} else {
-			put_word(5);
-			if (hdr->header_level == HEADER_LEVEL1)
-				header_size = put_ptr - data - 2;
-			put_byte(0x50);	/* permission */
-			put_word(hdr->unix_mode);
-			put_word(7);
-			put_byte(0x51);	/* gid and uid */
-			put_word(hdr->unix_gid);
-			put_word(hdr->unix_uid);
-
-            {
-                int len = strlen(hdr->group);
-                if (len > 0) {
-                    put_word(len + 3);
-                    put_byte(0x52);	/* group name */
-                    put_bytes(hdr->group, len);
-                }
-
-                len = strlen(hdr->user);
-                if (len > 0) {
-                    put_word(len + 3);
-                    put_byte(0x53);	/* user name */
-                    put_bytes(hdr->user, len);
-                }
-            }
-
-            if (hdr->header_level == 1) {
-                if (p = strrchr(lzname, LHA_PATHSEP))
-                    name_length = strlen(++p);
-                else {
-                    p = lzname;
-                    name_length = strlen(lzname);
-                }
-                put_word(name_length + 3);
-                put_byte(1);	/* filename */
-                put_bytes(p, name_length);
-            }
-
-			if (p = strrchr(lzname, LHA_PATHSEP)) {
-				name_length = p - lzname + 1;
-				put_word(name_length + 3);
-				put_byte(2);	/* dirname */
-                put_bytes(lzname, name_length);
-			}
-		}		/* if generic .. */
-
-		if (header_level != HEADER_LEVEL2) {
-			if (!generic_format) {
-				put_word(7);
-				put_byte(0x54);	/* time stamp */
-				put_longword(hdr->unix_last_modified_stamp);
-			}
-			hdr->packed_size += put_ptr - ptr;
-			ptr = put_ptr;
-			setup_put(data + I_PACKED_SIZE);
-			put_longword(hdr->packed_size);
-			put_ptr = ptr;
-			data[I_HEADER_SIZE] = header_size;
-			data[I_HEADER_CHECKSUM] = calc_sum(data + I_METHOD, header_size);
-		} else {		/* header level 2 */
-			if (p = strrchr(lzname, LHA_PATHSEP))
-				name_length = strlen(++p);
-			else {
-				p = lzname;
-				name_length = strlen(lzname);
-			}
-			put_word(name_length + 3);
-			put_byte(1);	/* filename */
-            put_bytes(p, name_length);
-		}		/* if he.. != HEAD_LV2 */
-		header_size = put_ptr - data;
-	}
-
-	if (header_level == HEADER_LEVEL2) {
-		unsigned short  hcrc;
-
-        if ((header_size + 2 & 0xff) == 0) {
-            /* cannot write zero at the first byte on level 2 header. */
-            /* adjust header size. */
-            put_byte(0);
-            header_size++;
-            printf("%d\n", header_size);
-        }
-		setup_put(data + I_HEADER_SIZE);
-		put_word(header_size + 2);
-		/* common header */
-		hcrc = calc_header_crc(data, (unsigned int) header_size + 2);
-		setup_put(headercrc_ptr);
-		put_word(hcrc);
-	}
-
-	if (fwrite(data, header_size + 2, 1, nafp) == 0)
-		fatal_error("Cannot write to temporary file");
+    if (fwrite(data, header_size, 1, fp) == 0)
+        fatal_error("Cannot write to temporary file");
 }
 
 #if MULTIBYTE_FILENAME
