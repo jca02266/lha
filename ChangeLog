@@ -1,3 +1,26 @@
+2002-06-21  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/lha-test.in: all tests are splited into some files.
+
+	* tests/lha-test2: ditto.
+
+	* tests/lha-test3: ditto.
+
+	* tests/lha-test4: ditto.
+
+	* tests/lha-test5: ditto.
+
+	* tests/lha-test6: ditto.
+
+	* tests/lha-test7: ditto.
+
+	* tests/lha-test8: ditto.
+
+2002-06-20  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lhadd.c (cmd_add): No create a temporary file when archive
+	is written in stdout.
+
 2002-06-19  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* 00readme.autoconf: Modified.
