@@ -1,5 +1,24 @@
 2003-07-13  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: updated version.
+
+	* src/prototypes.h: updated.
+
+	* src/append.c (encode_lzhuf): use size_t and off_t instead of long.
+	(start_indicator): ditto.
+
+	* src/extract.c (decode_lzhuf): ditto.
+
+	* src/lha.h (struct interfacing): ditto.
+
+	* src/lhadd.c (add_one): ditto.
+	(find_update_files): ditto.
+	(delete): ditto.
+
+	* src/lhext.c (cmd_extract): ditto.
+
+	* src/util.c (copyfile): ditto.
+
 	* src/lhlist.c (print_size): use "%7lu" format string instead of
 	"%7ld" for large files.
 
