@@ -47,8 +47,8 @@ message testing to create/list/extract lha archive.
 typeset -i i=0
 while (( i++ < 100 ))
 do
-    echo foo >> test-a
-done
+    echo foo
+done > test-a
 sed 's/foo/bar/g' < test-a > test-b
 sed 's/foo/baz/g' < test-a > test-c
 

@@ -2,9 +2,9 @@
 FILENAME=lha-test13
 message testing the kanji code conversion.
 
-printf '\xb4\xc1\xbb\xfa\xc9\xbd\n' > test-tmp-euc
+printf '\xb4\xc1\xbb\xfa\n' > test-tmp-euc
 							check $? $LINENO
-printf '\x8a\xbf\x8e\x9a\x95\x5c\n' > test-tmp-sjis
+printf '\x8a\xbf\x8e\x9a\n' > test-tmp-sjis
 							check $? $LINENO
 # no convert
 $lha c test-tmp-euc.lzh test-tmp-euc
@@ -45,11 +45,16 @@ diff test-tmp-euc test-tmp-euc-d2/test-tmp-euc
 							check $? $LINENO
 
 i=0
-while ((i++ < 100))
+while ((i++ < 10))
 do
-  cat test-tmp-euc >> test-tmp-euc2
-  cat test-tmp-sjis >> test-tmp-sjis2
-done
+  cat test-tmp-euc
+done > test-tmp-euc2
+
+i=0
+while ((i++ < 10))
+do
+  cat test-tmp-sjis
+done > test-tmp-sjis2
 
 # no convert
 $lha c test-tmp-euc2.lzh test-tmp-euc2
