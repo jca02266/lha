@@ -25,6 +25,9 @@ static char    *methods[] =
     NULL
 };
 
+static void add_dirinfo(char* name, LzHeader* hdr);
+static void adjust_dirinfo();
+
 /* ------------------------------------------------------------------------ */
 static          boolean
 inquire_extract(name)
@@ -406,6 +409,8 @@ extract_one(afp, hdr)
             } else { /* make directory */
                 if (!output_to_stdout && !make_parent_path(name))
                     return read_size;
+                /* save directory information */
+                add_dirinfo(name, hdr);
             }
         }
     }
@@ -468,5 +473,53 @@ cmd_extract()
     /* close archive file */
     fclose(afp);
 
+    /* adjust directory information */
+    adjust_dirinfo();
+
     return;
+}
+
+/*
+ * restore directory information (time stamp).
+ * added by A.Iriyama  2003.12.12
+ */
+
+typedef struct lhdDirectoryInfo_t {
+    struct lhdDirectoryInfo_t *next;
+    LzHeader hdr;
+} LzHeaderList;
+
+static LzHeaderList *dirinfo;
+
+static void add_dirinfo(char *name, LzHeader *hdr)
+{
+    LzHeaderList *p;
+
+    if (memcmp(hdr->method, LZHDIRS_METHOD, 5) != 0)
+        return;
+
+    p = xmalloc(sizeof(LzHeaderList));
+
+    memcpy(&p->hdr, hdr, sizeof(LzHeader));
+    strncpy(p->hdr.name, name, sizeof(p->hdr.name));
+    p->hdr.name[sizeof(p->hdr.name)-1] = 0;
+
+    {
+        LzHeaderList *tmp = dirinfo;
+        dirinfo = p;
+        dirinfo->next = tmp;
+    }
+}
+
+static void adjust_dirinfo()
+{
+    while (dirinfo) {
+        adjust_info(dirinfo->hdr.name, &dirinfo->hdr);
+
+        {
+            LzHeaderList *tmp = dirinfo;
+            dirinfo = dirinfo->next;
+            free(tmp);
+        }
+    }
 }
