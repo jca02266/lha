@@ -1,10 +1,14 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiguration for LHa for UNIX version 1.14i
-                                        Thu, Feb  1 2001 by Koji Arai
+					Sun, May 19 2002 by Koji Arai
 
 このファイルはLHa for UNIX version 1.14i をautoconf、automake化
-したときのメモです。
+した(autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
+
+LHa for UNIX に関しては岡本継男さんのページ
+  <http://www2m.biglobe.ne.jp/~dolphin/lha/lha.htm>
+を参照してください。
 
 ※ この版はまだβ版です。十分にテストされていません。もちろん
    無保証なので自己責任で使用してください。
@@ -23,31 +27,27 @@ autoconfiguration for LHa for UNIX version 1.14i
   示します。そのままの行はautoconfで判断する必要がないかまたは私が判断
   できないため、そのまま放置したことを示します。
 
-・GPL
-
-  automake は、--foreign 付きで処理しました。automakeやautoconfなしで
-  コンパイルするにはいくつかのGNUユーティリティ(config.guess,
-  config.sub, install-sh, missing, mkinstalldirs)を同梱しなければいけ
-  ないのですが、これらの中にはGPL2に従って配布されなければならないもの
-  もあり、lha for UNIX にこれらを含んでも問題ないかどうか判断できなかっ
-  たため同梱しませんでした。したがって、このautoconf版はlha-1.14iオリ
-  ジナルに対するパッチ形式で配布しています。コンパイルには別途autoconf、
-  automake が必要となります。
-
 ・コンパイルの手順
 
   コンパイルの手順は以下のようになります。
+
 
     tar xvzf lha-1.14i.tar.gz
     cd lha-1.14i
     patch -p1 < ../lha-1.14i-autoconf.diff
 
-    aclocal
-    automake -a
-    autoconf
     ./configure
     make
     make install
+
+  MinGW 対応はα版です。ほとんどテストされていません(コンパイルを通し
+  た程度)。Cygwin 環境で MinGW 版を試すには
+
+    ./configure CC='gcc -mno-cygwin'
+		--build=i686-pc-mingw32
+		--with-tmp-file=c:/tmp/lhXXXXXX
+
+  などとしてください。
 
 ・-lh6-, -lh7- メソッドのアーカイブ作成
 
@@ -75,7 +75,7 @@ autoconfiguration for LHa for UNIX version 1.14i
   ルト)により漢字ファイル名が使用でき、アーカイブに格納されるファイル名
   の漢字コードをSJISに、システムファイル名の漢字コードをEUCにしました。
 
-  ※ Cygwinでは特別にシステムの漢字コードはSJISになります。
+  ※ Cygwin, MinGW, HP-UX では特別にシステムの漢字コードはSJISになります。
 
   configure のコマンドラインオプションによりシステムの漢字コードを指定
   できるように、そして lha のコマンドラインオプションによりアーカイブ、

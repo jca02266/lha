@@ -1,0 +1,53 @@
+2002-05-19  Koji Arai  <arai@fgsd.mt.nec.co.jp>
+
+	* configure.ac: added for autoconf-2.53.
+
+	* config.h.in: regenerate by autoconf-2.53.
+
+	* src/lharc.c (find_files): MinGW has st_ino but always 0.
+
+	* src/lharc.c (main): provisionally fix. set
+	`get_filename_from_stdin' to false.
+
+	* src/util.c (rename): use builtin rename on mingw32 (since have
+	no link(2)).
+
+	* src/lharc.c (main): use xrealloc().
+
+	* src/lha_macro.h: specify "b" modifier always (for mingw32).
+
+	* src/lharc.c: use xstrdup() instead of strdup().
+
+	* src/lha_macro.h: ditto.
+
+	* src/lha_macro.h: getuid(), chown(), kill(), link() are
+	provisionally defined as 0.
+
+	* src/header.c: set `default_system_kanji_code' to Shift_JIS on mingw32.
+
+	* src/lhadd.c (build_temporary_file): no use SIGHUP for mingw32.
+	(build_backup_file): ditto.
+
+	* src/lharc.c (interrupt): ditto.
+
+	* src/lhext.c (extract_one): ditto.
+
+	* src/lhext.c (make_parent_path): mkdir() has no 2nd argument on
+	mingw32.
+
+2002-05-18  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* lha_macro.h: define bcmp(), bzero(), bcopy() even if
+	STDC_HEADERS is defined.
+
+	* huf.c (alloc_buf): call fatal_error() when memory allocation failed
+	instead of returning NULL.
+
+	* lharc.c (main): use xmalloc().
+
+	* util.c (copyfile): use xmalloc().
+
+	* slide.c (encode_alloc): use xmalloc().
+
+	* header.c (default_system_kanji_code): On HP-UX, use Shift_JIS as
+	default kanji code.

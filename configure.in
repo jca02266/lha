@@ -62,7 +62,7 @@ AC_FUNC_UTIME_NULL
 AC_CHECK_FUNCS(strchr memcpy)
 AC_CHECK_FUNCS(mktime timelocal tzset ftime gettimeofday)
 AC_CHECK_FUNCS(mkdir rmdir strdup memset ftruncate lchown mkstemp)
-AC_CHECK_FUNCS(strcasecmp)
+AC_CHECK_FUNCS(strcasecmp link)
 
 AC_SUBST(LIBOBJS)
 if test $ac_header_dirent = no; then
