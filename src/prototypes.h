@@ -46,6 +46,8 @@ char *sjis_to_utf8 P_((char *dst, const char *src, size_t dstsize));
 char *utf8_to_sjis P_((char *dst, const char *src, size_t dstsize));
 void euc2sjis P_((int *p1, int *p2));
 void sjis2euc P_((int *p1, int *p2));
+int cap_to_sjis P_((char *dst, const char *src, size_t dstsize));
+int sjis_to_cap P_((char *dst, const char *src, size_t dstsize));
 /* huf.c */
 void output_st1 P_((int c, int p));
 unsigned char *alloc_buf P_((void));
