@@ -19,7 +19,7 @@
 	* IFNAMES: NOVOID was removed.
 
 	* src/lharc.c (main): terminate with exit status 2 when specified
-	command line switches is wrong,
+	command line switche is wrong,
 
 	* configure.ac, config.h.in: added checking utime.h existent.
 
@@ -208,7 +208,7 @@
 
 	* src/lharc.c (init_variable): Removed useless assignments.
 
-	* src/lharc.c (main): Behavior is changed. when `q' or `q2' option
+	* src/lharc.c (main): Behavior was changed. when `q' or `q2' option
 	(not `q1') is specified, the `f' option is enabled implicitly.
 	In original behavior, the option `q', `q0', `q1' and `q2' will
 	enable `f' option implicitly (bug?).
