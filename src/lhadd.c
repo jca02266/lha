@@ -98,11 +98,17 @@ append_it(name, oafp, nafp)
 #endif
 	init_header(name, &stbuf, &hdr);
 
-	if (!directory && !noexec)
+	if (!directory && !noexec) {
 		if (symlink)
 			fp = NULL;
-		else
-			fp = xfopen(name, READ_BINARY);
+		else {
+			fp = fopen(name, READ_BINARY);
+			if (!fp) {
+				error("Cannot open file \"%s\": %s", name, strerror(errno));
+				return oafp;
+			}
+		}
+	}
 	else {
 		fp = NULL;
 	}
