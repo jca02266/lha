@@ -137,4 +137,4 @@ if test "x$enable_multibyte_char" = xyes; then
   AC_DEFINE(MULTIBYTE_CHAR, 1, [Define you want to use multibyte filename])
 fi
 
-AC_OUTPUT([Makefile src/Makefile man/Makefile])
+AC_OUTPUT([Makefile src/Makefile man/Makefile tests/Makefile tests/lha-test])
