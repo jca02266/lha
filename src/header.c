@@ -200,7 +200,7 @@ unix_to_generic_filename(name, len)
 #endif /* 0 */
 
 /* added by Koji Arai */
-static void
+void
 convert_filename(name, len, size,
                  from_code, to_code,
                  from_delim, to_delim,
@@ -917,7 +917,7 @@ init_header(name, v_stat, hdr)
 
 #ifdef S_IFLNK	
 	if (is_symlink(v_stat)) {
-		char	lkname[256];    /* FIXME: no enough space */
+		char	lkname[FILENAME_LENGTH];
 		int		len;	
 		memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STRAGE);
 		hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
@@ -948,7 +948,7 @@ write_header(nafp, hdr)
     char *archive_delim = "\377";
     char *system_delim = "/";
     int filename_case = NONE;
-	char lzname[256];
+	char lzname[FILENAME_LENGTH];
 
     if (optional_archive_kanji_code)
         archive_kanji_code = optional_archive_kanji_code;
