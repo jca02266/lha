@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([LHa for UNIX], 1.14i-ac20020714, jca02266@nifty.ne.jp, lha)
+AC_INIT([LHa for UNIX], 1.14i-ac20020718, jca02266@nifty.ne.jp, lha)
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
