@@ -466,7 +466,7 @@ print_version()
 }
 
 void
-#if PROTOTYPES
+#if STDC_HEADERS
 message(char *fmt, ...)
 #else
 message(fmt, va_alist)
@@ -490,7 +490,7 @@ message(fmt, va_alist)
 
 /* ------------------------------------------------------------------------ */
 void
-#if PROTOTYPES
+#if STDC_HEADERS
 warning(char *fmt, ...)
 #else
 warning(fmt, va_alist)
@@ -514,7 +514,7 @@ warning(fmt, va_alist)
 
 /* ------------------------------------------------------------------------ */
 void
-#if PROTOTYPES
+#if STDC_HEADERS
 error(char *fmt, ...)
 #else
 error(fmt, va_alist)
@@ -537,7 +537,7 @@ error(fmt, va_alist)
 }
 
 void
-#if PROTOTYPES
+#if STDC_HEADERS
 fatal_error(char *fmt, ...)
 #else
 fatal_error(fmt, va_alist)
