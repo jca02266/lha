@@ -1,5 +1,14 @@
 2002-07-14  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* released.
+
+	* configure.ac: updated version.
+
+	* tests/lha-test10: added testing handle deep directory.
+
+	* src/header.c (write_header): fixed typo, not strchr() but
+	strrchr().
+
 	* src/prototypes.h: regenerated.
 
 	* src/header.c (convert_filename): prefer to use the
