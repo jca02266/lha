@@ -76,7 +76,7 @@
 
 2002-06-20  Koji Arai  <jca02266@nifty.ne.jp>
 
-	* src/lhadd.c (cmd_add): No create a temporary file when archive
+	* src/lhadd.c (cmd_add): No create an intermediate file when archive
 	is written in stdout.
 
 2002-06-19  Koji Arai  <jca02266@nifty.ne.jp>
