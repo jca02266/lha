@@ -127,9 +127,9 @@ LHa      for UNIX  V 1.14i Modified     2000  Tsugio Okamoto\n\
                     Autoconfiscated 2001,2002 Koji Arai\n\
 ");
     fprintf(stderr, "\
-usage: lha [-]<commands><options> [-<options> ...] archive_file [file...]\n\
+usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
   commands:  [axelvudmcpt]\n\
-  options:   [q[num]vnfto[num]dizge012[w=<dir>][x=<pattern>]]\n\
+  options:   [q[012]vnfto[567]dizg012e[w=<dir>|x=<pattern>]]\n\
 commands:                           options:\n\
  a   Add(or replace) to archive      q{num} quiet (num:quiet mode)\n\
  x,e EXtract from archive            v  verbose\n\
@@ -138,32 +138,34 @@ commands:                           options:\n\
  d   Delete from archive             t  FILES are TEXT file\n");
 #ifdef SUPPORT_LH7
     fprintf(stderr, "\
- m   Move to archive (means 'ad')    o[567] compression method (a/u)\n\
+ m   Move to archive (means 'ad')    o[567] compression method (a/u/c)\n\
 ");
 #endif
 #ifndef SUPPORT_LH7
     fprintf(stderr, "\
- m   Move to archive (means 'ad')    o  use LHarc compatible method (a/u)\n\
+ m   Move to archive (means 'ad')    o  use LHarc compatible method (a/u/c)\n\
 ");
 #endif
     fprintf(stderr, "\
- c   re-Construct new archive        w=<dir> specify extract directory (a/u/m/x/e)\n\
- p   Print to STDOUT from archive    d  delete FILES after (a/u/c)\n\
- t   Test file CRC in archive        i  ignore directory path (x/e)\n\
-                                     x=<pattern>  eXclude files (a/u)\n\
-                                     z  files not compress (a/u)\n\
+ c   re-Construct new archive        d  delete FILES after (a/u/c)\n\
+ p   Print to STDOUT from archive    i  ignore directory path (x/e)\n\
+ t   Test file CRC in archive        z  files not compress (a/u/c)\n\
                                      g  Generic format (for compatibility)\n\
                                         or not convert case when extracting\n\
-                                     0/1/2 header level (a/u)\n\
+                                     0/1/2 header level (a/u/c)\n\
 ");
 #ifdef EUC
     fprintf(stderr, "\
                                      e  TEXT code convert from/to EUC\n\
 ");
 #endif
+    fprintf(stderr, "\
+                                     w=<dir> specify extract directory (x/e)\n\
+                                     x=<pattern>  eXclude files (a/u/c)\n\
+");
 }
 
-void
+static void
 parse_option(int argc, char **argv)
 {
     char *opt;
@@ -416,7 +418,7 @@ main(argc, argv)
 
     if (!archive_name) {
         print_tiny_usage();
-        exit(0);
+        exit(2);
     }
 
     if (!strcmp(archive_name, "-")) {
@@ -427,8 +429,7 @@ main(argc, argv)
     else {
         if (argc == 3 && !isatty(0)) { /* 1999.7.18 */
             /* Bug(?) on MinGW, isatty() return 0 on Cygwin console.
-               mingw-runtime-1.3-2 and Cygwin 1.3.10(0.51/3/2) on
-               Win2000 */
+               mingw-runtime-1.3-2 and Cygwin 1.3.10(0.51/3/2) on Win2000 */
             get_filename_from_stdin = TRUE;
         }
     }
