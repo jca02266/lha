@@ -1,5 +1,45 @@
 2002-08-10  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/header.c (get_header_level2): check CRC value for reading
+	level 2 and 3 header.
+	(get_header_level3): ditto.
+	(get_extended_header): ditto.
+	(get_header_level0): set total header size to
+	`LzHeader.header_size' even if level 0 or 1 header is read.
+	(get_header_level1): ditto.
+	
+	* src/append.c (encode_lzhuf): encode(), decode() and copyfile()
+	were changed.
+	(put_indicator): moved from crcio.c.
+
+	* src/crcio.c (put_indicator): moved to append.c.
+	(calccrc): generalized.
+	(fread_crc): changed interface.
+	(fwrite_crc): changed interface.
+	(calc_header_crc): removed. use calccrc() instead.
+
+	* src/extract.c (decode_lzhuf): copyfile() and decode() were changed.
+
+	* src/lha.h: hate global variable. `crc' is removed.
+	`reading_size' moved to append.c.
+
+	* src/lha_macro.h (INITIALIZE_CRC): newly added.
+	(UPDATE_CRC): no update in macro code.
+
+	* src/lhadd.c (temporary_to_new_archive_file): copyfile() was changed.
+
+	* src/lharc.c (copy_old_one): header size adjusting is done by
+	the get_header().
+
+	* src/slide.c (update): changed interface.
+	(get_next): ditto.
+	(encode): ditto.
+	(decode): ditto.
+
+	* src/util.c (copyfile): changed interface.
+
+2002-08-10  Koji Arai  <jca02266@nifty.ne.jp>
+
 	* tests/lha-test5: added tests using pipe.
 
 	* src/lhadd.c (cmd_add): applied reverse patch.  intermediate file
