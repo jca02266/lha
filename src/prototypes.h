@@ -76,7 +76,6 @@ void error P_((char *fmt, ...));
 void fatal_error P_((char *fmt, ...));
 void cleanup P_((void));
 RETSIGTYPE interrupt P_((int signo));
-void lha_exit P_((int status));
 void *xmalloc P_((size_t size));
 void *xrealloc P_((void *old, size_t size));
 char *xstrdup P_((char *str));
@@ -96,6 +95,7 @@ FILE *open_old_archive P_((void));
 int inquire P_((char *msg, char *name, char *selective));
 void write_archive_tail P_((FILE *nafp));
 void copy_old_one P_((FILE *oafp, FILE *nafp, LzHeader *hdr));
+void lha_exit P_((int status));
 /* lhext.c */
 void cmd_extract P_((void));
 /* lhlist.c */
