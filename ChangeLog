@@ -1,10 +1,11 @@
 2002-07-29  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* re-released.
+
 	* src/header.c: should use error() instead of fatal_error().
+	(get_header): fixed wrong end mark checking.
 
 	* src/prototypes.h: updated.
-
-2002-07-29  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* released.
 
