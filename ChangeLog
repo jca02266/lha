@@ -1,5 +1,9 @@
 2002-06-22  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* released:
+
+	* configure.ac: updated version.
+
 	* src/lharc.c (init_variable): Removed useless assignments.
 
 	* src/lharc.c (main): Behavior is changed. when `q' or `q2' option
