@@ -118,6 +118,7 @@ typedef int				boolean;
 #define NONE 0
 #define CODE_EUC 1
 #define CODE_SJIS 2
+#define CODE_UTF8 3
 #define TO_LOWER 1
 #define TO_UPPER 2
 
