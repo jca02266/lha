@@ -151,7 +151,3 @@ finish_indicator(name, msg)
 #endif
     fflush(stdout);
 }
-/* Local Variables: */
-/* tab-width : 4 */
-/* End: */
-/* vi: set tabstop=4: */
