@@ -55,10 +55,9 @@ AC_CHECK_MEMBERS([struct tm.tm_gmtoff, struct stat.st_ino],,,
 AC_TYPE_SIGNAL
 AC_FUNC_FORK
 AC_FUNC_UTIME_NULL
-AC_CHECK_FUNCS(strchr strdup memcpy memset memmove)
+AC_CHECK_FUNCS(strchr strdup memcpy memset memmove strcasecmp)
 AC_CHECK_FUNCS(mktime timelocal tzset ftime gettimeofday utime)
-AC_CHECK_FUNCS(mkdir rmdir ftruncate lchown mkstemp)
-AC_CHECK_FUNCS(strcasecmp link)
+AC_CHECK_FUNCS(mkdir rmdir ftruncate lchown mkstemp link)
 AC_CHECK_FUNCS(getpwuid getgrgid getpwnam getgrnam)
 
 if test $ac_header_dirent = no; then
@@ -88,7 +87,7 @@ main()
 }
 ], lha_cv_strchr_8bit_clean=yes,lha_cv_strchr_8bit_clean=no))
 
-if test $ac_cv_shell_true_works = yes; then
+if test $lha_cv_strchr_8bit_clean = yes; then
   AC_DEFINE(STRCHR_8BIT_CLEAN, 1,
 	    [Define to 1 if strchr()/strrchr() works correctly.])
 fi
