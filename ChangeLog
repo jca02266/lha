@@ -1,3 +1,8 @@
+2003-07-28  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/lha-test.in: filename should be contained in last error
+	information.
+
 2003-07-27  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/lha-test2: no need to set $FILENAME.
