@@ -57,21 +57,21 @@
 	* configure.ac, config.h.in: use new autoconf macro, AC_CHECK_MEMBERS().
 
 	* IFNAMES, configure.in, src/header.c, src/lharc.c: replaced with
-	new macro name.
+	new macro name to adopt to the AC_CHECK_MEMBERS().
 
 2002-05-27  Koji Arai  <jca02266@nifty.ne.jp>
 
-	* tests/lha-test.in: use `seq` function instead of GNU sh-utils's seq.
+	* tests/lha-test.in: use awk instead of GNU sh-utils's `seq'.
 
-	* src/header.c (filename_conv): reverse condition and conversion
-	for filename case.
+	* src/header.c (filename_conv): fix a bug, reverse condition and
+	conversion for filename case.
 
 	* README.autoconf: added description abount `get_filename_from_stdin' feature.
 
 	* tests/lha-test.in: remove test around the `get_filename_from_stdin'.
 
 	* src/lharc.c (main): never set `get_filename_from_stdin` to true.
-	`echo foo | lha x foo.lzh' does not work like original LHa.
+	`echo foo | lha x foo.lzh' does not work like original LHa for UNIX.
 
 	* tests/lha-test.in: replace with #!/bin/bash.
 
