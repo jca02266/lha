@@ -277,4 +277,4 @@ LHa for UNIX に関しては岡本継男さんのページ
   といった指定ができるよう、オプション解析部は変更されました。
   本バージョンの usage は以下のようになります。
 
-    usage: lha [-]<command><option> [-<option> ...] archive_file [file...]
+    usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]

@@ -1,3 +1,16 @@
+2002-12-17  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.ac: added checking functions `fnmatch' and `basename'.
+	but not yet prepare the free fnmatch.c.
+
+	* config.h.in: ditto.
+
+	* src/util.c (basename): newly added.
+
+	* src/lhadd.c (cmd_add): exclude files specified by -x option.
+
+	* src/lharc.c (print_tiny_usage): refined.
+
 2002-12-16  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* 00readme.autoconf: describe about new feature `-x'.
