@@ -10,9 +10,6 @@ LHa for UNIX に関しては岡本継男さんのページ
   <http://www2m.biglobe.ne.jp/~dolphin/lha/lha.htm>
 を参照してください。
 
-※ この版はまだβ版です。十分にテストされていません。もちろん
-   無保証なので自己責任で使用してください。
-
 ・マクロの置き換え
 
   オリジナルの LHa for UNIX 1.14i で使われていたマクロは autoconf 標準
