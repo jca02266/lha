@@ -1296,10 +1296,9 @@ o for ループは、2回しかまわらないので、2 度の search_dict() の呼び出し
 
 static void match_insert()
 {
-    unsigned int off, h, max;
+    unsigned int off, h;
     unsigned int scan_end;
 
-    max = maxmatch; /* MAXMATCH; */
     if (matchlen < THRESHOLD - 1) matchlen = THRESHOLD - 1;
     matchpos = pos;
 
@@ -1313,12 +1312,11 @@ static void match_insert()
     scan_end = (pos > dicsiz) ? pos + off - dicsiz : off;
     search_dict(pos, hash[h], scan_end, maxmatch);
 
-    if (matchlen <= off + 2) {
+    if (off > 0 && matchlen <= off + 2) {
       off = 0;
-      h = hval;
 
       scan_end = (pos > dicsiz) ? pos + off - dicsiz : off;
-      search_dict(pos, hash[h], scan_end, off+2);
+      search_dict(pos, hash[hval], scan_end, off+2);
     }
 
     insert();
@@ -1367,7 +1365,7 @@ search_dict() の動作は変わるだろうか？いや、やはり変わらない。どうにも
 どうも、文字 text[pos-1] を出力しているだけのように思える。文字の出力
 は、slide 辞書法では「辞書から見つからなかった場合」を意味するから、や
 はり最初の予想はあってそうなのだが・・・仕方ないので、output()の処理を
-除いて見よう。これは、lh5, 6, 7 の場合、huf.c:output_st1(c, p) である。
+覗いて見よう。これは、lh5, 6, 7 の場合、huf.c:output_st1(c, p) である。
 現時点で処理の内容を見てもわけがわからないが、結論から言うと第一引数 c 
 は、文字で、第二引数 p は、位置である。冒頭の decode 処理で、文字 c は
 長さも兼ねていると説明済みなので、(そして、text[pos-1] には現時点で文
@@ -1561,8 +1559,9 @@ static void update()
                                  / maxmatch{256}              maxmatch{256}
                                 pos
 
-                                    <------------------------------>
-                                               remainder
+                                   <------------------------------->
+                                              remainder
+
        |------- 以前のデータ  ---------|--- 新しいデータ  ---------|
 
 ----------------------------------------------------------------------------
@@ -1597,7 +1596,261 @@ update() の残りを見る。
 これで、一応は slide.c を網羅する事ができた。まだ不明な点は多いが、デ
 バッガで実際の処理を追いかければまたわかることがあるだろう。
 
-
+・・・しばし、休息・・・
+
+さて、デバッガでと以前は考えていたのだが、あきらめるのはまだ早い(元気
+が出たらしい)、そもそも最初に「デバッガを使わずにどこまで解読できるか」っ
+と冒頭に書いてたのにたった2回の通読でもうあきらめようとしていた。が、
+ここまで書いてきた本書を何度か読み返したが、まだまだ検討の余地はある。
+
+まず、match_insert() の処理でわからなかった部分を解読しよう。実は、こ
+れに関してはどうしてもわからず悩んでいたところ、Lha for UNIX のメンテ
+ナである岡本さんに教えてもらうことができた(ありがとうございます)その内
+容を確認しつつ match_insert() を見ることにする。
+
+まずは、復習だ。通常の状態に関しては match_insert() の解読は済んでいる。
+match_insert() は、text[pos] から始まる文字列を辞書から検索し、見つかっ
+た位置と一致長を matchpos, matchlen に設定する処理だ。そして、ついでに 
+insert() で、text[pos] の位置をハッシュ配列に記録し、次回の検索に備え
+れこともしている。
+
+では、不明な部分はなんだったかというと too_flag[] まわりである。
+too_flag のフラグが立っていると。辞書検索の頼りとなるハッシュ値を変更
+している。この部分がまったく皆目検討がつかなかったのだ。これに関してソー
+スを読み進めよう。以下ソースを再掲する。
+
+static void match_insert()
+{
+    unsigned int scan_pos, scan_end, len;
+    unsigned char *a, *b;
+    unsigned int chain, off, h, max;
+
+    max = maxmatch; /* MAXMATCH; */
+    if (matchlen < THRESHOLD - 1) matchlen = THRESHOLD - 1;
+    matchpos = pos;
+
+    off = 0;
+    for (h = hval; too_flag[h] && off < maxmatch - THRESHOLD; ) {
+        h = ((h << 5) ^ text[pos + (++off) + 2]) & (unsigned)(HSHSIZ - 1);
+    }
+    if (off == maxmatch - THRESHOLD) off = 0;
+    for (;;) {
+        chain = 0;
+        scan_pos = hash[h];
+        scan_end = (pos > dicsiz) ? pos + off - dicsiz : off;
+        while (scan_pos > scan_end) {
+            chain++;
+
+            if (text[scan_pos + matchlen - off] == text[pos + matchlen]) {
+                {
+                    a = text + scan_pos - off;  b = text + pos;
+                    for (len = 0; len < max && *a++ == *b++; len++);
+                }
+
+                if (len > matchlen) {
+                    matchpos = scan_pos - off;
+                    if ((matchlen = len) == max) {
+                        break;
+                    }
+                }
+            }
+            scan_pos = prev[scan_pos & (dicsiz - 1)];
+        }
+
+        if (chain >= LIMIT)
+            too_flag[h] = 1;
+
+        if (matchlen > off + 2 || off == 0)
+            break;
+        max = off + 2;
+        off = 0;
+        h = hval;
+    }
+    prev[pos & (dicsiz - 1)] = hash[hval];
+    hash[hval] = pos;
+}
+
+まず、too_flag[] は、最初すべての要素が 0 である。そして、新たにファイ
+ルを読むとき(update())も 0 に再初期化されるのだった。このフラグが立つ
+条件はというと、この match_insert() の中だけである。その処理は
+
+        if (chain >= LIMIT)
+            too_flag[h] = 1;
+
+この部分だけだ。chain が LIMIT以上になったら h (これは検索対象のハッシュ
+値だ)に関して、フラグを立てる。chain は while ループ(これは文字列の照
+合を行う処理)のループ回数だ。h に関しての検索が LIMIT{256} 以上の場合
+に too_flag[h] のフラグが立っている。
+
+while ループは一致文字列の一致長が最長一致長に達するか、辞書を最後まで
+探索するまでループする。つまり、あるハッシュ h に関してそのチェーンが 
+256 以上のものに関しては、too_flag[h] が 1 になっている。
+
+では、そのような h に関して、match_insert() がどのような処理になってい
+るかを見る。まず初期化部分
+
+    max = maxmatch; /* MAXMATCH; */
+    if (matchlen < THRESHOLD - 1) matchlen = THRESHOLD - 1;
+    matchpos = pos;
+
+これは、とりあえず無視。出力となる matchpos は pos で初期化されること
+には注意しておこう(前回は気づかなかった事だ)。
+
+    off = 0;
+    for (h = hval; too_flag[h] && off < maxmatch - THRESHOLD; ) {
+        h = ((h << 5) ^ text[pos + (++off) + 2]) & (unsigned)(HSHSIZ - 1);
+    }
+    if (off == maxmatch - THRESHOLD) off = 0;
+
+通常 off は、0 なのだが、too_flag[h] が 1 であるものに関しては値が変わ
+る。検索対象となる文字列 text[pos](のハッシュ値) hval に関して、
+too_flag[h] が立っていれば、(このハッシュのチェーンが 256 以上であるこ
+とが事前にわかっていれば)
+
+        h = ((h << 5) ^ text[pos + (++off) + 2]) & (unsigned)(HSHSIZ - 1);
+
+で、検索対象となるハッシュ値を変更している。このハッシュ値が示すのは元
+の検索対象文字列の 1 文字先だ。
+
+----------------------------------------------------------------------------
+
+                           |--- c --|
+                        |--- b --|  |
+                     |-- a ---|  |  |
+       +-------------+--------+--------+
+text   |             |  |  |  |  |  |  |
+       +-------------+--------+--------+
+                      \  \
+                      pos pos+1(off=1)
+
+----------------------------------------------------------------------------
+
+元の検索対象文字列が図の a だとすると、これを図の b にしている。初期化
+部のループは、もしこの b のハッシュチェーンに関して too_flag[h] がさら
+に 1 であるならさらに 先の文字列をハッシュ値とするようになっている。
+(これは元の pos の 2 文字先を示す。図の c の部分だ) h は、pos+off から
+の3文字のハッシュ値を示すものと言う事だ。
+
+ただし、h があまりにも先の方を見るようなハメになれば(off が maxmatch -
+THRESHOLD) off は 0 に再設定されるが、このとき h はそのままだ。この意
+味はまだわからないが、バグなのではないかと想像している(h = hval に再設
+定する必要があるだろう)
+
+では off = 1 だとして本処理を見ることにしよう。外側の for ループに関し
+ては、while ループを2回実行するかどうかだけのものだった。なので、 
+while ループ部だけを見てみよう。
+
+        chain = 0;
+        scan_pos = hash[h];
+        scan_end = (pos > dicsiz) ? pos + off - dicsiz : off;
+        while (scan_pos > scan_end) {
+            chain++;
+
+            if (text[scan_pos + matchlen - off] == text[pos + matchlen]) {
+                {
+                    a = text + scan_pos - off;  b = text + pos;
+                    for (len = 0; len < max && *a++ == *b++; len++);
+                }
+
+                if (len > matchlen) {
+                    matchpos = scan_pos - off;
+                    if ((matchlen = len) == max) {
+                        break;
+                    }
+                }
+            }
+            scan_pos = prev[scan_pos & (dicsiz - 1)];
+        }
+
+        if (chain >= LIMIT)
+            too_flag[h] = 1;
+
+scan_pos, scan_end に関しては検索開始位置と終了位置と言う事でもう良い
+だろう。で、最初の if の条件に着目する。
+
+            if (text[scan_pos + matchlen - off] == text[pos + matchlen]) {
+
+これが真となる状態を図示しよう。
+
+----------------------------------------------------------------------------
+
+                                                        |-- c ---|
+                    |-- a ---|                       |--- b --|
+       +---------------+--------+--------------------+--------+--------+
+text   |               |  |x'|  |                    |  |  |x |  |  |  |
+       +---------------+--------+--------------------+--------+--------+
+                       ^                             \  \
+                      scan_pos                       pos pos+1(off=1)
+
+----------------------------------------------------------------------------
+
+まず、if 条件の左辺
+
+  text[scan_pos + matchlen - off]
+
+matchlen は、match_insert() に入る直前に 2 に初期化されている(最初は)
+ので、照合するのは図の x' だ。
+
+if 条件の右辺
+
+  text[pos + matchlen]
+
+これは、図の x の位置だ。x' == x ならば本格的に照合を開始する。
+
+                {
+                    a = text + scan_pos - off;  b = text + pos;
+                    for (len = 0; len < max && *a++ == *b++; len++);
+                }
+
+ここで比較しているのは、図の a と b だ。b は、off がどのような場合でも
+変わらないが、a は、off が大きければ大きい程左側を指す。off が例えば
+3 であるときの場合も見てみよう。
+
+----------------------------------------------------------------------------
+
+              |-- a ---|                             |--- b --|-- c ---|
+       +---------------+--------+--------------------+--------+--------+
+text   |             x'|  |  |  |                    |  |  |x |  |  |  |
+       +---------------+--------+--------------------+--------+--------+
+                       ^                              \        \
+                      scan_pos                        pos      pos+3(off=3)
+
+----------------------------------------------------------------------------
+
+結局比較しているのは、pos からの文字列のハッシュ値を求めた場合と何も変
+わらない。off でいくら先を見ようとも比較するのは pos の位置だ。なぜこ
+のようなことをするのだろうか？これは最初どうしてもわからなかったのだが、
+説明を受けて納得した。
+
+これは単に効率(速度)のためということだ。もし、図の b に関して照合文字
+列の候補があまりにも多い場合(too_flag[h]=1)、ハッシュのチェーンを何度
+もたどる事になるので効率が悪い。しかし、辞書検索のキーを何文字か進める
+事で、この可能性を減らす事ができる。少なくとも最悪の 256 よりはマシに
+なるようなものを選んでいる。そうして、この while ループのループ回数を
+減らしているのだ。どうせ探したいのは最長一致文字列なので先の方の文字列
+が一致しないと話にならないのだからこれは合理的だ。
+
+これで、外側の for ループも納得だ。これは while ループをある条件でやり
+直す処理だった。
+
+        if (matchlen > off + 2 || off == 0)
+            break;
+
+最長一致長が見つかるか、あるいは off が 0 であればさっさとこの処理は終
+るのだが、もし off を進めて照合を行っていたとして、最長一致文字列が見
+つからなかったとすると
+
+        max = off + 2;
+        off = 0;
+        h = hval;
+
+という条件で照合をやり直す。これは元の文字列で照合をやり直すということ
+だからつまりは、最悪のハッシュチェーンを仕方ないから辿り直そうと言う事
+だ。
+
+細部は未だ目をつぶっているのだがこれで match_insert() の解読は終りだ。
+
+
 # Local Variables:
 # mode : indented-text
 # indent-tabs-mode: nil
