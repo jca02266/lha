@@ -115,7 +115,6 @@ unsigned int decode P_((struct interfacing *interface));
 /* util.c */
 long copyfile P_((FILE *f1, FILE *f2, long size, int text_flg, unsigned int *crcp));
 int encode_stored_crc P_((FILE *ifp, FILE *ofp, long size, long *original_size_var, long *write_size_var));
-unsigned char *convdelim P_((unsigned char *path, int delim));
 boolean archive_is_msdos_sfx1 P_((char *name));
 boolean skip_msdos_sfx1_code P_((FILE *fp));
 int strucmp P_((register char *s, register char *t));
