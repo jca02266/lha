@@ -1,6 +1,7 @@
 #!/bin/sh
 
-: ${lha=@top_builddir@/src/lha}
+: ${lha_dir=@top_builddir@/src}
+: ${lha=$(cd $lha_dir && pwd)/lha}
 
 trap "rm -rf test-*" 0 1 2 3 15
 
@@ -121,22 +122,22 @@ test -s test-stderr
 							check $?
 $lha d test-2.lzh test-a
 							check $?
-$lha xw=test-2 test-2.lzh
-diff -r test-m5 test-2 2>&1 | grep -v '^Only in test-m5: test-a'
-test $? -eq 1
+$lha xw=test-2 test-2.lzh &&
+test ! -f test-2/test-a &&
+diff test-1/test-b test-2/test-b &&
+diff test-1/test-c test-2/test-c
 							check $?
 rm -rf test-2
-
+							check $?
 $lha d test-2.lzh test-b
 							check $?
-$lha xw=test-2 test-2.lzh
-diff -r test-m5 test-2 2>&1 |
-    grep -v '^Only in test-m5: test-a$' |
-    grep -v '^Only in test-m5: test-b$'
-test $? -eq 1
+$lha xw=test-2 test-2.lzh &&
+test ! -f test-2/test-a &&
+test ! -f test-2/test-b &&
+diff test-1/test-c test-2/test-c
 							check $?
 rm -rf test-2
-
+							check $?
 $lha d test-2.lzh test-c 2> test-stderr
 							check $?
 test -s test-stderr
@@ -152,4 +153,62 @@ cat test-3.lzh | $lha xw=test-3 -
 							check $?
 diff -r test-m5 test-3
 							check $?
+
+message testing to treat stdin/stdout as file list.
+# On MinGW, these tests will fail for now.
+cat <<EOF | $lha c test-4.lzh
+test-a
+test-b
+test-c
+EOF
+							check $?
+echo test-b | $lha xw=test-4 test-4.lzh
+							check $?
+test ! -f test-4/test-a &&
+test ! -f test-4/test-c &&
+diff test-b test-4/test-b
+							check $?
+
+message testing to add/update files to archive.
+$lha a test-5.lzh test-c
+							check $?
+$lha a test-5.lzh test-b
+							check $?
+$lha a test-5.lzh test-a
+							check $?
+$lha xw=test-5 test-5.lzh
+							check $?
+diff -r test-1 test-5
+							check $?
+mkdir test-5.2 &&
+(cd test-5.2
+ echo foo > test-a
+ echo bar > test-b
+ echo baz > test-c
+
+ $lha u ../test-5.lzh test-[abc]
+)
+							check $?
+$lha xw=test-5.3 test-5.lzh
+							check $?
+diff -r test-5.2 test-5.3
+							check $?
+# no update old files
+(cd test-5 &&
+ $lha u ../test-5.lzh test-[abc]
+)
+
+$lha xw=test-5.4 test-5.lzh
+							check $?
+diff -r test-5.3 test-5.4
+							check $?
+# replace old files
+(cd test-5 &&
+ $lha a ../test-5.lzh test-[abc]
+)
+$lha xw=test-5.5 test-5.lzh
+							check $?
+diff -r test-5 test-5.5
+							check $?
+
 exit $result
