@@ -553,7 +553,7 @@ fatal_error(fmt, va_alist)
 }
 
 /* ------------------------------------------------------------------------ */
-void
+RETSIGTYPE
 interrupt(signo)
 	int             signo;
 {
