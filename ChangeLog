@@ -1,5 +1,7 @@
 2002-08-05  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* 00readme.autoconf: refined.
+
 	* config.h.in (BACKUP_OLD_ARCHIVE): added.
 
 	* configure.ac: added a command line switch `--enable-backup-archive'.
