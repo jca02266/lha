@@ -1,5 +1,7 @@
 2002-06-23  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* 00readme.autoconf: refined.
+
 	* tests/lha-test9: added tests for overriding files.
 
 	* tests/lha-test.in: added test9.
