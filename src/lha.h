@@ -321,6 +321,8 @@ EXTERN boolean  verify_mode;
 EXTERN int      quiet_mode;
 
 EXTERN boolean backup_old_archive;
+EXTERN boolean  extract_broken_archive;
+
 /* ------------------------------------------------------------------------ */
 /*  Globale Variable                                                        */
 /* ------------------------------------------------------------------------ */

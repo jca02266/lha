@@ -314,7 +314,7 @@ encode(interface)
     init_slide();
 
     encode_set.encode_start();
-    memset(text, 0, TXTSIZ);
+    memset(text, ' ', TXTSIZ);
 
     remainder = fread_crc(&crc, &text[dicsiz], txtsiz-dicsiz, infile);
 
@@ -405,7 +405,20 @@ decode(interface)
     INITIALIZE_CRC(crc);
     dicsiz = 1L << dicbit;
     dtext = (unsigned char *)xmalloc(dicsiz);
-    memset(dtext, 0, dicsiz);
+
+    if (extract_broken_archive)
+
+        /* LHa for UNIX (autoconf) had a fatal bug since version
+           1.14i-ac20030713 (slide.c revision 1.20).
+
+           This bug is possible to make a broken archive, proper LHA
+           cannot extract it (probably it report CRC error).
+
+           If the option "--extract-broken-archive" specified, extract
+           the broken archive made by old LHa for UNIX. */
+        memset(dtext, 0, dicsiz);
+    else
+        memset(dtext, ' ', dicsiz);
     decode_set.decode_start();
     dicsiz1 = dicsiz - 1;
     adjust = 256 - THRESHOLD;

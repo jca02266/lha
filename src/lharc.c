@@ -103,6 +103,8 @@ init_variable()     /* Added N.Watazaki */
 #else
     backup_old_archive = FALSE;
 #endif
+
+    extract_broken_archive = FALSE;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -465,6 +467,10 @@ parse_option(int argc, char **argv)
                     error("unknown kanji code \"%s\"", opt);
                     return -1;
                 }
+            }
+            else if (strncmp(opt, "extract-broken-archive",
+                             sizeof("extract-broken-archive")-1) == 0) {
+                extract_broken_archive = TRUE;
             }
             else {
                 error("unknown long option \"--%s\"", opt);
