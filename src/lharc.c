@@ -344,7 +344,7 @@ main(argc, argv)
 				break;
 #endif
 			default:
-				fprintf(stderr, "LHa: error option o%c\n", p[-1]);
+				fprintf(stderr, "LHa: error option o%c\n", *p);
 				exit(1);
 			}
 			break;
