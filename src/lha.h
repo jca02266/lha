@@ -22,7 +22,12 @@
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <signal.h>
-#include <stdarg.h>
+
+#if STDC_HEADERS
+# include <stdarg.h>
+#else
+# include <varargs.h>
+#endif
 
 #if HAVE_PWD_H
 # include <pwd.h>
@@ -154,6 +159,7 @@ EXTERN char		*archive_name;
 EXTERN char     temporary_name[FILENAME_LENGTH];
 EXTERN char     backup_archive_name[FILENAME_LENGTH];
 
+extern char		*extract_directory;
 EXTERN char		*reading_filename, *writting_filename;
 
 /* 1996.8.13 t.okamoto */
@@ -211,147 +217,7 @@ EXTERN int temporary_fd;
 /* ------------------------------------------------------------------------ */
 /*	Functions																*/
 /* ------------------------------------------------------------------------ */
-/* from lharc.c */
-extern int		patmatch();
-
-extern void		interrupt();
-
-extern void		message(char *fmt, ...);
-extern void		warning(char *fmt, ...);
-extern void		error(char *fmt, ...);
-extern void		fatal_error(char *fmt, ...);
-
-extern boolean	need_file();
-extern int		inquire();
-extern FILE		*xfopen();
-
-extern boolean	find_files();
-extern void		free_files();
-
-extern void		init_sp();
-extern void		add_sp();
-extern void		finish_sp();
-extern void		free_sp();
-extern void		cleaning_files();
-
-extern int		build_temporary_name();
-extern void		build_backup_file_name();
-extern void		build_standard_archive_name();
-
-extern FILE		*open_old_archive();
-extern boolean	archive_is_msdos_sfx1();
-extern boolean	skip_msdos_sfx1_code();
-extern void		write_archive_tail();
-extern void		copy_old_one();
-extern unsigned char *convdelim();
-extern long		copyfile();
-
-extern void		cmd_list(), cmd_extract(), cmd_add(), cmd_delete();
-
-extern boolean	ignore_directory;
-extern boolean	compress_method;
-extern boolean	verify_mode;
-
-extern char		*extract_directory;
-
-/* from slide.c */
-
-extern int		encode_alloc();
-extern void		encode();
-extern void		decode();
-
-/* from append.c */
-extern void     start_indicator();
-extern void     finish_indicator();
-extern void     finish_indicator2();
-
-/* slide.c */
-extern void     output_st1();
-extern unsigned char *alloc_buf();
-extern void     encode_start_st1();
-extern void     encode_end_st1();
-extern unsigned short decode_c_st1();
-extern unsigned short decode_p_st1();
-extern void     decode_start_st1();
-
-/* from shuf.c */
-extern void     decode_start_st0();
-extern void     encode_p_st0( /* unsigned short j */ );
-extern void     encode_start_fix();
-extern void     decode_start_fix();
-extern unsigned short decode_c_st0();
-extern unsigned short decode_p_st0();
-
-/* from dhuf.c */
-extern void     start_c_dyn();
-extern void     decode_start_dyn();
-extern unsigned short decode_c_dyn();
-extern unsigned short decode_p_dyn();
-extern void     output_dyn( /* int code, unsigned int pos */ );
-extern void     encode_end_dyn();
-
-extern int      decode_lzhuf();
-
-/* from larc.c */
-
-extern unsigned short decode_c_lzs();
-extern unsigned short decode_p_lzs();
-extern unsigned short decode_c_lz5();
-extern unsigned short decode_p_lz5();
-extern void			  decode_start_lzs();
-extern void			  decode_start_lz5();
-
-extern void	make_table(	/* int nchar, uchar bitlen[], int tablebits,
-							ushort table[] */ );
-
-/* from maketree.c */
-/*
- * void make_code(short n, uchar len[], ushort code[]); short make_tree(short
- * nparm, ushort freqparm[], uchar lenparm[], ushort codeparam[]);
- */
-extern void		make_code( /* int n, uchar len[], ushort code[] */ );
-extern short	make_tree( /* int nparm, ushort freqparm[], uchar lenparm[],
-								ushort codeparam[] */ );
-
-/* from crcio.c */
-extern void				make_crctable();
-extern unsigned short	calccrc( /* uchar *p, uint n */ );
-extern void				fillbuf( /* uchar n */ );
-extern unsigned short	getbits( /* uchar n */ );
-extern void				putcode( /* uchar n, ushort x */ );
-extern void				putbits( /* uchar n, ushort x */ );
-extern int				fread_crc( /* uchar *p, int n, FILE *f */ );
-extern void				fwrite_crc( /* uchar *p, int n, FILE *f */ );
-extern void				init_getbits();
-extern void				init_putbits();
-extern void     		make_crctable();
-extern unsigned 		short calccrc();
-
-/* from lhadd.c */
-extern int		encode_lzhuf();
-extern int      encode_stored_crc();
-
-/* from header.c */
-extern boolean	get_header();
-extern void		init_header();
-extern void		write_header();
-extern char		*sjis_to_utf8(char *, const char *, size_t);
-extern char		*utf8_to_sjis(char *, const char *, size_t);
-void euc2sjis(int *p1, int *p2);
-void sjis2euc(int *p1, int *p2);
-
-/* from util.c */
-int xsnprintf(char *dest, size_t size, char *fmt, ...);
-char *xstrchr(const char *s, int c);
-char *xstrrchr(const char *s, int c);
-char *xmemchr(const char *s, int c, size_t n);
-char *xmemrchr(const char *s, int c, size_t n);
-
-/* from vsnprintf.c */
-#if !HAVE_VSNPRINTF
-int vsnprintf(char *str, size_t n, const char *fmt, va_list ap);
-int snprintf(char *str, size_t n, char const *fmt, ...);
-#endif
+#include "prototypes.h"
 
 /* Local Variables: */
 /* mode:c */
