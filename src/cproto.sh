@@ -1,5 +1,24 @@
 #!/bin/sh
 
+trap "rm -f prototypes.h.tmp" 0 1 2 3 15
+
+CPROTO_FLAGS='-m -d'
+CPPFLAGS='-DSTDC_HEADERS=1
+	-DHAVE_STRDUP=0
+	-DHAVE_MEMSET=0
+	-DHAVE_MEMMOVE=0
+	-DMULTIBYTE_FILENAME=1
+	-DRETSIGTYPE=void
+	-DNEED_INCREMENTAL_INDICATOR=1
+	-D__extension__=
+'
+
+SOURCES='append.c crcio.c dhuf.c extract.c header.c
+	huf.c larc.c lhadd.c lharc.c lhext.c
+	lhlist.c maketbl.c maketree.c patmatch.c
+	shuf.c slide.c util.c
+'
+
 exec 5>&1 > prototypes.h.tmp
 
 cat <<END
@@ -12,14 +31,7 @@ cat <<END
 
 END
 
-cproto -m -d \
-	-D STDC_HEADERS=1 -D HAVE_STRDUP=0 -D HAVE_MEMSET=0 -D HAVE_MEMMOVE=0 \
-	-D MULTIBYTE_FILENAME=1 -D RETSIGTYPE=void -D __extension__='' \
-	-D NEED_INCREMENTAL_INDICATOR=1 \
-	append.c crcio.c dhuf.c extract.c header.c \
-	huf.c larc.c lhadd.c lharc.c lhext.c \
-	lhlist.c maketbl.c maketree.c patmatch.c \
-	shuf.c slide.c util.c
+cproto $CPROTO_FLAGS $CPPFLAGS $SOURCES | grep -v '^int main '
 
 cat <<END
 
@@ -46,4 +58,7 @@ int snprintf P_((char *str, size_t n, char const *fmt, ...));
 END
 
 exec 1>&5
-mv prototypes.h.tmp prototypes.h
+if ! cmp prototypes.h.tmp prototypes.h; then
+  mv -f prototypes.h prototypes.h.bak
+  mv -f prototypes.h.tmp prototypes.h
+fi
