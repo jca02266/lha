@@ -1,3 +1,21 @@
+2002-07-10  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/header.c: change hex codes '\xff' to octal codes '\377'.
+
+	* tests/lha-test.in: Skip the lha-test9. (this test is imcomplete, yet)
+
+	* tests/lha-test10: Should extract directory even if the archive
+	header was level 0.
+
+	* src/header.c (get_header): Should convert kanji code and path
+	separator for the level 0 header entry.
+	Should convert `\' to `/' for level 0 header (do always to make sure,
+	so cannot contain the `\' in filename).
+	(init_header): Should not convert path separator here (Should do
+	in write_header).
+	(write_header): Did not contain the directory part in level 0
+	archive.
+
 2002-07-09  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lha.h, src/header.c: the CoreFoundation header inclusion
