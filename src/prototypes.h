@@ -64,7 +64,6 @@ FILE *append_it P_((char *name, FILE *oafp, FILE *nafp));
 void temporary_to_new_archive_file P_((long new_archive_size));
 void cmd_add P_((void));
 void cmd_delete P_((void));
-int strcmp_filename P_((char *str1, char *str2));
 /* lharc.c */
 void message P_((char *fmt, ...));
 void warning P_((char *fmt, ...));
