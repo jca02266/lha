@@ -1,3 +1,14 @@
+2002-08-24  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lhext.c (extract_one): force extract when `f' option is
+	specified. this is for OS-9 archives, [provisional].
+
+	* src/header.c: fixed cpp expressions around time functions.
+
+	* tests/lha-test8: test MS-DOS timestamp `ftime' structure.
+
+	* tests/lha-test.in (change_timestamp): newly added.
+
 2002-08-22  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* released.
