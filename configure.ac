@@ -81,9 +81,11 @@ char *strchr (), *strrchr ();
 
 main()
 {
-  char *s = "\xff";
+  char *s = "\377";
   if (strchr(s, 0xff) != s) return 1;
-  if (strchr(s, '\xff') != s) return 1;
+  if (strchr(s, '\377') != s) return 1;
+  if (strrchr(s, 0xff) != s) return 1;
+  if (strrchr(s, '\377') != s) return 1;
   return 0; /* ok */
 }
 ], lha_cv_strchr_8bit_clean=yes,
