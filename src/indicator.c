@@ -18,6 +18,8 @@ static size_t indicator_count;
 static long indicator_threshold;
 #endif
 
+#define ALIGN(size, threshold) (((size) + ((threshold)-1))/(threshold))
+
 static void
 carriage_return()
 {
@@ -58,14 +60,15 @@ start_indicator(name, size, msg, def_indicator_threshold)
             m = 3;      /* (^_^) */
         carriage_return();
         printf("%s\t- %s :  ", name, msg);
+
         indicator_threshold =
-            ((size + (m * def_indicator_threshold - 1)) /
-             (m * def_indicator_threshold) *
-             def_indicator_threshold);
+            ALIGN(size, m*def_indicator_threshold) * def_indicator_threshold;
+
         if (indicator_threshold)
-            i = ((size + (indicator_threshold - 1)) / indicator_threshold);
+            i = ALIGN(size, indicator_threshold);
         else
             i = 0;
+
         while (i--)
             putchar('.');
         indicator_count = 0;
