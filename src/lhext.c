@@ -225,8 +225,14 @@ extract_one(afp, hdr)
         q = (char *) strrchr(hdr->name, '/') + 1;
     }
     else {
+        if (is_directory_traversal(q)) {
+            fprintf(stderr, "Possible directory traversal hack attempt in %s\n", q);
+            exit(111);
+        }
+
         if (*q == '/') {
-            q++;
+            while (*q == '/') { q++; }
+
             /*
              * if OSK then strip device name
              */
@@ -477,6 +483,33 @@ cmd_extract()
     adjust_dirinfo();
 
     return;
+}
+
+int
+is_directory_traversal(char *string)
+{
+    unsigned int type = 0; /* 0 = new, 1 = only dots, 2 = other chars than dots */
+    char *temp;
+
+    temp = string;
+
+    while (*temp != 0) {
+        if (temp[0] == '/') {
+            if (type == 1) { return 1; }
+            type = 0;
+            temp++;
+            continue;
+        }
+
+        if ((temp[0] == '.') && (type < 2))
+            type = 1;
+        if (temp[0] != '.')
+            type = 2;
+
+        temp++;
+    } /* while */
+
+    return (type == 1);
 }
 
 /*
