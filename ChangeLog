@@ -1,3 +1,7 @@
+2004-09-26  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/header.c: fixed typo.
+
 2004-09-18  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: updated version.
