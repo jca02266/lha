@@ -1,3 +1,13 @@
+2002-11-17  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* untabify all sources.
+
+	* src/huf.c (encode_start_st1): refined.
+	(decode_start_st1): refined.
+
+	* src/slide.c (encode_alloc): refined.
+	(update): refined.
+
 2002-11-15  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* 00readme.autoconf: updated.
