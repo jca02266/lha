@@ -88,7 +88,7 @@ main()
 }
 ], lha_cv_strchr_8bit_clean=yes,lha_cv_strchr_8bit_clean=no))
 
-if test $lha_cv_strchr_8bit_clean = yes; then
+if test x$lha_cv_strchr_8bit_clean = xyes; then
   AC_DEFINE(STRCHR_8BIT_CLEAN, 1,
 	    [Define to 1 if strchr()/strrchr() works correctly.])
 fi
