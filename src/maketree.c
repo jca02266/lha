@@ -68,7 +68,6 @@ make_len(nchar, bitlen, sort, leaf_num)
 #endif
     /* adjust len */
     if (cum) {
-        fprintf(stderr, "17");
         leaf_num[16] -= cum; /* always leaf_num[16] > cum */
         do {
             for (i = 15; i > 0; i--) {
