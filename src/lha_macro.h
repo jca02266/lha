@@ -182,7 +182,7 @@
 #define is_symlink(statp)       (((statp)->st_mode & S_IFMT) == S_IFLNK)
 #define is_regularfile(statp)   (((statp)->st_mode & S_IFMT) == S_IFREG)
 
-#if 1 /* assume that fopen() will accepts "b" as binary mode on all system. */
+#if 1 /* assume that fopen() will accepts "b" as binary mode on all systems. */
 #define WRITE_BINARY    "wb"
 #define READ_BINARY     "rb"
 #else
@@ -212,17 +212,14 @@
 #define ROOT_P      TREESIZE_C
 
 /* huf.c */
+#define USHRT_BIT           16  /* (CHAR_BIT * sizeof(ushort)) */
 #define NP          (MAX_DICBIT + 1)
 #define NT          (USHRT_BIT + 3)
-#if 0
-#define PBIT        4       /* smallest integer such that (1 << PBIT) > * NP */
-#define TBIT        5       /* smallest integer such that (1 << TBIT) > * NT */
-#endif
+#define NC          (UCHAR_MAX + MAXMATCH + 2 - THRESHOLD)
 
 #define PBIT        5       /* smallest integer such that (1 << PBIT) > * NP */
 #define TBIT        5       /* smallest integer such that (1 << TBIT) > * NT */
-
-#define NC          (UCHAR_MAX + MAXMATCH + 2 - THRESHOLD)
+#define CBIT        9       /* smallest integer such that (1 << CBIT) > * NC */
 
 /*      #if NT > NP #define NPT NT #else #define NPT NP #endif  */
 #define NPT         0x80
@@ -261,9 +258,3 @@
 #define MATCHBIT            8   /* bits for MAXMATCH - THRESHOLD */
 #define MAXMATCH            256 /* formerly F (not more than UCHAR_MAX + 1) */
 #define THRESHOLD           3   /* choose optimal value */
-
-/* from huf.c */
-
-/* alphabet = {0, 1, 2, ..., NC - 1} */
-#define CBIT                9   /* $\lfloor \log_2 NC \rfloor + 1$ */
-#define USHRT_BIT           16  /* (CHAR_BIT * sizeof(ushort)) */

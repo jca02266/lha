@@ -22,17 +22,28 @@ extern char *malloc ();
 #endif
 
 /* ------------------------------------------------------------------------ */
-unsigned short  left[2 * NC - 1], right[2 * NC - 1];
-unsigned char   c_len[NC], pt_len[NPT];
-unsigned short  c_freq[2 * NC - 1], c_table[4096], c_code[NC], p_freq[2 * NP - 1],
-                pt_table[256], pt_code[NPT], t_freq[2 * NT - 1];
+unsigned short left[2 * NC - 1], right[2 * NC - 1];
 
-static unsigned char *buf;
-static unsigned int bufsiz;
-static unsigned short blocksize;
-static unsigned short output_pos, output_mask;
-static          int   pbit;
-static          int   np;
+unsigned short c_code[NC];      /* encode */
+unsigned short pt_code[NPT];    /* encode */
+
+unsigned short c_table[4096];   /* decode */
+unsigned short pt_table[256];   /* decode */
+
+unsigned short c_freq[2 * NC - 1]; /* encode */
+unsigned short p_freq[2 * NP - 1]; /* encode */
+unsigned short t_freq[2 * NT - 1]; /* encode */
+
+unsigned char  c_len[NC];
+unsigned char  pt_len[NPT];
+
+static unsigned char *buf;      /* encode */
+static unsigned int bufsiz;     /* encode */
+static unsigned short blocksize; /* decode */
+static unsigned short output_pos, output_mask; /* encode */
+
+static int pbit;
+static int np;
 /* ------------------------------------------------------------------------ */
 /*                              Encording                                   */
 /* ------------------------------------------------------------------------ */
@@ -223,7 +234,7 @@ send_block( /* void */ )
 }
 
 /* ------------------------------------------------------------------------ */
-/* lh4, 5, 6 */
+/* lh4, 5, 6, 7 */
 void
 output_st1(c, p)
     unsigned short  c;
@@ -272,7 +283,7 @@ alloc_buf( /* void */ )
 }
 
 /* ------------------------------------------------------------------------ */
-/* lh4, 5, 6 */
+/* lh4, 5, 6, 7 */
 void
 encode_start_st1( /* void */ )
 {
@@ -298,7 +309,7 @@ encode_start_st1( /* void */ )
 }
 
 /* ------------------------------------------------------------------------ */
-/* lh4, 5, 6 */
+/* lh4, 5, 6, 7 */
 void
 encode_end_st1( /* void */ )
 {
