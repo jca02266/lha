@@ -1,3 +1,9 @@
+2003-07-29  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/Makefile.am (EXTRA_DIST): lha-test1 was missed.
+
+	* tests/lha-test13: should set LANG=C for `tr'.
+
 2003-07-28  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/lha-test.in: filename should be contained in last error
