@@ -1,0 +1,20 @@
+# -*- shell-script -*-
+FILENAME=lha-test15
+message testing to self extract archive
+
+if test -c /dev/zero; then
+  # Usually, size of SFX code is less than 20K
+  dd if=/dev/zero of=test-tmp-1.exe bs=1024 count=20 2>/dev/null
+else
+  # dummy header
+  echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx > test-tmp-1.exe
+fi
+							check $? $LINENO
+$lha c - test-[abc] >> test-tmp-1.exe
+							check $? $LINENO
+$lha v test-tmp-1.exe
+							check $? $LINENO
+$lha xw=test-tmp-1 test-tmp-1.exe
+							check $? $LINENO
+diff -r test-1 test-tmp-1
+							check $? $LINENO
