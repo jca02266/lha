@@ -35,7 +35,7 @@ LHa for UNIX に関しては岡本継男さんのページ
     cd lha-1.14i
     patch -p1 < ../lha-1.14i-autoconf.diff
 
-    ./configure
+    sh ./configure
     make
     make check
     make install
@@ -43,7 +43,7 @@ LHa for UNIX に関しては岡本継男さんのページ
   MinGW 対応はα版です。ほとんどテストされていません(コンパイルを通し
   た程度)。Cygwin 環境で MinGW 版を試すには
 
-    ./configure CC='gcc -mno-cygwin'
+    sh ./configure CC='gcc -mno-cygwin'
 		--build=i686-pc-mingw32
 		--with-tmp-file=no
 
@@ -64,7 +64,7 @@ LHa for UNIX に関しては岡本継男さんのページ
     automake -a   # gcc でなければ -i オプションもつけてください
     autoheader
     autoconf
-    ./configure
+    sh ./configure
     make
     make check
     make install
