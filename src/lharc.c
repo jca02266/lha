@@ -204,7 +204,7 @@ main(argc, argv)
         av[i] = xstrdup( argv[i] );
 	}
 
-	if (ac < 2)
+	if (ac < 2 || strcmp(av[1], "--help") == 0)
 		print_tiny_usage_and_exit();
 
 	if (strcmp(av[1], "--version") == 0) {
