@@ -309,7 +309,7 @@ typedef short   				node;
 #define is_symlink(statp)		(((statp)->st_mode & S_IFMT) == S_IFLNK)
 #define is_regularfile(statp)	(((statp)->st_mode & S_IFMT) == S_IFREG)
 
-#ifdef MSDOS
+#if 1 /* assume that fopen() will accepts "b" as binary mode on all system. */
 #define WRITE_BINARY	"wb"
 #define READ_BINARY		"rb"
 #else
