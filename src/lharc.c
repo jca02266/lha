@@ -384,7 +384,10 @@ work:
 	}
 	else {
 		if (ac == 3 && !isatty(0)) { /* 1999.7.18 */
+#if !__MINGW32__ /* FIXME: Bug(?) on MinGW, isatty() return 0 on
+                    Cygwin console.  Cygwin 1.3.10(0.51/3/2) on Win2000 */
 			get_filename_from_stdin = TRUE;
+#endif
 		}
 	}
 
@@ -405,9 +408,8 @@ work:
 
 			if (cmd_filec >= xfilec) {
 				xfilec += 256;
-				cmd_filev = (char **) xrealloc(xfilev,
+				xfilev = (char **) xrealloc(xfilev,
 						   sizeof(char *) * xfilec);
-				xfilev = cmd_filev;
 			}
 			if (strlen(inpbuf) < 1)
 				continue;
