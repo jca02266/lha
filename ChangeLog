@@ -1,9 +1,14 @@
 2002-08-22  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: should use `exit' rather than `return' on
+	AC_TRY_RUN().  see the Autoconf manual.
+
 	* configure.ac: check whether the 2nd argument of gettimeofday()
 	is effective.
 
 	* src/header.c: ditto.
+
+	* config.h.in (GETTIMEOFDAY_HAS_2ND_ARG): ditto.
 
 	* tests/lha-test.in: `++' is invalid arithmetic operator on POSIX
 	shell, Ksh and Bash version 2.03 or earlier.
