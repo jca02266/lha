@@ -102,6 +102,14 @@ typedef int				boolean;
   (((unsigned char)(c) >= 0x40) &&	\
    ((unsigned char)(c) < 0xfd) &&	\
    ((unsigned char)(c) != 0x7f))
+#define X0201_KANA_P(c)\
+	(0xa0 < (unsigned char)(c) && (unsigned char)(c) < 0xe0)
+
+#define NONE 0
+#define CODE_EUC 1
+#define CODE_SJIS 2
+#define TO_LOWER 1
+#define TO_UPPER 2
 
 #ifdef MULTIBYTE_CHAR
 #define MULTIBYTE_FIRST_P	SJC_FIRST_P

@@ -13,8 +13,19 @@
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
+void euc2sjis(int *p1, int *p2);
+void sjis2euc(int *p1, int *p2);
+
 /* ------------------------------------------------------------------------ */
 static char    *get_ptr;
+
+int specific_archive_kanji_code = NONE;
+int specific_system_kanji_code = NONE;
+char *specific_archive_delim = NULL;
+char *specific_system_delim = NULL;
+int specific_filename_case = NONE;
+
+int default_system_kanji_code = CODE_EUC;
 /* ------------------------------------------------------------------------ */
 int
 calc_sum(p, len)
@@ -80,9 +91,6 @@ msdos_to_unix_filename(name, len)
 	register int    len;
 {
 	register int    i;
-
-#define X0201_KANA_P(c)\
-	(0xa0 < (unsigned char)(c) && (unsigned char)(c) < 0xe0)
 
 #ifdef MULTIBYTE_CHAR
 #ifdef SUPPORT_X0201
@@ -259,6 +267,102 @@ unix_to_generic_filename(name, len)
 			name[i] = '\\';
 		else if (islower(name[i]))
 			name[i] = toupper(name[i]);
+	}
+}
+
+/* added by Koji Arai */
+static void
+filename_conv(name, len, size,
+              from_code, to_code,
+              from_delim, to_delim,
+              case_to)
+	register char  *name;
+	register int    len;
+	register int    size;
+    int from_code, to_code, case_to;
+    char *from_delim, *to_delim;
+
+{
+	register int    i;
+
+	for (i = 0; i < len; i ++) {
+        if (from_code == CODE_EUC &&
+            (unsigned char)name[i] == 0x8e) {
+            if (to_code != CODE_SJIS) {
+                i++;
+                continue;
+            }
+
+            /* X0201 KANA */
+            memmove(name + i, name + i + 1, len - i);
+            len--;
+            continue;
+        }
+        if (from_code == CODE_SJIS && X0201_KANA_P(name[i])) {
+            if (to_code != CODE_EUC) {
+                continue;
+            }
+
+            if (len == size - 1) /* check overflow */
+                len--;
+            memmove(name + i + 1, name, len - i);
+            name[i] = 0x8e;
+            i++;
+            len++;
+            continue;
+        }
+		if (from_code == CODE_EUC && (name[i] & 0x80) && (name[i+1] & 0x80)) {
+			int c1, c2;
+            if (to_code != CODE_SJIS) {
+                i++;
+                continue;
+            }
+
+			c1 = (unsigned char)name[i];
+            c2 = (unsigned char)name[i+1];
+			euc2sjis(&c1, &c2);
+			name[i] = c1;
+            name[i+1] = c2;
+			i++;
+            continue;
+		}
+        if (from_code == CODE_SJIS &&
+            SJC_FIRST_P(name[i]) &&
+            SJC_SECOND_P(name[i + 1])) {
+			int c1, c2;
+
+            if (to_code != CODE_EUC) {
+                i++;
+                continue;
+            }
+
+			c1 = (unsigned char)name[i];
+            c2 = (unsigned char)name[i+1];
+			sjis2euc(&c1, &c2);
+			name[i] = c1; name[i+1] = c2;
+			i++;
+            continue;
+        }
+
+        {
+            char *ptr;
+
+            /* transpose from_delim to to_delim */
+
+            if ((ptr = strchr(from_delim, name[i])) != NULL) {
+                name[i] = to_delim[ptr - from_delim];
+                continue;
+            }
+        }
+
+		if (case_to == TO_UPPER && islower(name[i])) {
+			name[i] = toupper(name[i]);
+            continue;
+        }
+        if (case_to == TO_LOWER && islower(name[i])) {
+			name[i] = toupper(name[i]);
+            continue;
+        }
 	}
 }
 
@@ -496,6 +600,12 @@ get_header(fp, hdr)
 	int				extend_size;
 	int				dmy;
 
+    int archive_kanji_code = NONE;
+    int system_kanji_code = NONE;
+    char *archive_delim = "";
+    char *system_delim = "";
+    int filename_case = NONE;
+
 	bzero(hdr, sizeof(LzHeader));
 
 	if (((header_size = getc(fp)) == EOF) || (header_size == 0)) {
@@ -633,7 +743,8 @@ get_header(fp, hdr)
 				for (i = 0; i < header_size - 3; i++)
 					dirname[i] = (char) get_byte();
 				dirname[header_size - 3] = '\0';
-				convdelim(dirname, DELIM);
+				/* convdelim(dirname, DELIM);       is it needed ?
+                   comment it by Koji Arai*/
 				dir_length = header_size - 3;
 				break;
 			case 0x40:
@@ -701,7 +812,13 @@ get_header(fp, hdr)
 
 	switch (hdr->extend_type) {
 	case EXTEND_MSDOS:
-		msdos_to_unix_filename(hdr->name, name_length);
+        archive_kanji_code = CODE_SJIS;
+        system_kanji_code = default_system_kanji_code;
+        archive_delim = "\\";
+        system_delim = "//";
+        filename_case = TO_LOWER;
+
+        /* fall through */
 	case EXTEND_HUMAN:
 		if (hdr->header_level == 2)
 			hdr->unix_last_modified_stamp = hdr->last_modified_stamp;
@@ -715,22 +832,55 @@ get_header(fp, hdr)
 	case EXTEND_XOSK:
 #endif
 	case EXTEND_UNIX:
+        archive_kanji_code = CODE_EUC;
+        system_kanji_code = default_system_kanji_code;
+        archive_delim = "";
+        system_delim = "";
+        filename_case = NONE;
+
 		break;
 
 	case EXTEND_MACOS:
-		macos_to_unix_filename(hdr->name, name_length);
+        archive_kanji_code = CODE_SJIS;
+        system_kanji_code = default_system_kanji_code;
+        archive_delim = "/:";
+        system_delim = ":/";
+        filename_case = NONE;
+
 		hdr->unix_last_modified_stamp =
-			generic_to_unix_stamp(hdr->last_modified_stamp);
+			generic_to_unix_stamp(hdr->last_modified_stamp, sizeof(hdr->name));
 		break;
 
 	default:
-		generic_to_unix_filename(hdr->name, name_length);
+        archive_kanji_code = NONE;
+        system_kanji_code = NONE;
+        archive_delim = "\\";
+        system_delim = "/";
+        filename_case = TO_LOWER;
+
 		if (hdr->header_level == 2)
 			hdr->unix_last_modified_stamp = hdr->last_modified_stamp;
 		else
 			hdr->unix_last_modified_stamp =
 				generic_to_unix_stamp(hdr->last_modified_stamp);
 	}
+
+    /* filename code and delimiter conversion */
+    if (specific_archive_kanji_code)
+        archive_kanji_code = specific_archive_kanji_code;
+    if (specific_system_kanji_code)
+        system_kanji_code = specific_system_kanji_code;
+    if (specific_archive_delim)
+        archive_delim = specific_archive_delim;
+    if (specific_system_delim)
+        system_delim = specific_system_delim;
+    if (specific_filename_case)
+        filename_case = specific_filename_case;
+
+    filename_conv(hdr->name, name_length, sizeof(hdr->name),
+                  archive_kanji_code,
+                  system_kanji_code,
+                  archive_delim, system_delim, filename_case);
 
 #if 0
 	printf("header level=%d\n", hdr->header_level); fflush(stdout);
@@ -795,8 +945,12 @@ init_header(name, v_stat, hdr)
 		sprintf(hdr->name, "%s|%s", hdr->name, lkname);
 	}
 #endif
-	if (generic_format)
-		unix_to_generic_filename(hdr->name, len);
+	if (generic_format) {
+        filename_conv(hdr->name, len, sizeof(hdr->name),
+                      default_system_kanji_code,
+                      default_system_kanji_code,
+                      "/", "\\", TO_UPPER);
+    }
 }
 
 /* ------------------------------------------------------------------------ */
@@ -835,7 +989,11 @@ write_header(nafp, hdr)
 
 	put_byte(hdr->header_level);
 
-	convdelim(hdr->name, DELIM2);
+    filename_conv(hdr->name, strlen(hdr->name), sizeof(hdr->name),
+                  default_system_kanji_code,
+                  default_system_kanji_code, /* no change code */
+                  "\xff\\/", "\xff\xff\xff", NONE);
+
 	if (hdr->header_level != HEADER_LEVEL2) {
 		if (p = (char *) strrchr(hdr->name, DELIM2))
 			name_length = strlen(++p);
@@ -948,10 +1106,12 @@ write_header(nafp, hdr)
 	if (fwrite(data, sizeof(char), header_size + 2, nafp) == 0)
 		fatal_error("Cannot write to temporary file");
 
-	convdelim(hdr->name, DELIM);
+    filename_conv(hdr->name, strlen(hdr->name), sizeof(hdr->name),
+                  default_system_kanji_code,
+                  default_system_kanji_code, /* no change code */
+                  "\xff\\/", "///", NONE);
 }
 
-#ifdef SUPPORT_X0201
 /*
  * SJIS <-> EUC 変換関数
  * 「日本語情報処理」	ソフトバンク(株)
@@ -982,7 +1142,6 @@ sjis2euc(int *p1, int *p2)
     *p1 |= 0x80;
     *p2 |= 0x80;
 }
-#endif /* SUPPORT_X0201 */
 
 /* Local Variables: */
 /* tab-width : 4 */
