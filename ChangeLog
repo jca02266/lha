@@ -10,6 +10,8 @@
 
 2002-05-19  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* released.
+
 	* src/lharc.c (print_tiny_usage_and_exit): added credit.
 	(print_version): print PLATFORM.
 
