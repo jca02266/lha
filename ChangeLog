@@ -1,5 +1,24 @@
 2002-08-24  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test.in (lha-test14): added to test the symbolic link file.
+
+	* src/lhlist.c (list_one): use LzHeader.realname.
+
+	* src/lhext.c (extract_one): use LzHeader.realname.
+	should call make_parent_path(symlink).
+
+	* src/lhadd.c (add_one): use LzHeader.realname.
+	(delete): ditto.
+	(append_it): use strcmp() instead of strcmp_filename().
+	(strcmp_filename): removed.
+
+	* src/lha.h (struct LzHeader): added a member `realname' which is
+	symbolic linked name.
+
+	* src/header.c (get_header): split symbolic name in archive.
+	(write_header): join symbolic link name and linked name to put it
+	in archive.
+
 	* src/lhext.c (extract_one): force extract when `f' option is
 	specified. this is for OS-9 archives, [provisional].
 
