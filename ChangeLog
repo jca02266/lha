@@ -1,3 +1,13 @@
+2002-06-22  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lharc.c (main): Behavior is changed. when `q' or `q2' option
+	(not `q1') is specified, the `f' option is enabled implicitly.
+	In original behavior, the option `q', `q0', `q1' and `q2' will
+	enable `f' option implicitly (bug?).
+
+	* src/lharc.c (main): [BUG]: When `q2' option is specified,
+	level 2 header is generated.
+
 2002-06-21  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/Makefile.am: Use the `DISTCLEANFILES' variable instead of the `dist-hook' target.
