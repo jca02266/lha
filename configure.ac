@@ -21,6 +21,7 @@ dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h limits.h sys/file.h sys/param.h sys/time.h)
+AC_CHECK_HEADERS(pwd.h grp.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -56,6 +57,7 @@ AC_CHECK_FUNCS(strchr strdup memcpy memset memmove)
 AC_CHECK_FUNCS(mktime timelocal tzset ftime gettimeofday utime)
 AC_CHECK_FUNCS(mkdir rmdir ftruncate lchown mkstemp)
 AC_CHECK_FUNCS(strcasecmp link)
+AC_CHECK_FUNCS(getpwuid getgrgid getpwnam getgrnam)
 
 if test $ac_header_dirent = no; then
   AC_LIBOBJ(lhdir)
