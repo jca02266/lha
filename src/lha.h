@@ -116,11 +116,6 @@ typedef int gid_t;
 # endif
 #endif
 
-#ifdef __APPLE__  /* On MacOS X, use CoreFoundation for utf8 conversion */
-#include <CoreFoundation/CFString.h>
-#include <CoreFoundation/CFStringEncodingExt.h>
-#endif /* __APPLE__ */
-
 #ifndef SEEK_SET
 #define SEEK_SET		0
 #define SEEK_CUR		1

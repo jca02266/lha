@@ -1124,6 +1124,10 @@ write_header(nafp, hdr)
 }
 
 #ifdef __APPLE__
+
+#include <CoreFoundation/CFString.h>
+#include <CoreFoundation/CFStringEncodingExt.h>
+
 /* this is not need for Mac OS X v 10.2 later */
 enum {
   kCFStringEncodingAllowLossyConversion = 1,
