@@ -1,4 +1,6 @@
-2002-05-26  Koji Arai  <arai@fgsd.mt.nec.co.jp>
+2002-05-26  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.in, configure.ac: update version.
 
 	* tests/lha-test.in: added tests.
 
