@@ -51,6 +51,9 @@ static int error_occurred;
 static void     sort_files();
 static void     print_version();
 
+extern int optional_archive_kanji_code;
+extern int optional_system_kanji_code;
+
 /* ------------------------------------------------------------------------ */
 static void
 init_variable()     /* Added N.Watazaki */
@@ -415,6 +418,54 @@ parse_option(int argc, char **argv)
         if (strcmp(opt, "-") == 0)
             break;
 
+        /* GNU style long options */
+        if (opt[0] == '-' && opt[1] == '-') {
+            opt += 2;
+
+            if (strncmp(opt, "system-kanji-code=",
+                        sizeof("system-kanji-code=")-1) == 0) {
+                opt += sizeof("system-kanji-code=")-1;
+                if (strcmp(opt, "euc") == 0) {
+                    optional_system_kanji_code = CODE_EUC;
+                }
+                else if (strcmp(opt, "sjis") == 0) {
+                    optional_system_kanji_code = CODE_SJIS;
+                }
+                else if (strcmp(opt, "utf8") == 0) {
+                    optional_system_kanji_code = CODE_UTF8;
+                }
+                else if (strcmp(opt, "cap") == 0) {
+                    optional_system_kanji_code = CODE_CAP;
+                }
+                else {
+                    print_tiny_usage();
+                    exit(2);
+                }
+            }
+            else if (strncmp(opt, "archive-kanji-code=",
+                             sizeof("archive-kanji-code=")-1) == 0) {
+                opt += sizeof("archive-kanji-code=")-1;
+                if (strcmp(opt, "euc") == 0) {
+                    optional_archive_kanji_code = CODE_EUC;
+                }
+                else if (strcmp(opt, "sjis") == 0) {
+                    optional_archive_kanji_code = CODE_SJIS;
+                }
+                else if (strcmp(opt, "utf8") == 0) {
+                    optional_archive_kanji_code = CODE_UTF8;
+                }
+                else if (strcmp(opt, "cap") == 0) {
+                    optional_archive_kanji_code = CODE_CAP;
+                }
+                else {
+                    print_tiny_usage();
+                    exit(2);
+                }
+            }
+            argv++; argc--;
+            goto next;
+        }
+
         argv++; argc--;
     }
 
@@ -519,10 +570,6 @@ main(argc, argv)
     return 0;
 }
 
-
-/* ------------------------------------------------------------------------ */
-/* */
-/* ------------------------------------------------------------------------ */
 
 /* ------------------------------------------------------------------------ */
 static void

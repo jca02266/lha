@@ -211,8 +211,8 @@ convert_filename(name, len, size,
                  from_delim, to_delim,
                  case_to)
     char *name;
-    int len;
-    int size;
+    int len;                    /* length of name */
+    int size;                   /* size of name buffer */
     int from_code, to_code, case_to;
     char *from_delim, *to_delim;
 
@@ -220,6 +220,20 @@ convert_filename(name, len, size,
     int i;
 #ifdef MULTIBYTE_FILENAME
     char tmp[FILENAME_LENGTH];
+    int to_code_save = NONE;
+
+    if (from_code == CODE_CAP) {
+        len = cap_to_sjis(tmp, name, sizeof(tmp));
+        strncpy(name, tmp, size);
+        name[size-1] = 0;
+        len = strlen(name);
+        from_code = CODE_SJIS;
+    }
+
+    if (to_code == CODE_CAP) {
+        to_code_save = CODE_CAP;
+        to_code = CODE_SJIS;
+    }
 
     if (from_code == CODE_SJIS && to_code == CODE_UTF8) {
         for (i = 0; i < len; i++)
@@ -343,6 +357,15 @@ convert_filename(name, len, size,
             continue;
         }
     }
+
+#ifdef MULTIBYTE_FILENAME
+    if (to_code_save == CODE_CAP) {
+        len = sjis_to_cap(tmp, name, sizeof(tmp));
+        strncpy(name, tmp, size);
+        name[size-1] = 0;
+        len = strlen(name);
+    }
+#endif /* MULTIBYTE_FILENAME */
 }
 
 /*
@@ -1783,5 +1806,107 @@ sjis2euc(int *p1, int *p2)
 
     *p1 |= 0x80;
     *p2 |= 0x80;
+}
+
+static int
+hex2int(int c)
+{
+    switch (c) {
+    case '0': case '1': case '2': case '3': case '4':
+    case '5': case '6': case '7': case '8': case '9':
+        return c - '0';
+
+    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+        return c - 'a' + 10;
+
+    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+        return c - 'A' + 10;
+    default:
+        return -1;
+    }
+}
+
+static int
+int2hex(int c)
+{
+    switch (c) {
+    case 0: case 1: case 2: case 3: case 4:
+    case 5: case 6: case 7: case 8: case 9:
+        return c + '0';
+
+    case 10: case 11: case 12: case 13: case 14: case 15:
+        return c + 'a' - 10;
+
+    default:
+        return -1;
+    }
+}
+
+int
+cap_to_sjis(char *dst, const char *src, size_t dstsize)
+{
+    int i, j;
+    size_t len = strlen(src);
+    int a, b;
+
+    for (i = j = 0; i < len && i < dstsize; i++) {
+        if (src[i] != ':') {
+            dst[j++] = src[i];
+            continue;
+        }
+
+        i++;
+        a = hex2int((unsigned char)src[i]);
+        b = hex2int((unsigned char)src[i+1]);
+
+        if (a == -1 || b == -1) {
+            /* leave as it */
+            dst[j++] = ':';
+            strncpy(dst+j, src+i, dstsize-j);
+            dst[dstsize-1] = 0;
+            return strlen(dst);
+        }
+
+        i++;
+
+        dst[j++] = a * 16 + b;
+    }
+    dst[j] = 0;
+    return j;
+}
+
+int
+sjis_to_cap(char *dst, const char *src, size_t dstsize)
+{
+    int i, j;
+    size_t len = strlen(src);
+    int a, b;
+
+    for (i = j = 0; i < len && i < dstsize; i++) {
+        if (src[i] == ':') {
+            strncpy(dst+j, ":3a", dstsize-j);
+            dst[dstsize-1] = 0;
+            j = strlen(dst);
+            continue;
+        }
+        if (isprint(src[i])) {
+            dst[j++] = src[i];
+            continue;
+        }
+
+        if (j + 3 >= dstsize) {
+            dst[j] = 0;
+            return j;
+        }
+
+        a = int2hex((unsigned char)src[i] / 16);
+        b = int2hex((unsigned char)src[i] % 16);
+
+        dst[j++] = ':';
+        dst[j++] = a;
+        dst[j++] = b;
+    }
+    dst[j] = 0;
+    return j;
 }
 #endif /* MULTIBYTE_FILENAME */
