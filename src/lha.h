@@ -336,8 +336,6 @@ EXTERN char     *reading_filename, *writing_filename;
 EXTERN int      archive_file_mode;
 EXTERN int      archive_file_gid;
 
-EXTERN struct   interfacing interface;
-
 EXTERN int      noconvertcase; /* 2000.10.6 */
 
 /* slide.c */

@@ -21,6 +21,7 @@ encode_lzhuf(infp, outfp, size, original_size_var, packed_size_var,
 {
     static int method = -1;
     unsigned int crc;
+    struct interfacing interface;
 
     if (method < 0) {
         method = compress_method;

@@ -19,6 +19,7 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method, read_sizep)
     size_t         *read_sizep;
 {
     unsigned int crc;
+    struct interfacing interface;
 
     interface.method = method;
     interface.infile = infp;
