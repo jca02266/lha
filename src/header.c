@@ -212,12 +212,24 @@ convert_filename(name, len, size,
     char tmp[256];              /* 256 is sizeof(LzHeader.name) */
 
     if (from_code == CODE_SJIS && to_code == CODE_UTF8) {
+        for (i = 0; i < len; i++)
+            if (name[i] == '\xff')  name[i] = '/';
         sjis_to_utf8(tmp, name, sizeof(tmp));
         strncpy(name, tmp, size);
+        name[size-1] = 0;
+        len = strlen(name);
+        for (i = 0; i < len; i++)
+            if (name[i] == '/')  name[i] = '\xff';
     }
     else if (from_code == CODE_UTF8 && to_code == CODE_SJIS) {
+        for (i = 0; i < len; i++)
+            if (name[i] == '\xff')  name[i] = '/';
         utf8_to_sjis(tmp, name, sizeof(tmp));
         strncpy(name, tmp, size);
+        name[size-1] = 0;
+        len = strlen(name);
+        for (i = 0; i < len; i++)
+            if (name[i] == '/')  name[i] = '\xff';
     }
 #endif
 
