@@ -244,7 +244,7 @@ main(argc, argv)
 		break;
 
 	default:
-        print_tiny_usage_and_exit();
+        print_tiny_usage();
         exit(2);
 	}
 
