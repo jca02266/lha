@@ -121,7 +121,12 @@ print_tiny_usage()
     fprintf(stderr, "\
 usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
   commands:  [axelvudmcpt]\n\
-  options:   [q[012]vnfto[567]dizg012e[w=<dir>|x=<pattern>]]\n");
+  options:   [q[012]vnfto[567]dizg012e[w=<dir>|x=<pattern>]]\n\
+  long options: --system-kanji-code={euc,sjis,utf8,cap}\n\
+                --archive-kanji-code={euc,sjis,utf8,cap}\n\
+                --extract-broken-archive\n\
+                --help\n\
+                --version\n");
 }
 
 static void
@@ -408,14 +413,16 @@ parse_suboption(int argc, char **argv)
         }
     }
 
+    argc -= optind;
+    argv += optind;
+
     if (!archive_name) {
-        archive_name = argv[optind];
-        argv++;
+        archive_name = *argv++;
         argc--;
     }
 
-    cmd_filec = argc - optind;
-    cmd_filev = argv + optind;
+    cmd_filec = argc;
+    cmd_filev = argv;
 
     return 0;
 }
