@@ -13,15 +13,14 @@
 
 	* configure.ac, config.h.in: added checking utime.h existent.
 
-	* configure.ac: checked utime.h existent.
-
 	* src/crcio.c (putc_euc): void returned.
 
 	* src/header.c, src/lha.h, src/lha_macro.h, src/lhadd.c: refined.
 
 	* src/lharc.c, src/prototypes.h, src/slide.c: refined.
 
-	* configure.ac: should specify the 4th argument for cross compiling.
+	* configure.ac: should specify the 4th argument to AC_TRY_RUN()
+	for cross compiling.
 
 	* configure.ac: fix a test expression.
 
