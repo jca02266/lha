@@ -1,3 +1,11 @@
+2003-01-19  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/slide.c: took off the debug flag.
+
+	* src/slide.c (search_dict): split into 2 parts.
+
+	* src/slide.c: refined: use the structure `matchdata'.
+
 2003-01-18  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lha.h (decode_count): rename a global variable `count' to

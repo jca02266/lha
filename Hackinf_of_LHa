@@ -1,6 +1,6 @@
 $Id$
 
-               The Hacking of LHa for UNIX (1st draft)
+               The Hacking of LHa for UNIX (2nd draft)
              -------------------------------------------
 
                                 Koji Arai <mailto:jca02266@nifty.ne.jp>
@@ -11,15 +11,6 @@ $Id$
 き起こす元になるかもしれない。とにかく、暇な正月休みを潰すためにやって
 みただけのものだ。(休みが明けるとまた忙しくなるので、これ以上まったく
 何もしないかもしれない)
-
-現時点では、slide.c の解析だけである。huf.c も同時進行で解析中だが、文
-体が異なる(読みものとしての体裁を整えていない)ので公開するとしても別文
-書になるだろう(huf.c の解析文書は現時点でデバッガによるおっかけが中心
-のメモでしかない)
-
-# 本当は、huf.c の解析を先に行っていた slide 辞書の encoding 部はなく
-# ても LHA 互換アーカイバは作れそうだったからだが、huf.c は slide.c
-# に比べて難解な部分が多そうだから、後回しにした。
 
 本書は、まだ未完成である。にもかかわらず公開するのはこれ以上続かないか
 もしれないからである(気が向いたらまた続きを書くだろう。あるいは応援の
@@ -35,11 +26,33 @@ $Id$
 ===============================================================================
 o 表記について
 
-* 関数は、その定義ソースfile.c と関数名 func() を示すのに
+* 関数は、その定義ソース file.c と関数名 func() を示すのに
      file.c:func()
   という記述を使う
 
-*
+* 配列の添字は、Python言語のスライス演算子の記法に準じた
+
+    a[m:n] は、m <= i < m+n の範囲の a[i] を意味する。
+
+* 値の範囲は、Ruby言語の範囲演算子の記法に準じた。これを配列の
+  添字に使用する場合もある。
+
+    m <= i <= n   -> i = m..n
+    m <= i < n    -> i = m...n
+
+    a[m..n] は、m <= i <= n の範囲の a[i] を意味する。
+
+* m の n 乗 は、m^n で表す。^ は、排他的論理和としても利用されるが
+  文脈から判断してもらう。
+
+* v{n} は、変数 v の値が n であることを表す。n は、サンプルの値であったり
+  定数の値であったりする。
+
+  v=n は代入文
+
+  配列の内容は、
+    ary[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 }
+  のように書く
 
 o 用語について
 
@@ -49,7 +62,18 @@ o 用語について
 * 復号
         復号化、復号語、復号文
 
+* フレーズ
+
+* slide 辞書法
+
+* Huffman 法
+   動的 Huffman 法、静的 Huffman 法
+
 ===============================================================================
+
+
+slide 辞書法 (slide.c)
+----------------------
 
 まず、構造について考える。
 
@@ -1408,8 +1432,8 @@ search_dict() の動作は変わるだろうか？いや、やはり変わらない。どうにも
  位置  lastmatchoffset & (dicsiz-1)
 
 となっている。冒頭の decode() の解析で、長さは 253 を足す事は確認済み
-だ(ふと -lhs- の場合 254 を足すという動作が、encoding 部分では考慮され
-ていないようだと気づく。いいのかそれで？)。ところで、一致長 
+だ(-lhs- の場合 254 を足すという動作が、encoding 部分では考慮され
+てないのは、-lhs- の encoding 機能がないからだ)。ところで、一致長 
 lastmatchlen は 3 以上で初めて 255 を越えることができる。以前予想した、
 THRESHOLD の意味「最低限一致しなければならない長さ」はあっているらしい。
 
@@ -1619,7 +1643,7 @@ update() の残りを見る。
 match_insert() は、text[pos] から始まる文字列を辞書から検索し、見つかっ
 た位置と一致長を matchpos, matchlen に設定する処理だ。そして、ついでに 
 insert() で、text[pos] の位置をハッシュ配列に記録し、次回の検索に備え
-れこともしている。
+ることもしている。
 
 では、不明な部分はなんだったかというと too_flag[] まわりである。
 too_flag のフラグが立っていると。辞書検索の頼りとなるハッシュ値を変更
@@ -1858,16 +1882,78 @@ text   |             x'|  |  |  |                    |  |  |x |  |  |  |
 める事になるかと言うと while ループは最大一致長の文字列が見つかったら
 すぐに抜けるからだ)。
 
-細部は未だ目をつぶっているのだがこれで match_insert() の解読は終りだ。
+ところで、match_insert() の先の処理は以下の書き換えを行うともう少し見
+やすくなる。(と思う)。
 
-match_insert() の処理とは以下の通りだ。
+o scan_beg という変数を用意し、これを scan_pos - off にする。
+o scan_end は、pos - dicsiz にする。
+o while 条件を while (scan_pos != NIL && scan_beg > scan_end) にする。
+
+以下
+
+        unsigned int scan_pos = hash[h];
+        int scan_beg = scan_pos - off;
+        int scan_end = pos - dicsiz;
+
+        chain = 0;
+        while (scan_pos != NIL && scan_beg > scan_end) {
+            chain++;
+
+            if (text[scan_beg + matchlen] == text[pos + matchlen]) {
+                {
+                    unsigned char *a = &text[scan_beg];
+                    unsigned char *b = &text[pos];
+
+                    for (len = 0; len < max && *a++ == *b++; len++);
+                }
+
+                if (len > matchlen) {
+                    matchpos = scan_beg;
+                    if ((matchlen = len) == max) {
+                        break;
+                    }
+                }
+            }
+            scan_pos = prev[scan_pos & (dicsiz - 1)];
+            scan_beg = scan_pos - off;
+        }
+
+        if (chain >= LIMIT)
+            too_flag[h] = 1;
+
+----------------------------------------------------------------------------
+
+              |-- a ---|                             |--- b --|
+       +---------------+--------+--------------------+--------+--------+
+text   |      |      x'|  |  |  |                    |  |  |x |  |  |  |
+       +---------------+--------+--------------------+--------+--------+
+         ^     \        \                             \        \
+         |    scan_beg  scan_pos                        pos      pos+off
+     scan_end
+
+         |----|
+           scan_beg の有効範囲
+
+         |----------------- dicsiz ------------------|
+
+----------------------------------------------------------------------------
+
+scan_beg, scan_end の範囲もわかりやすいし、hash[h] が NIL の場合の処理
+も明示的だ。この書き換えを行う場合、scan_beg が負の値になる可能性があ
+る。元もとの処理では scan_end 等の変数を unsigned にしているので、これ
+らを int にして while 条件で負の scan_beg をはじかなければならないこと
+に注意。そうすると、scan_beg != NIL は必要なくなるのだがわかりやすさを
+追求した。
+
+これで match_insert() の解読は終りだ。match_insert() の処理とは以下の
+通りだ。
 
 ----------------------------------------------------------------------------
   match_insert() は、text[pos] から始まる文字列に一致する文字列を辞書
   から検索し、見つかった位置と一致長を matchpos, matchlen に設定する。
 
-  もし、最長一致文字列が見つからなければ matchpos は、off に設定され、
-  matchlen は更新されない。
+  もし、最長一致文字列が見つからなければ matchpos は、pos に設定され、
+  matchlen は更新されない。(実は、matchpos = pos の情報は特に使われてない)
 
   見つかった場合、matchlen は呼び出し前の matchlen よりも大きくなる。
   (呼び出し前では matchlen の意味は最低限一致しなくてはならない文字列
@@ -2000,36 +2086,517 @@ pos2+1 の照合結果と比較されるのでこの処理も想像がつく。
 さて、これで一通りの解析は済んだわけだが、ここまでの解析内容を読み直し
 てみると、以下の点がまだひっかかる。
 
-1. 定数 NIL は使われていない
-2. 1. に関連するが match_insert() でハッシュを辿るときに scan_pos
-   scan_end という変数が使われている。この値はどういう意味か？
-3. ハッシュ関数は最適なのか？特に HSHSIZ{2^15} は最適なのか？
-4. too_flag[] は、実際に照合を行いループがLIMITを越えた場合に
+1. ハッシュ関数は最適なのか？特に HSHSIZ{2^15} は最適なのか？
+2. too_flag[] は、実際に照合を行いループがLIMITを越えた場合に
    設定される。しかし、ハッシュのチェーンを作る際にチェーンの
    個数をあらかじめ数えておけば一度の探索すらも行われず。より
    早く処理されないだろうか？
 
-以下、検証しよう
+現状、1, 2 とも実施してみたところ特に速度の改善は見られなかった。特に 
+1 は、微妙なところがありほとんどの書き換えは性能を悪くするだけだった。
+なかなか興味深いものがある。
 
-以前ハッシュ値として
+これは今後の課題としていずれまた検証しよう。そろそろ slide.c も飽きて
+きたのでひとまずはこれで終りにしたい。
 
-  hash[hval] = NIL
+
+bit 入出力ルーチン (crcio.c)
+---------------------------
 
-のような hval は初期値以外では存在しないだろうと予想したのだが、実際に
-その通りだった。pos は、dicsiz から dicsiz*2 - 1 の範囲の値にしかなら
-ないからだ。一見、チェーンを辿るときこの NIL は使われていないように見
-えるが、実際には、match_insert() の
+これから Huffman 法の解読に移るのだが、その前準備として bit 入出力ルー
+チンの解読を行う。Huffman 法の実装では必ず bit 入出力処理が必要になる。
+LHa for UNIX ももちろん例外ではなく、Huffman 法の実装を解読するにあた
+りこの部分の処理内容ははっきりさせておいた良いと考えたのだ。
 
-        scan_pos = hash[h];
-        scan_end = (pos > dicsiz) ? pos + off - dicsiz : off;
-        while (scan_pos > scan_end) {
+LHa for UNIX version 1.14i では bit 入出力ルーチンは crcio.c で定義さ
+れている。(このようなファイル名に存在するのは意外な事だ。最近の LHa
+for UNIX では、私が bitio.c というファイルを設け、bit 入出力ルーチンは
+そこに切り出した)
 
-の条件によって、hash[h] が 0 の場合はすぐに match_insert() が終るよう
-にはなっている。match_insert() の頭で
+crcio.c のうち bit 入出力ルーチンは fillbuf(), getbits(), putcode(),
+putbits(), init_getbits(), init_putbits() の 6 関数だ。
 
-  if (hash[hval] == NIL) return;
+まず、初期化用の init_getbits(), init_putbits() を見よう。
 
-とやっても良さそうだが、余計な処理は少しでも排除したかったのだろうか。
+void
+init_getbits( /* void */ )
+{
+    bitbuf = 0;
+    subbitbuf = 0;
+    bitcount = 0;
+    fillbuf(2 * CHAR_BIT);
+#ifdef EUC
+    putc_euc_cache = EOF;
+#endif
+}
+
+void
+init_putbits( /* void */ )
+{
+    bitcount = CHAR_BIT;
+    subbitbuf = 0;
+    getc_euc_cache = EOF;
+}
+
+それぞれ bit 入力、bit 出力を行うための初期化処理だ。CHAR_BIT というの
+は 8 で、char の bit サイズを表しているらしい。詳細はわからないが初期
+状態はとにかくこれだ。ここで使用されている変数は、
+
+static unsigned char subbitbuf, bitcount;
+
+が、crcio.c で定義されており、
+
+EXTERN unsigned short bitbuf;
+
+が、lha.h で定義されている(EUC なんたらは本質ではない無視しよう)。グロー
+バル変数と言うのは忌むべきものだが、とにかく使用されている変数と初期値
+を確認したので次に移ろう。init_getbits() で、早速 fillbuf() が呼ばれて
+いる。この処理内容を見る。
+
+void
+fillbuf(n)          /* Shift bitbuf n bits left, read n bits */
+    unsigned char   n;
+{
+    /* (A) */
+    while (n > bitcount) {
+        n -= bitcount;
+        /* (B) */
+        bitbuf = (bitbuf << bitcount) + (subbitbuf >> (CHAR_BIT - bitcount));
+        /* (C) */
+        if (compsize != 0) {
+            compsize--;
+            subbitbuf = (unsigned char) getc(infile);
+        }
+        else
+            subbitbuf = 0;
+        bitcount = CHAR_BIT;
+    }
+    /* (D) */
+    bitcount -= n;
+    bitbuf = (bitbuf << n) + (subbitbuf >> (CHAR_BIT - n));
+    subbitbuf <<= n;
+}
+
+まず、初期状態として
+
+    bitbuf = 0;
+    subbitbuf = 0;
+    bitcount = 0;
+
+であり、fillbuf の引数 n には 2 * CHAR_BIT が与えられたのだった。いき
+なり while 条件を満たすのでループ部の解析を行わなくてはならなくなるが、
+ひとまずこれを無視して最後の 3 行 (D) に着目する。条件は少ない方が良い
+のだ。
+
+    /* (D) */
+    bitcount -= n;
+    bitbuf = (bitbuf << n) + (subbitbuf >> (CHAR_BIT - n));
+    subbitbuf <<= n;
+
+bitbuf << n, subbitbuf << n されているので、bitbuf, subbitbuf を n ビッ
+ト左にずらす処理のようだ。さらに bitbuf には、subbitbuf を n ビットず
+らしたときに溢れた部分を bitbuf にセットしている。っと、
+
+   (subbitbuf >> (CHAR_BIT - n))
+
+の部分を軽く説明したが、図示して確認しておこう。
+
+subbitbuf は unsigned char なので 8 bit の変数だ。
+
+----------------------------------------------------------------------------
+               7  6  5  4  3  2  1  0
+              +--+--+--+--+--+--+--+--+
+   subbitbuf  |                       |
+              +--+--+--+--+--+--+--+--+
+              <-- n -->
+----------------------------------------------------------------------------
+
+n が例えば 3 の場合、CHAR_BIT - n は、5 だから subbitbuf を 5 ビット右
+にずらした値を取っている。つまり、図の 7, 6, 5 ビット目が一番右に来る
+ようになっており、この値を bitbuf に足している。(C言語では、unsigned 
+な変数を右にシフトすると上位ビットには 0 が入る)
+
+fillbuf() の後半 3 行(いや、後半2行か)は。結局 bitbuf と subbitbuf を
+一つの bitbuf とみなして n ビット左にずらしていることがわかる。
+
+----------------------------------------------------------------------------
+<ビットバッファ全体図 (予想)>
+
+           7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  bitbuf  |                             |          x  y  z|
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                         \        <-- n  ->
+                                         subbitbuf
+           <-------------- bitcount ------------->
+
+----------------------------------------------------------------------------
+
+このとき、当然図の x, y, z の部分(n = 3 は例としての値だ)が空く事になる。
+bitcount という変数が n 引かれていたが、これは bit バッファ全体の有効
+なビット数を表しているのではないかと予想しておく。すなわち図の状態なら
+21 だ。while ループは(関数名から)この空き部分を埋める処理なのではない
+かと適当に予想できる。では、while ループを見よう。もう一度初期値を確認
+し、最初に行われる処理内容を見よう。
+
+最初、
+
+    bitbuf = 0;
+    subbitbuf = 0;
+    bitcount = 0;
+
+であるから、bitバッファは空っぽだ。当然 fillbuf(2 * CHAR_BIT) されると
+while 条件を満たす。きっと 16 bit だけ bitバッファが補充されるはず(つ
+まり、bitbuf いっぱい、subbitbuf 空)だ。
+
+    /* (A) */
+    while (n > bitcount) {
+        n -= bitcount;
+
+で、ビットバッファが保持する bit 数以上を要求されたので、ループに入る。
+n -= bitcount で、本当に足りない部分が何ビットなのかを得ている。ここで
+は 16 だ。次の行
+
+        /* (B) */
+        bitbuf = (bitbuf << bitcount) + (subbitbuf >> (CHAR_BIT - bitcount));
+
+これは先程も出て来た処理だ。ビットバッファ全体を bitcount 分左にずらし
+ている(ただし、まだ subbitbuf はずらされていない)。この時点で予想が少
+し覆された。8 - bitcount で subbitbuf をずらしているから bitcount は最
+大 8 の値しか持たないだろうということだ。どういうことか、考えてみる・・・
+考えてもわからなかったので次に進もう。
+
+        /* (C) */
+        if (compsize != 0) {
+            compsize--;
+            subbitbuf = (unsigned char) getc(infile);
+        }
+        else
+            subbitbuf = 0;
+        bitcount = CHAR_BIT;
+
+compsize というのが出て来たが、この値がどうあろうとも subbitbuf は8 ビッ
+ト埋められ。bitcount は 8 に設定されている。わかった bitcount は、
+subbitbuf に保持する bit 数だ。図を訂正しよう。
+
+----------------------------------------------------------------------------
+<ビットバッファ全体図>
+
+           7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  bitbuf  |                             |            x y z|
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                       /          <-- n  ->
+                                   subbitbuf
+                                        <-------->
+                                         bitcount
+
+----------------------------------------------------------------------------
+
+この図を踏まえてもう一度初期状態での処理内容を追いかける。
+
+まず、(A) で、subbitbuf は空なので、bitcount は 0 だ。要求した bit 数 
+n{16} より小さいのでループに入る。n は 16 のままだ。
+
+(B) で、subbitbuf に残っている bit を bitbuf にずらしている。今はまだ
+空なのでbitbuf はここでもまだ空だ。
+
+(C) で、8 ビットファイルからデータを読む(compsize は常に0でないと考え
+る)。bitcount は 8 になる。この時点で bitバッファ全体は subbitbuf だけ
+値が入った状態になる。
+
+次のループに移ろう。(A) で、subbitbuf はいっぱいであるが要求した n{16} 
+よりは小さいので、まだループは続く。n はここで 8 になる。
+
+(B) で、subbitbuf に残っている bit (8 bit だ)を bitbuf にずらしている。
+今度は subbitbuf 全体が bitbuf に移っているのと同じだ。(つまり、bitbuf
+= subbitbuf)
+
+(C) で、また subbitbuf は 8 bit 補充される。
+
+(A) で、n{8} > bitcount{8} は偽なのでループが終る。
+
+(D) で、subbitbuf に残っている bit はすべて bitbuf に移る。bitbuf は 16
+bit いっぱいになる。bitcount は 0 だ。
+
+この処理結果から fillbuf(n) は、bitbuf に n ビット読み込む処理だと言え
+る。引数に指定できる n が最大 16 ビットであることにも気づいて良いだろ
+う。処理内容を確認してみればわかる。
+
+ここで、subbitbuf の用途に気づいた。ファイルからの読み込みが 8 ビット
+単位でしかできないので、それを補うための先読みバッファであろう。例えば
+1 ビットだけ bitbuf を fill したければ subbitbuf に 7 bit 残し、1 bit
+だけ bitbuf に設定される(確認してみればわかる)
+
+fillbuf() がわかったので、それを利用している getbits() の内容を確認し
+よう。
+
+unsigned short
+getbits(n)
+    unsigned char   n;
+{
+    unsigned short  x;
+
+    x = bitbuf >> (2 * CHAR_BIT - n);
+    fillbuf(n);
+    return x;
+}
+
+    x = bitbuf >> (2 * CHAR_BIT - n);
+
+は、3 度も出て来たので
+
+     buf >> (sizeof(buf)*8 - n)
+
+を buf の上位 n ビットを得る式だとしてマクロにしても良いだろう。(が、
+良い名前が思い付かないのでそうはしない)。とにかく、bitbuf の上位 n ビット
+を下位 n ビットとして x に代入している。その後で、
+
+    fillbuf(n);
+
+している。n bit を x に渡したので bitbuf から上位 n ビットを捨てて、n 
+ビット補充する。ここで、bitbuf は常にいっぱいの状態になっていることが
+わかる。(ファイルの末尾付近の場合、正確に bitbuf に何ビット残っている
+かが判断できないが、種明かしをするとこのことは LHa の処理内容にとって
+はどうでもいいことだ。getbits() は decode 処理で使われるのだが、decode 
+処理は何ビットの情報を decode する必要があるかを他の情報からあらかじめ
+得ている)
+
+次に移ろう今度は putcode() だ。put の場合まずは、init_putbits() で
+初期化が行われている。その値は以下だ。
+
+    bitcount = CHAR_BIT;
+    subbitbuf = 0;
+    getc_euc_cache = EOF;
+
+getc_euc_cache は無視だ。bitcount と subbitbuf の値が設定され、bitbuf 
+は利用されない。先程とは違い subbitbuf が空なのにbitcount が 8 なので、
+bitcount の使われ方が多少異なるようだ。get の場合は、bitcount は、
+subbitbuf に保持する bit 数だったが今度は subbitbuf の空き bit 数だろ
+うと予想しておこう。
+
+そして、putcode(n, x) を見る。実はソースを見るとわかるのだが、もう一つ
+の出力ルーチン putbits() は、putcode() の呼び出しに書き換え可能だ。
+putbits() は、
+
+void
+putbits(n, x)           /* Write rightmost n bits of x */
+    unsigned char   n;
+    unsigned short  x;
+{
+    x <<= USHRT_BIT - n;
+    putcode(n, x);
+}
+
+っと書き換えられるのだ。なので、putcode() の内容を先に確認するわけだ。
+
+void
+putcode(n, x)           /* Write rightmost n bits of x */
+    unsigned char   n;
+    unsigned short  x;
+{
+    /* (A) */
+    while (n >= bitcount) {
+        n -= bitcount;
+        /* (B) */
+        subbitbuf += x >> (USHRT_BIT - bitcount);
+        x <<= bitcount;
+        /* (C) */
+        if (compsize < origsize) {
+            if (fwrite(&subbitbuf, 1, 1, outfile) == 0) {
+                /* fileerror(WTERR, outfile); */
+                fatal_error("Write error in crcio.c(putcode)\n");
+                /* exit(errno); */
+            }
+            compsize++;
+        }
+        else
+            unpackable = 1;
+        subbitbuf = 0;
+        bitcount = CHAR_BIT;
+    }
+    /* (D) */
+    subbitbuf += x >> (USHRT_BIT - bitcount);
+    bitcount -= n;
+}
+
+処理内容が fillbuf() のときと似ている。まずは、先程と同様に while 条件
+を無視して考えてみる。(D) だ。
+
+    /* (D) */
+    subbitbuf += x >> (USHRT_BIT - bitcount);
+    bitcount -= n;
+
+この式はもう 4 度目だ。まず、x の上位 bitcount ビットを得て、subbitbuf 
+に足している。bitcount は、先程 subbitbuf の空きであろうと予想したが、
+n 引かれているので、埋めた分空きが減っているわけだ。予想は当たっている
+だろう。この時点でこの関数が x の上位ビットを利用することがわかる。コ
+メントに rightmost n bits of x と書かれているが惑わされてはいけない。
+多くの場合、コメントはせいぜいヒントとしての情報でしかない。信用しては
+いけないものなのだ。(コメントはあまりデバッグされない。コメントが詳し
+ければ詳しい程コメントはエンバグしやすい。疑ってかかろう。これは本書に
+も言える。すべてを鵜のみにしてはいけないのだ)
+
+では、処理内容に移る。まずは (A)
+
+    /* (A) */
+    while (n >= bitcount) {
+        n -= bitcount;
+
+subbitbuf の空きが n 以下であればループに入る。subbitbuf 一つではn ビッ
+ト全部は賄えないからループで小刻みに処理しようということだろう(もう全
+体の処理内容の予想はついている)
+n から bitcount 引いているので、n ビットのうちこれから bitcount 分は
+処理されることをここでさっさと記録して次のループに備えている。
+
+        /* (B) */
+        subbitbuf += x >> (USHRT_BIT - bitcount);
+        x <<= bitcount;
+
+x の上位 bitcount ビットを subbitbuf に足している。subbitbuf の空きが
+これで埋まった。subbitbuf はもういっぱいだ。x を bitcount シフトするこ
+とで subbitbuf に渡した x の上位ビットを捨てている。
+
+        /* (C) */
+        if (compsize < origsize) {
+            if (fwrite(&subbitbuf, 1, 1, outfile) == 0) {
+                /* fileerror(WTERR, outfile); */
+                fatal_error("Write error in crcio.c(putcode)\n");
+                /* exit(errno); */
+            }
+            compsize++;
+        }
+        else
+            unpackable = 1;
+        subbitbuf = 0;
+        bitcount = CHAR_BIT;
+
+compsize は無視しても良い。処理の本質ではないからだが、すぐにわかるので
+一応説明すると、
+        if (compsize < origsize) {
+            ...
+        else
+            unpackable = 1;
+で、圧縮ファイルサイズが元のファイルサイズを上回ったときに
+処理を終るようになっている(unpackable = 1 して、他の箇所でこの変数を監視する。
+unpackable == 1 なら処理を中断する)
+
+とにかく (C) の時点では必ず subbitbuf がいっぱいになるので 1 バイトを
+ファイルに書き出している。その後、subbitbuf = 0, bitcount = 8 として 
+subbitbuf を空けて次のループに備えている。
+
+もういいだろう。putcode() は、論理的には x のうち上位 n ビットを出力す
+る処理だ。引数 n の上限が x の最大ビットサイズ 16 になるのは説明するま
+でもないだろう。
+
+putcode() は実装として、subbitbuf と x を一つに繋げて n bit 左にずらし
+ている処理だと考えても良い。そうして、subbitbuf がいっぱいになったらそ
+の都度(1 バイトずつ)ファイルに書き出すのだ。
+
+----------------------------------------------------------------------------
+<ビットバッファ全体図>
+
+                      <--- 左にずらす
+
+           7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |* * *          |x y z                          |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         /               / <-n->        
+      subbitbuf         x
+                 <-------->
+                  bitcount
+
+----------------------------------------------------------------------------
+
+putbits() も見よう。先程 putcode() の呼び出しに書き換えたコードを見ると
+すぐわかるが、
+
+    x <<= USHRT_BIT - n;
+    putcode(n, x);
+
+最初の式で、x の下位 n ビットを x の上位 n ビットにしている。
+そうして、putcode() を呼び出しているので、putbits(n, x) は、x
+の下位 n ビットを出力する処理だ。
+
+以上でビット入出力ルーチンは終りだ。出力に関して一つ捕捉しておくと
+putcode(), putbits() では最後の最後で subbitbuf に情報が残ったままファ
+イルに書き出されない状態になる。これを吐き出すために利用者は
+
+  putcode(7, 0)
+
+を行う必要がある。
+
+まとめよう
+
+----------------------------------------------------------------------------
+fillbuf(n)
+  bitbuf から上位 n ビットを捨てて、下位 n ビットをファイルから読み込
+  み埋める。
+
+getbits(n)
+  bitbuf の上位 n ビットを下位 n ビットとして返す。bitbuf は n ビット
+  補充される。
+
+putcode(n, x)
+  x の上位 n ビットをファイルに出力する。最後の出力時は putcode(7, 0)
+  する必要がある。
+
+putbits(n, x)
+  x の下位 n ビットをファイルに出力する。最後の出力時は putcode(7, 0)
+  する必要がある。
+
+init_getbits()
+  入力処理の初期化
+
+init_putbits()
+  出力処理の初期化
+----------------------------------------------------------------------------
+
+読み込みに関して、bitbuf のサイズが 16 ビットで常にその状態が保持され
+ているのは LHa にとって重要な事だ。decode 処理では直接 bitbuf を参照す
+る箇所がある。
+
+Huffman 法 (huf.c)
+------------------
+
+LHa for UNIX では、静的 Huffman 法として、shuf.c、動的 Huffman 法とし
+て dhuf.c があるらしいが、これらに関しては触れない。LHa では、これらは
+過去の版のアーカイブを解凍できるように decode のみサポートしているよう
+だ。そこで、まずは -lh4-, -lh5-, -lh6-, -lh7- で利用されている huf.c 
+の解析を中心に行うこととしたい。
+
+----------------------------------------------------------------------------
+構造
+
+    +-----------+
+    | blocksize |
+    +-----------+
+       16bit
+
+    +-----+--------------------+
+    | len |  符号化した pt_len |c_lenのハフマン符号表
+    +-----+--------------------+
+      5bit        ?? bit
+      TBIT
+
+    +-------+------------------+
+    |  len  | 符号化した c_len | 文字と長さのハフマン符号表
+    +-------+------------------+
+      9bit        ?? bit
+      CBIT
+
+    +---------+--------------------+
+    |   len   |  符号化した pt_len | 位置のハフマン符号表
+    +---------+--------------------+
+     pbit         ?? bit
+
+    +---------------------+
+    |  圧縮文             |
+    +---------------------+
+
+    pbit=14bit(lh4,5) or 16bit(lh6) or 17bit(lh7)
+----------------------------------------------------------------------------
 
 # Local Variables:
 # mode : indented-text
