@@ -1,3 +1,9 @@
+2002-05-29  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/lha-test.in: added timestamp checks.
+
+	* src/lha_macro.h: comment about OS code.
+
 2002-05-28  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lharc.c (xstrdup): no need to call fatal_error().
