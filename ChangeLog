@@ -1,5 +1,8 @@
 2002-06-29  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lhadd.c (cmd_add): exlclude the target archive. (reported on
+	the LHa BBS [28])
+
 	* src/slide.c (encode_alloc): Wrong value was assigned to the
 	`dicbit', when SUPPORT_LH7 was not defined. (fixed by DANGAN,
 	reported on the LHa BBS [38]).
