@@ -36,7 +36,7 @@ void encode_end_dyn P_((void));
 /* extract.c */
 int decode_lzhuf P_((FILE *infp, FILE *outfp, long original_size, long packed_size, char *name, int method));
 /* header.c */
-int calc_sum P_((register char *p, register int len));
+int calc_sum P_((char *p, int len));
 void convert_filename P_((char *name, int len, int size, int from_code, int to_code, char *from_delim, char *to_delim, int case_to));
 boolean get_header P_((FILE *fp, LzHeader *hdr));
 int seek_lha_header P_((FILE *fp));
@@ -116,7 +116,7 @@ unsigned int decode P_((struct interfacing *interface));
 long copyfile P_((FILE *f1, FILE *f2, long size, int text_flg, unsigned int *crcp));
 int encode_stored_crc P_((FILE *ifp, FILE *ofp, long size, long *original_size_var, long *write_size_var));
 boolean archive_is_msdos_sfx1 P_((char *name));
-int strucmp P_((register char *s, register char *t));
+int strcasecmp P_((const char *p1, const char *p2));
 int xsnprintf P_((char *dest, size_t size, char *fmt, ...));
 char *xstrchr P_((const char *s, int c));
 char *xstrrchr P_((const char *s, int c));
