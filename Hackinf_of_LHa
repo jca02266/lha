@@ -1724,8 +1724,7 @@ while ループは一致文字列の一致長が最長一致長に達するか、辞書を最後まで
     if (matchlen < THRESHOLD - 1) matchlen = THRESHOLD - 1;
     matchpos = pos;
 
-これは、とりあえず無視。出力となる matchpos は pos で初期化されること
-には注意しておこう(前回は気づかなかった事だ)。
+これは、とりあえず無視。
 
     off = 0;
     for (h = hval; too_flag[h] && off < maxmatch - THRESHOLD; ) {
@@ -2566,37 +2565,357 @@ LHa for UNIX では、静的 Huffman 法として、shuf.c、動的 Huffman 法とし
 だ。そこで、まずは -lh4-, -lh5-, -lh6-, -lh7- で利用されている huf.c 
 の解析を中心に行うこととしたい。
 
-----------------------------------------------------------------------------
-構造
+ところで、本書では Huffman 法がどういったものかは予備知識として既に知っ
+ているものとするが、いちおう概要を簡単に説明しておこう。
 
-    +-----------+
-    | blocksize |
-    +-----------+
-       16bit
+以下の内容のテキストファイルがあったとする。
 
-    +-----+--------------------+
-    | len |  符号化した pt_len |c_lenのハフマン符号表
-    +-----+--------------------+
-      5bit        ?? bit
-      TBIT
+        abcabcaba
 
-    +-------+------------------+
-    |  len  | 符号化した c_len | 文字と長さのハフマン符号表
-    +-------+------------------+
-      9bit        ?? bit
-      CBIT
+このテキストは 9 バイトあるわけだが、このファイルで使われている文字は3 
+種類しかない、a, b, c だ。だからこのファイルだけに関して言えば 1 文字
+は 2 ビットあれば表現可能である(このファイルの場合全体で、18ビットあれ
+ば表現可能)。さらに、出現頻度の高い文字を少ないビット数で表現し、まれ
+にしか現れない文字を長いビット数で表すようにすればよりビット数を少なく
+できる。例えば
 
-    +---------+--------------------+
-    |   len   |  符号化した pt_len | 位置のハフマン符号表
-    +---------+--------------------+
-     pbit         ?? bit
+        文字   ビット表現
+        a      0
+        b      10
+        c      11
 
-    +---------------------+
-    |  圧縮文             |
-    +---------------------+
+であるとすると a は 4回、bは3回、cは2回現れるので、全体は 4 + 2*3 +
+2*2 = 14 ビットで表現できることになる。これが Huffman 法の圧縮原理であ
+る。このように Huffman 法では文字をビット単位で扱うためビット入出力ルー
+チンを先に解読したわけだ。また、符号化の際はあらかじめ各文字の出現頻度
+を求めておく必要があり、復号化の際はどのビット列がどの文字に対応するか
+をあらかじめ知る必要がある。
 
-    pbit=14bit(lh4,5) or 16bit(lh6) or 17bit(lh7)
-----------------------------------------------------------------------------
+では、符号化の際に文字に対応するビット列を求める方法だが、以下がそのア
+ルゴリズムだ。ハフマン法ではハフマン木という木構造を構築する。各文字の
+出現回数
+
+        a:4、b:3、c:2
+
+から、出現回数の低いもの同士を一つの節に束ねる。この節は 3+2=5 という
+出現回数を持つものと考える。
+
+          5
+         / \
+        b   c
+
+以降さらに出現回数の低いもの同士を一つの節に束ねる操作を繰り返す。この
+例では、もう一度束ねれば終りだ。
+
+       /\
+      /  \
+     /  / \
+    a  b   c
+
+ここで、木の左側が 0 右側が 1 であるとすると。a は根から左に1つ進むだ
+けなので 0。b は、右(1)→左(0) なので、10。c は右(1)→右(1) なので、11 
+となる。実際の符号化の際は文字からビット列を求めるので葉から根にむかっ
+て逆順に辿ることになる。また、復号の際は入力のビット列に沿ってこの木を
+辿ることで対応する文字を求める(なので圧縮文にはこの木構造が一緒に情報
+として格納されることになる)。
+
+このようなハフマン木を作成する箇所があるかどうかを探してみたところ 
+maketree.c:make_tree() が見つかった。これは「C言語による最新アルゴリズ
+ム辞典」(奥村晴彦著、技術評論社)に載っているものとほとんど同じだ。では、
+この関数の解読から始めよう(今回の解析はボトムアップ式に行うことにしよ
+うと思う。というのもデータ構造から攻めようにもグローバル変数がたくさん
+出て来るし、処理順に追っても正直よくわからなかったからだ)
+
+この関数のあるファイル maketree.c で使用しているデータ構造は以下だ。
+
+static short    n, heapsize, heap[NC + 1];
+static unsigned short *freq, *sort;
+static unsigned char *len;
+static unsigned short len_cnt[17];
+
+make_tree() は以下。
+
+short
+make_tree(nparm, freqparm, lenparm, codeparm)
+/* make tree, calculate len[], return root */
+    int             nparm;
+    unsigned short  freqparm[];
+    unsigned char   lenparm[];
+    unsigned short  codeparm[];
+{
+    short           i, j, k, avail;
+
+    /* (A) */
+    n = nparm;
+    freq = freqparm;
+    len = lenparm;
+    avail = n;
+    /* (B) */
+    heapsize = 0;
+    heap[1] = 0;
+    for (i = 0; i < n; i++) {
+        len[i] = 0;
+        if (freq[i])
+            heap[++heapsize] = i;
+    }
+    /* (C) */
+    if (heapsize < 2) {
+        codeparm[heap[1]] = 0;
+        return heap[1];
+    }
+    /* (D) */
+    for (i = heapsize / 2; i >= 1; i--)
+        downheap(i);    /* make priority queue */
+    /* (E) */
+    sort = codeparm;
+    do {            /* while queue has at least two entries */
+        i = heap[1];    /* take out least-freq entry */
+        if (i < n)
+            *sort++ = i;
+        heap[1] = heap[heapsize--];
+        downheap(1);
+        j = heap[1];    /* next least-freq entry */
+        if (j < n)
+            *sort++ = j;
+        k = avail++;    /* generate new node */
+        freq[k] = freq[i] + freq[j];
+        heap[1] = k;
+        downheap(1);    /* put into queue */
+        left[k] = i;
+        right[k] = j;
+    } while (heapsize > 1);
+    /* (F) */
+    sort = codeparm;
+    make_len(k);
+    make_code(nparm, lenparm, codeparm);
+    return k;       /* return root */
+}
+
+この関数の引数に、nparm, freqparm, lenparm, codeparm というのがある。
+これがなんなのかいきなりではわからないだろう。実は私にもわからない。今
+回の解析で特殊なのは、処理内容については私は(アルゴリズム辞典で)知って
+いることだ。強引に無視しても処理内容から想像がつくだろうことを期待して
+いる。
+
+とりあえず、冒頭の初期化部分 (A) で
+
+    /* (A) */
+    n = nparm;
+    freq = freqparm;
+    len = lenparm;
+    avail = n;
+
+としている。引数で受けた入力をこのファイルの static 変数にセットし、他
+のルーチンとデータ共有しているようだ。avail は後で説明しよう。
+
+    /* (B) */
+    heapsize = 0;
+    heap[1] = 0;
+    for (i = 0; i < n; i++) {
+        len[i] = 0;
+        if (freq[i])
+            heap[++heapsize] = i;
+    }
+
+ここで、heap[] を初期化している。heapsize は、heap の要素数となる。こ
+の処理は優先待ち行列 heap[] を作る部分なのだが、なぜ優先待ち行列が必要
+なのかというと先の説明で Huffman 法のアルゴリズムに出現回数の少ない順
+に葉を節に束ねるという部分があった。優先待ち行列はこのためのものだ。と
+りあえず、heap[] の要素は圧縮する文字であるということだけを書いておく。
+詳細はすぐ後で出るだろう。freq[i] (すなわち引数 freqparm) は、文字 i 
+の出現回数を表している。だから、n (nparm)は、符号化するモデル上の文字
+の種類の数を表していることになる。たとえば通常のファイルなら nparm は 
+256 だろう。まあ、結局は freq[] の要素数だ。
+
+    nparm               最大要素数
+    freqparm[0:nparm]   添字が文字で、その要素が出現回数
+
+注意すべきなのは heap[] の要素は 1 以降を使用していることだろう。
+heap[0] は使われない。
+
+    /* (C) */
+    if (heapsize < 2) {
+        codeparm[heap[1]] = 0;
+        return heap[1];
+    }
+
+これは、heapsize が 0 か 1 の場合を表している。符号化する文字の種類が 
+0 または 1 つしかない場合だ。heap[1] は、(B) で 0 に初期化していたので、
+codeparm[0] = 0 として、0 を返している。これは特殊な条件を示している。
+簡単に想像がつくことだが、出現する文字の種類が1種類しかない場合、ハフ
+マン木を作る必要がない。LHa ではこのような場合に特殊な構造あるいは方法
+を用いていることが想像できる。
+
+    /* (D) */
+    for (i = heapsize / 2; i >= 1; i--)
+        downheap(i);    /* make priority queue */
+
+優先待ち行列 heap[] を構築する。downheap() がなんなのか、これがどういっ
+た処理なのかの詳細は省略しよう。アルゴリズム辞典の「ヒープソート」の項
+に詳しいが、heap[] は木構造を示しており、この木構造(2分木)には「親は子
+より優先順位が同じか高い」という規則だけがある。この木構造は、
+
+        1. heap[n] の左の子は heap[2*n]、右の子は heap[2*n + 1]
+
+で、表現されており、このような半順序木 (partial ordered tree) には、以
+下の特徴がある
+
+        2. heap[n] の親は heap[n/2]
+        3. heap[1.. heapsize/2] は節で、heap[heapsize/2 .. heapsize] は葉
+
+この heap[] が最初ばらばらに要素が格納されているとき、葉に近い節から順
+に downheap() という操作を行う((D)の処理)と、ヒープを構築できるように
+なっている。downheap(i) は、節 heap[i] とその子 heap[2*i], heap[2*i+1] 
+で要素を比較し、子の優先順位の方が高ければ位置を交換する、という処理を
+葉に向かって繰り返す関数だ。以下、参考までに maketree.c:downheap() の
+内容を示す。
+
+static void
+downheap(i)
+/* priority queue; send i-th entry down heap */
+    int             i;
+{
+    short           j, k;
+
+    k = heap[i];
+    while ((j = 2 * i) <= heapsize) {
+        if (j < heapsize && freq[heap[j]] > freq[heap[j + 1]])
+            j++;
+        if (freq[k] <= freq[heap[j]])
+            break;
+        heap[i] = heap[j];
+        i = j;
+    }
+    heap[i] = k;
+}
+
+とにかく (D) により、最も優先順位の高い(出現回数の少ない)要素が 
+heap[1] に来るようになる。この優先待ち行列はなかなか面白い(と私は思っ
+た)のでいろいろと調べてみるのもよいだろう。
+
+さて、続けよう (E) だ。
+
+    /* (E) */
+    sort = codeparm;
+    do {            /* while queue has at least two entries */
+        i = heap[1];    /* take out least-freq entry */
+        if (i < n)
+            *sort++ = i;
+        heap[1] = heap[heapsize--];
+        downheap(1);
+        j = heap[1];    /* next least-freq entry */
+        if (j < n)
+            *sort++ = j;
+        k = avail++;    /* generate new node */
+        freq[k] = freq[i] + freq[j];
+        heap[1] = k;
+        downheap(1);    /* put into queue */
+        left[k] = i;
+        right[k] = j;
+    } while (heapsize > 1);
+
+最初に、
+
+        i = heap[1];    /* take out least-freq entry */
+        if (i < n)
+            *sort++ = i;
+
+で、最も出現回数の少ない文字を取って来る。if の部分はひとまず無視しよう。
+
+        heap[1] = heap[heapsize--];
+        downheap(1);
+
+で、heap[] の最後尾の要素を先頭に持って来て downheap(1) を行っている。
+こうすると、ヒープが再構築され「親は子より優先順位が同じか高い」という
+条件をまた満たすようになる。heap[] の要素は1つ減っている。結局、ここま
+での処理は論理的には「優先待ち行列から優先度の高い要素を1つ取り出す」
+と言う処理だ。
+
+        j = heap[1];    /* next least-freq entry */
+        if (j < n)
+            *sort++ = j;
+
+続けて、2番目に優先度の高い要素を取り出す。また、if は無視しておこう。
+
+        k = avail++;    /* generate new node */
+        freq[k] = freq[i] + freq[j];
+        heap[1] = k;
+        downheap(1);    /* put into queue */
+
+avail は最初 n (nparm)だった。freq[] は、文字の出現回数なので最初文字
+の種類数分(nparm)の要素しかないがハフマン木の節の出現回数(というか優先
+順位)を格納するために freq[] は、nparm * 2 の格納域が必要となることが
+わかる。
+
+        freq[0 ... nparm]               文字(ハフマン木の葉)の優先順位
+        freq[nparm ... nparm * 2 - 1]   ハフマン木の節の優先順位
+
+ここまでで、出現回数の低い2つの要素を取り出しその出現回数の和を 
+freq[k] に設定することになる。出現回数の和は heap[] に再設定され、
+downheap(1) で、優先待ち行列をまた再構築する。これは「葉を束ね節を作る」
+というハフマン木の構築アルゴリズムの実装だ。新しく作成した節が k でそ
+の最大値が最終的に avail-1 である。
+
+最後に
+
+        left[k] = i;
+        right[k] = j;
+
+で、ハフマン木を構造 left[]、right[] で作成する。
+
+この (E) を抽象度の高いコードで示してみよう。ハフマン木は
+    struct huffman {
+       ...
+    } huff;
+
+で表し、ハフマン木の1つの節は、
+    make_huff(huff, node, left, right)
+で作成できるとする。また、優先順位つき待ち行列を heap とし、heap から
+要素を取り出す処理、要素を格納する処理をそれぞれ仮に
+        n = delete_pqueue(heap)
+        insert_pqueue(heap, n)
+とすると、
+
+    /* (E) */
+    sort = codeparm;
+    do {
+        left = delete_pqueue(heap);
+        right = delete_pqueue(heap);
+
+        k = avail++;
+        freq[k] = freq[i] + freq[j];
+
+        insert_pqueue(heap, freq[k]);
+
+        make_huff(&huff, k, left, right);
+    } while (heapsize > 1);
+
+こんなところだろうか。元の処理ではヒープからの要素の取り出しと挿入で無
+駄な処理を無くすために少し複雑になっている。(そしてデータ構造に依存し
+た処理になっている)。どちらがよりすぐれているかは微妙な所だ。私は多少
+の処理の無駄も目をつぶってよりわかりやすい方を優先するのが好きなのだが。
+これはちょっと考えさせられるところだ。
+
+ループを抜けた所で k (avail - 1) は、ハフマン木の根を表している。
+left[0:avail], right[0:avail] がハフマン木を示し、left[nparm...avail],
+right[nparm...avail] が節を示している。left[0...nparm],
+right[0...nparm] は使われないようだ。(テキストでは木構造を図示するのは
+きついのでやめておこう)
+
+これで、ハフマン木の構築は終りなのだが、ハフマン法の符号化ではハフマン
+木の葉から根に向かって木を辿る必要があるはずなのに、left[]、right[] の
+構造では根から葉に向かってしか木を辿ることができないはずだ。これはどう
+いうことだろう？make_tree() ではまだ処理が続いている。
+
+    /* (F) */
+    sort = codeparm;
+    make_len(k);
+    make_code(nparm, lenparm, codeparm);
+    return k;       /* return root */
+
+どうやら、木構造の他にもなにやら構造を作成しているようだ。これは先程無
+視した if 文にも関連する。そしてこれは「アルゴリズム辞典」には載ってい
+ない部分だ。どうやら LHa なりの工夫があるようだ。
 
 # Local Variables:
 # mode : indented-text
