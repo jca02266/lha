@@ -239,7 +239,7 @@ make_new_node(p)
 /* ------------------------------------------------------------------------ */
 static void
 encode_c_dyn(c)
-	int             c;
+	unsigned int    c;
 {
 	unsigned int    bits;
 	int             p, d, cnt;
@@ -327,7 +327,7 @@ decode_p_dyn( /* void */ )
 /* ------------------------------------------------------------------------ */
 void
 output_dyn(code, pos)
-	int             code;
+	unsigned int    code;
 	unsigned int    pos;
 {
 	encode_c_dyn(code);
@@ -342,6 +342,8 @@ encode_end_dyn( /* void */ )
 {
 	putcode(7, 0);
 }
+
 /* Local Variables: */
-/* tab-width : 4 */
+/* mode:c */
+/* tab-width:4 */
 /* End: */
