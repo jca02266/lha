@@ -1,5 +1,7 @@
 2002-06-05  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac (AC_INIT): change package name and specified tar name.
+
 	* released.
 
 	* src/lharc.c: added `--help' command line switch.
