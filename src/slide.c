@@ -441,7 +441,6 @@ decode(interface)
             decode_count += match.len;
             for (i = 0; i < match.len; i++) {
                 c = dtext[(matchpos + i) & dicsiz1];
-                
 #ifdef DEBUG
                 fprintf(fout, "%02X ", c & 0xff);
 #endif
