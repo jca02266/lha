@@ -30,7 +30,7 @@
 
 	* src/prototypes.h: updated.
 
-	* src/cproto.sh: added `interface.c'.
+	* src/cproto.sh: added `indicator.c'.
 
 	* src/Makefile.am: ditto.
 
