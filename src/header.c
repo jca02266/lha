@@ -767,7 +767,7 @@ get_header(fp, hdr)
 
 	switch (hdr->extend_type) {
 	case EXTEND_MSDOS:
-        archive_delim = "\xff\\";
+        archive_delim = "\377\\";
                           /* `\' is for level 0 header and broken archive. */
         system_delim = "//";
         filename_case = noconvertcase ? NONE : TO_LOWER;
@@ -786,7 +786,7 @@ get_header(fp, hdr)
 	case EXTEND_XOSK:
 #endif
 	case EXTEND_UNIX:
-        archive_delim = "\xff\\";
+        archive_delim = "\377\\";
                           /* `\' is for level 0 header and broken archive. */
         system_delim = "//";
         filename_case = NONE;
@@ -794,7 +794,7 @@ get_header(fp, hdr)
 		break;
 
 	case EXTEND_MACOS:
-        archive_delim = "\xff/:\\";
+        archive_delim = "\377/:\\";
                           /* `\' is for level 0 header and broken archive. */
         system_delim = "/://";
         filename_case = NONE;
@@ -804,7 +804,7 @@ get_header(fp, hdr)
 		break;
 
 	default:
-        archive_delim = "\xff\\";
+        archive_delim = "\377\\";
                           /* `\' is for level 0 header and broken archive. */
         system_delim = "//";
         filename_case = noconvertcase ? NONE : TO_LOWER;
@@ -945,7 +945,7 @@ write_header(nafp, hdr)
 
     int archive_kanji_code = CODE_SJIS;
     int system_kanji_code = default_system_kanji_code;
-    char *archive_delim = "\xff";
+    char *archive_delim = "\377";
     char *system_delim = "/";
     int filename_case = NONE;
 	char lzname[256];
