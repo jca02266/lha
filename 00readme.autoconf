@@ -1,7 +1,7 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiscated for LHa for UNIX version 1.14i
-		        Sun, Aug 11 2002 by Koji Arai <jca02266@nifty.ne.jp>
+			$Date$ by Koji Arai <jca02266@nifty.ne.jp>
 
 このファイルは LHa for UNIX version 1.14i を autoconf、automake 化した
 (autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
@@ -214,8 +214,8 @@ LHa for UNIX に関しては岡本継男さんのページ
 
         http://kuwa.omosiro.com/x68k/KGARC/ARC/LHAHED15.ZIP
 
-      のですが、オリジナル lha (ver 2.55, 2.67) などは -lhd- method を 
-      level 0 header で作成します。
+      のですが、吉崎栄泰氏のオリジナル LHA (DOS/Windows版) (ver 2.55,
+      2.67) などは -lhd- method を level 0 header で作成します。
 
     o g オプションを付けたときの level 0, 1, 2 header
 
@@ -267,4 +267,6 @@ LHa for UNIX に関しては岡本継男さんのページ
   拡張ヘッダ Windows timestamp (0x41) を解釈するようにしました。(level
   1 header のみ)。level 2 以上では、基本ヘッダに time_t の情報があるの
   で、拡張ヘッダの方は無視します。
-  
+  level 1 header のアーカイブに対して、Windows timestamp 拡張ヘッダ
+  を出力する LHA アーカイバが存在するかどうかは未確認です。あまり、
+  役に立たない修正だった気がしますがせっかく作ったので残してます:-)
