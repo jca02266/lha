@@ -195,25 +195,25 @@ search_dict_1(token, pos, off, max, m)
     struct matchdata *m;
 {
     unsigned int chain = 0;
-    unsigned int scan_off = hash[token].pos;
-    int scan_pos = scan_off - off;
+    unsigned int scan_pos = hash[token].pos;
+    int scan_beg = scan_pos - off;
     int scan_end = pos - dicsiz;
     unsigned int len;
 
-    while (scan_pos > scan_end) {
+    while (scan_beg > scan_end) {
         chain++;
 
-        if (text[scan_pos + m->len] == text[pos + m->len]) {
+        if (text[scan_beg + m->len] == text[pos + m->len]) {
             {
                 /* collate token */
-                unsigned char *a = &text[scan_pos];
+                unsigned char *a = &text[scan_beg];
                 unsigned char *b = &text[pos];
 
                 for (len = 0; len < max && *a++ == *b++; len++);
             }
 
             if (len > m->len) {
-                m->off = pos - scan_pos;
+                m->off = pos - scan_beg;
                 m->len = len;
                 if (m->len == max)
                     break;
@@ -228,15 +228,15 @@ search_dict_1(token, pos, off, max, m)
 #endif
             }
         }
-        scan_off = prev[scan_off & (dicsiz - 1)];
-        scan_pos = scan_off - off;
+        scan_pos = prev[scan_pos & (dicsiz - 1)];
+        scan_beg = scan_pos - off;
     }
 
     if (chain >= LIMIT)
         hash[token].too_flag = 1;
 }
 
-/* search the most long token matching to current token */
+/* search the longest token matching to current token */
 static void
 search_dict(token, pos, min, m)
     unsigned int token;         /* search token */
@@ -314,16 +314,15 @@ encode(interface)
     init_slide();
 
     encode_set.encode_start();
-    memset(&text[0], ' ', TXTSIZ);
+    memset(text, 0, TXTSIZ);
 
     remainder = fread_crc(&crc, &text[dicsiz], txtsiz-dicsiz, infile);
+
     match.len = THRESHOLD - 1;
     match.off = 0;
-
-    pos = dicsiz;
-
     if (match.len > remainder) match.len = remainder;
 
+    pos = dicsiz;
     token = INIT_HASH(pos);
     insert_hash(token, pos);     /* associate token and pos */
 
@@ -338,8 +337,7 @@ encode(interface)
             /* output a letter */
             encode_set.output(text[pos - 1], 0);
 #ifdef DEBUG
-            fprintf(fout, "%u C %02X\n",
-                    count, text[pos-1]);
+            fprintf(fout, "%u C %02X\n", count, text[pos-1]);
 #endif
             count++;
         } else {
