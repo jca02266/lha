@@ -197,8 +197,7 @@ main(argc, argv)
 	init_variable();		/* Added N.Watazaki */
 
 	ac = argc;
-	av = (char **)malloc( sizeof(char*)*argc );
-	if (av == NULL) fatal_error("not enough memory\n");
+	av = (char **)xmalloc( sizeof(char*)*argc );
 	for (i=0; i<argc; i++) {
 	  if ((av[i] = strdup( argv[i] )) == NULL)
 		fatal_error("not enough memory\n");
@@ -393,8 +392,7 @@ work:
 	/* target file name */
 	if (get_filename_from_stdin) {
 		cmd_filec = 0;
-		if ((xfilev = (char **) malloc(sizeof(char *) * xfilec)) == NULL)
-			fatal_error("Virtual memory exhausted\n");
+		xfilev = (char **)xmalloc(sizeof(char *) * xfilec);
 		while (fgets(inpbuf, sizeof(inpbuf), stdin)) {
 		    /* delete \n if it exist */
 			i=0; p=inpbuf;
