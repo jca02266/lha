@@ -6,8 +6,8 @@
 #endif
 
 /* append.c */
-int encode_lzhuf P_((FILE *infp, FILE *outfp, long size, long *original_size_var, long *packed_size_var, char *name, char *hdr_method));
-void start_indicator P_((char *name, long size, char *msg, long def_indicator_threshold));
+int encode_lzhuf P_((FILE *infp, FILE *outfp, size_t size, size_t *original_size_var, size_t *packed_size_var, char *name, char *hdr_method));
+void start_indicator P_((char *name, size_t size, char *msg, long def_indicator_threshold));
 void put_indicator P_((long int count));
 void finish_indicator2 P_((char *name, char *msg, int pcnt));
 void finish_indicator P_((char *name, char *msg));
@@ -34,7 +34,7 @@ unsigned short decode_p_dyn P_((void));
 void output_dyn P_((unsigned int code, unsigned int pos));
 void encode_end_dyn P_((void));
 /* extract.c */
-int decode_lzhuf P_((FILE *infp, FILE *outfp, long original_size, long packed_size, char *name, int method, size_t *read_sizep));
+int decode_lzhuf P_((FILE *infp, FILE *outfp, size_t original_size, size_t packed_size, char *name, int method, size_t *read_sizep));
 /* header.c */
 int calc_sum P_((char *p, int len));
 void convert_filename P_((char *name, int len, int size, int from_code, int to_code, char *from_delim, char *to_delim, int case_to));
@@ -115,7 +115,7 @@ int encode_alloc P_((int method));
 unsigned int encode P_((struct interfacing *interface));
 unsigned int decode P_((struct interfacing *interface));
 /* util.c */
-long copyfile P_((FILE *f1, FILE *f2, long size, int text_flg, unsigned int *crcp));
+size_t copyfile P_((FILE *f1, FILE *f2, long size, int text_flg, unsigned int *crcp));
 int encode_stored_crc P_((FILE *ifp, FILE *ofp, long size, long *original_size_var, long *write_size_var));
 boolean archive_is_msdos_sfx1 P_((char *name));
 int xsnprintf P_((char *dest, size_t size, char *fmt, ...));
