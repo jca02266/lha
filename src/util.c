@@ -390,13 +390,13 @@ xsnprintf(char *dest, size_t size, char *fmt, ...)
 }
 
 #if !STRCHR_8BIT_CLEAN
-/* 8 bit clean strchr()/strrchr() */
+/* 8 bit clean strchr()/strrchr()/memchr()/memrchr() */
 char *
 xstrchr(const char *s, int c)
 {
     while (*s) {
         if ((unsigned char)*s == (unsigned char)c)
-            return s;
+            return (char*)s;
         s++;
     }
 
@@ -410,8 +410,38 @@ xstrrchr(const char *s, int c)
 
     while (*s) {
         if ((unsigned char)*s == (unsigned char)c)
-            p = s;
+            p = (char*)s;
         s++;
+    }
+
+    return p;
+}
+
+char *
+xmemchr(const char *s, int c, size_t n)
+{
+    char *end = (char*)s + n;
+
+    while (s != end) {
+        if ((unsigned char)*s == (unsigned char)c)
+            return (char*)s;
+        s++;
+    }
+
+    return 0;
+}
+
+char *
+xmemrchr(const char *s, int c, size_t n)
+{
+    char *end = (char*)s-1;
+    char *p = 0;
+
+    s += n-1;
+    while (s != end) {
+        if ((unsigned char)*s == (unsigned char)c)
+            p = (char*)s;
+        s--;
     }
 
     return p;

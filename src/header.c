@@ -18,6 +18,12 @@ static int ConvertEncodingToUTF8(const char* inCStr, char* outUTF8Buffer, int ou
 static int ConvertUTF8ToEncoding(const char* inUTF8Buf, int inUTF8BufLength, char* outCStrBuffer, int outCStrBufferLength, unsigned long scriptEncoding, unsigned long flags);
 #endif /* __APPLE__ */
 
+#if !STRCHR_8BIT_CLEAN
+/* should use 8 bit clean version */
+#define strchr  xstrchr
+#define strrchr  xstrrchr
+#endif
+
 /* ------------------------------------------------------------------------ */
 static char    *get_ptr;
 

@@ -65,6 +65,34 @@ if test $ac_header_dirent = no; then
   AC_LIBOBJ(lhdir)
 fi
 
+# checking whether 8 bit clean or not
+AC_CACHE_CHECK([whether strchr()/strrchr() is 8bit clean],
+  [lha_cv_strchr_8bit_clean],
+  AC_TRY_RUN([
+#if STDC_HEADERS
+# include <string.h>
+#else
+# if !HAVE_STRCHR
+#  define strchr index
+#  define strrchr rindex
+# endif
+char *strchr (), *strrchr ();
+#endif
+
+main()
+{
+  char *s = "\xff";
+  if (strchr(s, 0xff) != s) return 1;
+  if (strchr(s, '\xff') != s) return 1;
+  return 0; /* ok */
+}
+], lha_cv_strchr_8bit_clean=yes,lha_cv_strchr_8bit_clean=no))
+
+if test $ac_cv_shell_true_works = yes; then
+  AC_DEFINE(STRCHR_8BIT_CLEAN, 1,
+	    [Define to 1 if strchr()/strrchr() works correctly.])
+fi
+
 # support kanji code conversion
 AC_SUBST(DEF_KCODE)
 AC_ARG_ENABLE(text_conv,
