@@ -262,7 +262,7 @@ alloc_buf( /* void */ )
 	while ((buf = (unsigned char *) malloc(bufsiz)) == NULL) {
 		bufsiz = (bufsiz / 10) * 9;
 		if (bufsiz < 4 * 1024)
-			break;
+            fatal_error("Not enough memory");
 	}
 	return buf;
 }
