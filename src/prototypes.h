@@ -8,6 +8,7 @@
 /* append.c */
 int encode_lzhuf P_((FILE *infp, FILE *outfp, long size, long *original_size_var, long *packed_size_var, char *name, char *hdr_method));
 void start_indicator P_((char *name, long size, char *msg, long def_indicator_threshold));
+void put_indicator P_((long int count));
 void finish_indicator2 P_((char *name, char *msg, int pcnt));
 void finish_indicator P_((char *name, char *msg));
 /* crcio.c */
