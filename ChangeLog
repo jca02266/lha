@@ -1,3 +1,12 @@
+2002-06-26  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/lha-test4: Skip a test for the LHa for UNIX (original version).
+
+	* tests/lha-test3: Rewrite tests for generic format.
+
+	* tests/lha-test2: Added tests for -lh0- method.
+	Moved from contents of lha-test3 (tests for print archive).
+
 2002-06-23  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/lha-test.in: On Cygwin/MinGW, cannot test lha-test9.
