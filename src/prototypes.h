@@ -12,19 +12,18 @@ void finish_indicator2 P_((char *name, char *msg, int pcnt));
 void finish_indicator P_((char *name, char *msg));
 /* crcio.c */
 void make_crctable P_((void));
-unsigned short calccrc P_((unsigned char *p, unsigned int n));
+unsigned int calccrc P_((unsigned int crc, unsigned char *p, unsigned int n));
 void fillbuf P_((int n));
 unsigned short getbits P_((int n));
 void putcode P_((int n, int x));
 void putbits P_((int n, int x));
-int fread_crc P_((unsigned char *p, int n, FILE *fp));
-void fwrite_crc P_((unsigned char *p, int n, FILE *fp));
+int fread_crc P_((unsigned int *crcp, unsigned char *p, int n, FILE *fp));
+void fwrite_crc P_((unsigned int *crcp, unsigned char *p, int n, FILE *fp));
 void init_code_cache P_((void));
 void init_getbits P_((void));
 void init_putbits P_((void));
 int fwrite_txt P_((unsigned char *p, int n, FILE *fp));
 int fread_txt P_((unsigned char *p, int n, FILE *fp));
-unsigned short calc_header_crc P_((unsigned char *p, unsigned int n));
 /* dhuf.c */
 void start_c_dyn P_((void));
 void decode_start_dyn P_((void));
@@ -110,10 +109,10 @@ unsigned short decode_c_st0 P_((void));
 unsigned short decode_p_st0 P_((void));
 /* slide.c */
 int encode_alloc P_((int method));
-void encode P_((struct interfacing *interface));
-void decode P_((struct interfacing *interface));
+unsigned int encode P_((struct interfacing *interface));
+unsigned int decode P_((struct interfacing *interface));
 /* util.c */
-long copyfile P_((FILE *f1, FILE *f2, long size, int crc_flg));
+long copyfile P_((FILE *f1, FILE *f2, long size, int text_flg, unsigned int *crcp));
 int encode_stored_crc P_((FILE *ifp, FILE *ofp, long size, long *original_size_var, long *write_size_var));
 unsigned char *convdelim P_((unsigned char *path, int delim));
 boolean archive_is_msdos_sfx1 P_((char *name));
