@@ -396,6 +396,7 @@ char *strchr (), *strrchr ();
 #define EXTRABITS	8				/* >= log2(F-THRESHOLD+258-N1) */
 #define BUFBITS		16				/* >= log2(MAXBUF) */
 #define LENFIELD	4				/* bit size of length field for tree output */
+#define LH3_DICBIT			13
 
 /* util.c */
 #define BUFFERSIZE	2048
