@@ -1,5 +1,7 @@
 2003-01-13  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/prototypes.h: updated.
+
 	* src/slide.c: refined.
 
 2002-12-31  Koji Arai  <jca02266@nifty.ne.jp>
