@@ -998,7 +998,7 @@ write_header(nafp, hdr)
         else
             ++p;
         /* level 0 header: write pathname (contain the directory part) */
-        /* level 1 header: write filename (basename) */
+        /* level 1 header: write filename (basename only) */
         name_length = strlen(p);
 		put_byte(name_length);
 		memcpy(data + I_NAME, p, name_length);
@@ -1122,7 +1122,9 @@ write_header(nafp, hdr)
 		fatal_error("Cannot write to temporary file");
 }
 
-#ifdef __APPLE__
+#if MULTIBYTE_FILENAME
+
+#if defined(__APPLE__)
 
 #include <CoreFoundation/CFString.h>
 #include <CoreFoundation/CFStringEncodingExt.h>
@@ -1214,38 +1216,93 @@ ConvertUTF8ToEncoding(const char* inUTF8Buf,
 
     return cfResult;
 }
-#endif /* __APPLE__ */
+
+#elif HAVE_ICONV
+#include <iconv.h>
+
+static int
+ConvertEncodingByIconv(const char *src, char *dst, int dstsize,
+                       const char *srcEnc, const char *dstEnc)
+{
+    iconv_t ic;
+    static char szTmpBuf[2048];
+    char *src_p;
+    char *dst_p;
+    size_t sLen;
+    size_t iLen;
+
+    dst_p = &szTmpBuf[0];
+    iLen = (size_t)sizeof(szTmpBuf)-1;
+    src_p = (char *)src;
+    sLen = (size_t)strlen(src);
+    memset(szTmpBuf, 0, sizeof(szTmpBuf));
+    memset(dst, 0, dstsize);
+
+    ic = iconv_open(dstEnc, srcEnc);
+    if (ic == (iconv_t)-1) {
+        error("iconv_open() failure");
+        return -1;
+    }
+
+    if (iconv(ic, &src_p, &sLen, &dst_p, &iLen) == (size_t)-1) {
+        error("iconv() failure");
+        iconv_close(ic);
+        return -1;
+    }
+
+    strncpy(dst, szTmpBuf, dstsize);
+
+    iconv_close(ic);
+
+    return 0;
+}
+#endif /* defined(__APPLE__) */
 
 char *
 sjis_to_utf8(char *dst, const char *src, size_t dstsize)
 {
-#ifdef __APPLE__
+#if defined(__APPLE__)
   dst[0] = '\0';
-  ConvertEncodingToUTF8(src, dst, dstsize,
-                        kCFStringEncodingDOSJapanese,
-                        kCFStringEncodingUseHFSPlusCanonical);
-
+  if (ConvertEncodingToUTF8(src, dst, dstsize,
+                            kCFStringEncodingDOSJapanese,
+                            kCFStringEncodingUseHFSPlusCanonical) == 0)
+      return dst;
+#elif HAVE_ICONV
+  if (ConvertEncodingByIconv(src, dst, dstsize, "SJIS", "UTF-8") != -1)
+      return dst;
 #else
-  /* not supported */
+  error("not support utf-8 conversion");
 #endif
-  return dst;
+
+  /* not supported */
+  if (dstsize < 1) return dst;
+  dst[dstsize-1] = 0;
+  return strncpy(dst, src, dstsize-1);
 }
 
 char *
 utf8_to_sjis(char *dst, const char *src, size_t dstsize)
 {
-#ifdef __APPLE__
+#if defined(__APPLE__)
   int srclen;
 
   dst[0] = '\0';
   srclen = strlen(src);
-  ConvertUTF8ToEncoding(src, srclen, dst, dstsize,
-                        kCFStringEncodingDOSJapanese,
-                        kCFStringEncodingUseHFSPlusCanonical);
+  if (ConvertUTF8ToEncoding(src, srclen, dst, dstsize,
+                            kCFStringEncodingDOSJapanese,
+                            kCFStringEncodingUseHFSPlusCanonical) == 0)
+      return dst;
+#elif HAVE_ICONV
+  if (ConvertEncodingByIconv(src, dst, dstsize, "UTF-8", "SJIS") != -1)
+      return dst;
 #else
-  /* not supported */
+  error("not support utf-8 conversion");
 #endif
-  return dst;
+
+  /* not supported */
+  if (dstsize < 1) return dst;
+  dst[dstsize-1] = 0;
+  return strncpy(dst, src, dstsize-1);
 }
 
 /*
@@ -1278,6 +1335,7 @@ sjis2euc(int *p1, int *p2)
     *p1 |= 0x80;
     *p2 |= 0x80;
 }
+#endif /* MULTIBYTE_FILENAME */
 
 /* Local Variables: */
 /* mode:c */
