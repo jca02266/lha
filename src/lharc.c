@@ -150,7 +150,6 @@ commands:                           options:\n\
                                      e  TEXT code convert from/to EUC\n\
 ");
 #endif
-	exit(1);
 }
 
 /* ------------------------------------------------------------------------ */
