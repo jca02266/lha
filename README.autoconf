@@ -1,7 +1,7 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiguration for LHa for UNIX version 1.14i
-					Sun, May 19 2002 by Koji Arai
+			Sun, May 27 2002 by Koji Arai <jca02266@nifty.ne.jp>
 
 このファイルはLHa for UNIX version 1.14i をautoconf、automake化
 した(autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
@@ -31,8 +31,8 @@ LHa for UNIX に関しては岡本継男さんのページ
 
   コンパイルの手順は以下のようになります。
 
-    tar xvzf lha-1.14i.tar.gz
-    cd lha-1.14i
+    tar xvzf lha-114i.tar.gz
+    cd lha-114i
     patch -p1 < ../lha-1.14i-autoconf.diff
 
     sh ./configure
@@ -56,8 +56,8 @@ LHa for UNIX に関しては岡本継男さんのページ
   で autoconf 2.13 でもコンパイル可能かもしれませんが、あまり動作確認
   されていません。configure.in はいずれ保守されなくなるかもしれません)
 
-    tar xvzf lha-1.14i.tar.gz
-    cd lha-1.14i
+    tar xvzf lha-114i.tar.gz
+    cd lha-114i
     patch -p1 < ../lha-1.14i-autoconf.diff
 
     aclocal
