@@ -322,7 +322,7 @@ cmd_list()
         exit(1);
     }
     if (archive_is_msdos_sfx1(archive_name))
-        skip_msdos_sfx1_code(afp);
+        seek_lha_header(afp);
 
     /* print header message */
     if (!quiet)

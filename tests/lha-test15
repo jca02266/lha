@@ -4,17 +4,52 @@ message testing to self extracting archive
 
 if test -c /dev/zero; then
   # Usually, size of SFX code is less than 20K
-  dd if=/dev/zero of=test-tmp-1.exe bs=1024 count=20 2>/dev/null
+  dd if=/dev/zero of=test-tmp-hg.exe bs=1024 count=20 2>/dev/null
 else
   # dummy header
-  echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx > test-tmp-1.exe
+  echo xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx > test-tmp-hg.exe
 fi
 							check $? $LINENO
-$lha c - test-[abc] >> test-tmp-1.exe
+cp test-tmp-hg.exe test-tmp-h0.exe &&
+cp test-tmp-hg.exe test-tmp-h1.exe &&
+cp test-tmp-hg.exe test-tmp-h2.exe
 							check $? $LINENO
-$lha v test-tmp-1.exe
+# generic header
+$lha cg - test-[abc] >> test-tmp-hg.exe
 							check $? $LINENO
-$lha xw=test-tmp-1 test-tmp-1.exe
+$lha vv test-tmp-hg.exe
 							check $? $LINENO
-diff -r test-1 test-tmp-1
+$lha xw=test-tmp-hg test-tmp-hg.exe
+							check $? $LINENO
+diff -r test-1 test-tmp-hg
+							check $? $LINENO
+
+# level 0 header
+$lha c0 - test-[abc] >> test-tmp-h0.exe
+							check $? $LINENO
+$lha vv test-tmp-h0.exe
+							check $? $LINENO
+$lha xw=test-tmp-h0 test-tmp-h0.exe
+							check $? $LINENO
+diff -r test-1 test-tmp-h0
+							check $? $LINENO
+
+# level 1 header
+$lha c1 - test-[abc] >> test-tmp-h1.exe
+							check $? $LINENO
+$lha vv test-tmp-h1.exe
+							check $? $LINENO
+$lha xw=test-tmp-h1 test-tmp-h1.exe
+							check $? $LINENO
+diff -r test-1 test-tmp-h1
+							check $? $LINENO
+
+# level 2 header
+$lha c2 - test-[abc] >> test-tmp-h2.exe
+							check $? $LINENO
+$lha vv test-tmp-h2.exe
+							check $? $LINENO
+$lha xw=test-tmp-h2 test-tmp-h2.exe
+							check $? $LINENO
+diff -r test-1 test-tmp-h2
 							check $? $LINENO

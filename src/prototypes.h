@@ -39,7 +39,7 @@ int decode_lzhuf P_((FILE *infp, FILE *outfp, long original_size, long packed_si
 int calc_sum P_((register char *p, register int len));
 void convert_filename P_((char *name, int len, int size, int from_code, int to_code, char *from_delim, char *to_delim, int case_to));
 boolean get_header P_((FILE *fp, LzHeader *hdr));
-boolean skip_msdos_sfx1_code P_((FILE *fp));
+int seek_lha_header  P_((FILE *fp));
 void init_header P_((char *name, struct stat *v_stat, LzHeader *hdr));
 void write_header P_((FILE *fp, LzHeader *hdr));
 char *sjis_to_utf8 P_((char *dst, const char *src, size_t dstsize));

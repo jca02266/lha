@@ -555,11 +555,11 @@ wintime_to_unix_stamp()
  *    size field is 4 bytes
  */
 
-static long
+static ssize_t
 get_extended_header(fp, hdr, header_size, hcrc)
     FILE *fp;
     LzHeader *hdr;
-    long header_size;
+    size_t header_size;
     unsigned int *hcrc;
 {
     char data[LZHEADER_STORAGE];
@@ -567,7 +567,7 @@ get_extended_header(fp, hdr, header_size, hcrc)
     char dirname[FILENAME_LENGTH];
     int dir_length = 0;
     int i;
-    long whole_size = header_size;
+    ssize_t whole_size = header_size;
     int ext_type;
     int n = 1 + hdr->size_field_length; /* `ext-type' + `next-header size' */
 
@@ -765,11 +765,11 @@ get_header_level0(fp, hdr, data)
     LzHeader *hdr;
     char *data;
 {
-    int header_size;
+    size_t header_size;
+    ssize_t extend_size;
     int checksum;
     int name_length;
     int i;
-    int extend_size;
 
     hdr->size_field_length = 2; /* in bytes */
     hdr->header_size = header_size = get_byte();
@@ -881,7 +881,8 @@ get_header_level1(fp, hdr, data)
     LzHeader *hdr;
     char *data;
 {
-    int header_size, extend_size;
+    size_t header_size;
+    ssize_t extend_size;
     int checksum;
     int name_length;
     int i, dummy;
@@ -974,7 +975,8 @@ get_header_level2(fp, hdr, data)
     LzHeader *hdr;
     char *data;
 {
-    int header_size, extend_size;
+    size_t header_size;
+    ssize_t extend_size;
     int padding;
     unsigned int hcrc;
 
@@ -1054,7 +1056,8 @@ get_header_level3(fp, hdr, data)
     LzHeader *hdr;
     char *data;
 {
-    long header_size, extend_size;
+    size_t header_size;
+    ssize_t extend_size;
     int padding;
     unsigned int hcrc;
 
@@ -1212,11 +1215,11 @@ get_header(fp, hdr)
 }
 
 /* skip SFX header */
-boolean
-skip_msdos_sfx1_code(fp)
-    FILE           *fp;
+int
+seek_lha_header(fp)
+    FILE *fp;
 {
-    unsigned char   buffer[64 * 1024]; /* SFX header size */
+    unsigned char   buffer[64 * 1024]; /* max seek size */
     unsigned char  *p;
     int             n;
 
@@ -1229,25 +1232,28 @@ skip_msdos_sfx1_code(fp)
 
         /* size and checksum validate check */
 
-        /* level 0 header */
-        if (p[I_HEADER_LEVEL] == 0
+        /* level 0 or 1 header */
+        if ((p[I_HEADER_LEVEL] == 0 || p[I_HEADER_LEVEL] == 1)
             && p[I_HEADER_SIZE] > 20
             && p[I_HEADER_CHECKSUM] == calc_sum(p+2, p[I_HEADER_SIZE])) {
-            fseek(fp, (p - buffer) - n, SEEK_CUR);
-            return TRUE;
+            if (fseek(fp, (p - buffer) - n, SEEK_CUR) == -1)
+                fatal_error("cannot seek header");
+            return 0;
         }
 
         /* level 2 header */
         if (p[I_HEADER_LEVEL] == 2
             && p[I_HEADER_SIZE] >= 24
             && p[I_ATTRIBUTE] == 0x20) {
-            fseek(fp, (p - buffer) - n, SEEK_CUR);
-            return TRUE;
+            if (fseek(fp, (p - buffer) - n, SEEK_CUR) == -1)
+                fatal_error("cannot seek header");
+            return 0;
         }
     }
 
-    fseek(fp, -n, SEEK_CUR);
-    return FALSE;
+    if (fseek(fp, -n, SEEK_CUR) == -1)
+        fatal_error("cannot seek header");
+    return -1;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1365,14 +1371,14 @@ write_unix_info(hdr)
 /* ------------------------------------------------------------------------ */
 /* Write unix extended header or generic header. */
 
-static int
+static size_t
 write_header_level0(data, hdr, pathname)
     LzHeader *hdr;
     char *data, *pathname;
 {
     int limit;
     int name_length;
-    int header_size;
+    size_t header_size;
 
     setup_put(data);
     memset(data, 0, LZHEADER_STORAGE);
@@ -1423,16 +1429,16 @@ write_header_level0(data, hdr, pathname)
     return header_size + 2;
 }
 
-static int
+static size_t
 write_header_level1(data, hdr, pathname)
     LzHeader *hdr;
     char *data, *pathname;
 {
     int name_length, dir_length, limit;
     char *basename, *dirname;
-    int header_size;
+    size_t header_size;
     char *extend_header_top;
-    int extend_header_size;
+    size_t extend_header_size;
 
     basename = strrchr(pathname, LHA_PATHSEP);
     if (basename) {
@@ -1515,14 +1521,14 @@ write_header_level1(data, hdr, pathname)
     return header_size + extend_header_size + 2;
 }
 
-static int
+static size_t
 write_header_level2(data, hdr, pathname)
     LzHeader *hdr;
     char *data, *pathname;
 {
     int name_length, dir_length;
     char *basename, *dirname;
-    int header_size;
+    size_t header_size;
     char *extend_header_top;
     char *headercrc_ptr;
     unsigned int hcrc;
@@ -1612,7 +1618,7 @@ write_header(fp, hdr)
     FILE           *fp;
     LzHeader       *hdr;
 {
-    int header_size;
+    size_t header_size;
     char data[LZHEADER_STORAGE];
 
     int archive_kanji_code = CODE_SJIS;

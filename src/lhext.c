@@ -430,7 +430,7 @@ cmd_extract()
         fatal_error("Cannot open archive file \"%s\"", archive_name);
 
     if (archive_is_msdos_sfx1(archive_name))
-        skip_msdos_sfx1_code(afp);
+        seek_lha_header(afp);
 
     /* extract each files */
     while (get_header(afp, &hdr)) {

@@ -466,7 +466,7 @@ cmd_add()
     }
 
     if (oafp && archive_is_msdos_sfx1(archive_name)) {
-        skip_msdos_sfx1_code(oafp);
+        seek_lha_header(oafp);
         build_standard_archive_name(new_archive_name_buffer, archive_name);
         new_archive_name = new_archive_name_buffer;
     }
@@ -570,7 +570,7 @@ cmd_delete()
     }
 
     if (archive_is_msdos_sfx1(archive_name)) {
-        skip_msdos_sfx1_code(oafp);
+        seek_lha_header(oafp);
         build_standard_archive_name(new_archive_name_buffer, archive_name);
         new_archive_name = new_archive_name_buffer;
     }
