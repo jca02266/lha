@@ -11,7 +11,7 @@
 
 	* src/lha_macro.h: `xxx_DICBIT' for each method was defined.
 
-	* src/header.c: fixed a comment `Generic stamp format'.
+	* src/header.c: correct a comment `Generic stamp format'.
 	(get_bytes): fixed for dumping header.
 
 	* src/lha_macro.h, src/lha.h: `EXTERN' macro definition was moved
