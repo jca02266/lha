@@ -1,3 +1,8 @@
+2002-11-15  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.ac: updated version (source maintenance start on
+	sourceforge.jp)
+
 2002-11-11  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lhext.c (make_parent_path): On Cygwin, when `foo.exe'
