@@ -1,3 +1,10 @@
+2003-02-05  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/lha-test7: sleep 1 to make sure for updating tests.
+
+	* src/fnmatch.c, src/fnmatch.h: added fnmatch.c derived from the
+	OpenBSD.
+
 2003-02-04  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: need to call `AC_CANONICAL_HOST' for automake
