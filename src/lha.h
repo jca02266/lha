@@ -31,6 +31,13 @@
 # include <grp.h>
 #endif
 
+#if !HAVE_UID_T
+typedef int uid_t;
+#endif
+#if !HAVE_GID_T
+typedef int gid_t;
+#endif
+
 #include "lha_macro.h"
 
 struct encode_option {
