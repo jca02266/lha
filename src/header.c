@@ -963,12 +963,9 @@ init_header(name, v_stat, hdr)
 
     memset(hdr, 0, sizeof(LzHeader));
 
-	if (compress_method == LZHUFF5_METHOD_NUM)  /* Changed N.Watazaki */
-		memcpy(hdr->method, LZHUFF5_METHOD, METHOD_TYPE_STORAGE);
-	else if (compress_method)
-		memcpy(hdr->method, LZHUFF1_METHOD, METHOD_TYPE_STORAGE);
-	else
-		memcpy(hdr->method, LZHUFF0_METHOD, METHOD_TYPE_STORAGE);
+    /* the `method' member is rewrote by the encoding function.
+       but need set for empty files */
+    memcpy(hdr->method, LZHUFF0_METHOD, METHOD_TYPE_STORAGE);
 
 	hdr->packed_size = 0;
 	hdr->original_size = v_stat->st_size;
@@ -1040,9 +1037,9 @@ init_header(name, v_stat, hdr)
 /* Write unix extended header or generic header. */
 
 static int
-write_header_level0(data, hdr, lzname)
+write_header_level0(data, hdr, pathname)
     LzHeader *hdr;
-    char *data, *lzname;
+    char *data, *pathname;
 {
     int limit;
     int name_length;
@@ -1060,19 +1057,19 @@ write_header_level0(data, hdr, lzname)
     put_byte(hdr->attribute);
     put_byte(hdr->header_level); /* level 0 */
 
-    /* level 0 header: write pathname (contain the directory part) */
-    name_length = strlen(lzname);
+    /* write pathname (level 0 header contains the directory part) */
+    name_length = strlen(pathname);
     if (generic_format)
         limit = 255 - I_GENERIC_HEADER_BOTTOM + 2;
     else
         limit = 255 - I_UNIX_EXTEND_BOTTOM + 2;
 
     if (name_length > limit) {
-        warning("the length of pathname \"%s\" is too long.", lzname);
+        warning("the length of pathname \"%s\" is too long.", pathname);
         name_length = limit;
     }
     put_byte(name_length);
-    put_bytes(lzname, name_length);
+    put_bytes(pathname, name_length);
     put_word(hdr->crc);
 
     if (generic_format) {
@@ -1098,9 +1095,9 @@ write_header_level0(data, hdr, lzname)
 }
 
 static int
-write_header_level1(data, hdr, lzname)
+write_header_level1(data, hdr, pathname)
     LzHeader *hdr;
-    char *data, *lzname;
+    char *data, *pathname;
 {
     int name_length, dir_length, limit;
     char *basename, *dirname;
@@ -1108,15 +1105,15 @@ write_header_level1(data, hdr, lzname)
     char *extend_header_top;
     int extend_header_size;
 
-    basename = strrchr(lzname, LHA_PATHSEP);
+    basename = strrchr(pathname, LHA_PATHSEP);
     if (basename) {
         basename++;
         name_length = strlen(basename);
-        dirname = lzname;
+        dirname = pathname;
         dir_length = basename - dirname;
     }
     else {
-        basename = lzname;
+        basename = pathname;
         name_length = strlen(basename);
         dirname = "";
         dir_length = 0;
@@ -1220,9 +1217,9 @@ write_header_level1(data, hdr, lzname)
 }
 
 static int
-write_header_level2(data, hdr, lzname)
+write_header_level2(data, hdr, pathname)
     LzHeader *hdr;
-    char *data, *lzname;
+    char *data, *pathname;
 {
     int name_length, dir_length;
     char *basename, *dirname;
@@ -1231,15 +1228,15 @@ write_header_level2(data, hdr, lzname)
     char *headercrc_ptr;
     unsigned short hcrc;
 
-    basename = strrchr(lzname, LHA_PATHSEP);
+    basename = strrchr(pathname, LHA_PATHSEP);
     if (basename) {
         basename++;
         name_length = strlen(basename);
-        dirname = lzname;
+        dirname = pathname;
         dir_length = basename - dirname;
     }
     else {
-        basename = lzname;
+        basename = pathname;
         name_length = strlen(basename);
         dirname = "";
         dir_length = 0;

@@ -10,6 +10,12 @@ $lha co6 test-tmp-m6.lzh test-a test-b test-c
 							check $? $LINENO
 $lha co7 test-tmp-m7.lzh test-a test-b test-c
 							check $? $LINENO
+$lha v test-tmp-m0.lzh &&
+$lha v test-tmp-m1.lzh &&
+$lha v test-tmp-m5.lzh &&
+$lha v test-tmp-m6.lzh &&
+$lha v test-tmp-m7.lzh
+							check $? $LINENO
 $lha v test-tmp-m0.lzh | grep lh0
 							check $? $LINENO
 $lha v test-tmp-m1.lzh | grep lh1
@@ -20,7 +26,6 @@ $lha v test-tmp-m6.lzh | grep lh6
 							check $? $LINENO
 $lha v test-tmp-m7.lzh | grep lh7
 							check $? $LINENO
-
 $lha xw=test-tmp-m0 test-tmp-m0.lzh
 							check $? $LINENO
 $lha xw=test-tmp-m1 test-tmp-m1.lzh
@@ -64,4 +69,13 @@ $lha pq test-tmp-m5.lzh | diff test-tmp-abc -
 $lha pq test-tmp-m6.lzh | diff test-tmp-abc -
 							check $? $LINENO
 $lha pq test-tmp-m7.lzh | diff test-tmp-abc -
+							check $? $LINENO
+# 0 byte files should be frozen with the -lh0- method.
+touch test-tmp-0byte
+							check $? $LINENO
+$lha c test-tmp-0byte.lzh test-tmp-0byte
+							check $? $LINENO
+$lha v test-tmp-0byte.lzh
+							check $? $LINENO
+$lha v test-tmp-0byte.lzh | grep lh0
 							check $? $LINENO
