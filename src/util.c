@@ -370,6 +370,9 @@ xsnprintf(dest, size, fmt, va_alist)
 char *
 xstrchr(const char *s, int c)
 {
+    if (c == 0)
+        return s + strlen(s);
+
     while (*s) {
         if ((unsigned char)*s == (unsigned char)c)
             return (char*)s;
