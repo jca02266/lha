@@ -526,7 +526,7 @@ wintime_to_unix_stamp()
         t = (t << 8) + wintime[i]; /* 24bit + 8bit. t must be 32bit variable */
         q <<= 8;                   /* q must be 32bit (time_t) */
         q += t / x;
-        t %= x;     /* 16bit */
+        t %= x;     /* 24bit */
     }
     return q;
 #endif
