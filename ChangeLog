@@ -1,3 +1,8 @@
+2002-09-01  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* tests/Makefile.am (EXTRA_DIST): lha-test12, lha-test13 and
+	lha-test14 were missed.
+
 2002-08-31  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lhadd.c (append_it): refined.
