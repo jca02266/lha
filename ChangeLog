@@ -1,5 +1,20 @@
 2002-06-29  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/header.c (convert_filename): rename a function
+	`filename_conv()' to `convert_filename()'.
+	(sjis_to_utf8_static): no used the static variable.
+	(utf8_to_sjis_static): ditto.
+
+	* src/lha.h: rename sjis_to_utf8_static() and utf8_to_sjis_static()
+	into sjis_to_utf8() and utf8_to_sjis().
+
+	* src/lha_macro.h: added a macro `CODE_UTF8'.
+
+	* configure.ac: decide CODE_UTF8.
+	updated version.
+
+	* 00readme.autoconf: modified.
+
 	* configure.ac: modified for Mac OS X.
 
 	* src/header.c, lha.h, lha_macro.h, lharc.c: Merged a patch for
