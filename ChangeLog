@@ -1,5 +1,19 @@
 2002-06-06  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac, configure.in: changed macro name.
+	not multibyte-char but multibyte-filename.
+	not MULTIBYTE_CHAR but MULTIBYTE_FILENAME.
+
+	* 00readme.autoconf: ditto.
+
+	* config.h.in: ditto.
+
+	* src/util.c: ditto.
+
+	* src/lha_macro.h: ditto.
+
+	* src/header.c: ditto. 
+
 	* config.h.in (INCLUDE_OWNER_NAME_IN_HEADER): changed macro name.
 
 	* configure.ac: ditto.

@@ -22,6 +22,7 @@ MKDIRPATH util.c
 # MKTIME header.c			replace with HAVE_MKTIME
 # MSDOS lha_macro.h			removed
 # MULTIBYTE_CHAR header.c lha_macro.h util.c	--enable-multibyte-filename
+					(defined MULTIBYTE_FILENAME)
 # NEED_INCREMENTAL_INDICATOR append.c crcio.c lha.h	--enable-indicator
 # NEWSOS huf.c				use STDC_HEADERS
 # NOBSTRING lha_macro.h util.c		use memset(), memcpy()
