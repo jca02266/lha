@@ -1,7 +1,8 @@
                The Hacking of LHa for UNIX (1st draft)
              -------------------------------------------
 
-                         2003-01-05 Koji Arai <mailto:jca02266@nifty.ne.jp>
+$Id$
+                                Koji Arai <mailto:jca02266@nifty.ne.jp>
 
 本書は、LHa for UNIX 1.14i のソースを解読し、その圧縮アルゴリズムの実
 装を確認するためのものだ。この成果は別の形でまとめなおされ資料になるか
@@ -617,8 +618,27 @@ insert() は、幸い解読ずみである pos を hash[] に格納する処理だ。
 件(位置を求める)を満たす事ができている。ここまでで自ずと encode() の全
 体像も予想がつきそうな気がする。
 
-# 衝突は考えないっとしたが prev[pos] に以前のハッシュ値が格納されてい
-# ることから簡単にわかる。チェーン法だ。謎は全て解けた。
+衝突は考えないっとしたが、ちょっと考えたらすぐわかった。prev[] には、
+以前のハッシュ値で求めた文字列の位置が入っている。つまり、prev[] はハッ
+シュが衝突したときのためのバッファだ。このハッシュはチェーン方だ。
+
+例えば、insert() で、
+    prev[pos] = hash[hval];
+    hash[hval] = pos;
+っと処理をしているのだから
+
+        hash[hval] = pos1
+                      |
+                      v
+                prev[pos1] = pos2
+                              |
+                              v
+                         prev[pos2] = pos3
+                                ...
+
+といった値が入る事になる。ある文字列(のハッシュ値) hval に対して、その
+辞書上の位置は pos1, pos2, pos3 という候補があるわけだ。実際にどの pos
+を選ぶかは比較によって行われるのだろう。
 
 # それにつけても、(C) と (D) の部分を見るだけでもこのソースがちょっと
 # 汚いことがわかる。もう少し、引数とか戻り値とか考えてくれても良かっ
@@ -645,8 +665,8 @@ putcode() でその値を設定している箇所が出て来るのだが、符号化した出力サ
 いからである。が、わかるだけの情報は書きしるそう。
 
 ----------------------------------------------------------------------------
-lastmatchlen      以前の matchlen の値 (変数名から)
-lastmatchoffset   以前マッチした位置 (変数名から)
+* lastmatchlen    以前の matchlen の値 (変数名から)
+* lastmatchoffset 以前マッチした位置 (変数名から)
 ----------------------------------------------------------------------------
 
 以前の値をlast〜に退避し、新たな値を設定する準備をしているわけだ。そし
@@ -729,8 +749,6 @@ get_next() は、pos を進め、remainder を縮め、新たな(以前より1文字長い)
 ところで、前回、hval の計算とinsert() はセットだと言った。今回はどうだ
 ろう？次の match_insert() を見てみる。
 
-/* 現在の文字列と最長一致する文字列を検索し、チェーンに追加する */
-
 static void match_insert()
 {
     ... 省略 ...
@@ -757,4 +775,523 @@ lastmatchlen は初期状態では 2 である。予想した条件は逆か？ matchlen ま
 わりは予想ばかりで進めすぎた。そしてどうやら match_insert() を読みとか
 なければこの先も分からずじまいになりそうだ。
 
-このまま match_insert() を詳細に解析する事にしよう。
+このまま match_insert() を詳細に解析する事にしよう。match_insert()
+をすべて再掲する。
+
+/* 現在の文字列と最長一致する文字列を検索し、チェーンに追加する */
+
+static void match_insert()
+{
+    unsigned int scan_pos, scan_end, len;
+    unsigned char *a, *b;
+    unsigned int chain, off, h, max;
+
+    max = maxmatch; /* MAXMATCH; */
+    if (matchlen < THRESHOLD - 1) matchlen = THRESHOLD - 1;
+    matchpos = pos;
+
+    off = 0;
+    for (h = hval; too_flag[h] && off < maxmatch - THRESHOLD; ) {
+        h = ((h << 5) ^ text[pos + (++off) + 2]) & (unsigned)(HSHSIZ - 1);
+    }
+    if (off == maxmatch - THRESHOLD) off = 0;
+    for (;;) {
+        chain = 0;
+        scan_pos = hash[h];
+        scan_end = (pos > dicsiz) ? pos + off - dicsiz : off;
+        while (scan_pos > scan_end) {
+            chain++;
+
+            if (text[scan_pos + matchlen - off] == text[pos + matchlen]) {
+                {
+                    a = text + scan_pos - off;  b = text + pos;
+                    for (len = 0; len < max && *a++ == *b++; len++);
+                }
+
+                if (len > matchlen) {
+                    matchpos = scan_pos - off;
+                    if ((matchlen = len) == max) {
+                        break;
+                    }
+                }
+            }
+            scan_pos = prev[scan_pos & (dicsiz - 1)];
+        }
+
+        if (chain >= LIMIT)
+            too_flag[h] = 1;
+
+        if (matchlen > off + 2 || off == 0)
+            break;
+        max = off + 2;
+        off = 0;
+        h = hval;
+    }
+    prev[pos & (dicsiz - 1)] = hash[hval];
+    hash[hval] = pos;
+}
+
+まず、初期化部分の前半
+
+    max = maxmatch; /* MAXMATCH; */
+    if (matchlen < THRESHOLD - 1) matchlen = THRESHOLD - 1;
+    matchpos = pos;
+
+    off = 0;
+
+maxmatch は、固定値で 256 だ、だから max も 256
+2行目の if 文は、これまでしつこいくらいに出て来た条件に似ているが、今
+回は条件を満たすらしい。これまでは、
+
+    if (matchlen > remainder) matchlen = remainder;
+
+という条件だった。そして今回は、
+
+    if (matchlen < THRESHOLD - 1) matchlen = THRESHOLD - 1;
+
+だから、全体的に matchlen の値は、
+
+    THRESHOLD-1 <= matchlen <= remainder
+
+つまり、
+
+              2 <= matchlen <= バッファに残ったテキスト長
+
+の範囲に納められるようだ。ここでは、matchlen は下限値を下回るので2 に
+設定される。次に matchpos, off が初期化され。以下の図の状態になる。
+(pos, remainder は、get_next() で更新されていることに注意)
+
+----------------------------------------------------------------------------
+                                
+                                dicsiz=2^dicbit               2*2^dicbit
+                                   v                           v   txtsiz
+       +-------------+-------------+-------------+-------------+---+
+  text |             |             |             |             |   |
+       +-------------+-------------+-------------+-------------+---+
+                                     `-pos(=dicsiz+1)          <--->
+                                       matchpos(=pos)           maxmatch{256}
+                                       off(=0)
+
+                                     <------ remainder ------------>
+
+                                   |--- この位置に最初の  ---------|
+                                        データが読まれている
+----------------------------------------------------------------------------
+
+初期化部分の後半
+
+    for (h = hval; too_flag[h] && off < maxmatch - THRESHOLD; ) {
+        h = ((h << 5) ^ text[pos + (++off) + 2]) & (unsigned)(HSHSIZ - 1);
+    }
+    if (off == maxmatch - THRESHOLD) off = 0;
+
+h は、too_flag[] が今のところすべて0だから hval だ。(too_flag は、h つ
+まり hval をインデックスに取るらしい。hash[] と同じだ。再掲はしないが
+メモに書き加えておこう)
+
+off は、pos の位置からのオフセットのようだ(h を更新する for 文の中身か
+ら)。図もその位置に書いた。最後の if 文は off が上限に達した場合に0 に
+再初期化している。よくわからないので無視しよう。for 文の中身からh や 
+off の用途はどうも先読みしたハッシュ値とその先読みの位置なのではないか
+と想像する。too_flag[] の状態によって先読みすべき値が変わるのだろうか？
+
+とにかく処理の本題に入る事にしよう。まず、この関数に現れる局所変数を列
+挙しておこう
+
+    unsigned int scan_pos, scan_end, len;
+    unsigned char *a, *b;
+    unsigned int chain, off, h, max;
+
+とりあえず、off, h, max はすでに出て来たので残りは
+
+  scan_pos, scan_end, len, a, b, chain
+
+だ、これだけの変数の意味を解読しなくてはならない。変数は状態を表すから、
+その数が多いと言うのはそれだけ複雑な処理だということだ。めげる。
+
+この関数のメインとなるループの中をざっと眺めてみるさらに内部にループが
+ある。ひとまず、二重ループの中身を省略しよう。
+
+    for (;;) {
+        chain = 0;
+        scan_pos = hash[h];
+        scan_end = (pos > dicsiz) ? pos + off - dicsiz : off;
+
+        while (scan_pos > scan_end) {
+            chain++;
+            ... 略 ...
+        }
+
+        if (chain >= LIMIT)
+            too_flag[h] = 1;
+
+        if (matchlen > off + 2 || off == 0)
+            break;
+        max = off + 2;
+        off = 0;
+        h = hval;
+    }
+
+まず、前半部分から
+
+        chain = 0;
+        scan_pos = hash[h];
+        scan_end = (pos > dicsiz) ? pos + off - dicsiz : off;
+
+chain, scan_pos, scan_end はすべて while ループに渡されるべき変数だ。
+さらに、while の後には、scan_pos, scan_end は現れないから(仮に while 
+ループが1つの関数だったとすると)これらは while ループ部の引数(入力)だ。
+この2つの変数はどうやりくりしようとも、while ループ部内の状態しか表さ
+ないので、ここでは無視しよう。
+
+while ループの後を見てみると
+
+        if (chain >= LIMIT)
+            too_flag[h] = 1;
+
+        if (matchlen > off + 2 || off == 0)
+            break;
+        max = off + 2;
+        off = 0;
+        h = hval;
+
+chain が LIMITを越えた場合、too_flag[h] = 1 としている。chain は、ざっ
+と見て、while ループのカウンタらしいが、LIMIT は 0x100 だ。どうにも例
+外条件っぽい(LIMITという名前や数値がそう思わせる)のでここでは無視しよ
+う。while ループが 256以上回る可能性がある点だけ心にとどめておこう。
+
+次の条件では、matchlen と off が条件判断されている。ということはこのど
+ちらか、あるいは両方は while ループの返り値(出力)だ。ざっと 
+match_insert()全体を見てみると off は最初とこの直後でしか更新されない
+らしい。つまり、while ループ部の返り値はmatchlen の方だ。
+この条件は for () ループの脱出条件でもある。心にとどめて、次に進む。
+
+        max = off + 2;
+        off = 0;
+        h = hval;
+
+ふむ。よくわからない。しかし注目すべき点はある。off はここで、0 になる
+がこれ以降は off の値は変わらない。つまり、off は最初は何らかの値で 
+while ループ部に渡されるが、その次からは、0 だ。この for ループが何度
+回ろうとも 0 だ。h も同じで最初は何らかの値を持つが、2回目のループ以降、
+h は hval だ。max は、off を 0 にする直前に更新しているから、h や off 
+と事なり、3つの状態を持つ、すなわち。maxmatch, off+2, 2 だ。
+
+いや、脱出条件を見てみると off == 0 なら break とある。つまり、この 
+for ループはどんなに頑張っても2回しか回らないらしい。やっぱり max も 2 
+つの状態しか持たないようだ。
+
+これで、1 回目、2回目に while ループ部に入る直前の状態が書ける。この関
+数 match_insert() は、while ループ部を1回か2回実行する処理と言うわけだ。
+
+ここで無視していた。while ループ部の入力となる scan_pos, scan_end
+もそれぞれどのような状態になるか書いておく
+
+----------------------------------------------------------------------------
+< 1回目 >
+   h = 何か
+   off = 何か
+   max = maxmatch
+
+   scan_pos = hash[h]
+   scan_end = pos + off - dicsiz  (あるいは、off)
+
+   matchlen = 2
+   matchpos = pos
+< 2回目 >
+   h = hval
+   off = 0
+   max = 前の off + 2
+
+   scan_pos = hash[hval]
+   scan_end = pos - dicsiz  (あるいは、0)
+
+   matchlen = ?
+   matchpos = ?
+----------------------------------------------------------------------------
+
+上記は一般化した場合だが、今回(初回)の場合、h や off の値は、hval であ
+り、0 だった。2回目ループのときの状態と同じである。2回のループの違いは 
+max の値がmatchpos であるか off+2 (すなわち2)であるかの違いしかないようだ。
+
+ここは、条件を少なくするためにこの場合だけにしぼって処理を考えよう。
+while ループの2回の呼び出しを行う際の状態は以下の通りに書き直せる。
+
+----------------------------------------------------------------------------
+< 1回目 >
+   h = hval
+   off = 0
+   max = maxmatch
+
+   scan_pos = hash[hval]
+   scan_end = pos - dicsiz  (あるいは、0)
+
+   matchlen = 2
+   matchpos = pos
+< 2回目 >
+   h = hval
+   off = 0
+   max = 2
+
+   scan_pos = hash[hval]
+   scan_end = pos - dicsiz  (あるいは、0)
+
+   matchlen = ?
+   matchpos = ?
+----------------------------------------------------------------------------
+
+うーん、まだ、すっきりしない。何がすっきりしないかというと scan_end の
+値だ。これが何を意味するのかがよくわからない。scan_pos は、わかるのか？
+というと、わかる。hash[hval]だから現在の文字列と同じ文字列の辞書上の位
+置だ。さらに、現時点では get_next() で、hval を更新してから insert() 
+を行っていないので、hash[hval] には何も入っていない。すなわち 0 だ。
+
+        scan_end = (pos > dicsiz) ? pos + off - dicsiz : off;
+
+を考えよう。off は、0 だから
+
+        scan_end = (pos > dicsiz) ? pos - dicsiz : 0;
+
+なわけだ。さらに、posは現時点で dicbit+1 であるから、1 だ。図に書こう。
+
+----------------------------------------------------------------------------
+                                
+                                dicsiz=2^dicbit               2*2^dicbit
+                                   v                           v   txtsiz
+       +-------------+-------------+-------------+-------------+---+
+  text |             |             |             |             |   |
+       +-------------+-------------+-------------+-------------+---+
+       ^ ^                           `-pos(=dicsiz+1)
+       | |
+       | scan_end はこの辺(1)
+       scan_pos はこの辺(0)
+
+   h = hval
+   off = 0
+   max = 2
+
+----------------------------------------------------------------------------
+
+ついに、text[] バッファの左半分に指しかかる。これが何なのかは現時点で
+は明確に書いてなかったが予想するとこの左半分はズバリ辞書だ。言い切って
+やろう。今まで辞書らしい(dicsizのサイズを持つ)バッファは hash[] や 
+prev[] があったが、hash[], prev[] の用途はもう明確である。辞書となり得
+るバッファはもうこの text[] しかないのだ。
+
+さらに、左半分に限らずこの text[] 全体が辞書であろうと予想する。これは
+ただの勘だが text[] は環状バッファなのではなかろうかと考えている。
+
+# 最初の方で prev[] が辞書だと予想したが間違った予想をしていたことにこ
+# の時点で気づいた。prev[] が辞書と同じサイズを持つ理由はまだよくわか
+# らない。
+
+この時点ではまだ scan_pos や scan_end の真の意味はわからない。off のこ
+とを無視しているから予想も立ちにくいが、ひとまず初期状態がどういったも
+のかはわかったのでこのまま、while ループ部を見てみたいと思う。
+
+        while (scan_pos > scan_end) {
+            chain++;
+
+            if (text[scan_pos + matchlen - off] == text[pos + matchlen]) {
+                {
+                    a = text + scan_pos - off;  b = text + pos;
+                    for (len = 0; len < max && *a++ == *b++; len++);
+                }
+
+                if (len > matchlen) {
+                    matchpos = scan_pos - off;
+                    if ((matchlen = len) == max) {
+                        break;
+                    }
+                }
+            }
+            scan_pos = prev[scan_pos & (dicsiz - 1)];
+        }
+
+まず、if 文の条件を満たさない場合だけを考える。
+
+        while (scan_pos > scan_end) {
+            chain++;
+
+            if (text[scan_pos + matchlen - off] == text[pos + matchlen]) {
+                ...
+            }
+            scan_pos = prev[scan_pos & (dicsiz - 1)];
+        }
+
+
+offは 0 なので、text[scan_pos + matchlen] != text[pos + matchlen] という条件の場合を想定するわけだが、
+
+text[scan_pos + matchlen]
+
+と
+
+text[pos + matchlen]
+
+を比べている
+
+text[scan_pos]  辞書上の文字列の*先頭*
+text[pos]       現在の文字列の*先頭*
+
+を比べないのは matchlen が前に予想した「最低限一致しなければならない長さ-1」
+だからであろう。現時点で、matchlen が 2 だから
+
+text[scan_pos + 0] == text[pos + 0]
+text[scan_pos + 1] == text[pos + 1]
+
+であったとしても、
+
+text[scan_pos + 2] != text[pos + 2]
+
+であれば、「最低限一致しなければならない長さ」という条件を満たさないの
+である。なので matchlen の位置から先に比較して無駄な比較をしないように
+している。後でちゃんとした比較の処理が出て来るだろう。このような処理は
+処理としては効率が良いのだが、ことソース理解と言う点では冗長である。わ
+かりにくいのだ。仕方ないのだけど。
+
+# matchlen の意味の予想はどうやら当たっているようだ。matchlen は最短一
+# 致長で、minmatchlen っと名付けても良さそうな変数だ。
+
+そして、比較に失敗したら scan_pos を更新する。
+
+            scan_pos = prev[scan_pos & (dicsiz - 1)];
+
+ハッシュのチェーンをたどっている、つまり次の候補を辞書から取り出してい
+るわけだ。ここまでで、while ループの処理内容の想像はついた。このループ
+は辞書から(最長)一致する文字列を探しているのだろう。
+
+順番が前後したが、while ループの脱出条件を見てみる
+
+        while (scan_pos > scan_end) {
+
+これはどういうことだろう？ scan_pos は、ハッシュのチェーンをたどって同
+じハッシュ値を持つ文字列の位置を探す、この値はだんだんと小さくなって行
+くものなのだろうか？
+その通りである。hash[] への格納はファイルから取って来た文字列を順に格
+納して行くのでチェーンの奥には、より前の方の位置が書かれているはずだ。
+逆にチェーンの浅い部分にはより現在位置に近い、位置が書かれているのだろ
+う。では、その境界 scan_end はどうやってわかるのだろうか？これは後でま
+た検証しよう。
+
+では、処理の本質 if 文の中を見る事にしよう
+
+            if (text[scan_pos + matchlen - off] == text[pos + matchlen]) {
+                {
+                    a = text + scan_pos - off;  b = text + pos;
+                    for (len = 0; len < max && *a++ == *b++; len++);
+                }
+
+                if (len > matchlen) {
+                    matchpos = scan_pos - off;
+                    if ((matchlen = len) == max) {
+                        break;
+                    }
+                }
+            }
+
+最初の意味もなくブロックになっている部分を見る、
+
+                {
+                    a = text + scan_pos - off;  b = text + pos;
+                    for (len = 0; len < max && *a++ == *b++; len++);
+                }
+
+この処理では a, b といういかにも局所な名前の変数が使われている。これは、
+本当にこのブロック内にで局所的なもののようだ。ならば定義位置もこのブロッ
+ク内にして本当に局所的にして欲しかった。
+
+さらに、この処理は単に文字列 a, b を比較しているだけのようだ。memcmp() 
+ではまずいのかと言うとここで求めているものが「どこまで一致したか(len)」
+のようなので、memcmp() では役不足だ。仕方ないので関数をでっちあげて抽
+象化をはかろう。memcmp_ret_len()(我ながら変な名前だ)という関数があった
+とするとこの部分は
+        len = memcmp_ret_len(&text[scan_pos-off], &text[pos], max);
+
+っとなる。返り値は一致した文字列長だ。
+
+その次の処理、
+
+                if (len > matchlen) {
+                    matchpos = scan_pos - off;
+                    if ((matchlen = len) == max) {
+                        break;
+                    }
+                }
+
+で、matchlen (最低一致長)より大きい場合に条件を満たす。条件を満たさな
+ければ、scan_pos を更新する分けだが、この if の外側の if と同じ条件判
+断を行っている。外側の if は単に効率のための冗長な処理だったのは前にも
+書いたとおりだ。今更だが、外側の if はソース解析と言う点では無視しても
+良いものだった。さて、とにかくこの if 文を見てみよう。まず最短一致長の
+一致条件を満たした場合、matchpos と matchlen を更新する。
+
+matchpos はマッチした位置、
+matchlen はマッチした長さ
+
+で、matchlen が max なら最長一致長に達しているので、これ以上探索はしな
+い。matchlen は最短一致長でありながら、一致長でもある変数のようだ。
+(どうやら以前の2つの予想はどちらも当たっていた模様)
+
+とにかく while ループ部の出力は、この matchpos と matchlen のようだ。
+前に書いた通りこのループは「最長一致文字列を求める処理」だ。
+
+match_insert() の全体をもう一度見てみよう。ただし、以下の書き換えを行う。
+
+o while ループ部は search_dict(pos, scan_pos, scan_end, max) という関数
+  に置き換えたものとする。
+
+o 末尾の insert() と同等の処理を行っている部分も insert() の呼び出しに
+  すり替えよう。(match_insert() 関数の中で insert() 処理を本当に行うべ
+  きものなのかどうかが疑問だが)
+
+o chain という変数にかかわる処理も隠した(search_dict内で行う)
+
+static void match_insert()
+{
+    unsigned int off, h, max;
+
+    max = maxmatch; /* MAXMATCH; */
+    if (matchlen < THRESHOLD - 1) matchlen = THRESHOLD - 1;
+    matchpos = pos;
+
+    off = 0;
+    for (h = hval; too_flag[h] && off < maxmatch - THRESHOLD; ) {
+        h = ((h << 5) ^ text[pos + (++off) + 2]) & (unsigned)(HSHSIZ - 1);
+    }
+    if (off == maxmatch - THRESHOLD) off = 0;
+    for (;;) {
+        unsigned int scan_end;
+
+        scan_end = (pos > dicsiz) ? pos + off - dicsiz : off;
+
+        search_dict(pos, hash[h], scan_end, max);
+
+        if (matchlen > off + 2 || off == 0)
+            break;
+        max = off + 2;
+        off = 0;
+        h = hval;
+    }
+
+    insert();
+}
+
+だいぶすっきりした。まだ、off にかかわる部分がよく分からないが、ひとま
+ず良いだろう。この関数の解析はこれで終って良いだろうか。
+
+いや、良くない。肝心の match_insert() の出力がよくわからない。この関数
+は「最長一致文字列を探し、hash を更新する処理」(くどいようだが、hashを
+更新するは余計に思う)なのだろうが、最長一致文字列が見つからなかったと
+いうのはどう判断されるのだろう？
+
+まず、search_dict() で見つからなかった場合、matchlen, matchpos は更新
+されない。そして、おそらく 2 度目の for ループが行われるが、too_flag[] 
+というので、判断できそうな気もするがこれはむしろハッシュのチェーンをた
+どりすぎるのを止めるためのフラグであるように思える。
+
+2度目のループで、max の値が変わるのが鍵だろうか？。今回の場合、max は 
+256 から 2 になる。最長一致長として 2 が限界値になると、search_dict() 
+の動作は変わるだろうか？いや、やはり変わらない。どうにもこの関数だけで
+は見つかったか見つからなかったかという判断はできないようだ。
+
+気持悪いがやはりこの関数の解析を終え、次に移る事にしよう。
