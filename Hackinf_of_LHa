@@ -1946,7 +1946,7 @@ scan_beg, scan_end の範囲もわかりやすいし、hash[h] が NIL の場合の処理
 も明示的だ。この書き換えを行う場合、scan_beg が負の値になる可能性があ
 る。元もとの処理では scan_end 等の変数を unsigned にしているので、これ
 らを int にして while 条件で負の scan_beg をはじかなければならないこと
-に注意。そうすると、scan_beg != NIL は必要なくなるのだがわかりやすさを
+に注意。そうすると、scan_pos != NIL は必要なくなるのだがわかりやすさを
 追求した。
 
 これで match_insert() の解読は終りだ。match_insert() の処理とは以下の
@@ -2849,11 +2849,29 @@ heap[1] に来るようになる。この優先待ち行列はなかなか面白い(と私は思っ
 
 avail は最初 n (nparm)だった。freq[] は、文字の出現回数なので最初文字
 の種類数分(nparm)の要素しかないがハフマン木の節の出現回数(というか優先
-順位)を格納するために freq[] は、nparm * 2 の格納域が必要となることが
-わかる。
+順位)を格納するために freq[] は、nparm * 2 - 1 の格納域が必要となるこ
+とがわかる。(葉が n 個ある 2 分木には、節が n - 1 個ある)
 
-        freq[0 ... nparm]               文字(ハフマン木の葉)の優先順位
-        freq[nparm ... nparm * 2 - 1]   ハフマン木の節の優先順位
+----------------------------------------------------------------------------
+
+     +-----------------------+-----------------------+
+freq |                       |                       |
+     +-----------------------+-----------------------+
+     0                       nparm                   nparm * 2 - 1
+
+     |-----------------------|-----------------------|
+      文字(ハフマン木の葉)    ハフマン木の節の優先順位
+      の優先順位
+
+
+      例:
+                 .     ... freq[4]
+                / \
+               .   \   ... freq[3]
+              /\    \
+             a  b    c ... freq[0 .. 2]
+
+----------------------------------------------------------------------------
 
 ここまでで、出現回数の低い2つの要素を取り出しその出現回数の和を 
 freq[k] に設定することになる。出現回数の和は heap[] に再設定され、
@@ -2882,17 +2900,16 @@ downheap(1) で、優先待ち行列をまた再構築する。これは「葉を束ね節を作る」
 とすると、
 
     /* (E) */
-    sort = codeparm;
     do {
         left = delete_pqueue(heap);
         right = delete_pqueue(heap);
 
-        k = avail++;
-        freq[k] = freq[i] + freq[j];
+        node = avail++;
+        freq[node] = freq[left] + freq[right];
 
-        insert_pqueue(heap, freq[k]);
+        insert_pqueue(heap, freq[node]);
 
-        make_huff(&huff, k, left, right);
+        make_huff(&huff, node, left, right);
     } while (heapsize > 1);
 
 こんなところだろうか。元の処理ではヒープからの要素の取り出しと挿入で無
@@ -2902,10 +2919,22 @@ downheap(1) で、優先待ち行列をまた再構築する。これは「葉を束ね節を作る」
 これはちょっと考えさせられるところだ。
 
 ループを抜けた所で k (avail - 1) は、ハフマン木の根を表している。
-left[0:avail], right[0:avail] がハフマン木を示し、left[nparm...avail],
-right[nparm...avail] が節を示している。left[0...nparm],
-right[0...nparm] は使われないようだ。(テキストでは木構造を図示するのは
-きついのでやめておこう)
+left[0:avail], right[0:avail] でハフマン木を表し、そのうち
+left[nparm...avail], right[nparm...avail] が節の子を示している。
+left[0...nparm], right[0...nparm] は使われないようだ。
+
+----------------------------------------------------------------------------
+      例:
+                 . -- k (= avail-1)
+                / \
+   left[k] --  .   \ 
+              /\    \
+             a  b    c -- right[k]
+             |   \
+             |    right[left[k]]
+          left[left[k]]
+
+----------------------------------------------------------------------------
 
 これで、ハフマン木の構築は終りなのだが、ハフマン法の符号化ではハフマン
 木の葉から根に向かって木を辿る必要があるはずなのに、left[]、right[] の
@@ -3361,9 +3390,9 @@ a, b, c がそれぞれ以下のハフマン木で表現されたとする。
   c     2     2         4            2^14  10000000 00000000
   d     2     2         4            2^14  11000000 00000000
 
-だ。とにかく code[] (実際には codeparm) を利用することで表引きで文字に
+だ。以降、code[] (実際には codeparm) を利用することで表引きで文字に
 対応するハフマン符号を得ることができるようになっている(code[c]のうち上
-位len[c]ビットだけを見る)。符号化の際に木を辿る必要はなく、高速な符号
+位 len[c] ビットだけを見る)。符号化の際に木を辿る必要はなく、高速な符号
 化が可能になる(と期待される。どの程度効果があるかはいずれ検証してみた
 い。そういえば、葉から根に向かって木を辿るための情報が必要なかったこと
 もこれでわかった)。
@@ -3450,6 +3479,760 @@ lenparm[] の値はこの後の (D) で、この木を元に計算されている。
               n    /  \       .. len_cnt[14] = 0000000000000001
                  /\    /\      .. len_cnt[15] = 0000000000000000
                 o  p  q  r      .. len_cnt[16] = 0000000000000100
+
+文字から Huffman 符号が得られるようになったので、圧縮処理を行う道具は
+揃った。いよいよ Huffman 法による圧縮処理全般 (huf.c) を見ることにしよ
+う。
+
+まず huf.c で定義されているデータ構造から確認しよう。データ構造がわかっ
+てしまえばアルゴリズムの 90% はわかったも同然だ(誇張)。
+
+huf.c には以下の変数が定義されている。
+
+unsigned short  left[2 * NC - 1], right[2 * NC - 1];
+unsigned char   c_len[NC], pt_len[NPT];
+unsigned short  c_freq[2 * NC - 1], c_table[4096], c_code[NC], p_freq[2 * NP - 1],
+                pt_table[256], pt_code[NPT], t_freq[2 * NT - 1];
+
+static unsigned char *buf;
+static unsigned int bufsiz;
+static unsigned short blocksize;
+static unsigned short output_pos, output_mask;
+static          int   pbit;
+static          int   np;
+
+使用されている定数も確認する lha_macro.h だ。
+
+#define NP          (MAX_DICBIT + 1)
+#define NT          (USHRT_BIT + 3)
+#define PBIT        5       /* smallest integer such that (1 << PBIT) > * NP */
+#define TBIT        5       /* smallest integer such that (1 << TBIT) > * NT */
+#define NC          (UCHAR_MAX + MAXMATCH + 2 - THRESHOLD)
+/*      #if NT > NP #define NPT NT #else #define NPT NP #endif  */
+#define NPT         0x80
+#define CBIT                9   /* $\lfloor \log_2 NC \rfloor + 1$ */
+
+たくさんある。たくさんありすぎてくじけそうだが(事実、くじけた)、現時点
+でわかる変数もある。left[] や right[] は Huffman 木を構築するのに使用
+した変数だった。そこから NC は文字種の最大数であることがわかる。NC に 
+MAXMATCH{256} 等の値が使用されているのは謎だが、現時点では無視しておこ
+う。
+
+c_freq[] や c_len[], p_freq[], pt_len[] も make_tree() で出て来た変数
+名に似ている。おそらく make_tree() に渡す変数だろう。確認してみたとこ
+ろ huf.c から make_tree() の呼び出しを行っている部分を抜き出すと、
+
+    root = make_tree(NC, c_freq, c_len, c_code);
+    root = make_tree(NT, t_freq, pt_len, pt_code);
+    root = make_tree(np, p_freq, pt_len, pt_code);
+
+の 3 箇所が出て来た。つまり、
+
+   文字種の数  文字の出現回数   符号化した文字  文字に対応する
+                                の bit 長       Huffman 符号表
+   -----------------------------------------------------------
+     NC         c_freq          c_len           c_code
+     NT         t_freq          pt_len          pt_code
+     np         p_freq          pt_len          pt_code
+
+という関係のようだ。どうやら c_code、pt_code という 2 種類の
+Huffman 符号表を使用するらしい。
+
+その他の変数に関しても予想を立てたい所だが、もうくじけたので、処理内容
+から攻めることにした。
+
+slide 辞書法の解読で Huffman 法に関連した処理の呼び出しがいくつかあっ
+た。
+
+    /* initialize */
+    alloc_buf()
+
+    /* encoder */
+    encode_set.encode_start()
+    encode_set.output(c, off)
+    encode_set.encode_end()
+
+    /* decoder */
+    decode_set.decode_start()
+    decode_set.decode_c()
+    decode_set.decode_p()
+
+以上だ。lh4, 5, 6, 7 では、上記のそれぞれは、huf.c の以下の関数の呼び
+出しに対応している。これは、slide.c の冒頭部分で定義されている。
+
+    /* encoder */
+    encode_start() -> encode_start_st1()
+    output()       -> output_st1()
+    encode_end()   -> encode_end_st1()
+
+    /* decoder */
+    decode_start() -> decode_start_st1()
+    decode_c()     -> decode_c_st1()
+    decode_p()     -> decode_p_st1()
+
+このうちの圧縮処理にあたる部分 encode_start_st1(), output_st1(),
+encode_end_st1() を見ていこう。まずは、初期化処理である 
+encode_start_st1() から、
+
+void
+encode_start_st1( /* void */ )
+{
+    int             i;
+
+    if (dicbit <= 13) {
+        pbit = 4;   /* lh4,5 etc. */
+        np = 14;
+    } else {
+        pbit = 5;   /* lh6,7 */
+        if (dicbit == 16)
+            np = 17;
+        else
+            np = 16;
+    }
+
+    for (i = 0; i < NC; i++)
+        c_freq[i] = 0;
+    for (i = 0; i < np; i++)
+        p_freq[i] = 0;
+    output_pos = output_mask = 0;
+    init_putbits();
+    buf[0] = 0;
+}
+
+dicbit (これは辞書の bit サイズだった)によって、np, pbit の値が変わる。
+dicbit の違いというのは LHa の encoding メソッドの違いだ。それぞれ以下
+の対応になる。
+
+    method  dicbit  np  pbit
+   --------------------------
+    -lh4-   12      14  4
+    -lh5-   13      14  4
+    -lh6-   15      16  5
+    -lh7-   16      17  5
+
+np というのは、先程 make_tree() を呼び出している箇所の洗い出しで見かけ
+た変数だった。まだ、この関連はよくわからない。
+
+処理の後半では、文字の出現頻度を表す c_freq[]、p_freq[] の初期化を
+行っている。さらに
+
+    output_pos
+    output_mask
+    buf[]
+
+という初出の変数も 0 に初期化している。(buf は、buf[0] のみ初期化して
+いる) init_putbits() の呼び出しは bit 出力ルーチンの初期化処理だった。
+以降、putbits(), putcode() を使用できる。
+
+次に output_st1(c, p) を見る。slide.c でこの関数は以下のように使用され
+ていた。
+
+        output_st1(c, 0)        文字 c を出力
+        output_st1(len, off)    <len, off> のペアを出力
+
+このことを踏まえた上で、処理内容を見てみよう。
+
+void
+output_st1(c, p)
+    unsigned short  c;
+    unsigned short  p;
+{
+    static unsigned short cpos;
+
+    /* (A) */
+    output_mask >>= 1;
+    if (output_mask == 0) {
+        output_mask = 1 << (CHAR_BIT - 1);
+        if (output_pos >= bufsiz - 3 * CHAR_BIT) {
+            send_block();
+            if (unpackable)
+                return;
+            output_pos = 0;
+        }
+        cpos = output_pos++;
+        buf[cpos] = 0;
+    }
+    /* (B) */
+    buf[output_pos++] = (unsigned char) c;
+    c_freq[c]++;
+    /* (C) */
+    if (c >= (1 << CHAR_BIT)) {
+        buf[cpos] |= output_mask;
+        buf[output_pos++] = (unsigned char) (p >> CHAR_BIT);
+        buf[output_pos++] = (unsigned char) p;
+        c = 0;
+        while (p) {
+            p >>= 1;
+            c++;
+        }
+        p_freq[c]++;
+    }
+}
+
+(A) は、output_mask の値に応じて処理を行うようだ。初期化で output_mask 
+は 0 だから (A) の処理は最初から実行されるが、ひとまず無視しよう。
+
+(B) は、buf に引数で渡された文字 c を格納し、c_freq[c] の値(文字の出現
+頻度)を足している。どうやら基本は渡された文字 c を延々と buf に格納し、
+後で、(おそらく (A) だろう)圧縮を行うようになっているようだ。
+
+この buf のサイズはと言うと、これは alloc_buf() で割り当てられていた。
+
+unsigned char  *
+alloc_buf( /* void */ )
+{
+    bufsiz = 16 * 1024 *2;  /* 65408U; */ /* t.okamoto */
+    while ((buf = (unsigned char *) malloc(bufsiz)) == NULL) {
+        bufsiz = (bufsiz / 10) * 9;
+        if (bufsiz < 4 * 1024)
+            break;
+    }
+    return buf;
+}
+
+bufsiz が buf のサイズらしい。これはできるだけ大きく取るようにしている
+が、大きく取れなければそれはそれで良いようだ。
+
+さらに、(C) の処理を行うかどうかは、c >= (1 << CHAR_BIT) という条件で
+判断されている。この条件が真となる場合は何かと言うと c が「長さ」を表
+す場合だ。このとき引数 p で「位置」が渡されているのでこれも buf にセッ
+トしている。その具体的内容はというと、何やら cpos というこの関数内で 
+static な変数が使用されている。よくわからないが文字 c や <len,off> の
+ペアは、buf 上で以下のように表されるらしい。
+
+----------------------------------------------------------------------------
+
+output_st1(c1, 0)
+output_st1(c2, 0)
+output_st1(len, off)
+
+と呼び出した場合の buf の状態
+
+    +-----+-----+-----+-----+-----+
+buf | c1  | c2  | len |    off    |
+    +-----+-----+-----+-----+-----+
+
+----------------------------------------------------------------------------
+
+(C) の処理の最後の部分
+
+        c = 0;
+        while (p) {
+            p >>= 1;
+            c++;
+        }
+        p_freq[c]++;
+
+は、出現頻度 p_freq[] を求める処理だが、p_freq は、off 値の出現頻度を
+表しているらしい。ここでの c は、p (off) の bit 長になっている。off の
+値は大きい(辞書サイズだから最大(lh7)で、64KB)ので、代わりに bit 長を利
+用しているといったところか。そういえば、「長さ」はそのまま c_freq[] で
+頻度が計上されていた。NC の値が
+
+#define NC          (UCHAR_MAX + MAXMATCH + 2 - THRESHOLD)
+
+なのは、そういうことだ。
+
+ここまでで、圧縮を行う処理は現われなかった。やはり (A) の部分が圧縮処
+理だ。
+
+    /* (A) */
+    output_mask >>= 1;
+    if (output_mask == 0) {
+        output_mask = 1 << (CHAR_BIT - 1);
+        if (output_pos >= bufsiz - 3 * CHAR_BIT) {
+            send_block();
+            if (unpackable)
+                return;
+            output_pos = 0;
+        }
+        cpos = output_pos++;
+        buf[cpos] = 0;
+    }
+
+最初、output_mask は、0 なので if 条件を満たす。そして、output_mask は、
+(1 << (CHAR_BIT - 1)) つまり、128 になる。(A) の冒頭で、>>= 1 している
+ので、output_mask は、128, 64, 32, ..., 1, 128 という値を取るらしい。そ
+して、本当の初期値は 128 だ。
+
+次の条件
+
+  output_pos >= bufsiz - 3 * CHAR_BIT
+
+というのは、buf が bufsiz - 24 よりも大きくなったときの値だ。ひとまず
+無視しよう。そして、cpos = output_pos++ として、buf[cpos] = 0 にセット
+されている。どうやら、先にこちらを見るべきだったようだ。cpos の値
+と output_pos++ が (A) で行われていることを踏まえてもう一度 (B)、(C)
+の処理を見ると、buf は以下のように使用されているらしい。
+
+----------------------------------------------------------------------------
+
+output_st1(c1, 0)
+output_st1(c2, 0)
+output_st1(len, off)
+
+と呼び出した場合の buf の状態
+
+
+    +-----+-----+-----+-----+-----+-----+--
+buf |  32 | c1  | c2  | len |    off    |  ...
+    +-----+-----+-----+-----+-----+-----+--
+   cpos                                output_pos
+
+----------------------------------------------------------------------------
+
+<len, off> のペアを出力するとき buf[cpos] には以下のような値が設定され
+ていたことも図に書いてある。
+
+        buf[cpos] |= output_mask;
+
+もう少し注意深くこのあたりを考えよう。output_mask は、この関数が呼ばれ
+るたびに 128, 64, 32, ..., 1, 128, 64, ... という値になる。そして、buf 
+は、呼ばれるたびに c (1バイト)、あるいは <len, off> (3バイト)の値が設
+定されるが、output_mask が 128 になったときは、余分に 1 バイト空きがで
+きる(これは、buf[cpos]で示される)。この空きには <len,off> が設定される
+たびにその時点の output_mask 値が設定されるようだ。(A) が呼ばれるとき
+と言うのは、一番最初の output_mask = 0 の場合を除けば、
+
+----------------------------------------------------------------------------
+
+output_mask        128   64    32                16    8     4     2     1
+            +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+buf         |  32 | c1  | c2  | len |    off    |  c3 |  c4 |  c5 |  c6 |  c7 |
+            +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+            cpos                                                             /
+                                                                            /
+                                                                   output_pos
+
+----------------------------------------------------------------------------
+
+このような状態になったときということだ。さらに、buf[cpos] には、
+<len,off> が格納されている位置を表している。この状態を 1 ブロックとし
+てこのブロック単位に情報が buf に格納され、buf がいっぱいになったら 
+(A) の処理の無視したif 文の中身で
+
+        if (output_pos >= bufsiz - 3 * CHAR_BIT) {
+            send_block();
+            if (unpackable)
+                return;
+            output_pos = 0;
+        }
+
+のように send_block() が呼ばれるようになっているようだ。この if の条件
+で、3 * CHAR_BIT というのは <len, off> の格納バイト数を示している。
+
+output_pos = 0 としていることからこの時点の buf の中身がすべて 
+send_block() で圧縮されファイルに出力されるだろうことが想像できる。
+
+この 1 ブロックに満たない状態でファイルの終りが来た場合、後処理 
+encode_end_st1() で send_block() が呼ばれるであろうことも想像できる。
+
+encode_end_st1( /* void */ )
+{
+    if (!unpackable) {
+        send_block();
+        putbits(CHAR_BIT - 1, 0);   /* flush remaining bits */
+    }
+}
+
+思った通りである。putbits(7, 0) というは、bitbuf に残った bit を吐き出す
+ためであることは、bit 入出力ルーチンの解読で確認済みだ。
+
+そういうわけで、send_block() が圧縮のメインルーチンである。
+send_block() の入力とは先に示した図の状態の buf だ。huf.c:send_block() 
+を見てみよう。
+
+static void
+send_block( /* void */ )
+{
+    unsigned char   flags;
+    unsigned short  i, k, root, pos, size;
+
+    /* (A) */
+    root = make_tree(NC, c_freq, c_len, c_code);
+    size = c_freq[root];
+    putbits(16, size);
+    /* (B) */
+    if (root >= NC) {
+        count_t_freq();
+        root = make_tree(NT, t_freq, pt_len, pt_code);
+        if (root >= NT) {
+            write_pt_len(NT, TBIT, 3);
+        } else {
+            putbits(TBIT, 0);
+            putbits(TBIT, root);
+        }
+        write_c_len();
+    } else {
+        putbits(TBIT, 0);
+        putbits(TBIT, 0);
+        putbits(CBIT, 0);
+        putbits(CBIT, root);
+    }
+    /* (C) */
+    root = make_tree(np, p_freq, pt_len, pt_code);
+    if (root >= np) {
+        write_pt_len(np, pbit, -1);
+    }
+    else {
+        putbits(pbit, 0);
+        putbits(pbit, root);
+    }
+    /* (D) */
+    pos = 0;
+    for (i = 0; i < size; i++) {
+        if (i % CHAR_BIT == 0)
+            flags = buf[pos++];
+        else
+            flags <<= 1;
+        if (flags & (1 << (CHAR_BIT - 1))) {
+            encode_c(buf[pos++] + (1 << CHAR_BIT));
+            k = buf[pos++] << CHAR_BIT;
+            k += buf[pos++];
+            encode_p(k);
+        } else
+            encode_c(buf[pos++]);
+        if (unpackable)
+            return;
+    }
+    /* (E) */
+    for (i = 0; i < NC; i++)
+        c_freq[i] = 0;
+    for (i = 0; i < np; i++)
+        p_freq[i] = 0;
+}
+
+なかなか大きな関数であるが、それほど難しいことはない。まず、(A)
+
+    /* (A) */
+    root = make_tree(NC, c_freq, c_len, c_code);
+    size = c_freq[root];
+    putbits(16, size);
+
+make_tree() で Huffman 表 c_len[], c_code[] を構築する。戻り値の root 
+は、Huffman 木の根を示し、c_freq[root] は、文字の出現回数の総和である
+から、size は、平文の総バイト数だ(size に <off> の分のサイズは含まれな
+い。c_freq[] が、<off> の出現頻度を数えなかったから)。ファイルには、こ
+の size がまず書き出されている(そういえば、この bit 入出力ルーチンを使
+用するとバイトオーダーに関して考慮する必要がなくなる)。
+
+----------------------------------------------------------------------------
+
+      16bit  
+   |---------|
+   +----+----+
+   |  size   |
+   +----+----+
+
+----------------------------------------------------------------------------
+
+続いて、(B)
+
+    if (root >= NC) {
+        count_t_freq();
+        root = make_tree(NT, t_freq, pt_len, pt_code);
+        if (root >= NT) {
+            write_pt_len(NT, TBIT, 3);
+        } else {
+            putbits(TBIT, 0);
+            putbits(TBIT, root);
+        }
+        write_c_len();
+    } else {
+        putbits(TBIT, 0);
+        putbits(TBIT, 0);
+        putbits(CBIT, 0);
+        putbits(CBIT, root);
+    }
+
+root が NC よりも大きい場合を判断しているが、ハフマン木の根は必ず NC よ
+りも大きい(make_tree() の avail の初期値を確認しよう)。では、この
+条件を満たさない場合と言うのは何かと言うと、同じく make_tree() を確認すると、
+
+    if (heapsize < 2) {
+        codeparm[heap[1]] = 0;
+        return heap[1];
+    }
+
+という例外条件があった。これは、圧縮する文字がない、あるいは1種類しか
+ない場合の処理だ。圧縮する文字がない場合に send_block() が呼ばれること
+はないだろうから、(B) の処理の else は 1 ブロック中に圧縮する文字が 1 
+種類しかない場合の処理である(この 1 種類の文字とは、make_tree() の戻り
+値 root だ)。このとき以下のような出力になる。(TBIT{5}, CBIT{9} である)
+
+----------------------------------------------------------------------------
+      5bit
+   5bit   9bit 9bit
+   |--|--|----|----|
+   +--+--+----+----+
+   | 0| 0|   0|root|
+   +--+--+----+----+
+
+----------------------------------------------------------------------------
+
+これが、1ブロックに1種類しか文字がない場合のファイルの状態だ(offの情報
+はまだ含まない)。(B)の if が真のときがどうなるかは複雑そうなので後で見
+ることにしよう。
+
+続いて (C)
+
+    root = make_tree(np, p_freq, pt_len, pt_code);
+    if (root >= np) {
+        write_pt_len(np, pbit, -1);
+    }
+    else {
+        putbits(pbit, 0);
+        putbits(pbit, root);
+    }
+
+p_freq[] を見ていることから今度は <off> の情報の Huffman 木を構築して
+いることがわかる。先程と同様に、<off> の値がすべて同じ場合は、else の
+条件になり、以下の出力が行われる。(np の値は、-lh7- の場合で、17 だ)
+
+----------------------------------------------------------------------------
+              
+      np bit    np bit              method  np
+   |---------|---------|            ----------
+   +----+----+---------+            -lh4-   14
+   |     0   |  root   |            -lh5-   14
+   +----+----+---------+            -lh6-   16
+                                    -lh7-   17
+
+----------------------------------------------------------------------------
+
+ここまでに出力した情報が何を示すかわかるだろうか？Huffman 法の符号化処
+理は文字を bit 列に変換する。これを復号する場合は bit 列に対応する文字
+を知る必要がある。すなわち Huffman 木である(実際には Huffman 表)。図示
+したのは、Huffman 木を構築する必要がない(構築できない)場合の情報になる
+が、現在解読を飛ばしている処理は Huffman 表をファイルに出力している箇
+所であることは容易に想像がつく。ということは残りの (D) が本当の圧縮文
+を出力する箇所だ。
+
+    /* (D) */
+    pos = 0;
+    for (i = 0; i < size; i++) {
+        if (i % CHAR_BIT == 0)
+            flags = buf[pos++];
+        else
+            flags <<= 1;
+        if (flags & (1 << (CHAR_BIT - 1))) {
+            encode_c(buf[pos++] + (1 << CHAR_BIT));
+            k = buf[pos++] << CHAR_BIT;
+            k += buf[pos++];
+            encode_p(k);
+        } else
+            encode_c(buf[pos++]);
+        if (unpackable)
+            return;
+    }
+
+size 数分ループしている。size は、<off> を除いた buf の文字数を示して
+いると前に書いたが、どうやら <len, off> を 1 文字と数えたときの buf の
+文字数を示していると考えた方が良さそうだ。
+
+最初の if で、
+
+        if (i % CHAR_BIT == 0)
+            flags = buf[pos++];
+        else
+            flags <<= 1;
+
+これが真になる条件は buf[pos] が buf[cpos] である場合だ(output_mask が 
+128, 64, ..., 1 と 8 つの値を巡回していたことを思い出そう)。
+flags は、<len, off> の buf 上の位置を示す bit マスクになる。
+
+        if (flags & (1 << (CHAR_BIT - 1))) {
+            encode_c(buf[pos++] + (1 << CHAR_BIT));
+            k = buf[pos++] << CHAR_BIT;
+            k += buf[pos++];
+            encode_p(k);
+        } else
+            encode_c(buf[pos++]);
+
+flags が、127 であるとき buf[pos] は、<len, off> を指し、
+
+  encode_c(len + 256)
+  encode_p(off)
+
+で、圧縮を行うようだ。len に 256 を足しているのは、buf[] に len を格納
+するとき(output_st1() の (B) の処理)に
+
+    buf[output_pos++] = (unsigned char) c;
+
+のように最上位 bit を捨てていたからだ。len は常に 256 以上なので、256 
+を足すことで元の len の値を圧縮ルーチンに渡している。
+
+通常の文字は
+
+  encode_c(buf[pos])
+
+で圧縮されている。encode_c() の処理内容は簡単なので見てみよう。
+
+static void
+encode_c(c)
+    short           c;
+{
+    putcode(c_len[c], c_code[c]);
+}
+
+c_len[], c_code[] が文字 c に対応する Huffman 符号の bit 長と符号を示
+しているので、それをそのまま出力している。簡単だ。
+
+encode_p() はもう少し複雑だ。
+
+static void
+encode_p(p)
+    unsigned short  p;
+{
+    unsigned short  c, q;
+
+    c = 0;
+    q = p;
+    while (q) {
+        q >>= 1;
+        c++;
+    }
+    putcode(pt_len[c], pt_code[c]);
+    if (c > 1)
+        putbits(c - 1, p);
+}
+
+最初の while 文で、<off> の bit 長を求め、その bit 長の情報を
+Huffman 符号化している。その後、putbits() で、必要 bit 数だけ
+出力する。つまり、<off> は以下のように符号化される。
+
+----------------------------------------------------------------------------
+off = 64 の圧縮
+
+     |---- 16 bit -------|
+     +----+----+----+----+
+off  |0000 0000 0100 0000|
+     +----+----+----+----+
+                 |-7 bit-|
+
+この圧縮文は以下(長さが 7 bit であるという情報(Huffman符号化)と値のペア)
+
+                       |-6 bit-|
+     +-----------------+-------+
+     | 7 のHuffman符号 |00 0000|
+     +-----------------+-------+
+
+----------------------------------------------------------------------------
+
+ここで、値を 6 bit しか出力しない(putbits() で c-1 を渡している)のは、
+7 bit 目が 1 であることが自明だからである。常に off != 0 だから、書き
+出す情報を 1 bit 削減できるわけだ。したがって、off=1 のときは bit 長が 
+1 という情報しか書き出さない。
+
+最後の (E) は頻度表をクリアしているだけだ。
+
+    /* (E) */
+    for (i = 0; i < NC; i++)
+        c_freq[i] = 0;
+    for (i = 0; i < np; i++)
+        p_freq[i] = 0;
+
+以上で、圧縮処理全体の概要がわかった。後は無視していた Huffman 表を出
+力する箇所だけだ。
+
+    /* (B) */
+    if (root >= NC) {
+        count_t_freq();
+        root = make_tree(NT, t_freq, pt_len, pt_code);
+        if (root >= NT) {
+            write_pt_len(NT, TBIT, 3);
+        } else {
+            putbits(TBIT, 0);
+            putbits(TBIT, root);
+        }
+        write_c_len();
+
+ここでは、c_len[], c_code[] という Huffman 表を出力するだけのはずだが、
+さらに Huffman 表 pt_len[], pt_code[] の構築を行っている。これは、
+<off> の bit 長の Huffman 符号表でもあった変数だが、単に変数を使い回し
+ているだけだ。ここでの pt_len[], pt_code[] が何の符号表かは、
+count_t_freq() を見る必要がある。
+
+static void
+count_t_freq(/*void*/)
+{
+    short           i, k, n, count;
+
+    for (i = 0; i < NT; i++)
+        t_freq[i] = 0;
+    n = NC;
+    while (n > 0 && c_len[n - 1] == 0)
+        n--;
+    i = 0;
+    while (i < n) {
+        k = c_len[i++];
+        if (k == 0) {
+            count = 1;
+            while (i < n && c_len[i] == 0) {
+                i++;
+                count++;
+            }
+            if (count <= 2)
+                t_freq[0] += count;
+            else if (count <= 18)
+                t_freq[1]++;
+            else if (count == 19) {
+                t_freq[0]++;
+                t_freq[1]++;
+            }
+            else
+                t_freq[2]++;
+        } else
+            t_freq[k + 2]++;
+    }
+}
+
+最初に頻度表 t_freq[] を初期化する。続いて、
+
+    n = NC;
+    while (n > 0 && c_len[n - 1] == 0)
+        n--;
+
+で、c_len[n] != 0 である最大の n を求めている。
+
+    i = 0;
+    while (i < n) {
+        k = c_len[i++];
+        if (k == 0) {
+            count = 1;
+            while (i < n && c_len[i] == 0) {
+                i++;
+                count++;
+            }
+            if (count <= 2)
+                t_freq[0] += count;
+            else if (count <= 18)
+                t_freq[1]++;
+            else if (count == 19) {
+                t_freq[0]++;
+                t_freq[1]++;
+            }
+            else
+                t_freq[2]++;
+        } else
+            t_freq[k + 2]++;
+    }
+
+c_len[i] は、文字 i の Huffman 符号での bit 長であった。この
+c_len[i] の値を以下の場合分けで t_freq[] に頻度計算している。
+count は、c_len[i] が連続で何回 0 であるかの数だ。
+
+  c_len[i]    count     t_freq[]
+  -------------------------------------------
+     0        0 .. 2    t_freq[0] += count
+     0        3 ..18    t_freq[1]++
+     0        19        t_freq[0]++, t_freq[1]++
+     0        20以上    t_freq[2]++
+   0以外                t_freq[c_len[i]+2]++;
+
+これがどういう理屈であるかはよくわからないが、とにかく頻度計算を
+行う場合に t_freq[0], t_freq[1], t_freq[2] を特別扱いしている。
+
 
 # Local Variables:
 # mode : indented-text
