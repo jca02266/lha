@@ -14,7 +14,7 @@
 	* src/lharc.c (parse_option): added new command line options,
 	--system-kanji-code=xxx and --archive-kanji-code=xxx (experimental).
 
-	* 00readme.autoconf (Repository): described above features.
+	* 00readme.autoconf: described above features.
 
 2003-03-22  Koji Arai  <jca02266@nifty.ne.jp>
 
