@@ -251,6 +251,7 @@ extract_one(afp, hdr)
 			if (methods[method] == NULL) {
                 error("Unknown method \"%.*s\"; \"%s\" will be skiped ...",
                       5, hdr->method, name);
+				return;
 			}
 			if (bcmp(hdr->method, methods[method], 5) == 0)
 				break;
