@@ -1,3 +1,10 @@
+2003-07-13  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lhlist.c (print_size): use "%7lu" format string instead of
+	"%7ld" for large files.
+
+	* src/slide.c: refined.
+
 2003-07-11  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lharc.c (cleaning_files): should print errno.
