@@ -357,12 +357,6 @@ EXTERN unsigned short c_freq[], c_table[], c_code[];
 EXTERN unsigned short p_freq[], pt_table[], pt_code[], t_freq[];
 #endif
 
-/* append.c */
-#ifdef NEED_INCREMENTAL_INDICATOR
-EXTERN size_t   indicator_count;
-EXTERN long     indicator_threshold;
-#endif
-
 /* bitio.c */
 EXTERN FILE     *infile, *outfile;
 EXTERN unsigned short bitbuf;

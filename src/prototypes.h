@@ -7,10 +7,6 @@
 
 /* append.c */
 int encode_lzhuf P_((FILE *infp, FILE *outfp, size_t size, size_t *original_size_var, size_t *packed_size_var, char *name, char *hdr_method));
-void start_indicator P_((char *name, size_t size, char *msg, long def_indicator_threshold));
-void put_indicator P_((long int count));
-void finish_indicator2 P_((char *name, char *msg, int pcnt));
-void finish_indicator P_((char *name, char *msg));
 /* bitio.c */
 void fillbuf P_((int n));
 unsigned short getbits P_((int n));
@@ -56,6 +52,11 @@ void encode_end_st1 P_((void));
 unsigned short decode_c_st1 P_((void));
 unsigned short decode_p_st1 P_((void));
 void decode_start_st1 P_((void));
+/* indicator.c */
+void start_indicator P_((char *name, size_t size, char *msg, long def_indicator_threshold));
+void put_indicator P_((long int count));
+void finish_indicator2 P_((char *name, char *msg, int pcnt));
+void finish_indicator P_((char *name, char *msg));
 /* larc.c */
 unsigned short decode_c_lzs P_((void));
 unsigned short decode_p_lzs P_((void));
