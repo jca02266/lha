@@ -15,18 +15,17 @@
  */
 #include <errno.h>
 
-/* ------------------------------------------------------------------------ */
 long
 copyfile(f1, f2, size, text_flg, crcp)  /* return: size of source file */
-    FILE           *f1;
-    FILE           *f2;
-    long            size;
+    FILE *f1;
+    FILE *f2;
+    long size;
     int text_flg;               /* 0: binary, 1: read text, 2: write text */
     unsigned int *crcp;
 {
     unsigned short  xsize;
-    char           *buf;
-    long            rsize = 0;
+    char *buf;
+    long rsize = 0;
 
     if (!text_mode)
         text_flg = 0;
@@ -79,15 +78,14 @@ copyfile(f1, f2, size, text_flg, crcp)  /* return: size of source file */
     return rsize;
 }
 
-/* ------------------------------------------------------------------------ */
 int
 encode_stored_crc(ifp, ofp, size, original_size_var, write_size_var)
-    FILE           *ifp, *ofp;
-    long            size;
-    long           *original_size_var;
-    long           *write_size_var;
+    FILE *ifp, *ofp;
+    long size;
+    long *original_size_var;
+    long *write_size_var;
 {
-    int             save_quiet;
+    int save_quiet;
     unsigned int crc;
 
     save_quiet = quiet;
@@ -98,32 +96,34 @@ encode_stored_crc(ifp, ofp, size, original_size_var, write_size_var)
     return crc;
 }
 
-/* ------------------------------------------------------------------------ */
 /* If TRUE, archive file name is msdos SFX file name. */
 boolean
 archive_is_msdos_sfx1(name)
-    char           *name;
+    char *name;
 {
-    int             len = strlen(name);
+    int len = strlen(name);
 
-    return ((len >= 4) &&
-        (strucmp(".COM", name + len - 4) == 0 ||
-         strucmp(".EXE", name + len - 4) == 0)) ||
-        ((len >= 2) &&
-         (strucmp(".x", name + len - 2) == 0));
+    if (len >= 4) {
+        if (strcasecmp(".COM", name + len - 4) == 0 ||
+            strcasecmp(".EXE", name + len - 4) == 0)
+            return 1;
+    }
+
+    if (len >= 2 && strcasecmp(".x", name + len - 2) == 0)
+        return 1;
+
+    return 0;
 }
 
 /*
  * strdup(3)
  */
-
-/* ------------------------------------------------------------------------ */
 #ifndef HAVE_STRDUP
-char           *
+char *
 strdup(buf)
-    char           *buf;
+    char *buf;
 {
-    char           *p;
+    char *p;
 
     if ((p = (char *) malloc(strlen(buf) + 1)) == NULL)
         return NULL;
@@ -135,13 +135,11 @@ strdup(buf)
 /*
  * memmove( char *dst , char *src , size_t cnt )
  */
-
-/* ------------------------------------------------------------------------ */
 #ifndef HAVE_MEMMOVE
-void           *
+void *
 memmove(dst, src, cnt)
-    register char  *dst, *src;
-    register int    cnt;
+    register char *dst, *src;
+    register int cnt;
 {
     if (dst == src)
         return dst;
@@ -159,43 +157,34 @@ memmove(dst, src, cnt)
 }
 #endif
 
-/*
- * strucmp modified: Oct 29 1991 by Masaru Oki
- */
-
 #ifndef HAVE_STRCASECMP
-static int
-my_toupper(n)
-    register int    n;
-{
-    if (n >= 'a' && n <= 'z')
-        return n & (~('a' - 'A'));
-    return n;
-}
+/* public domain rewrite of strcasecmp(3) */
 
-/* ------------------------------------------------------------------------ */
+#include <ctype.h>
+
 int
-strucmp(s, t)
-    register char  *s, *t;
+strcasecmp(p1, p2)
+    const char *p1, *p2;
 {
-    while (my_toupper(*s++) == my_toupper(*t++))
-        if (!*s || !*t)
-            break;
-    if (!*s && !*t)
-        return 0;
-    return 1;
+    while (*p1 && *p2) {
+	if (toupper(*p1) != toupper(*p2))
+	    return toupper(*p1) - toupper(*p2);
+	p1++;
+	p2++;
+    }
+    return strlen(p1) - strlen(p2);
 }
 #endif
 
-/* ------------------------------------------------------------------------ */
 #ifndef HAVE_MEMSET
 /* Public Domain memset(3) */
-char           *
+char *
 memset(s, c, n)
-    char           *s;
-    int             c, n;
+    char *s;
+    int c, n;
 {
-    char           *p = s;
+    char *p = s;
+
     while (n--)
         *p++ = (char) c;
     return s;

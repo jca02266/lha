@@ -46,10 +46,6 @@ char *strchr (), *strrchr ();
 # endif
 #endif
 
-#if HAVE_STRCASECMP
-#define strucmp(p,q)    strcasecmp((p),(q))
-#endif
-
 #if STDC_HEADERS
 # include <stdlib.h>
 # include <stddef.h>

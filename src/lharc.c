@@ -1162,12 +1162,12 @@ open_old_archive()
     }
     p = strrchr(archive_name, '.');
     if (p) {
-        if (strucmp(".LZH", p) == 0
-            || strucmp(".LZS", p) == 0
-            || strucmp(".COM", p) == 0  /* DOS SFX */
-            || strucmp(".EXE", p) == 0
-            || strucmp(".X", p) == 0    /* HUMAN SFX */
-            || strucmp(".BAK", p) == 0) {   /* for BackUp */
+        if (strcasecmp(".LZH", p) == 0
+            || strcasecmp(".LZS", p) == 0
+            || strcasecmp(".COM", p) == 0  /* DOS SFX */
+            || strcasecmp(".EXE", p) == 0
+            || strcasecmp(".X", p) == 0    /* HUMAN SFX */
+            || strcasecmp(".BAK", p) == 0) {   /* for BackUp */
             open_old_archive_1(archive_name, &fp);
             return fp;
         }
