@@ -1,5 +1,9 @@
 2002-06-23  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test9: added tests for overriding files.
+
+	* tests/lha-test.in: added test9.
+
 	* src/lhext.c (cmd_extract): ftell(stdin) will return -1, so
 	re-fixed provisionaly.
 
