@@ -547,7 +547,9 @@ interrupt(signo)
 		unlink(writting_filename);
 	}
 	signal(SIGINT, SIG_DFL);
+#ifdef SIGHUP
 	signal(SIGHUP, SIG_DFL);
+#endif
 	kill(getpid(), signo);
 }
 

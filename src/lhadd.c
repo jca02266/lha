@@ -273,7 +273,9 @@ build_temporary_file()
 
 	build_temporary_name();
 	signal(SIGINT, interrupt);
+#ifdef SIGHUP
 	signal(SIGHUP, interrupt);
+#endif
 
 	old_umask = umask(077);
 	afp = xfopen(temporary_name, WRITE_BINARY);
@@ -292,12 +294,16 @@ build_backup_file()
 	build_backup_name(backup_archive_name, archive_name);
 	if (!noexec) {
 		signal(SIGINT, SIG_IGN);
+#ifdef SIGHUP
 		signal(SIGHUP, SIG_IGN);
+#endif
 		if (rename(archive_name, backup_archive_name) < 0)
 			fatal_error(archive_name);
 		recover_archive_when_interrupt = TRUE;
 		signal(SIGINT, interrupt);
+#ifdef SIGHUP
 		signal(SIGHUP, interrupt);
+#endif
 	}
 }
 

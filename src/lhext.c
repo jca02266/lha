@@ -105,17 +105,28 @@ make_parent_path(name)
 	if (verbose)
 		printf("Making directory \"%s\".\n", path);
 
+#if defined __MINGW32__
+    if (mkdir(path) >= 0)
+        return TRUE;
+#else
 	if (mkdir(path, 0777) >= 0)	/* try */
 		return TRUE;	/* successful done. */
+#endif
 	errno = 0;
 
 	if (!make_parent_path(path))
 		return FALSE;
 
+#if defined __MINGW32__
+    if (mkdir(path) < 0)
+		message("Cannot make directory", path);
+        return FALSE;
+#else
 	if (mkdir(path, 0777) < 0) {	/* try again */
 		message("Cannot make directory", path);
 		return FALSE;
 	}
+#endif
 
 	return TRUE;
 }
@@ -293,7 +304,9 @@ extract_one(afp, hdr)
 			}
 
 			signal(SIGINT, interrupt);
+#ifdef SIGHUP
 			signal(SIGHUP, interrupt);
+#endif
 
 			unlink(name);
 			errno = 0;
@@ -306,8 +319,9 @@ extract_one(afp, hdr)
 			}
 			remove_extracting_file_when_interrupt = FALSE;
 			signal(SIGINT, SIG_DFL);
+#ifdef SIGHUP
 			signal(SIGHUP, SIG_DFL);
-
+#endif
 			if (!fp)
 				return;
 		}
