@@ -1,3 +1,13 @@
+2002-06-18  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* config.h.in: Changed meaning of the value of the `MULTIBYTE_FILENAME'.
+
+	* src/header.c: Remove preprocess codes for kanji code decision.
+
+	* configure.ac: When --enable-multibyte-filename[=auto] is specifi%d,
+	decide kanji code for filename automatically.
+	Otherwise, euc or sjis is specified, it is EUC-JP or Shift_JIS.
+
 2002-06-17  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.in, configure.ac: updated version.
