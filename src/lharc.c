@@ -862,7 +862,7 @@ find_files(name, v_filec, v_filev)
 		newname[len + n] = '\0';
 		if (GETSTAT(newname, &fil_stbuf) < 0)
 			continue;
-#ifndef HAVE_ST_INO
+#if !defined(HAVE_ST_INO) || __MINGW32__
 		if ( dp->d_name[0] != '.' ||
 			(n != 1 &&
 			 (dp->d_name[1] != '.' ||
