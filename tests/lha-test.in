@@ -105,7 +105,7 @@ test -f test-1/test-c
 . $srcdir/lha-test7; cleanup
 . $srcdir/lha-test8; cleanup
 case `$lha --version 2>&1` in
-*pc-cygwin*|*pc-mingw*)
+*-pc-cygwin*|*-pc-mingw*)
     message testing extracting to existent files ... skip;;
 *)
 #    . $srcdir/lha-test9; cleanup
@@ -115,7 +115,14 @@ esac
 . $srcdir/lha-test11; cleanup
 . $srcdir/lha-test12; cleanup
 . $srcdir/lha-test13; cleanup
-. $srcdir/lha-test14; cleanup
+case `$lha --version 2>&1` in
+*-pc-mingw*)
+  message testing the symbolic links ... skip
+  ;;
+*)
+  . $srcdir/lha-test14; cleanup
+  ;;
+esac
 
 if (( $error_num != 0 )); then
   echo $error_num tests failed! >&2

@@ -28,6 +28,11 @@ test ! -e test-tmp-1/test-tmp-c
 							check $? $LINENO
 
 # symbolic link filename contains '|'
+case `$lha --version 2>&1` in
+*-pc-cygwin*|*-pc-mingw*)
+    #  On MS Windows, '|' is invalid character as filename.
+    ;;
+*)
 ln -s test-a test-tmp-\|foo
 							check $? $LINENO
 $lha c test-tmp-2.lzh test-tmp-\|foo 2> test-tmp-stderr
@@ -66,3 +71,5 @@ test -s test-tmp-stderr
 test -L test-tmp-3/test-tmp-foo &&
 test ! -e test-tmp-1/test-tmp-foo
 							check $? $LINENO
+;;
+esac
