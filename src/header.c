@@ -89,6 +89,7 @@ static void
 dump_skip_bytes(len)
     int len;
 {
+    if (len == 0) return;
     if (verbose_listing && verbose > 1) {
         printf("%02d %2d:", get_ptr - start_ptr, len);
         while (len--)
@@ -593,9 +594,9 @@ get_extended_header(fp, hdr, header_size, hcrc)
         case 0:
             /* header crc (CRC-16) */
             hdr->header_crc = get_word();
-            *--get_ptr = 0;     /* clear buffer for CRC calculation. */
-            *--get_ptr = 0;
-            skip_bytes(header_size - n);
+            data[1] = 0;     /* clear buffer for CRC calculation. */
+            data[2] = 0;
+            skip_bytes(header_size - n - 2);
             break;
         case 1:
             /* filename */
