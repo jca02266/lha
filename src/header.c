@@ -1516,11 +1516,11 @@ write_header_level2(data, hdr, pathname)
         header_size++;
     }
 
-    /* put hader size */
+    /* put header size */
     setup_put(data + I_HEADER_SIZE);
     put_word(header_size);
 
-    /* put hader CRC in extended header */
+    /* put header CRC in extended header */
     INITIALIZE_CRC(hcrc);
     hcrc = calccrc(hcrc, data, (unsigned int) header_size);
     setup_put(headercrc_ptr);
