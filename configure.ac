@@ -5,6 +5,9 @@ AM_CONFIG_HEADER(config.h)
 
 AC_CANONICAL_HOST
 
+AC_DEFINE_UNQUOTED(PLATFORM, "$ac_cv_host",
+		   [the type of system on which the package will run.])
+
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_GCC_TRADITIONAL

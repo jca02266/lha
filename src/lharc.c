@@ -146,6 +146,7 @@ LHx(arc) for OSK   V 2.01  Modified     1990  Momozou\n\
 LHa      for UNIX  V 1.00  Copyright(C) 1992  Masaru Oki\n\
 LHa      for UNIX  V 1.14  Modified     1995  Nobutaka Watazaki\n\
 LHa      for UNIX  V 1.14i Modified     2000  Tsugio Okamoto\n\
+LHa      for UNIX  V 1.14i Autoconfiscated 2001,2002 Koji Arai\n
 ");
 	fprintf(stderr, "\
 usage: lha [-]{axelvudmcp[q[num]][vnfodizg012]}[w=<dir>] archive_file [file...]\n\
@@ -458,7 +459,7 @@ work:
 static void
 print_version()
 {
-	fprintf(stderr, "%s\n", LHA_VERSION);
+	fprintf(stderr, "%s (%s)\n", LHA_VERSION, PLATFORM);
 }
 
 /* ------------------------------------------------------------------------ */

@@ -149,6 +149,9 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* the type of system on which the package will run. */
+#undef PLATFORM
+
 /* Define as the return type of signal handlers (`int' or `void'). */
 #undef RETSIGTYPE
 
