@@ -255,7 +255,7 @@ convert_filename(name, len, size,
     if (from_code == CODE_SJIS && case_to == TO_LOWER) {
         for (i = 0; i < len; i++) {
 #ifdef MULTIBYTE_FILENAME
-            if (SJIS_FIRST_P(name[i]))
+            if (SJIS_FIRST_P(name[i]) && SJIS_SECOND_P(name[i+1]))
                 i++;
             else
 #endif
