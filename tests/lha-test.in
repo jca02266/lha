@@ -19,10 +19,11 @@ message() {
 check() {
   ((test_number = test_number + 1))
   local status=$1
+  local lineno=$2
   if [[ $status -eq 0 ]]; then
     message test $test_number ... ok
   else
-    message test $test_number ... failed
+    message test $test_number ... at line $lineno failed
     ((error_num = error_num + 1))
     error_tests="$error_tests #$test_number"
     result=1
@@ -53,23 +54,23 @@ sed 's/foo/bar/g' < test-a > test-b
 sed 's/foo/baz/g' < test-a > test-c
 
 $lha c test-1.lzh test-a test-b test-c
-							check $?
+							check $? $LINENO
 test -s test-1.lzh
-							check $?
+							check $? $LINENO
 
 $lha l test-1.lzh
-							check $?
+							check $? $LINENO
 
 test -d test-1 || mkdir test-1
 mv test-[abc] test-1
 $lha x test-1.lzh
-							check $?
+							check $? $LINENO
 diff test-1/test-a test-a
-							check $?
+							check $? $LINENO
 diff test-1/test-b test-b
-							check $?
+							check $? $LINENO
 diff test-1/test-c test-c
-							check $?
+							check $? $LINENO
 
 # followings are test data for remaining tests.
 test -f test-1.lzh &&
@@ -80,7 +81,7 @@ test -d test-1 &&
 test -f test-1/test-a &&
 test -f test-1/test-b &&
 test -f test-1/test-c
-							check $?
+							check $? $LINENO
 
 
 . $srcdir/lha-test2; cleanup

@@ -37,36 +37,36 @@ echo bar > test-tmp/test-b &&
 echo baz > test-tmp/test-c &&
 cp -pr test-tmp test-tmp2  &&
 $lha c test-tmp.lzh test-tmp
-							check $?
+							check $? $LINENO
 $lha v test-tmp.lzh &&
 $lha v test-1.lzh
-							check $?
+							check $? $LINENO
 
 # skip file
 rm -rf test-tmp &&
 cp -pr test-tmp2 test-tmp &&
 pty 3 n  $lha xw=test-tmp test-1.lzh
-							check $?
+							check $? $LINENO
 diff -r test-tmp test-tmp2
-							check $?
+							check $? $LINENO
 # overwrite
 rm -rf test-tmp &&
 cp -pr test-tmp2 test-tmp &&
 pty 3 y  $lha xw=test-tmp test-1.lzh
-							check $?
+							check $? $LINENO
 diff -r test-1 test-tmp
-							check $?
+							check $? $LINENO
 # overwrite all
 rm -rf test-tmp &&
 cp -pr test-1 test-tmp &&
 pty 1 a  $lha x test-tmp.lzh
-							check $?
+							check $? $LINENO
 diff -r test-tmp test-tmp2
-							check $?
+							check $? $LINENO
 # skip all
 rm -rf test-tmp &&
 cp -pr test-tmp2 test-tmp &&
 pty 1 s	 $lha xw=test-tmp test-1.lzh
-							check $?
+							check $? $LINENO
 diff -r test-tmp test-tmp2
-							check $?
+							check $? $LINENO

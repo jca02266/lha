@@ -5,31 +5,31 @@ cp test-1.lzh test-tmp.lzh
 
 # do nothing
 $lha d test-tmp.lzh 2> test-stderr
-							check $?
+							check $? $LINENO
 test -s test-stderr
-							check $?
+							check $? $LINENO
 $lha d test-tmp.lzh test-a
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp test-tmp.lzh &&
 test ! -f test-tmp/test-a &&
 diff test-1/test-b test-tmp/test-b &&
 diff test-1/test-c test-tmp/test-c
-							check $?
+							check $? $LINENO
 rm -rf test-tmp
-							check $?
+							check $? $LINENO
 $lha d test-tmp.lzh test-b
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp test-tmp.lzh &&
 test ! -f test-tmp/test-a &&
 test ! -f test-tmp/test-b &&
 diff test-1/test-c test-tmp/test-c
-							check $?
+							check $? $LINENO
 rm -rf test-tmp
-							check $?
+							check $? $LINENO
 $lha d test-tmp.lzh test-c 2> test-stderr
-							check $?
+							check $? $LINENO
 # this test will be failed on original LHa for UNIX.
 : test -s test-stderr
-							check $?
+							check $? $LINENO
 test ! -f test-tmp.lzh
-							check $?
+							check $? $LINENO

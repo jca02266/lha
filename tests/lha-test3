@@ -1,68 +1,68 @@
 # -*- shell-script -*-
 message testing to generic format archive.
 $lha czg  test-tmp-m0g.lzh test-a test-b test-c
-							check $?
+							check $? $LINENO
 $lha cgo  test-tmp-m1g.lzh test-a test-b test-c
-							check $?
+							check $? $LINENO
 $lha co5g test-tmp-m5g.lzh test-a test-b test-c
-							check $?
+							check $? $LINENO
 $lha co6g test-tmp-m6g.lzh test-a test-b test-c
-							check $?
+							check $? $LINENO
 $lha co7g test-tmp-m7g.lzh test-a test-b test-c
-							check $?
+							check $? $LINENO
 $lha v test-tmp-m0g.lzh
 $lha v test-tmp-m0g.lzh | grep 'generic.*lh0'
-							check $?
+							check $? $LINENO
 $lha v test-tmp-m1g.lzh | grep 'generic.*lh1'
-							check $?
+							check $? $LINENO
 $lha v test-tmp-m5g.lzh | grep 'generic.*lh5'
-							check $?
+							check $? $LINENO
 $lha v test-tmp-m6g.lzh | grep 'generic.*lh6'
-							check $?
+							check $? $LINENO
 $lha v test-tmp-m7g.lzh | grep 'generic.*lh7'
-							check $?
+							check $? $LINENO
 
 $lha xw=test-tmp-m0g test-tmp-m0g.lzh
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp-m1g test-tmp-m1g.lzh
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp-m5g test-tmp-m5g.lzh
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp-m6g test-tmp-m6g.lzh
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp-m7g test-tmp-m7g.lzh
-							check $?
+							check $? $LINENO
 
 diff -r test-1 test-tmp-m0g
-							check $?
+							check $? $LINENO
 diff -r test-1 test-tmp-m1g
-							check $?
+							check $? $LINENO
 diff -r test-1 test-tmp-m5g
-							check $?
+							check $? $LINENO
 diff -r test-1 test-tmp-m6g
-							check $?
+							check $? $LINENO
 diff -r test-1 test-tmp-m7g
-							check $?
+							check $? $LINENO
 
 $lha pq test-tmp-m0g.lzh test-a | diff test-a -
-							check $?
+							check $? $LINENO
 $lha pq test-tmp-m1g.lzh test-a | diff test-a -
-							check $?
+							check $? $LINENO
 $lha pq test-tmp-m5g.lzh test-a | diff test-a -
-							check $?
+							check $? $LINENO
 $lha pq test-tmp-m6g.lzh test-a | diff test-a -
-							check $?
+							check $? $LINENO
 $lha pq test-tmp-m7g.lzh test-a | diff test-a -
-							check $?
+							check $? $LINENO
 
 cat test-[abc] > test-tmp-abc
 $lha pq test-tmp-m0g.lzh | diff test-tmp-abc -
-							check $?
+							check $? $LINENO
 $lha pq test-tmp-m1g.lzh | diff test-tmp-abc -
-							check $?
+							check $? $LINENO
 $lha pq test-tmp-m5g.lzh | diff test-tmp-abc -
-							check $?
+							check $? $LINENO
 $lha pq test-tmp-m6g.lzh | diff test-tmp-abc -
-							check $?
+							check $? $LINENO
 $lha pq test-tmp-m7g.lzh | diff test-tmp-abc -
-							check $?
+							check $? $LINENO

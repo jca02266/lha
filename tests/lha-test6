@@ -6,10 +6,10 @@ test-a
 test-b
 test-c
 EOF
-							check $?
+							check $? $LINENO
 echo test-b | $lha xw=test-tmp test-tmp.lzh
-							check $?
+							check $? $LINENO
 test ! -f test-tmp/test-a &&
 test ! -f test-tmp/test-c &&
 diff test-b test-tmp/test-b
-							check $?
+							check $? $LINENO

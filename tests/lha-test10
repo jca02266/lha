@@ -1,86 +1,86 @@
 # -*- shell-script -*-
 message testing header level 0, 1 and 2
 $lha c0  test-tmp-h0.lzh test-1
-							check $?
+							check $? $LINENO
 $lha c1  test-tmp-h1.lzh test-1
-							check $?
+							check $? $LINENO
 $lha c2  test-tmp-h2.lzh test-1
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp-h0  test-tmp-h0.lzh
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp-h1  test-tmp-h1.lzh
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp-h2  test-tmp-h2.lzh
-							check $?
+							check $? $LINENO
 $lha vv test-tmp-h0.lzh
-							check $?
+							check $? $LINENO
 $lha vv test-tmp-h1.lzh
-							check $?
+							check $? $LINENO
 $lha vv test-tmp-h2.lzh
-							check $?
+							check $? $LINENO
 $lha vv test-tmp-h0.lzh | grep '\[0\]$'
-							check $?
+							check $? $LINENO
 $lha vv test-tmp-h1.lzh | grep '\[1\]$'
-							check $?
+							check $? $LINENO
 $lha vv test-tmp-h2.lzh | grep '\[2\]$'
-							check $?
+							check $? $LINENO
 diff -r test-1 test-tmp-h0/test-1
-							check $?
+							check $? $LINENO
 diff -r test-1 test-tmp-h1/test-1
-							check $?
+							check $? $LINENO
 diff -r test-1 test-tmp-h2/test-1
-							check $?
+							check $? $LINENO
 mkdir test-tmp-d1 &&
 cp test-a test-tmp-d1 &&
 mkdir test-tmp-d1/d2 &&
 cp test-b test-tmp-d1/d2 &&
 mkdir test-tmp-d1/d2/d3 &&
 cp test-c test-tmp-d1/d2/d3 &&
-							check $?
+							check $? $LINENO
 
 $lha c0  test-tmp2-h0.lzh test-tmp-d1
-							check $?
+							check $? $LINENO
 $lha c1  test-tmp2-h1.lzh test-tmp-d1
-							check $?
+							check $? $LINENO
 $lha c2  test-tmp2-h2.lzh test-tmp-d1
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp2-h0  test-tmp2-h0.lzh
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp2-h1  test-tmp2-h1.lzh
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp2-h2  test-tmp2-h2.lzh
-							check $?
+							check $? $LINENO
 # for logging
 $lha vv test-tmp2-h0.lzh
-							check $?
+							check $? $LINENO
 $lha vv test-tmp2-h1.lzh
-							check $?
+							check $? $LINENO
 $lha vv test-tmp2-h2.lzh
-							check $?
+							check $? $LINENO
 $lha vv test-tmp2-h0.lzh | grep '\[0\]$'
-							check $?
+							check $? $LINENO
 $lha vv test-tmp2-h1.lzh | grep '\[1\]$'
-							check $?
+							check $? $LINENO
 $lha vv test-tmp2-h2.lzh | grep '\[2\]$'
-							check $?
+							check $? $LINENO
 diff test-a test-tmp2-h0/test-tmp-d1/test-a
-							check $?
+							check $? $LINENO
 diff test-b test-tmp2-h0/test-tmp-d1/d2/test-b
-							check $?
+							check $? $LINENO
 diff test-c test-tmp2-h0/test-tmp-d1/d2/d3/test-c
-							check $?
+							check $? $LINENO
 diff test-a test-tmp2-h1/test-tmp-d1/test-a
-							check $?
+							check $? $LINENO
 diff test-b test-tmp2-h1/test-tmp-d1/d2/test-b
-							check $?
+							check $? $LINENO
 diff test-c test-tmp2-h1/test-tmp-d1/d2/d3/test-c
-							check $?
+							check $? $LINENO
 diff test-a test-tmp2-h2/test-tmp-d1/test-a
-							check $?
+							check $? $LINENO
 diff test-b test-tmp2-h2/test-tmp-d1/d2/test-b
-							check $?
+							check $? $LINENO
 diff test-c test-tmp2-h2/test-tmp-d1/d2/d3/test-c
-							check $?
+							check $? $LINENO
 # long long filename
 # assume that we are allowed to create 255 bytes filename (not path name).
 # the _POSIX_PATH_MAX (the maximam length of relative path name) value may
@@ -92,72 +92,73 @@ diff test-c test-tmp2-h2/test-tmp-d1/d2/d3/test-c
 mkdir test-tmp3
 case $(uname) in
 CYGWIN*)
-  # 200 bytes
+  # 220 bytes
   file=12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 ;;
 *)
   # 255 bytes
   file=123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345 ;;
 esac
 (cd test-tmp3 && touch $file)
-							check $?
+							check $? $LINENO
 $lha cg  test-tmp3-hg.lzh test-tmp3 2> test-stderr
-							check $?
+							check $? $LINENO
 test -s test-stderr
-							check $?
+							check $? $LINENO
 $lha c0  test-tmp3-h0.lzh test-tmp3 2> test-stderr
-							check $?
+							check $? $LINENO
 test -s test-stderr
-							check $?
+							check $? $LINENO
 $lha c1  test-tmp3-h1.lzh test-tmp3
- 							check $?
+ 							check $? $LINENO
 $lha c2  test-tmp3-h2.lzh test-tmp3
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp3-hg  test-tmp3-hg.lzh
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp3-h0  test-tmp3-h0.lzh
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp3-h1  test-tmp3-h1.lzh
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp3-h2  test-tmp3-h2.lzh
-							check $?
+							check $? $LINENO
 # for logging
 $lha vv test-tmp3-hg.lzh
-							check $?
+							check $? $LINENO
 $lha vv test-tmp3-h0.lzh
-							check $?
+							check $? $LINENO
 $lha vv test-tmp3-h1.lzh
-							check $?
+							check $? $LINENO
 $lha vv test-tmp3-h2.lzh
-							check $?
+							check $? $LINENO
 $lha vv test-tmp3-hg.lzh | grep '\[0\]$'
-							check $?
+							check $? $LINENO
 $lha vv test-tmp3-h0.lzh | grep '\[0\]$'
-							check $?
+							check $? $LINENO
 $lha vv test-tmp3-h1.lzh | grep '\[1\]$'
-							check $?
+							check $? $LINENO
 $lha vv test-tmp3-h2.lzh | grep '\[2\]$'
-							check $?
+							check $? $LINENO
 test -f test-tmp3-hg/$(echo test-tmp3/$file | cut -c-233)
-							check $?
+							check $? $LINENO
 test -f test-tmp3-h0/$(echo test-tmp3/$file | cut -c-221)
-							check $?
+							check $? $LINENO
 test -f test-tmp3-h1/test-tmp3/$file
-							check $?
+							check $? $LINENO
 test -f test-tmp3-h2/test-tmp3/$file
-							check $?
+							check $? $LINENO
 # the header size is 0x101 instead of 0x100 on level 2 header
 file=test-tmp9012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 touch $file
-							check $?
+							check $? $LINENO
 $lha c2 test-tmp4-h2.lzh $file
-							check $?
+							check $? $LINENO
 $lha vv test-tmp4-h2.lzh
-							check $?
+							check $? $LINENO
 $lha vv test-tmp4-h2.lzh | grep '\[2\]$'
-							check $?
+							check $? $LINENO
 $lha xw=test-tmp4 test-tmp4-h2.lzh
-							check $?
+							check $? $LINENO
 test x"`/bin/ls -l test-tmp4-h2.lzh | awk '{print $5}'`" = x258
-							check $?
+							check $? $LINENO
 test -f test-tmp4/$file
-							check $?
+							check $? $LINENO
+echo $_
