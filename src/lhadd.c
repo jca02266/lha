@@ -517,8 +517,20 @@ cmd_add()
 		return;
 	}
 
-	for (i = 0; i < cmd_filec; i++)
-		oafp = append_it(cmd_filev[i], oafp, nafp);
+	for (i = 0; i < cmd_filec; i++) {
+        if (strcmp(cmd_filev[i], archive_name) == 0) {
+            int j;
+            /* exclude target archive */
+            warning("specified file \"%s\" is the generating archive. skip",
+                    cmd_filev[i]);
+            for (j = i; j < cmd_filec-1; j++)
+                cmd_filev[j] = cmd_filev[j+1];
+            cmd_filec--;
+            continue;
+        }
+        oafp = append_it(cmd_filev[i], oafp, nafp);
+    }
+
 	if (oafp) {
 		old_header = ftell(oafp);
 		while (get_header(oafp, &ahdr)) {
