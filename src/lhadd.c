@@ -35,7 +35,7 @@ add_one(fp, nafp, hdr)
             printf("%s -> %s\t- Symbolic Link\n", hdr->realname, hdr->name);
     }
 
-    if (hdr->original_size == 0) {  /* empty file or directory */
+    if (hdr->original_size == 0) {  /* empty file, symlink or directory */
         finish_indicator2(hdr->name, "Frozen", 0);
         return;     /* previous write_header is not DUMMY. (^_^) */
     }
