@@ -1,3 +1,12 @@
+2002-09-14  Koji Arai  <k-arai@qf.jp.nec.com>
+
+	* src/lhadd.c (add_one): Use chsize() if system does not have
+	ftruncate(2). (For MinGW)
+
+	* configure.ac: ditto.
+
+	* config.h.in: ditto.
+
 2002-09-03  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* released.
