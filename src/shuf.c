@@ -119,15 +119,11 @@ read_tree_p(/*void*/)
 	while (i < NP) {
 		pt_len[i] = getbits(LENFIELD);
 		if (++i == 3 && pt_len[0] == 1 && pt_len[1] == 1 && pt_len[2] == 1) {
-#ifdef SUPPORT_LH7
-			c = getbits(MAX_DICBIT - 7);
-#else
-			c = getbits(MAX_DICBIT - 6);
-#endif
+			c = getbits(LH3_DICBIT - 6);
 			for (i = 0; i < NP; i++)
-				c_len[i] = 0;
+				pt_len[i] = 0;
 			for (i = 0; i < 256; i++)
-				c_table[i] = c;
+				pt_table[i] = c;
 			return;
 		}
 	}
