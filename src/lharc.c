@@ -90,6 +90,7 @@ init_variable()     /* Added N.Watazaki */
     remove_extracting_file_when_interrupt   = FALSE;
     get_filename_from_stdin                 = FALSE;
     ignore_directory                        = FALSE;
+    exclude_files                           = NULL;
     verify_mode                             = FALSE;
 
     noconvertcase                           = FALSE;
@@ -126,7 +127,9 @@ LHa      for UNIX  V 1.14i Modified     2000  Tsugio Okamoto\n\
                     Autoconfiscated 2001,2002 Koji Arai\n\
 ");
     fprintf(stderr, "\
-usage: lha [-]{axelvudmcp[q[num]][vnfodizg012]}[w=<dir>] archive_file [file...]\n\
+usage: lha [-]<commands><options> [-<options> ...] archive_file [file...]\n\
+  commands:  [axelvudmcpt]\n\
+  options:   [q[num]vnfto[num]dizge012[w=<dir>][x=<pattern>]]\n\
 commands:                           options:\n\
  a   Add(or replace) to archive      q{num} quiet (num:quiet mode)\n\
  x,e EXtract from archive            v  verbose\n\
@@ -147,6 +150,7 @@ commands:                           options:\n\
  c   re-Construct new archive        w=<dir> specify extract directory (a/u/m/x/e)\n\
  p   Print to STDOUT from archive    d  delete FILES after (a/u/c)\n\
  t   Test file CRC in archive        i  ignore directory path (x/e)\n\
+                                     x=<pattern>  eXclude files (a/u)\n\
                                      z  files not compress (a/u)\n\
                                      g  Generic format (for compatibility)\n\
                                         or not convert case when extracting\n\
@@ -159,49 +163,43 @@ commands:                           options:\n\
 #endif
 }
 
-/* ------------------------------------------------------------------------ */
-int
-main(argc, argv)
-    int             argc;
-    char           *argv[];
+void
+parse_option(int argc, char **argv)
 {
-    char           *p;
-
+    char *opt;
     int i;
-    int  ac;
-    char **av, *m;
 
-    init_variable();        /* Added N.Watazaki */
+    argv++; argc--;             /* exclude command name */
 
-    ac = argc;
-    av = (char **)xmalloc( sizeof(char*)*argc );
-    for (i=0; i<argc; i++) {
-        av[i] = xstrdup( argv[i] );
-    }
-
-    if (ac < 2 || strcmp(av[1], "--help") == 0) {
+    if (argc < 1) {
         print_tiny_usage();
         exit(0);
     }
 
-    if (strcmp(av[1], "--version") == 0) {
+    if (strcmp(*argv, "--help") == 0) {
+        print_tiny_usage();
+        exit(0);
+    }
+    if (strcmp(*argv, "--version") == 0) {
         print_version();
         exit(0);
     }
 
-    if (ac < 3) {
+    if (argc == 1) {
+        archive_name = *argv++; argc--;
         cmd = CMD_LIST;
-        av--; /* argv--; */ /* 1999.7.18 */
-        ac++; /* argc++; */
-        goto work;
+        cmd_filec = argc;
+        cmd_filev = argv;
+        return;
     }
 
-    m = av[1];
+    opt = *argv++; argc--;
 
-    if (m[0] == '-')
-        m++;
+    if (opt[0] == '-')
+        opt++;
+
     /* commands */
-    switch (*m) {
+    switch (*opt) {
     case 'x':
     case 'e':
         cmd = CMD_EXTRACT;
@@ -255,112 +253,171 @@ main(argc, argv)
     }
 
     /* options */
-    /* p = &argv[1][1]; */
-    p = m+1;
-    while ( *p != 0 ) {
-        switch ((*p++)) {
-        case 'q':
-            switch (*p) {
-            case '0':           /* no quiet */
-            case '1':           /* no use the incremental indicator */
-                quiet_mode = *p - '0';
-                ++p;
+    for (;;) {
+        char *p = opt+1;
+
+        while ( *p != 0 ) {
+            switch ((*p++)) {
+            case 'q':
+                switch (*p) {
+                case '0':           /* no quiet */
+                case '1':           /* no use the incremental indicator */
+                    quiet_mode = *p - '0';
+                    ++p;
+                    break;
+                case '2':           /* no output */
+                    ++p;
+                    /* fall through */
+                default:
+                    /* In quiet mode, no confirm to overwrite */
+                    force = TRUE;
+                    quiet = TRUE;
+                    break;
+                }
                 break;
-            case '2':           /* no output */
-                ++p;
-                /* fall through */
-            default:
-                /* In quiet mode, no confirm to overwrite */
+            case 'f':
                 force = TRUE;
-                quiet = TRUE;
                 break;
-            }
-            break;
-        case 'f':
-            force = TRUE;
-            break;
-        case 'p':
-            prof = TRUE;
-            break;
-        case 'v':
-            verbose++;
-            break;
-        case 't':
-            text_mode = TRUE;
-            break;
+            case 'p':
+                prof = TRUE;
+                break;
+            case 'v':
+                verbose++;
+                break;
+            case 't':
+                text_mode = TRUE;
+                break;
 #ifdef EUC
-        case 'e':
-            text_mode = TRUE;
-            euc_mode = TRUE;
-            break;
+            case 'e':
+                text_mode = TRUE;
+                euc_mode = TRUE;
+                break;
 #endif
-        case 'n':
-            noexec = TRUE;
-            break;
-        case 'g':
-            generic_format = TRUE;
-            noconvertcase = TRUE;
-            header_level = 0;
-            break;
-        case 'd':
-            delete_after_append = TRUE;
-            break;
-        case 'o':
-            switch (*p) {
-            case 0:
-                compress_method = LZHUFF1_METHOD_NUM;
+            case 'n':
+                noexec = TRUE;
+                break;
+            case 'g':
+                generic_format = TRUE;
+                noconvertcase = TRUE;
                 header_level = 0;
                 break;
-            case '5':
-                compress_method = LZHUFF5_METHOD_NUM;
-                p++;
+            case 'd':
+                delete_after_append = TRUE;
                 break;
+            case 'o':
+                switch (*p) {
+                case 0:
+                    compress_method = LZHUFF1_METHOD_NUM;
+                    header_level = 0;
+                    break;
+                case '5':
+                    compress_method = LZHUFF5_METHOD_NUM;
+                    p++;
+                    break;
 #ifdef SUPPORT_LH7
-            case '6':
-                compress_method = LZHUFF6_METHOD_NUM;
-                p++;
-                break;
-            case '7':
-                compress_method = LZHUFF7_METHOD_NUM;
-                p++;
-                break;
+                case '6':
+                    compress_method = LZHUFF6_METHOD_NUM;
+                    p++;
+                    break;
+                case '7':
+                    compress_method = LZHUFF7_METHOD_NUM;
+                    p++;
+                    break;
 #endif
+                default:
+                    error("invalid compression method 'o%c'", *p);
+                    exit(2);
+                }
+                break;
+            case 'z':
+                compress_method = LZHUFF0_METHOD_NUM;   /* Changed N.Watazaki */
+                break;
+            case 'i':
+                ignore_directory = TRUE;
+                break;
+            case 'x':
+                if (*p == '=')
+                    p++;
+
+                for (i = 0; exclude_files && exclude_files[i]; i++)
+                    ;
+                exclude_files = (char**)xrealloc(exclude_files,
+                                                 sizeof(char*) * (i+2));
+
+                if (*p == 0) {
+                    exclude_files[i] = *argv++; argc--;
+                    exclude_files[i+1] = 0;
+                    goto next;
+                }
+                else {
+                    exclude_files[i] = p;
+                    exclude_files[i+1] = 0;
+                    p += strlen(p);
+                }
+                break;
+            case 'w':
+                if (*p == '=')
+                    p++;
+                if (*p == 0) {
+                    extract_directory = *argv++; argc--;
+                    goto next;
+                }
+                else {
+                    extract_directory = p;
+                    p += strlen(p);
+                }
+                break;
+            case '0':
+                header_level = HEADER_LEVEL0;
+                break;
+            case '1':
+                header_level = HEADER_LEVEL1;
+                break;
+            case '2':
+                header_level = HEADER_LEVEL2;
+                break;
             default:
-                error("invalid compression method 'o%c'", *p);
-                exit(1);
+                error("Unknown option '%c'.", p[-1]);
+                exit(2);
             }
-            break;
-        case 'z':
-            compress_method = LZHUFF0_METHOD_NUM;   /* Changed N.Watazaki */
-            break;
-        case 'i':
-            ignore_directory = TRUE;
-            break;
-        case 'w':
-            if (*p == '=')
-                p++;
-            extract_directory = p;
-            while (*p)
-                p++;
-            break;
-        case '0':
-            header_level = HEADER_LEVEL0;
-            break;
-        case '1':
-            header_level = HEADER_LEVEL1;
-            break;
-        case '2':
-            header_level = HEADER_LEVEL2;
-            break;
-        default:
-            error("Unknown option '%c'.", p[-1]);
-            exit(1);
         }
+
+    next:
+        opt = *argv;
+        if (!opt || opt[0] != '-')
+            break;
+
+        /* special archive name */
+        if (strcmp(opt, "-") == 0)
+            break;
+
+        argv++; argc--;
     }
 
-work:
-    /* archive file name */
-    archive_name = av[2];
+    archive_name = *argv++; argc--;
+
+    cmd_filec = argc;
+    cmd_filev = argv;
+}
+
+/* ------------------------------------------------------------------------ */
+int
+main(argc, argv)
+    int             argc;
+    char           *argv[];
+{
+    char           *p;
+
+    int i;
+
+    init_variable();        /* Added N.Watazaki */
+
+    parse_option(argc, argv);
+
+    if (!archive_name) {
+        print_tiny_usage();
+        exit(0);
+    }
 
     if (!strcmp(archive_name, "-")) {
         if (!isatty(1) && cmd == CMD_ADD)
@@ -368,7 +425,7 @@ work:
     }
 #if 0 /* Comment out; IMHO, this feature is useless. by Koji Arai */
     else {
-        if (ac == 3 && !isatty(0)) { /* 1999.7.18 */
+        if (argc == 3 && !isatty(0)) { /* 1999.7.18 */
             /* Bug(?) on MinGW, isatty() return 0 on Cygwin console.
                mingw-runtime-1.3-2 and Cygwin 1.3.10(0.51/3/2) on
                Win2000 */
@@ -407,10 +464,8 @@ work:
         }
         xfilev[cmd_filec] = NULL;
         cmd_filev = xfilev;
-    } else {
-        cmd_filec = ac - 3;
-        cmd_filev = av + 3;
     }
+
     sort_files();
 
     /* make crc table */
@@ -844,7 +899,7 @@ find_files(name, v_filec, v_filev)
 {
     struct string_pool sp;
     char            newname[FILENAME_LENGTH];
-    int             len, n;
+    int             len, n, i;
     DIR            *dirp;
     struct dirent  *dp;
     struct stat     tmp_stbuf, arc_stbuf, fil_stbuf;
@@ -864,6 +919,12 @@ find_files(name, v_filec, v_filev)
     GETSTAT(archive_name, &arc_stbuf);
 
     for (dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
+        for (i = 0; exclude_files && exclude_files[i]; i++) {
+            if (fnmatch(exclude_files[i], dp->d_name,
+                        FNM_PATHNAME|FNM_NOESCAPE|FNM_PERIOD) == 0)
+                goto next;
+        }
+
         n = NAMLEN(dp);
         strncpy(newname + len, dp->d_name, n);
         newname[len + n] = '\0';
@@ -890,6 +951,7 @@ find_files(name, v_filec, v_filev)
             add_sp(&sp, newname, len + n + 1);
         }
 #endif
+    next:
     }
     closedir(dirp);
     finish_sp(&sp, v_filec, v_filev);
