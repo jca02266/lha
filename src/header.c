@@ -81,14 +81,14 @@ msdos_to_unix_filename(name, len)
 {
 	register int    i;
 
-#define HANKAKU_KATAKANA_P(c)\
+#define X0201_KANA_P(c)\
 	(0xa0 < (unsigned char)(c) && (unsigned char)(c) < 0xe0)
 
 #ifdef MULTIBYTE_CHAR
 #ifdef SUPPORT_X0201
 	for (i = 0; i < len; i++) {
 		/* modified by Koji Arai */
-		if (HANKAKU_KATAKANA_P(name[i])) {
+		if (X0201_KANA_P(name[i])) {
 			int j;
 			for (j = len; j >= i; j--) {
 				name[j+1] = name[j]; /* no check over */
@@ -144,7 +144,7 @@ generic_to_unix_filename(name, len)
 #ifdef SUPPORT_X0201
 	for (i = 0; i < len; i++) {
 		/* modified by Koji Arai */
-		if (HANKAKU_KATAKANA_P(name[i])) {
+		if (X0201_KANA_P(name[i])) {
 			int j;
 			for (j = len; j >= i; j--) {
 				name[j+1] = name[j]; /* no check over */
@@ -209,7 +209,7 @@ macos_to_unix_filename(name, len)
 #ifdef SUPPORT_X0201
 	for (i = 0; i < len; i ++) {
 		/* modified by Koji Arai */
-		if (HANKAKU_KATAKANA_P(name[i])) {
+		if (X0201_KANA_P(name[i])) {
 			int j;
 			for (j = len; j >= i; j--) {
 				name[j+1] = name[j]; /* no check over */
