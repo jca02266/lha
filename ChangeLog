@@ -1,5 +1,13 @@
 2002-05-26  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test.in: specified `q' option on print archive test.
+
+	* src/lhadd.c (build_backup_file): On MinGW, cannot rename when
+	a new file already exists.
+
+	* src/lhext.c (extract_one): On MinGW, set binary on stdout when
+	print archive (`p' switch).
+
 	* tests/lha-test.in: added some tests.
 
 	* src/lhadd.c (report_archive_name_if_different): warning messages
