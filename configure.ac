@@ -140,8 +140,8 @@ AC_ARG_ENABLE(user-name-header,
   # default
   enable_user_name_header=no)
 if test "x$user_name_header" = xyes; then
-  AC_DEFINE(MAKE_USER_NAME_HEADER, 1,
-            [Define to 1 if you want to make user/group name extended header])
+  AC_DEFINE(INCLUDE_OWNER_NAME_IN_HEADER, 1,
+            [Define to 1 if you want to use the user/group name extened header])
 fi
 
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])

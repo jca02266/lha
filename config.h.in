@@ -173,8 +173,8 @@
 /* Define to 1 if `vfork' works. */
 #undef HAVE_WORKING_VFORK
 
-/* Define to 1 if you want to make user/group name extended header */
-#undef MAKE_USER_NAME_HEADER
+/* Define to 1 if you want to use the user/group name extened header */
+#undef INCLUDE_OWNER_NAME_IN_HEADER
 
 /* Define to 1 if you want to use multibyte filename */
 #undef MULTIBYTE_CHAR
