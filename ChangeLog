@@ -1,4 +1,4 @@
-2002-05-25  Koji Arai  <arai@fgsd.mt.nec.co.jp>
+2002-05-25  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac, configure.in (AC_INIT): added autoconfiscated date.
 
