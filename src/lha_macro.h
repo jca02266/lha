@@ -89,6 +89,18 @@
 #define LZHDIRS_METHOD_NUM		11
 /* Added N.Watazaki ..^ */
 
+#define LZHUFF0_DICBIT           0      /* no compress */
+#define LZHUFF1_DICBIT          12      /* 2^12 =  4k sliding dictionary */
+#define LZHUFF2_DICBIT          13      /* 2^13 =  8k sliding dictionary */
+#define LZHUFF3_DICBIT          13      /* 2^13 =  8k sliding dictionary */
+#define LZHUFF4_DICBIT          12      /* 2^12 =  4k sliding dictionary */
+#define LZHUFF5_DICBIT          13      /* 2^13 =  8k sliding dictionary */
+#define LZHUFF6_DICBIT          15      /* 2^15 = 32k sliding dictionary */
+#define LZHUFF7_DICBIT          16      /* 2^16 = 64k sliding dictionary */
+#define LARC_DICBIT             11      /* 2^11 =  2k sliding dictionary */
+#define LARC5_DICBIT            12      /* 2^12 =  4k sliding dictionary */
+#define LARC4_DICBIT             0      /* no compress */
+
 #define I_HEADER_SIZE			0
 #define I_HEADER_CHECKSUM		1
 #define I_METHOD				2
@@ -180,14 +192,6 @@
 #define MAX_INDICATOR_COUNT		64
 
 /* ------------------------------------------------------------------------ */
-/*	Slide relation															*/
-/* ------------------------------------------------------------------------ */
-#define LH3_DICBIT			13
-#define LH5_DICBIT			13
-#define LH6_DICBIT			15
-#define LH7_DICBIT			16
-
-/* ------------------------------------------------------------------------ */
 /*	FILE Attribute															*/
 /* ------------------------------------------------------------------------ */
 #define is_directory(statp)		(((statp)->st_mode & S_IFMT) == S_IFDIR)
@@ -269,11 +273,11 @@
 
 /* slide.c */
 #ifdef SUPPORT_LH7
-#define MAX_DICBIT			LH7_DICBIT      /* lh7 use 16bits */
+#define MAX_DICBIT			LZHUFF7_DICBIT      /* lh7 use 16bits */
 #endif
 
 #ifndef SUPPORT_LH7
-#define MAX_DICBIT			LH6_DICBIT      /* lh6 use 15bits */
+#define MAX_DICBIT			LZHUFF6_DICBIT      /* lh6 use 15bits */
 #endif
 
 #define MAX_DICSIZ			(1 << MAX_DICBIT)
