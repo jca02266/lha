@@ -213,23 +213,25 @@ convert_filename(name, len, size,
 
     if (from_code == CODE_SJIS && to_code == CODE_UTF8) {
         for (i = 0; i < len; i++)
-            if (name[i] == '\xff')  name[i] = '/';
+            if ((unsigned char)name[i] == LHA_PATHSEP)  name[i] = '/';
         sjis_to_utf8(tmp, name, sizeof(tmp));
         strncpy(name, tmp, size);
         name[size-1] = 0;
         len = strlen(name);
         for (i = 0; i < len; i++)
-            if (name[i] == '/')  name[i] = '\xff';
+            if (name[i] == '/')  name[i] = LHA_PATHSEP;
+        from_code = CODE_UTF8;
     }
     else if (from_code == CODE_UTF8 && to_code == CODE_SJIS) {
         for (i = 0; i < len; i++)
-            if (name[i] == '\xff')  name[i] = '/';
+            if ((unsigned char)name[i] == LHA_PATHSEP)  name[i] = '/';
         utf8_to_sjis(tmp, name, sizeof(tmp));
         strncpy(name, tmp, size);
         name[size-1] = 0;
         len = strlen(name);
         for (i = 0; i < len; i++)
-            if (name[i] == '/')  name[i] = '\xff';
+            if (name[i] == '/')  name[i] = LHA_PATHSEP;
+        from_code = CODE_SJIS;
     }
 #endif
 
@@ -990,7 +992,7 @@ write_header(nafp, hdr)
                      "\xff\\/", "\xff\xff\xff", NONE);
 
 	if (hdr->header_level != HEADER_LEVEL2) {
-		if (p = (char *) strrchr(lzname, DELIM2))
+		if (p = (char *) strrchr(lzname, LHA_PATHSEP))
 			name_length = strlen(++p);
 		else
 			name_length = strlen(lzname);
@@ -1062,7 +1064,7 @@ write_header(nafp, hdr)
                     put_byte(hdr->user[i]);
             }
 
-			if (p = (char *) strrchr(lzname, DELIM2)) {
+			if (p = (char *) strrchr(lzname, LHA_PATHSEP)) {
 				int             i;
 
 				name_length = p - lzname + 1;
@@ -1088,7 +1090,7 @@ write_header(nafp, hdr)
 			data[I_HEADER_CHECKSUM] = calc_sum(data + I_METHOD, header_size);
 		} else {		/* header level 2 */
 			int             i;
-			if (p = (char *) strrchr(lzname, DELIM2))
+			if (p = (char *) strrchr(lzname, LHA_PATHSEP))
 				name_length = strlen(++p);
 			else {
 				p = lzname;

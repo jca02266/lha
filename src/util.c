@@ -120,7 +120,7 @@ convdelim(path, delim)
 		}
 		else
 #endif
-		if (c == '\\' || c == DELIM || c == DELIM2) {
+		if (c == '\\' || c == '/' || c == LHA_PATHSEP) {
 			*p = delim;
 			path = p + 1;
 		}
@@ -388,6 +388,35 @@ xsnprintf(char *dest, size_t size, char *fmt, ...)
 
     return 0;
 }
+
+#if !STRCHR_8BIT_CLEAN
+/* 8 bit clean strchr()/strrchr() */
+char *
+xstrchr(const char *s, int c)
+{
+    while (*s) {
+        if ((unsigned char)*s == (unsigned char)c)
+            return s;
+        s++;
+    }
+
+    return 0;
+}
+
+char *
+xstrrchr(const char *s, int c)
+{
+    char *p = 0;
+
+    while (*s) {
+        if ((unsigned char)*s == (unsigned char)c)
+            p = s;
+        s++;
+    }
+
+    return p;
+}
+#endif
 
 /* Local Variables: */
 /* mode:c */

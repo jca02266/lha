@@ -222,9 +222,11 @@ typedef int				boolean;
 
 #define CURRENT_UNIX_MINOR_VERSION		0x00
 
-#define DELIM		('/')
-#define DELIM2		(0xff)
-#define DELIMSTR	"/"
+#define LHA_PATHSEP             0xff    /* path separator of the
+                                           filename in lha header.
+                                           it should compare with
+                                           `unsigned char' or `int',
+                                           that is not '\xff', but 0xff. */
 
 #define OSK_RW_RW_RW			0000033
 #define OSK_FILE_REGULAR		0000000
