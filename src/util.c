@@ -31,8 +31,7 @@ copyfile(f1, f2, size, crc_flg)	/* return: size of source file */
 	char           *buf;
 	long            rsize = 0;
 
-	if ((buf = (char *) malloc(BUFFERSIZE)) == NULL)
-		fatal_error("virtual memory exhausted.\n");
+	buf = (char *)xmalloc(BUFFERSIZE);
 	crc = 0;
 	if ((crc_flg == 2 || crc_flg) && text_mode)
 		init_code_cache();
@@ -234,7 +233,7 @@ memmove(dst, src, cnt)
 /* ------------------------------------------------------------------------ */
 int
 rename(from, to)
-	char           *from, *to;
+	const char *from, *to;
 {
 	struct stat     s1, s2;
 	extern int      errno;
