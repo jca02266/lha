@@ -217,4 +217,26 @@ $lha xw=test-5.5 test-5.lzh
 diff -r test-5 test-5.5
 							check $?
 
+message testing timestamp
+$lha c test-6.lzh test-[abc]
+							check $?
+# show time stamp
+$lha v test-6.lzh
+ls -l test-[abc]
+
+$lha xw=test-6 test-6.lzh
+							check $?
+test -f test-6/test-a &&
+test -f test-6/test-b &&
+test -f test-6/test-c
+							check $?
+test test-a -nt test-6/test-a ||
+test test-a -ot test-6/test-a ||
+test test-b -nt test-6/test-b ||
+test test-b -ot test-6/test-b ||
+test test-c -nt test-6/test-c ||
+test test-c -ot test-6/test-c
+test $? -ne 0
+							check $?
+
 exit $result
