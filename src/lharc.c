@@ -803,7 +803,7 @@ xstrdup(str)
 {
     int len = strlen(str);
     char *p = (char *)xmalloc(len + 1);
-    strcpy(p, str);
+    strcpy(p, str);             /* ok */
     return p;
 }
 
@@ -1000,11 +1000,12 @@ find_files(name, v_filec, v_filev)
     struct stat     tmp_stbuf, arc_stbuf, fil_stbuf;
     int exist_tmp = 1, exist_arc = 1;
 
-    strcpy(newname, name);
-    len = strlen(name);
+    len = str_safe_copy(newname, name, sizeof(newname));
     if (len > 0 && newname[len - 1] != '/') {
-        newname[len++] = '/';
-        newname[len] = 0;
+        if (len < sizeof(newname)-1)
+            strcpy(&newname[len++], "/"); /* ok */
+        else
+            warning("the length of pathname \"%s\" is too long.", name);
     }
 
     dirp = opendir(name);
@@ -1089,20 +1090,31 @@ build_temporary_name()
 #ifdef TMP_FILENAME_TEMPLATE
     /* "/tmp/lhXXXXXX" etc. */
     if (extract_directory == NULL) {
-        strcpy(temporary_name, TMP_FILENAME_TEMPLATE);
+        str_safe_copy(temporary_name, TMP_FILENAME_TEMPLATE,
+                      sizeof(temporary_name));
     }
     else {
         xsnprintf(temporary_name, sizeof(temporary_name),
                   "%s/lhXXXXXX", extract_directory);
     }
 #else
-    char           *p, *s;
+    char *s;
 
-    strcpy(temporary_name, archive_name);
-    for (p = temporary_name, s = (char *) 0; *p; p++)
-        if (*p == '/')
-            s = p;
-    strcpy((s ? s + 1 : temporary_name), "lhXXXXXX");
+    str_safe_copy(temporary_name, archive_name, sizeof(temporary_name));
+    s = strrchr(temporary_name, '/');
+    if (s) {
+        int len;
+        len = s - temporary_name;
+        if (len + strlen("lhXXXXXX") < sizeof(temporary_name))
+            /* use directory at archive file */
+            strcpy(s, "lhXXXXXX"); /* ok */
+        else
+            /* use current directory */
+            str_safe_copy(temporary_name, "lhXXXXXX", sizeof(temporary_name));
+    }
+    else
+        /* use current directory */
+        str_safe_copy(temporary_name, "lhXXXXXX", sizeof(temporary_name));
 #endif
 #ifdef HAVE_MKSTEMP
     {
@@ -1129,9 +1141,10 @@ build_temporary_name()
 
 /* ------------------------------------------------------------------------ */
 static void
-modify_filename_extention(buffer, ext)
+modify_filename_extention(buffer, ext, size)
     char           *buffer;
     char           *ext;
+    size_t size;
 {
     register char  *p, *dot;
 
@@ -1145,28 +1158,30 @@ modify_filename_extention(buffer, ext)
     if (dot)
         p = dot;
 
-    strcpy(p, ext);
+    str_safe_copy(p, ext, size - (p - buffer));
 }
 
 /* ------------------------------------------------------------------------ */
 /* build backup file name */
 void
-build_backup_name(buffer, original)
+build_backup_name(buffer, original, size)
     char           *buffer;
     char           *original;
+    size_t size;
 {
-    strcpy(buffer, original);
-    modify_filename_extention(buffer, BACKUPNAME_EXTENTION);    /* ".bak" */
+    str_safe_copy(buffer, original, size);
+    modify_filename_extention(buffer, BACKUPNAME_EXTENTION, size);    /* ".bak" */
 }
 
 /* ------------------------------------------------------------------------ */
 void
-build_standard_archive_name(buffer, orginal)
+build_standard_archive_name(buffer, original, size)
     char           *buffer;
-    char           *orginal;
+    char           *original;
+    size_t size;
 {
-    strcpy(buffer, orginal);
-    modify_filename_extention(buffer, ARCHIVENAME_EXTENTION);   /* ".lzh" */
+    str_safe_copy(buffer, original, size);
+    modify_filename_extention(buffer, ARCHIVENAME_EXTENTION, size);   /* ".lzh" */
 }
 
 /* ------------------------------------------------------------------------ */

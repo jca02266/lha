@@ -88,7 +88,7 @@ make_parent_path(name)
     register char  *p;
 
     /* make parent directory name into PATH for recursive call */
-    strcpy(path, name);
+    str_safe_copy(path, name, sizeof(path));
     for (p = path + strlen(path); p > path; p--)
         if (p[-1] == '/') {
             *--p = '\0';
@@ -250,8 +250,7 @@ extract_one(afp, hdr)
     if (extract_directory)
         xsnprintf(name, sizeof(name), "%s/%s", extract_directory, q);
     else
-        strcpy(name, q);
-
+        str_safe_copy(name, q, sizeof(name));
 
     /* LZHDIRS_METHODを持つヘッダをチェックする */
     /* 1999.4.30 t.okamoto */

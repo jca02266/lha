@@ -198,7 +198,7 @@ find_update_files(oafp)
                 add_sp(&sp, hdr.name, strlen(hdr.name) + 1);
         }
         else if ((hdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_DIRECTORY) {
-            strcpy(name, hdr.name);
+            strcpy(name, hdr.name); /* ok */
             len = strlen(name);
             if (len > 0 && name[len - 1] == '/')
                 name[--len] = '\0'; /* strip tail '/' */
@@ -275,7 +275,8 @@ static void
 build_backup_file()
 {
 
-    build_backup_name(backup_archive_name, archive_name);
+    build_backup_name(backup_archive_name, archive_name,
+                      sizeof(backup_archive_name));
     if (!noexec) {
         signal(SIGINT, SIG_IGN);
 #ifdef SIGHUP
@@ -464,7 +465,9 @@ cmd_add()
 
     if (oafp && archive_is_msdos_sfx1(archive_name)) {
         seek_lha_header(oafp);
-        build_standard_archive_name(new_archive_name_buffer, archive_name);
+        build_standard_archive_name(new_archive_name_buffer,
+                                    archive_name,
+                                    sizeof(new_archive_name_buffer));
         new_archive_name = new_archive_name_buffer;
     }
     else {
@@ -592,7 +595,9 @@ cmd_delete()
 
     if (archive_is_msdos_sfx1(archive_name)) {
         seek_lha_header(oafp);
-        build_standard_archive_name(new_archive_name_buffer, archive_name);
+        build_standard_archive_name(new_archive_name_buffer,
+                                    archive_name,
+                                    sizeof(new_archive_name_buffer));
         new_archive_name = new_archive_name_buffer;
     }
     else {

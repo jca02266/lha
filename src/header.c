@@ -615,8 +615,8 @@ get_extended_header(fp, hdr, header_size, hcrc)
             name_length = sizeof(hdr->name) - dir_length - 1;
             hdr->name[name_length] = 0;
         }
-        strcat(dirname, hdr->name);
-        strcpy(hdr->name, dirname);
+        strcat(dirname, hdr->name); /* ok */
+        strcpy(hdr->name, dirname); /* ok */
         name_length += dir_length;
     }
 
@@ -1127,7 +1127,7 @@ get_header(fp, hdr)
             /* hdr->name is symbolic link name */
             /* hdr->realname is real name */
             *p = 0;
-            strcpy(hdr->realname, p+1);
+            strcpy(hdr->realname, p+1); /* ok */
         }
         else
             error("unknown symlink name \"%s\"", hdr->name);
@@ -1194,8 +1194,7 @@ init_header(name, v_stat, hdr)
     hdr->original_size = v_stat->st_size;
     hdr->attribute = GENERIC_ATTRIBUTE;
     hdr->header_level = header_level;
-    strcpy(hdr->name, name);
-    len = strlen(name);
+    len = str_safe_copy(hdr->name, name, sizeof(hdr->name));
     hdr->crc = 0x0000;
     hdr->extend_type = EXTEND_UNIX;
     hdr->unix_last_modified_stamp = v_stat->st_mtime;
@@ -1237,8 +1236,13 @@ init_header(name, v_stat, hdr)
         memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STORAGE);
         hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
         hdr->original_size = 0;
-        if (len > 0 && hdr->name[len - 1] != '/')
-            strcpy(&hdr->name[len++], "/");
+        if (len > 0 && hdr->name[len - 1] != '/') {
+            if (len < sizeof(hdr->name)-1)
+                strcpy(&hdr->name[len++], "/"); /* ok */
+            else
+                warning("the length of dirname \"%s\" is too long.",
+                        hdr->name);
+        }
     }
 
 #ifdef S_IFLNK
