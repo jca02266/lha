@@ -1,3 +1,9 @@
+2002-06-12  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lha_macro.h (UNIX_STICKYBIT): fixed a misspelling.
+
+	* src/lhlist.c (list_one): ditto.
+
 2002-06-11  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lharc.c: index was wrong.
@@ -31,7 +37,7 @@
 
 	* released.
 
-	* configure.ac (AC_INIT): change package name and specified tar name.
+	* configure.ac (AC_INIT): changed package name and specified tar name.
 
 	* src/lharc.c: added `--help' command line switch.
 
@@ -103,7 +109,7 @@
 	* src/header.c (filename_conv): fix a bug, reverse condition and
 	conversion for filename case.
 
-	* README.autoconf: added description abount `get_filename_from_stdin' feature.
+	* README.autoconf: added description about `get_filename_from_stdin' feature.
 
 	* tests/lha-test.in: remove test around the `get_filename_from_stdin'.
 
@@ -238,7 +244,7 @@
 	* src/lharc.c (main): provisionally fix. set
 	`get_filename_from_stdin' to false.
 
-	* src/util.c (rename): use builtin rename on mingw32 (since have
+	* src/util.c (rename): use builtin rename(2) on mingw32 (since have
 	no link(2)).
 
 	* src/lharc.c (main): use xrealloc().
