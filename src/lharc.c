@@ -977,8 +977,10 @@ find_files(name, v_filec, v_filev)
 
     strcpy(newname, name);
     len = strlen(name);
-    if (len > 0 && newname[len - 1] != '/')
+    if (len > 0 && newname[len - 1] != '/') {
         newname[len++] = '/';
+        newname[len] = 0;
+    }
 
     dirp = opendir(name);
     if (!dirp)
@@ -991,43 +993,46 @@ find_files(name, v_filec, v_filev)
     if (GETSTAT(archive_name, &arc_stbuf) == -1)
         exist_arc = 0;
 
-    for (dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
+    while ((dp = readdir(dirp)) != NULL) {
+        n = NAMLEN(dp);
+
+        /* exclude '.' and '..' */
+        if (strncmp(dp->d_name, ".", n) == 0
+            || strncmp(dp->d_name, "..", n) == 0)
+            continue;
+
+        /* exclude exclude_files supplied by user */
         for (i = 0; exclude_files && exclude_files[i]; i++) {
             if (fnmatch(exclude_files[i], dp->d_name,
                         FNM_PATHNAME|FNM_NOESCAPE|FNM_PERIOD) == 0)
                 goto next;
         }
 
-        n = NAMLEN(dp);
+        if (len + n >= sizeof(newname)) {
+            warning("filename is too long");
+            continue;
+        }
+
         strncpy(newname + len, dp->d_name, n);
         newname[len + n] = '\0';
         if (GETSTAT(newname, &fil_stbuf) < 0)
             continue;
-#if !defined(HAVE_STRUCT_STAT_ST_INO) || __MINGW32__
-        if ( dp->d_name[0] != '.' ||
-            (n != 1 &&
-             (dp->d_name[1] != '.' ||
-              n != 2))  ) {
-            add_sp(&sp, newname, len+n+1);
-        }
-#else
-        if ((dp->d_ino != 0) &&
-        /* exclude '.' and '..' */
-            ((dp->d_name[0] != '.') ||
-             ((n != 1) &&
-              ((dp->d_name[1] != '.') ||
-               (n != 2))))) {
 
-            if ((!exist_tmp ||
-                 tmp_stbuf.st_dev != fil_stbuf.st_dev ||
-                 tmp_stbuf.st_ino != fil_stbuf.st_ino) &&
-                (!exist_arc ||
-                 arc_stbuf.st_dev != fil_stbuf.st_dev ||
-                 arc_stbuf.st_ino != fil_stbuf.st_ino)) {
-                add_sp(&sp, newname, len + n + 1);
-            }
-        }
+#if defined(HAVE_STRUCT_STAT_ST_INO) && !__MINGW32__
+        /* MinGW has meaningless st_ino */
+
+        /* exclude temporary file, archive file and these links */
+        if (exist_tmp &&
+            tmp_stbuf.st_dev == fil_stbuf.st_dev &&
+            tmp_stbuf.st_ino == fil_stbuf.st_ino)
+            continue;
+
+        if (exist_arc &&
+            arc_stbuf.st_dev == fil_stbuf.st_dev &&
+            arc_stbuf.st_ino == fil_stbuf.st_ino)
+            continue;
 #endif
+        add_sp(&sp, newname, len+n+1);
     next:
         ;
     }
