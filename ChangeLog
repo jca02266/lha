@@ -8,7 +8,6 @@
 	
 	* configure.ac: added checking functions `fnmatch' and `basename'.
 	but not yet prepare the free fnmatch.c.
-	(Repository): 
 
 	* config.h.in: ditto.
 
