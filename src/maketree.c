@@ -8,68 +8,63 @@
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
-/* ------------------------------------------------------------------------ */
-static short    n, heapsize, heap[NC + 1];
-static unsigned short *freq, *sort;
-static unsigned char *len;
-static unsigned short len_cnt[17];
-/* ------------------------------------------------------------------------ */
-void
-make_code(n, len, code)
-    int             n;
-    unsigned char   len[];
-    unsigned short  code[];
+static void
+make_code(nchar, bitlen, code, leaf_num)
+    int            nchar;
+    unsigned char  *bitlen;
+    unsigned short *code;       /* table */
+    unsigned short *leaf_num;
 {
     unsigned short  weight[17]; /* 0x10000ul >> bitlen */
     unsigned short  start[17];  /* start code */
-    unsigned short  j, k;
-    int             i;
+    unsigned short  total;
+    int i;
+    int c;
 
-    j = 0;
-    k = 1 << (16 - 1);
+    total = 0;
     for (i = 1; i <= 16; i++) {
-        start[i] = j;
-        j += (weight[i] = k) * len_cnt[i];
-        k >>= 1;
+        start[i] = total;
+        weight[i] = 1 << (16 - i);
+        total += weight[i] * leaf_num[i];
     }
-    for (i = 0; i < n; i++) {
-        j = len[i];
-        code[i] = start[j];
-        start[j] += weight[j];
+    for (c = 0; c < nchar; c++) {
+        i = bitlen[c];
+        code[c] = start[i];
+        start[i] += weight[i];
     }
 }
 
 /* ------------------------------------------------------------------------ */
 static void
-count_len(i)            /* call with i = root */
-    int             i;
+count_leaf(node, nchar, leaf_num, depth) /* call with node = root */
+    int node;
+    int nchar;
+    unsigned short leaf_num[];
+    int depth;
 {
-    static unsigned char depth = 0;
-
-    if (i < n)
-        len_cnt[depth < 16 ? depth : 16]++;
+    if (node < nchar)
+        leaf_num[depth < 16 ? depth : 16]++;
     else {
-        depth++;
-        count_len(left[i]);
-        count_len(right[i]);
-        depth--;
+        count_leaf(left[node], nchar, leaf_num, depth + 1);
+        count_leaf(right[node], nchar, leaf_num, depth + 1);
     }
 }
 
 /* ------------------------------------------------------------------------ */
 static void
-make_len(root)
-    int             root;
+make_len(root, nchar, bitlen, sort, leaf_num)
+    int root;
+    int nchar;
+    unsigned char *bitlen;
+    unsigned short *sort;       /* sorted characters */
+    unsigned short *leaf_num;
 {
-    int             i, k;
-    unsigned int    cum;
+    int i, k;
+    unsigned int cum;
 
-    for (i = 0; i <= 16; i++)
-        len_cnt[i] = 0;
-    count_len(root);
     cum = 0;
     for (i = 16; i > 0; i--) {
-        cum += len_cnt[i] << (16 - i);
+        cum += leaf_num[i] << (16 - i);
     }
 #if (UINT_MAX != 0xffff)
     cum &= 0xffff;
@@ -77,12 +72,12 @@ make_len(root)
     /* adjust len */
     if (cum) {
         fprintf(stderr, "17");
-        len_cnt[16] -= cum; /* always len_cnt[16] > cum */
+        leaf_num[16] -= cum; /* always leaf_num[16] > cum */
         do {
             for (i = 15; i > 0; i--) {
-                if (len_cnt[i]) {
-                    len_cnt[i]--;
-                    len_cnt[i + 1] += 2;
+                if (leaf_num[i]) {
+                    leaf_num[i]--;
+                    leaf_num[i + 1] += 2;
                     break;
                 }
             }
@@ -90,21 +85,24 @@ make_len(root)
     }
     /* make len */
     for (i = 16; i > 0; i--) {
-        k = len_cnt[i];
+        k = leaf_num[i];
         while (k > 0) {
-            len[*sort++] = i;
+            bitlen[*sort++] = i;
             k--;
         }
     }
 }
 
 /* ------------------------------------------------------------------------ */
-static void
-downheap(i)
 /* priority queue; send i-th entry down heap */
-    int             i;
+static void
+downheap(i, heap, heapsize, freq)
+    int i;
+    short *heap;
+    size_t heapsize;
+    unsigned short *freq;
 {
-    short           j, k;
+    short j, k;
 
     k = heap[i];
     while ((j = 2 * i) <= heapsize) {
@@ -119,52 +117,66 @@ downheap(i)
 }
 
 /* ------------------------------------------------------------------------ */
+/* make tree, calculate bitlen[], return root */
 short
-make_tree(nparm, freqparm, lenparm, codeparm)
-/* make tree, calculate len[], return root */
-    int             nparm;
-    unsigned short  freqparm[];
-    unsigned char   lenparm[];
-    unsigned short  codeparm[];
+make_tree(nchar, freq, bitlen, code)
+    int             nchar;
+    unsigned short  *freq;
+    unsigned char   *bitlen;
+    unsigned short  *code;
 {
-    short           i, j, k, avail;
+    short i, j, avail, root;
+    unsigned short *sort;
+    unsigned short leaf_num[17];
 
-    n = nparm;
-    freq = freqparm;
-    len = lenparm;
-    avail = n;
+    short heap[NC + 1];       /* NC >= nchar */
+    size_t heapsize;
+
+    avail = nchar;
     heapsize = 0;
     heap[1] = 0;
-    for (i = 0; i < n; i++) {
-        len[i] = 0;
+    for (i = 0; i < nchar; i++) {
+        bitlen[i] = 0;
         if (freq[i])
             heap[++heapsize] = i;
     }
     if (heapsize < 2) {
-        codeparm[heap[1]] = 0;
+        code[heap[1]] = 0;
         return heap[1];
     }
+
+    /* make priority queue */
     for (i = heapsize / 2; i >= 1; i--)
-        downheap(i);    /* make priority queue */
-    sort = codeparm;
+        downheap(i, heap, heapsize, freq);
+
+    /* make huffman tree */
+    sort = code;
     do {            /* while queue has at least two entries */
         i = heap[1];    /* take out least-freq entry */
-        if (i < n)
+        if (i < nchar)
             *sort++ = i;
         heap[1] = heap[heapsize--];
-        downheap(1);
+        downheap(1, heap, heapsize, freq);
         j = heap[1];    /* next least-freq entry */
-        if (j < n)
+        if (j < nchar)
             *sort++ = j;
-        k = avail++;    /* generate new node */
-        freq[k] = freq[i] + freq[j];
-        heap[1] = k;
-        downheap(1);    /* put into queue */
-        left[k] = i;
-        right[k] = j;
+        root = avail++;    /* generate new node */
+        freq[root] = freq[i] + freq[j];
+        heap[1] = root;
+        downheap(1, heap, heapsize, freq);    /* put into queue */
+        left[root] = i;
+        right[root] = j;
     } while (heapsize > 1);
-    sort = codeparm;
-    make_len(k);
-    make_code(nparm, lenparm, codeparm);
-    return k;       /* return root */
+
+    /* make leaf_num */
+    memset(leaf_num, 0, sizeof(leaf_num));
+    count_leaf(root, nchar, leaf_num, 0);
+
+    /* make bitlen */
+    make_len(root, nchar, bitlen, code, leaf_num);
+
+    /* make code table */
+    make_code(nchar, bitlen, code, leaf_num);
+
+    return root;
 }
