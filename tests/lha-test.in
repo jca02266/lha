@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 : ${lha_dir=@top_builddir@/src}
 : ${lha=$(cd $lha_dir && pwd)/lha}
