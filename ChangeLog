@@ -1,5 +1,9 @@
 2002-06-17  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.in, configure.ac: On mingw-runtime-2.0-1, opendir()
+	has moved to libmingwex.a. For now, not listed in the
+	/usr/lib/gcc-lib/i686-pc-cygwin/2.95.3-5/specs file.
+
 	* src/lharc.c (message): use variable argument list with stdarg.
 	(warning): ditto.
 	(error): ditto.
