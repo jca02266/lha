@@ -1,5 +1,7 @@
 2002-06-21  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/Makefile.am: Use the `DISTCLEANFILES' variable instead of the `dist-hook' target.
+
 	* tests/Makefile.am: Added `dist-hook' target for `make distcheck'.
 
 	* tests/lha-test.in: All tests are splited into some files.
