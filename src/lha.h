@@ -94,6 +94,12 @@ typedef int gid_t;
 
 #if HAVE_UTIME_H
 #include <utime.h>
+#else
+struct utimbuf {
+    time_t actime;
+    time_t modtime;
+};
+int utime(const char *, struct utimbuf *);
 #endif
 
 #if HAVE_DIRENT_H
