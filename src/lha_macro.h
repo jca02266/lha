@@ -218,7 +218,9 @@
 
 /* from crcio.c */
 #define CRCPOLY			0xA001		/* CRC-16 (x^16+x^15+x^2+1) */
-#define UPDATE_CRC(c)	crc = crctable[(crc ^ (c)) & 0xFF] ^ (crc >> CHAR_BIT)
+#define INITIALIZE_CRC(crc) ((crc) = 0)
+#define UPDATE_CRC(crc, c) \
+ (crctable[((crc) ^ (c)) & 0xFF] ^ ((crc) >> CHAR_BIT))
 
 /* dhuf.c */
 #define N_CHAR      (256 + 60 - THRESHOLD + 1)

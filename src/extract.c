@@ -17,6 +17,8 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method)
 	char           *name;
 	int             method;
 {
+    unsigned int crc;
+
 	interface.method = method;
 	interface.dicbit = 13;	/* method + 8; -lh5- */
 	interface.infile = infp;
@@ -29,14 +31,14 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method)
 	case LARC4_METHOD_NUM:
 		start_indicator(name, original_size
 			      ,verify_mode ? "Testing " : "Melting ", 2048);
-		copyfile(infp, (verify_mode ? NULL : outfp), original_size, 2);
+		copyfile(infp, (verify_mode ? NULL : outfp), original_size, 2, &crc);
 		break;
 	case LARC_METHOD_NUM:		/* -lzs- */
 		interface.dicbit = 11;
 		start_indicator(name, original_size
 				,verify_mode ? "Testing " : "Melting "
 				,1 << interface.dicbit);
-		decode(&interface);
+		crc = decode(&interface);
 		break;
 	case LZHUFF1_METHOD_NUM:		/* -lh1- */
 	case LZHUFF4_METHOD_NUM:		/* -lh4- */
@@ -45,7 +47,7 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method)
 		start_indicator(name, original_size
 				,verify_mode ? "Testing " : "Melting "
 				,1 << interface.dicbit);
-		decode(&interface);
+		crc = decode(&interface);
 		break;
 	case LZHUFF6_METHOD_NUM:		/* -lh6- */	/* Added N.Watazaki (^_^) */
 #ifdef SUPPORT_LH7
@@ -57,7 +59,7 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method)
 		start_indicator(name, original_size
 				,verify_mode ? "Testing " : "Melting "
 				,1 << interface.dicbit);
-		decode(&interface);
+		crc = decode(&interface);
 	}
 	finish_indicator(name, verify_mode ? "Tested  " : "Melted  ");
 

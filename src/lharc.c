@@ -1149,18 +1149,12 @@ copy_old_one(oafp, nafp, hdr)
 	LzHeader       *hdr;
 {
 	if (noexec) {
-		fseek(oafp, (long) (hdr->header_size + 2) + hdr->packed_size, SEEK_CUR);
+		fseek(oafp, hdr->header_size + hdr->packed_size, SEEK_CUR);
 	}
 	else {
 		reading_filename = archive_name;
 		writing_filename = temporary_name;
-		if (hdr->header_level != 2) {
-			copyfile(oafp, nafp,
-					 (long) (hdr->header_size + 2) + hdr->packed_size, 0);
-		} else {
-			copyfile(oafp, nafp,
-					 (long) (hdr->header_size) + hdr->packed_size, 0);
-		}
+        copyfile(oafp, nafp, hdr->header_size + hdr->packed_size, 0, 0);
 	}
 }
 

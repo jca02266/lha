@@ -9,7 +9,6 @@
 #include "lha.h"
 
 /* ------------------------------------------------------------------------ */
-static unsigned short crctable[UCHAR_MAX + 1];
 static unsigned char subbitbuf, bitcount;
 #ifdef EUC
 static int      putc_euc_cache;
@@ -34,33 +33,14 @@ make_crctable( /* void */ )
 }
 
 /* ------------------------------------------------------------------------ */
-#ifdef NEED_INCREMENTAL_INDICATOR
-static void
-put_indicator(count)
-	long int        count;
-{
-	if (!quiet && indicator_threshold) {
-		while (count > indicator_count) {
-			putchar('o');
-			fflush(stdout);
-			indicator_count += indicator_threshold;
-		}
-	}
-}
-#endif
-
-/* ------------------------------------------------------------------------ */
-unsigned short
-calccrc(p, n)
+unsigned int
+calccrc(crc, p, n)
+    unsigned int crc;
 	unsigned char  *p;
 	unsigned int    n;
 {
-	reading_size += n;
-#ifdef NEED_INCREMENTAL_INDICATOR
-	put_indicator(reading_size);
-#endif
 	while (n-- > 0)
-		UPDATE_CRC(*p++);
+		crc = UPDATE_CRC(crc, *p++);
 	return crc;
 }
 
@@ -150,7 +130,8 @@ putbits(n, x)			/* Write rightmost n bits of x */
 
 /* ------------------------------------------------------------------------ */
 int
-fread_crc(p, n, fp)
+fread_crc(crcp, p, n, fp)
+    unsigned int *crcp;
 	unsigned char  *p;
 	int             n;
 	FILE           *fp;
@@ -160,18 +141,25 @@ fread_crc(p, n, fp)
 	else
 		n = fread(p, 1, n, fp);
 
-	calccrc(p, n);
+	*crcp = calccrc(*crcp, p, n);
+#ifdef NEED_INCREMENTAL_INDICATOR
+	put_indicator(n);
+#endif
 	return n;
 }
 
 /* ------------------------------------------------------------------------ */
 void
-fwrite_crc(p, n, fp)
+fwrite_crc(crcp, p, n, fp)
+    unsigned int *crcp;
 	unsigned char  *p;
 	int             n;
 	FILE           *fp;
 {
-	calccrc(p, n);
+	*crcp = calccrc(*crcp, p, n);
+#ifdef NEED_INCREMENTAL_INDICATOR
+	put_indicator(n);
+#endif
 	if (verify_mode)
 		return;
 
@@ -341,17 +329,6 @@ fread_txt(p, n, fp)
 	return cnt;
 }
 
-/* ------------------------------------------------------------------------ */
-unsigned short
-calc_header_crc(p, n)		/* Thanks T.Okamoto */
-	unsigned char  *p;
-	unsigned int    n;
-{
-	crc = 0;
-	while (n-- > 0)
-		UPDATE_CRC(*p++);
-	return crc;
-}
 /* Local Variables: */
 /* tab-width : 4 */
 /* End: */

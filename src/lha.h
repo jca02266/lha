@@ -211,8 +211,9 @@ typedef struct LzHeader {
 	unsigned char   attribute;
 	unsigned char   header_level;
 	char            name[FILENAME_LENGTH];
-	unsigned short  crc;
-	boolean         has_crc;
+	unsigned int    crc;      /* file CRC */
+	boolean         has_crc;  /* file CRC */
+    unsigned int    header_crc; /* header CRC */
 	unsigned char   extend_type;
 	unsigned char   minor_version;
 
@@ -292,7 +293,6 @@ EXTERN int      archive_file_mode;
 EXTERN int      archive_file_gid;
 
 EXTERN struct	interfacing interface;
-/* EXTERN unsigned short crc; */  /* 1996.8.13 t.okamoto */
 
 EXTERN int      noconvertcase; /* 2000.10.6 */
 
@@ -322,9 +322,9 @@ EXTERN long		indicator_threshold;
 
 /* crcio.c */
 EXTERN FILE		*infile, *outfile;
-EXTERN unsigned short crc, bitbuf;
+EXTERN unsigned short bitbuf;
+EXTERN unsigned int crctable[UCHAR_MAX + 1];
 EXTERN int      dispflg;
-EXTERN long		reading_size;
 
 /* from dhuf.c */
 EXTERN unsigned int n_max;

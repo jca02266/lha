@@ -165,7 +165,9 @@ static void init_slide()
 
 /* 辞書を DICSIZ 分 前にずらす */
 
-static void update()
+static unsigned int
+update(crc)
+    unsigned int crc;
 {
 	unsigned int i, j;
 	long n;
@@ -181,7 +183,7 @@ static void update()
 		}
 	}
 #endif
-	n = fread_crc(&text[(unsigned)(txtsiz - dicsiz)], 
+	n = fread_crc(&crc, &text[(unsigned)(txtsiz - dicsiz)], 
 	                           (unsigned)dicsiz, infile);
 
 	remainder += n;
@@ -197,6 +199,8 @@ static void update()
 		j = prev[i];
 		prev[i] = (j > dicsiz) ? j - dicsiz : NIL;
 	}
+
+    return crc;
 }
 
 
@@ -273,23 +277,29 @@ static void match_insert()
 
 /* ポインタを進め、辞書を更新し、ハッシュ値を更新する */
 
-static void get_next()
+static unsigned int
+get_next(crc)
+    unsigned int crc;
 {
 	remainder--;
 	if (++pos >= txtsiz - maxmatch) {
-		update();
+		crc = update(crc);
 #ifdef DEBUG
 		noslide = 0;
 #endif
 	}
 	hval = ((hval << 5) ^ text[pos + 2]) & (unsigned)(HSHSIZ - 1);
+
+    return crc;
 }
 
-void encode(interface)
-struct interfacing *interface;
+unsigned int
+encode(interface)
+    struct interfacing *interface;
 {
 	int lastmatchlen;
 	unsigned int lastmatchoffset;
+    unsigned int crc;
 
 #ifdef DEBUG
 	unsigned int addr;
@@ -303,7 +313,9 @@ struct interfacing *interface;
 	outfile = interface->outfile;
 	origsize = interface->original;
 	compsize = count = 0L;
-	crc = unpackable = 0;
+	unpackable = 0;
+
+    INITIALIZE_CRC(crc);
 
 	/* encode_alloc(); */ /* allocate_memory(); */
 	init_slide();  
@@ -311,7 +323,7 @@ struct interfacing *interface;
 	encode_set.encode_start();
 	memset(&text[0], ' ', (long)TXTSIZ);
 
-	remainder = fread_crc(&text[dicsiz], txtsiz-dicsiz, infile);
+	remainder = fread_crc(&crc, &text[dicsiz], txtsiz-dicsiz, infile);
 	encoded_origsize = remainder;
 	matchlen = THRESHOLD - 1;
 
@@ -325,7 +337,7 @@ struct interfacing *interface;
 	while (remainder > 0 && ! unpackable) {
 		lastmatchlen = matchlen;  lastmatchoffset = pos - matchpos - 1;
 		--matchlen;
-		get_next();  match_insert();
+		crc = get_next(crc);  match_insert();
 		if (matchlen > remainder) matchlen = remainder;
 		if (matchlen > lastmatchlen || lastmatchlen < THRESHOLD) {
 			encode_set.output(text[pos - 1], 0);
@@ -354,10 +366,10 @@ struct interfacing *interface;
 			}
 #endif
 			while (--lastmatchlen > 0) {
-				get_next();  insert();
+				crc = get_next(crc);  insert();
 				count++;
 			}
-			get_next();
+			crc = get_next(crc);
 			matchlen = THRESHOLD - 1;
 			match_insert();
 			if (matchlen > remainder) matchlen = remainder;
@@ -367,17 +379,19 @@ struct interfacing *interface;
 
 	interface->packed = compsize;
 	interface->original = encoded_origsize;
+
+    return crc;
 }
 
 /* ------------------------------------------------------------------------ */
-void
+unsigned int
 decode(interface)
 	struct interfacing *interface;
 {
 	unsigned int i, j, k, c;
 	unsigned int dicsiz1, offset;
 	unsigned char *dtext;
-	
+	unsigned int crc;
 
 #ifdef DEBUG
 	fout = fopen("de", "wt");
@@ -391,7 +405,7 @@ decode(interface)
 	compsize = interface->packed;
 	decode_set = decode_define[interface->method - 1];
 
-	crc = 0;
+	INITIALIZE_CRC(crc);
 	prev_char = -1;
 	dicsiz = 1L << dicbit;
 	dtext = (unsigned char *)xmalloc(dicsiz);
@@ -409,7 +423,7 @@ decode(interface)
 #endif
 			dtext[loc++] = c;
 			if (loc == dicsiz) {
-				fwrite_crc(dtext, dicsiz, outfile);
+				fwrite_crc(&crc, dtext, dicsiz, outfile);
 				loc = 0;
 			}
 			count++;
@@ -429,7 +443,7 @@ decode(interface)
 #endif
 				dtext[loc++] = c;
 				if (loc == dicsiz) {
-					fwrite_crc(dtext, dicsiz, outfile);
+					fwrite_crc(&crc, dtext, dicsiz, outfile);
 					loc = 0;
 				}
 			}
@@ -439,10 +453,11 @@ decode(interface)
 		}
 	}
 	if (loc != 0) {
-		fwrite_crc(dtext, loc, outfile);
+		fwrite_crc(&crc, dtext, loc, outfile);
 	}
 
 	free(dtext);
+    return crc;
 }
 
 /* Local Variables: */

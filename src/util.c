@@ -16,28 +16,29 @@
 #include <errno.h>
 
 /* ------------------------------------------------------------------------ */
-extern unsigned short crc;
-extern int      quiet;
-/* ------------------------------------------------------------------------ */
 long
-copyfile(f1, f2, size, crc_flg)	/* return: size of source file */
+copyfile(f1, f2, size, text_flg, crcp)	/* return: size of source file */
 	FILE           *f1;
 	FILE           *f2;
 	long            size;
-	int             crc_flg;/* 0: no crc, 1: crc check, 2: extract, 3:
-				 * append */
+    int text_flg;               /* 0: binary, 1: read text, 2: write text */
+	unsigned int *crcp;
 {
 	unsigned short  xsize;
 	char           *buf;
 	long            rsize = 0;
 
+    if (!text_mode)
+        text_flg = 0;
+
 	buf = (char *)xmalloc(BUFFERSIZE);
-	crc = 0;
-	if ((crc_flg == 2 || crc_flg) && text_mode)
+    if (crcp)
+        INITIALIZE_CRC(*crcp);
+	if (text_flg)
 		init_code_cache();
 	while (size > 0) {
 		/* read */
-		if (crc_flg == 3 && text_mode) {
+		if (text_flg & 1) {
 			xsize = fread_txt(buf, BUFFERSIZE, f1);
 			if (xsize == 0)
 				break;
@@ -50,10 +51,11 @@ copyfile(f1, f2, size, crc_flg)	/* return: size of source file */
 			if (fread(buf, 1, xsize, f1) != xsize) {
 				fatal_error("file read error");
 			}
+			size -= xsize;
 		}
 		/* write */
 		if (f2) {
-			if (crc_flg == 2 && text_mode) {
+			if (text_flg & 2) {
 				if (fwrite_txt(buf, xsize, f2)) {
 					fatal_error("file write error");
 				}
@@ -65,12 +67,13 @@ copyfile(f1, f2, size, crc_flg)	/* return: size of source file */
 			}
 		}
 		/* calculate crc */
-		if (crc_flg) {
-			calccrc(buf, xsize);
+		if (crcp) {
+			*crcp = calccrc(*crcp, buf, xsize);
+#ifdef NEED_INCREMENTAL_INDICATOR
+            put_indicator(xsize);
+#endif
 		}
 		rsize += xsize;
-		if (crc_flg != 3 || !text_mode)
-			size -= xsize;
 	}
 	free(buf);
 	return rsize;
@@ -85,10 +88,11 @@ encode_stored_crc(ifp, ofp, size, original_size_var, write_size_var)
 	long           *write_size_var;
 {
 	int             save_quiet;
+    unsigned int crc;
 
 	save_quiet = quiet;
 	quiet = 1;
-	size = copyfile(ifp, ofp, size, 3);
+	size = copyfile(ifp, ofp, size, 1, &crc);
 	*original_size_var = *write_size_var = size;
 	quiet = save_quiet;
 	return crc;

@@ -8,6 +8,8 @@
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
+static long reading_size;
+
 /* ------------------------------------------------------------------------ */
 int
 encode_lzhuf(infp, outfp, size, original_size_var, packed_size_var,
@@ -21,6 +23,7 @@ encode_lzhuf(infp, outfp, size, original_size_var, packed_size_var,
 	char           *hdr_method;
 {
 	static int      method = -1;
+    unsigned int crc;
 
 	if (method < 0) {
 		method = compress_method;
@@ -35,11 +38,11 @@ encode_lzhuf(infp, outfp, size, original_size_var, packed_size_var,
 		interface.outfile = outfp;
 		interface.original = size;
 		start_indicator(name, size, "Freezing", 1 << dicbit);
-		encode(&interface);
+		crc = encode(&interface);
 		*packed_size_var = interface.packed;
 		*original_size_var = interface.original;
 	} else {
-		copyfile(infp, outfp, size, 1);
+		copyfile(infp, outfp, size, 0, &crc);
 		*packed_size_var = *original_size_var = size;
 	}
 	memcpy(hdr_method, "-lh -", 5);
@@ -96,6 +99,23 @@ start_indicator(name, size, msg, def_indicator_threshold)
 	reading_size = 0L;
 }
 /* ------------------------------------------------------------------------ */
+#ifdef NEED_INCREMENTAL_INDICATOR
+void
+put_indicator(count)
+	long int        count;
+{
+    reading_size += count;
+	if (!quiet && indicator_threshold) {
+		while (reading_size > indicator_count) {
+			putchar('o');
+			fflush(stdout);
+			indicator_count += indicator_threshold;
+		}
+	}
+}
+#endif
+
+/* ------------------------------------------------------------------------ */
 void
 finish_indicator2(name, msg, pcnt)
 	char           *name;
@@ -114,6 +134,7 @@ finish_indicator2(name, msg, pcnt)
 #endif
 	fflush(stdout);
 }
+
 /* ------------------------------------------------------------------------ */
 void
 finish_indicator(name, msg)

@@ -91,11 +91,11 @@ dump_skip_bytes(len)
 #endif
 
 /* ------------------------------------------------------------------------ */
-static unsigned short
+static int
 get_word()
 {
 	int             b0, b1;
-    unsigned short w;
+    int w;
 
 #if DUMP_HEADER
     printf("%02d %2d: ", get_ptr - start_ptr, 2);
@@ -525,10 +525,11 @@ unix_to_generic_stamp(t)
  *    size field is 4 bytes
  */
 static long
-get_extended_header(fp, hdr, header_size)
+get_extended_header(fp, hdr, header_size, hcrc)
     FILE *fp;
     LzHeader *hdr;
     long header_size;
+    unsigned int *hcrc;
 {
     char data[LZHEADER_STORAGE];
     int name_length;
@@ -555,11 +556,15 @@ get_extended_header(fp, hdr, header_size)
             error("Invalid header (LHa file ?)");
             return -1;
         }
+
         ext_type = get_byte();
         switch (ext_type) {
         case 0:
             /* header crc (CRC-16) */
-            skip_bytes(header_size - n); /* FIXME: ignored? */
+            hdr->header_crc = get_word();
+            *--get_ptr = 0;     /* clear buffer for CRC calculation. */
+            *--get_ptr = 0;
+            skip_bytes(header_size - n);
             break;
         case 1:
             /* filename */
@@ -619,6 +624,9 @@ get_extended_header(fp, hdr, header_size)
         }
 
     next:
+        if (hcrc)
+            *hcrc = calccrc(*hcrc, data, header_size);
+
         if (hdr->size_field_length == 2)
             whole_size += header_size = get_word();
         else
@@ -761,6 +769,7 @@ get_header_level0(fp, hdr, data)
     if (extend_size > 0)
         skip_bytes(extend_size);
 
+    hdr->header_size += 2;
     return TRUE;
 }
 
@@ -845,7 +854,7 @@ get_header_level1(fp, hdr, data)
         skip_bytes(dummy); /* skip old style extend header */
 
     extend_size = get_word();
-    extend_size = get_extended_header(fp, hdr, extend_size);
+    extend_size = get_extended_header(fp, hdr, extend_size, 0);
     if (extend_size == -1)
         return FALSE;
 
@@ -853,7 +862,7 @@ get_header_level1(fp, hdr, data)
     /* the `packed_size' field contains the extended header size. */
     /* the `header_size' field does not. */
     hdr->packed_size -= extend_size;
-    hdr->header_size += extend_size;
+    hdr->header_size += extend_size + 2;
 
     return TRUE;
 }
@@ -895,6 +904,7 @@ get_header_level2(fp, hdr, data)
 {
     int header_size, extend_size;
     int padding;
+    unsigned int hcrc;
 
     hdr->size_field_length = 2; /* in bytes */
     hdr->header_size = header_size = get_word();
@@ -921,15 +931,19 @@ get_header_level2(fp, hdr, data)
     hdr->extend_type = get_byte();
     extend_size = get_word();
 
-    extend_size = get_extended_header(fp, hdr, extend_size);
+    INITIALIZE_CRC(hcrc);
+    hcrc = calccrc(hcrc, data, get_ptr - data);
+
+    extend_size = get_extended_header(fp, hdr, extend_size, &hcrc);
     if (extend_size == -1)
         return FALSE;
 
     padding = header_size - 26 - extend_size;
     while (padding--)           /* padding should be 0 or 1 */
-        fgetc(fp);
+        hcrc = UPDATE_CRC(hcrc, fgetc(fp));
 
-    /* FIXME: no collate the header CRC */
+    if (hdr->header_crc != hcrc)
+        error("header CRC error");
 
     return TRUE;
 }
@@ -969,6 +983,7 @@ get_header_level3(fp, hdr, data)
 {
     long header_size, extend_size;
     int padding;
+    unsigned int hcrc;
 
     hdr->size_field_length = get_word();
 
@@ -995,15 +1010,19 @@ get_header_level3(fp, hdr, data)
     hdr->header_size = header_size = get_longword();
     extend_size = get_longword();
 
-    extend_size = get_extended_header(fp, hdr, extend_size);
+    INITIALIZE_CRC(hcrc);
+    hcrc = calccrc(hcrc, data, get_ptr - data);
+
+    extend_size = get_extended_header(fp, hdr, extend_size, &hcrc);
     if (extend_size == -1)
         return FALSE;
 
     padding = header_size - 32 - extend_size;
-    while (padding--)         /* padding should be 0 */
-        fgetc(fp);
+    while (padding--)           /* padding should be 0 */
+        hcrc = UPDATE_CRC(hcrc, fgetc(fp));
 
-    /* FIXME: no collate the header CRC */
+    if (hdr->header_crc != hcrc)
+        error("header CRC error");
 
     return TRUE;
 }
@@ -1380,7 +1399,7 @@ write_header_level2(data, hdr, pathname)
     int header_size;
     char *extend_header_top;
     char *headercrc_ptr;
-    unsigned short hcrc;
+    unsigned int hcrc;
 
     basename = strrchr(pathname, LHA_PATHSEP);
     if (basename) {
@@ -1484,7 +1503,8 @@ write_header_level2(data, hdr, pathname)
     put_word(header_size);
 
     /* put hader CRC in extended header */
-    hcrc = calc_header_crc(data, (unsigned int) header_size);
+    INITIALIZE_CRC(hcrc);
+    hcrc = calccrc(hcrc, data, (unsigned int) header_size);
     setup_put(headercrc_ptr);
     put_word(hcrc);
 
