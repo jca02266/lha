@@ -197,14 +197,14 @@ struct string_pool {
 };
 
 typedef struct LzHeader {
-	unsigned char   header_size;
+	int             header_size;
 	char            method[METHOD_TYPE_STRAGE];
 	long            packed_size;
 	long            original_size;
 	long            last_modified_stamp;
 	unsigned char   attribute;
 	unsigned char   header_level;
-	char            name[256];
+	char            name[FILENAME_LENGTH];
 	unsigned short  crc;
 	boolean         has_crc;
 	unsigned char   extend_type;
