@@ -264,7 +264,7 @@ parse_option(int argc, char **argv)
         break;
 
     default:
-        error("unknown command -`%c'", *opt);
+        error("unknown command `-%c'", *opt);
         return -1;
     }
 
@@ -409,7 +409,7 @@ parse_option(int argc, char **argv)
                 header_level = 2;
                 break;
             default:
-                error("unknown option -`%c'.", p[-1]);
+                error("unknown option `-%c'.", p[-1]);
                 return -1;
             }
         }
