@@ -59,6 +59,7 @@ AC_CHECK_FUNCS(strchr strdup memcpy memset memmove strcasecmp)
 AC_CHECK_FUNCS(mktime timelocal tzset ftime gettimeofday utime)
 AC_CHECK_FUNCS(mkdir rmdir ftruncate lchown mkstemp link)
 AC_CHECK_FUNCS(getpwuid getgrgid getpwnam getgrnam)
+AC_CHECK_FUNCS(iconv)
 AC_REPLACE_FUNCS(vsnprintf)
 
 if test $ac_header_dirent = no; then
