@@ -1,5 +1,22 @@
 2002-05-29  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* header.doc.euc: around user/group name extention.
+
+	* configure.in, configure.ac, config.h.in: checks having
+	getpwuid/getgrgid and so on.
+
+	* src/header.c (get_header): use the extend header, user/group name.
+	(init_header): ditto.
+
+	* src/lha.h: added <pwd.h>, <grp.h> header includings.
+
+	* src/lhext.c (adjust_info): change owner/group according to
+	user/group name when extracting.
+
+	* src/lhlist.c (list_one): print user/group name when the header
+	has them.
+	(list_one): correct column position on OS68K.
+
 	* tests/lha-test.in: added timestamp checks.
 
 	* src/lha_macro.h: comment about OS code.
