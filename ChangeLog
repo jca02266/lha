@@ -1,3 +1,11 @@
+2002-06-04  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/header.c (init_header): added a macro MAKE_USER_NAME_HEADER.
+
+	* configure.ac, configure.in, config.h.in: added a switch
+	`--enable-user-name-header' whether user/name extended header is
+	made.
+
 2002-06-01  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* README.autoconf: `-i' switch of automake is deprecated.
