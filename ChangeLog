@@ -1,3 +1,11 @@
+2003-07-20  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.ac: updated version.
+
+	* src/Makefile.am (EXTRA_DIST): fnmatch.h was missed.
+
+	* src/lha.h (fseeko, ftello): these macros had no effect.
+
 2003-07-19  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/maketree.c (make_len): discard debug print.
