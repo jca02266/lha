@@ -123,11 +123,11 @@ encode_alloc(method)
 		encode_set = encode_define[1];
 		maxmatch = MAXMATCH;
 		if (method == LZHUFF7_METHOD_NUM)
-			dicbit = LH7_DICBIT;	/* 16 bits */
+			dicbit = LZHUFF7_DICBIT;	/* 16 bits */
 		else if (method == LZHUFF6_METHOD_NUM)
-			dicbit = LH6_DICBIT;	/* 15 bits */
+			dicbit = LZHUFF6_DICBIT;	/* 15 bits */
 		else /* LH5  LH4 is not used */
-			dicbit = LH5_DICBIT;	/* 13 bits */
+			dicbit = LZHUFF5_DICBIT;	/* 13 bits */
 	}
 
 	dicsiz = (((unsigned long)1) << dicbit);
