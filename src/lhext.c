@@ -97,8 +97,6 @@ make_parent_path(name)
 	if (GETSTAT(path, &stbuf) >= 0) {
 		if (is_directory(&stbuf))
 			return TRUE;
-		error("Not a directory \"%s\"", path);
-		return FALSE;
 	}
 
 	if (verbose)
