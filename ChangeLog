@@ -1,3 +1,18 @@
+2002-12-16  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* 00readme.autoconf: describe about new feature `-x'.
+
+	* src/lha.h: include fnmatch.h.
+	added a global variable `exclude_files'.
+
+	* src/lharc.c (init_variable): initialize `exclude_files'.
+	(print_tiny_usage): modify usage.
+	(parse_option): newly added. should regard leading `-' argument as
+	option (for new -x option).
+	added `-x <pattern>' option (specify exclude files pattern).
+	(find_files): files matched by pattern `exclude_files' exclude
+	from target files.
+
 2002-11-25  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/header.c: use size_t for header_size.
