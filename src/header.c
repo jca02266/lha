@@ -1,15 +1,15 @@
 /* ------------------------------------------------------------------------ */
-/* LHa for UNIX    															*/
-/*				header.c -- header manipulate functions						*/
-/*																			*/
-/*		Modified          		Nobutaka Watazaki							*/
-/*																			*/
-/*	Original												Y.Tagawa		*/
-/*	modified									1991.12.16	M.Oki			*/
-/*	Ver. 1.10  Symbolic Link added				1993.10.01	N.Watazaki		*/
-/*	Ver. 1.13b Symbolic Link Bug Fix			1994.08.22	N.Watazaki		*/
-/*	Ver. 1.14  Source All chagned				1995.01.14	N.Watazaki		*/
-/*  Ver. 1.14i bug fixed						2000.10.06  t.okamoto       */
+/* LHa for UNIX                                                             */
+/*              header.c -- header manipulate functions                     */
+/*                                                                          */
+/*      Modified                Nobutaka Watazaki                           */
+/*                                                                          */
+/*  Original                                                Y.Tagawa        */
+/*  modified                                    1991.12.16  M.Oki           */
+/*  Ver. 1.10  Symbolic Link added              1993.10.01  N.Watazaki      */
+/*  Ver. 1.13b Symbolic Link Bug Fix            1994.08.22  N.Watazaki      */
+/*  Ver. 1.14  Source All chagned               1995.01.14  N.Watazaki      */
+/*  Ver. 1.14i bug fixed                        2000.10.06  t.okamoto       */
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
@@ -25,7 +25,7 @@
 
 /* ------------------------------------------------------------------------ */
 static char    *get_ptr;
-#define GET_BYTE()		(*get_ptr++ & 0xff)
+#define GET_BYTE()      (*get_ptr++ & 0xff)
 
 #if DUMP_HEADER
 static char    *start_ptr;
@@ -33,13 +33,13 @@ static char    *start_ptr;
 #define get_byte()      dump_get_byte()
 #define skip_bytes(len) dump_skip_bytes(len)
 #else
-#define setup_get(PTR)	(get_ptr = (PTR))
-#define get_byte()		GET_BYTE()
+#define setup_get(PTR)  (get_ptr = (PTR))
+#define get_byte()      GET_BYTE()
 #define skip_bytes(len) (get_ptr += (len))
 #endif
-#define put_ptr			get_ptr
-#define setup_put(PTR)	(put_ptr = (PTR))
-#define put_byte(c)		(*put_ptr++ = (char)(c))
+#define put_ptr         get_ptr
+#define setup_put(PTR)  (put_ptr = (PTR))
+#define put_byte(c)     (*put_ptr++ = (char)(c))
 
 int optional_archive_kanji_code = NONE;
 int optional_system_kanji_code = NONE;
@@ -56,15 +56,15 @@ int default_system_kanji_code = NONE;
 /* ------------------------------------------------------------------------ */
 int
 calc_sum(p, len)
-	register char  *p;
-	register int    len;
+    register char  *p;
+    register int    len;
 {
-	register int    sum;
+    register int    sum;
 
-	for (sum = 0; len; len--)
-		sum += *p++;
+    for (sum = 0; len; len--)
+        sum += *p++;
 
-	return sum & 0xff;
+    return sum & 0xff;
 }
 
 #if DUMP_HEADER
@@ -105,64 +105,64 @@ dump_skip_bytes(len)
 static int
 get_word()
 {
-	int             b0, b1;
+    int             b0, b1;
     int w;
 
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
         printf("%02d %2d: ", get_ptr - start_ptr, 2);
 #endif
-	b0 = GET_BYTE();
-	b1 = GET_BYTE();
+    b0 = GET_BYTE();
+    b1 = GET_BYTE();
     w = (b1 << 8) + b0;
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
         printf("%d(0x%04x)\n", w, w);
 #endif
-	return w;
+    return w;
 }
 
 /* ------------------------------------------------------------------------ */
 static void
 put_word(v)
-	unsigned int    v;
+    unsigned int    v;
 {
-	put_byte(v);
-	put_byte(v >> 8);
+    put_byte(v);
+    put_byte(v >> 8);
 }
 
 /* ------------------------------------------------------------------------ */
 static long
 get_longword()
 {
-	long            b0, b1, b2, b3;
+    long            b0, b1, b2, b3;
     long l;
 
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
         printf("%02d %2d: ", get_ptr - start_ptr, 4);
 #endif
-	b0 = GET_BYTE();
-	b1 = GET_BYTE();
-	b2 = GET_BYTE();
-	b3 = GET_BYTE();
+    b0 = GET_BYTE();
+    b1 = GET_BYTE();
+    b2 = GET_BYTE();
+    b3 = GET_BYTE();
     l = (b3 << 24) + (b2 << 16) + (b1 << 8) + b0;
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
         printf("%ld(0x%08lx)\n", l, l);
 #endif
-	return l;
+    return l;
 }
 
 /* ------------------------------------------------------------------------ */
 static void
 put_longword(v)
-	long            v;
+    long            v;
 {
-	put_byte(v);
-	put_byte(v >> 8);
-	put_byte(v >> 16);
-	put_byte(v >> 24);
+    put_byte(v);
+    put_byte(v >> 8);
+    put_byte(v >> 16);
+    put_byte(v >> 24);
 }
 
 static int
@@ -376,30 +376,30 @@ gettz()
 {
 #ifdef HAVE_TZSET
 #if defined(_MINIX)
-    extern long     timezone;		/* not defined in time.h */
+    extern long     timezone;       /* not defined in time.h */
 #endif
 
-	tzset();
-	return timezone;
+    tzset();
+    return timezone;
 #elif HAVE_FTIME        
-	struct timeb    buf;
+    struct timeb    buf;
 
-	ftime(&buf);
-	return buf.timezone * 60L;
+    ftime(&buf);
+    return buf.timezone * 60L;
 #elif HAVE_STRUCT_TM_TM_GMTOFF
-	time_t tt;
+    time_t tt;
 
-	time(&tt);
-	return -localtime(&tt)->tm_gmtoff;
+    time(&tt);
+    return -localtime(&tt)->tm_gmtoff;
 #elif GETTIMEOFDAY_HAS_2ND_ARG
-	struct timeval  tp;
-	struct timezone tzp;
-	gettimeofday(&tp, &tzp);/* specific to 4.3BSD */
-	/*
-	 * return (tzp.tz_minuteswest * 60L + (tzp.tz_dsttime != 0 ? 60L *
-	 * 60L : 0));
-	 */
-	return (tzp.tz_minuteswest * 60L);
+    struct timeval  tp;
+    struct timezone tzp;
+    gettimeofday(&tp, &tzp);/* specific to 4.3BSD */
+    /*
+     * return (tzp.tz_minuteswest * 60L + (tzp.tz_dsttime != 0 ? 60L *
+     * 60L : 0));
+     */
+    return (tzp.tz_minuteswest * 60L);
 #else
     /* Compile error will be caused */
     CANNOT GET TIMEZONE INFORMATION ON YOUR SYSTEM.
@@ -411,87 +411,87 @@ gettz()
 /* ------------------------------------------------------------------------ */
 static          time_t
 generic_to_unix_stamp(t)
-	long            t;
+    long            t;
 {
 #if defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL)
-	struct tm       dostm;
+    struct tm       dostm;
 
-	/*
-	 * special case:  if MSDOS format date and time were zero, then we
-	 * set time to be zero here too.
-	 */
-	if (t == 0)
-		return (time_t) 0;
+    /*
+     * special case:  if MSDOS format date and time were zero, then we
+     * set time to be zero here too.
+     */
+    if (t == 0)
+        return (time_t) 0;
 
-	dostm.tm_sec = (t & 0x1f) * 2;
-	dostm.tm_min = t >> 5 & 0x3f;
-	dostm.tm_hour = t >> 11 & 0x1f;
-	dostm.tm_mday = t >> 16 & 0x1f;
-	dostm.tm_mon = (t >> (16+5) & 0x0f) - 1;	/* 0..11 */
-	dostm.tm_year = (t >> (16+9) & 0x7f) + 80;
-	dostm.tm_isdst = -1;
+    dostm.tm_sec = (t & 0x1f) * 2;
+    dostm.tm_min = t >> 5 & 0x3f;
+    dostm.tm_hour = t >> 11 & 0x1f;
+    dostm.tm_mday = t >> 16 & 0x1f;
+    dostm.tm_mon = (t >> (16+5) & 0x0f) - 1;    /* 0..11 */
+    dostm.tm_year = (t >> (16+9) & 0x7f) + 80;
+    dostm.tm_isdst = -1;
 
 #if HAVE_MKTIME
-	return (time_t) mktime(&dostm);
+    return (time_t) mktime(&dostm);
 #else /* HAVE_TIMELOCAL is defined */
-	return (time_t) timelocal(&dostm);
+    return (time_t) timelocal(&dostm);
 #endif
 
-#else				/* defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) */
-	int             year, month, day, hour, min, sec;
-	long            longtime;
-	static unsigned int dsboy[12] = {0, 31, 59, 90, 120, 151,
-	181, 212, 243, 273, 304, 334};
-	unsigned int    days;
+#else               /* defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) */
+    int             year, month, day, hour, min, sec;
+    long            longtime;
+    static unsigned int dsboy[12] = {0, 31, 59, 90, 120, 151,
+    181, 212, 243, 273, 304, 334};
+    unsigned int    days;
 
-	/*
-	 * special case:  if MSDOS format date and time were zero, then we
-	 * set time to be zero here too.
-	 */
-	if (t == 0)
-		return (time_t) 0;
+    /*
+     * special case:  if MSDOS format date and time were zero, then we
+     * set time to be zero here too.
+     */
+    if (t == 0)
+        return (time_t) 0;
 
-	year = ((int) (t >> 16 + 9) & 0x7f) + 1980;
-	month = (int) (t >> 16 + 5) & 0x0f;	/* 1..12 means Jan..Dec */
-	day = (int) (t >> 16) & 0x1f;	/* 1..31 means 1st,...31st */
+    year = ((int) (t >> 16 + 9) & 0x7f) + 1980;
+    month = (int) (t >> 16 + 5) & 0x0f; /* 1..12 means Jan..Dec */
+    day = (int) (t >> 16) & 0x1f;   /* 1..31 means 1st,...31st */
 
-	hour = ((int) t >> 11) & 0x1f;
-	min = ((int) t >> 5) & 0x3f;
-	sec = ((int) t & 0x1f) * 2;
+    hour = ((int) t >> 11) & 0x1f;
+    min = ((int) t >> 5) & 0x3f;
+    sec = ((int) t & 0x1f) * 2;
 
-	/* Calculate days since 1970.01.01 */
-	days = (365 * (year - 1970) +	/* days due to whole years */
-		(year - 1970 + 1) / 4 +	/* days due to leap years */
-		dsboy[month - 1] +	/* days since beginning of this year */
-		day - 1);	/* days since beginning of month */
+    /* Calculate days since 1970.01.01 */
+    days = (365 * (year - 1970) +   /* days due to whole years */
+        (year - 1970 + 1) / 4 + /* days due to leap years */
+        dsboy[month - 1] +  /* days since beginning of this year */
+        day - 1);   /* days since beginning of month */
 
-	if ((year % 4 == 0) &&
-		(year % 100 != 0 || year % 400 == 0) &&		/* 1999.5.24 t.oka */
-	    (month >= 3))	/* if this is a leap year and month */
-		days++;		/* is March or later, add a day */
+    if ((year % 4 == 0) &&
+        (year % 100 != 0 || year % 400 == 0) &&     /* 1999.5.24 t.oka */
+        (month >= 3))   /* if this is a leap year and month */
+        days++;     /* is March or later, add a day */
 
-	/* Knowing the days, we can find seconds */
-	longtime = (((days * 24) + hour) * 60 + min) * 60 + sec;
-	longtime += gettz();	/* adjust for timezone */
+    /* Knowing the days, we can find seconds */
+    longtime = (((days * 24) + hour) * 60 + min) * 60 + sec;
+    longtime += gettz();    /* adjust for timezone */
 
-	/* LONGTIME is now the time in seconds, since 1970/01/01 00:00:00.  */
-	return (time_t) longtime;
-#endif				/* defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) */
+    /* LONGTIME is now the time in seconds, since 1970/01/01 00:00:00.  */
+    return (time_t) longtime;
+#endif              /* defined(HAVE_MKTIME) || defined(HAVE_TIMELOCAL) */
 }
 
 /* ------------------------------------------------------------------------ */
 static long
 unix_to_generic_stamp(t)
-	time_t          t;
+    time_t          t;
 {
-	struct tm      *tm = localtime(&t);
+    struct tm      *tm = localtime(&t);
 
-	return ((((long) (tm->tm_year - 80)) << 25) +
-		(((long) (tm->tm_mon + 1)) << 21) +
-		(((long) tm->tm_mday) << 16) +
-		(long) ((tm->tm_hour << 11) +
-			(tm->tm_min << 5) +
-			(tm->tm_sec / 2)));
+    return ((((long) (tm->tm_year - 80)) << 25) +
+        (((long) (tm->tm_mon + 1)) << 21) +
+        (((long) tm->tm_mday) << 16) +
+        (long) ((tm->tm_hour << 11) +
+            (tm->tm_min << 5) +
+            (tm->tm_sec / 2)));
 }
 
 static unsigned long
@@ -533,7 +533,7 @@ wintime_to_unix_stamp()
 }
 
 /* ------------------------------------------------------------------------ */
-/* build header functions													*/
+/* build header functions                                                   */
 /* ------------------------------------------------------------------------ */
 
 /*
@@ -1194,7 +1194,7 @@ get_header(fp, hdr)
                      system_kanji_code,
                      archive_delim, system_delim, filename_case);
 
- 	if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
+    if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
         char *p;
         /* split symbolic link */
         p = strchr(hdr->name, '|');
@@ -1214,18 +1214,18 @@ get_header(fp, hdr)
 /* skip SFX header */
 boolean
 skip_msdos_sfx1_code(fp)
-	FILE           *fp;
+    FILE           *fp;
 {
-	unsigned char   buffer[64 * 1024]; /* SFX header size */
-	unsigned char  *p;
-	int             n;
+    unsigned char   buffer[64 * 1024]; /* SFX header size */
+    unsigned char  *p;
+    int             n;
 
-	n = fread(buffer, 1, sizeof(buffer), fp);
+    n = fread(buffer, 1, sizeof(buffer), fp);
 
-	for (p = buffer; p < buffer + n; p++) {
-		if (! (p[I_METHOD]=='-' && p[I_METHOD+1]=='l' && p[I_METHOD+4]=='-'))
+    for (p = buffer; p < buffer + n; p++) {
+        if (! (p[I_METHOD]=='-' && p[I_METHOD+1]=='l' && p[I_METHOD+4]=='-'))
             continue;
-		/* found "-l??-" keyword (as METHOD type string) */
+        /* found "-l??-" keyword (as METHOD type string) */
 
         /* size and checksum validate check */
 
@@ -1244,20 +1244,20 @@ skip_msdos_sfx1_code(fp)
             fseek(fp, (p - buffer) - n, SEEK_CUR);
             return TRUE;
         }
-	}
+    }
 
-	fseek(fp, -n, SEEK_CUR);
-	return FALSE;
+    fseek(fp, -n, SEEK_CUR);
+    return FALSE;
 }
 
 /* ------------------------------------------------------------------------ */
 void
 init_header(name, v_stat, hdr)
-	char           *name;
-	struct stat    *v_stat;
-	LzHeader       *hdr;
+    char           *name;
+    struct stat    *v_stat;
+    LzHeader       *hdr;
 {
-	int             len;
+    int             len;
 
     memset(hdr, 0, sizeof(LzHeader));
 
@@ -1265,24 +1265,24 @@ init_header(name, v_stat, hdr)
        but need set for empty files */
     memcpy(hdr->method, LZHUFF0_METHOD, METHOD_TYPE_STORAGE);
 
-	hdr->packed_size = 0;
-	hdr->original_size = v_stat->st_size;
-	hdr->attribute = GENERIC_ATTRIBUTE;
-	hdr->header_level = header_level;
-	strcpy(hdr->name, name);
-	len = strlen(name);
-	hdr->crc = 0x0000;
-	hdr->extend_type = EXTEND_UNIX;
-	hdr->unix_last_modified_stamp = v_stat->st_mtime;
-	/* since 00:00:00 JAN.1.1970 */
+    hdr->packed_size = 0;
+    hdr->original_size = v_stat->st_size;
+    hdr->attribute = GENERIC_ATTRIBUTE;
+    hdr->header_level = header_level;
+    strcpy(hdr->name, name);
+    len = strlen(name);
+    hdr->crc = 0x0000;
+    hdr->extend_type = EXTEND_UNIX;
+    hdr->unix_last_modified_stamp = v_stat->st_mtime;
+    /* since 00:00:00 JAN.1.1970 */
 #ifdef NOT_COMPATIBLE_MODE
-	/* Please need your modification in this space. */
+    /* Please need your modification in this space. */
 #else
-	hdr->unix_mode = v_stat->st_mode;
+    hdr->unix_mode = v_stat->st_mode;
 #endif
 
-	hdr->unix_uid = v_stat->st_uid;
-	hdr->unix_gid = v_stat->st_gid;
+    hdr->unix_uid = v_stat->st_uid;
+    hdr->unix_gid = v_stat->st_gid;
 
 #if INCLUDE_OWNER_NAME_IN_HEADER
 #if HAVE_GETPWUID
@@ -1308,21 +1308,21 @@ init_header(name, v_stat, hdr)
     }
 #endif
 #endif /* INCLUDE_OWNER_NAME_IN_HEADER */
-	if (is_directory(v_stat)) {
-		memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STORAGE);
-		hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
-		hdr->original_size = 0;
-		if (len > 0 && hdr->name[len - 1] != '/')
-			strcpy(&hdr->name[len++], "/");
-	}
+    if (is_directory(v_stat)) {
+        memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STORAGE);
+        hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
+        hdr->original_size = 0;
+        if (len > 0 && hdr->name[len - 1] != '/')
+            strcpy(&hdr->name[len++], "/");
+    }
 
 #ifdef S_IFLNK
-	if (is_symlink(v_stat)) {
-		memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STORAGE);
-		hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
-		hdr->original_size = 0;
-		readlink(name, hdr->realname, sizeof(hdr->realname));
-	}
+    if (is_symlink(v_stat)) {
+        memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STORAGE);
+        hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
+        hdr->original_size = 0;
+        readlink(name, hdr->realname, sizeof(hdr->realname));
+    }
 #endif
 }
 
@@ -1634,7 +1634,7 @@ write_header(fp, hdr)
         archive_delim = "\\";
     }
 
- 	if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
+    if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
         char *p;
         p = strchr(hdr->name, '|');
         if (p) {
@@ -1858,8 +1858,8 @@ utf8_to_sjis(char *dst, const char *src, size_t dstsize)
 
 /*
  * SJIS <-> EUC 変換関数
- * 「日本語情報処理」	ソフトバンク(株)
- *	より抜粋(by Koji Arai)
+ * 「日本語情報処理」   ソフトバンク(株)
+ *  より抜粋(by Koji Arai)
  */
 void
 euc2sjis(int *p1, int *p2)
@@ -1887,10 +1887,3 @@ sjis2euc(int *p1, int *p2)
     *p2 |= 0x80;
 }
 #endif /* MULTIBYTE_FILENAME */
-
-/* Local Variables: */
-/* mode:c */
-/* tab-width:4 */
-/* compile-command:"gcc -c header.c" */
-/* End: */
-/* vi: set tabstop=4: */

@@ -1,14 +1,14 @@
 /* ------------------------------------------------------------------------ */
-/* LHa for UNIX    Archiver Driver											*/
-/*																			*/
-/*		Modified          		Nobutaka Watazaki							*/
-/*																			*/
-/*	Ver. 1.14 	Soruce All chagned				1995.01.14	N.Watazaki		*/
-/*	Ver. 1.14i 	Modified and bug fixed			2000.10.06	t.okamoto   	*/
+/* LHa for UNIX    Archiver Driver                                          */
+/*                                                                          */
+/*      Modified                Nobutaka Watazaki                           */
+/*                                                                          */
+/*  Ver. 1.14   Soruce All chagned              1995.01.14  N.Watazaki      */
+/*  Ver. 1.14i  Modified and bug fixed          2000.10.06  t.okamoto       */
 /* ------------------------------------------------------------------------ */
 /*
-	Included...
-		lharc.h		interface.h		slidehuf.h
+    Included...
+        lharc.h     interface.h     slidehuf.h
 */
 
 #ifdef HAVE_CONFIG_H
@@ -47,7 +47,7 @@ char *strchr (), *strrchr ();
 #endif
 
 #if HAVE_STRCASECMP
-#define strucmp(p,q)	strcasecmp((p),(q))
+#define strucmp(p,q)    strcasecmp((p),(q))
 #endif
 
 #if STDC_HEADERS
@@ -136,16 +136,16 @@ int utime(const char *, struct utimbuf *);
 # if HAVE_NDIR_H
 #  include <ndir.h>
 # endif
-# ifdef NONSYSTEM_DIR_LIBRARY			/* no use ?? */
+# ifdef NONSYSTEM_DIR_LIBRARY           /* no use ?? */
 #  include "lhdir.h"
 # endif
 #endif
 
 #ifndef SEEK_SET
-#define SEEK_SET		0
-#define SEEK_CUR		1
-#define SEEK_END		2
-#endif	/* SEEK_SET */
+#define SEEK_SET        0
+#define SEEK_CUR        1
+#define SEEK_END        2
+#endif  /* SEEK_SET */
 
 #if HAVE_LIMITS_H
 #include <limits.h>
@@ -189,75 +189,75 @@ int utime(const char *, struct utimbuf *);
 
 struct encode_option {
 #if defined(__STDC__) || defined(AIX)
-	void            (*output) ();
-	void            (*encode_start) ();
-	void            (*encode_end) ();
+    void            (*output) ();
+    void            (*encode_start) ();
+    void            (*encode_end) ();
 #else
-	int             (*output) ();
-	int             (*encode_start) ();
-	int             (*encode_end) ();
+    int             (*output) ();
+    int             (*encode_start) ();
+    int             (*encode_end) ();
 #endif
 };
 
 struct decode_option {
-	unsigned short  (*decode_c) ();
-	unsigned short  (*decode_p) ();
+    unsigned short  (*decode_c) ();
+    unsigned short  (*decode_p) ();
 #if defined(__STDC__) || defined(AIX)
-	void            (*decode_start) ();
+    void            (*decode_start) ();
 #else
-	int             (*decode_start) ();
+    int             (*decode_start) ();
 #endif
 };
 
 /* ------------------------------------------------------------------------ */
-/*	LHa File Type Definition												*/
+/*  LHa File Type Definition                                                */
 /* ------------------------------------------------------------------------ */
 typedef int boolean;            /* TRUE or FALSE */
 
 struct string_pool {
-	int             used;
-	int             size;
-	int             n;
-	char           *buffer;
+    int             used;
+    int             size;
+    int             n;
+    char           *buffer;
 };
 
 typedef struct LzHeader {
-	long            header_size;
+    long            header_size;
     int             size_field_length;
-	char            method[METHOD_TYPE_STORAGE];
-	long            packed_size;
-	long            original_size;
-	unsigned char   attribute;
-	unsigned char   header_level;
-	char            name[FILENAME_LENGTH];
+    char            method[METHOD_TYPE_STORAGE];
+    long            packed_size;
+    long            original_size;
+    unsigned char   attribute;
+    unsigned char   header_level;
+    char            name[FILENAME_LENGTH];
     char            realname[FILENAME_LENGTH];/* real name for symbolic link */
-	unsigned int    crc;      /* file CRC */
-	boolean         has_crc;  /* file CRC */
+    unsigned int    crc;      /* file CRC */
+    boolean         has_crc;  /* file CRC */
     unsigned int    header_crc; /* header CRC */
-	unsigned char   extend_type;
-	unsigned char   minor_version;
+    unsigned char   extend_type;
+    unsigned char   minor_version;
 
-	/* extend_type == EXTEND_UNIX  and convert from other type. */
-	time_t          unix_last_modified_stamp;
-	unsigned short  unix_mode;
-	unsigned short  unix_uid;
-	unsigned short  unix_gid;
+    /* extend_type == EXTEND_UNIX  and convert from other type. */
+    time_t          unix_last_modified_stamp;
+    unsigned short  unix_mode;
+    unsigned short  unix_uid;
+    unsigned short  unix_gid;
     char            user[256];
     char            group[256];
 }  LzHeader;
 
 struct interfacing {
-	FILE			*infile;
-	FILE			*outfile;
-	unsigned long   original;
-	unsigned long   packed;
-	int             dicbit;
-	int             method;
+    FILE            *infile;
+    FILE            *outfile;
+    unsigned long   original;
+    unsigned long   packed;
+    int             dicbit;
+    int             method;
 };
 
 
 /* ------------------------------------------------------------------------ */
-/*	Option switch variable													*/
+/*  Option switch variable                                                  */
 /* ------------------------------------------------------------------------ */
 #ifdef LHA_MAIN_SRC
 #define EXTERN
@@ -269,15 +269,15 @@ struct interfacing {
 EXTERN boolean  quiet;
 EXTERN boolean  text_mode;
 EXTERN boolean  verbose;
-EXTERN boolean  noexec;		/* debugging option */
+EXTERN boolean  noexec;     /* debugging option */
 EXTERN boolean  force;
 EXTERN boolean  prof;
 EXTERN boolean  delete_after_append;
-EXTERN int		compress_method;
-EXTERN int		header_level;
-/* EXTERN int		quiet_mode; */   /* 1996.8.13 t.okamoto */
+EXTERN int      compress_method;
+EXTERN int      header_level;
+/* EXTERN int       quiet_mode; */   /* 1996.8.13 t.okamoto */
 #ifdef EUC
-EXTERN boolean	euc_mode;
+EXTERN boolean  euc_mode;
 #endif
 
 /* list command flags */
@@ -291,34 +291,34 @@ EXTERN boolean  new_archive;
 EXTERN boolean  update_if_newer;
 EXTERN boolean  generic_format;
 
-EXTERN boolean	remove_temporary_at_error;
-EXTERN boolean	recover_archive_when_interrupt;
-EXTERN boolean	remove_extracting_file_when_interrupt;
-EXTERN boolean	get_filename_from_stdin;
-EXTERN boolean	ignore_directory;
-EXTERN boolean	verify_mode;
+EXTERN boolean  remove_temporary_at_error;
+EXTERN boolean  recover_archive_when_interrupt;
+EXTERN boolean  remove_extracting_file_when_interrupt;
+EXTERN boolean  get_filename_from_stdin;
+EXTERN boolean  ignore_directory;
+EXTERN boolean  verify_mode;
 
 /* Indicator flag */
-EXTERN int		quiet_mode;
+EXTERN int      quiet_mode;
 
 EXTERN boolean backup_old_archive;
 /* ------------------------------------------------------------------------ */
-/*	Globale Variable														*/
+/*  Globale Variable                                                        */
 /* ------------------------------------------------------------------------ */
-EXTERN char		**cmd_filev;
+EXTERN char     **cmd_filev;
 EXTERN int      cmd_filec;
 
-EXTERN char		*archive_name;
+EXTERN char     *archive_name;
 EXTERN char     temporary_name[FILENAME_LENGTH];
 EXTERN char     backup_archive_name[FILENAME_LENGTH];
 
-EXTERN char		*extract_directory;
-EXTERN char		*reading_filename, *writing_filename;
+EXTERN char     *extract_directory;
+EXTERN char     *reading_filename, *writing_filename;
 
 EXTERN int      archive_file_mode;
 EXTERN int      archive_file_gid;
 
-EXTERN struct	interfacing interface;
+EXTERN struct   interfacing interface;
 
 EXTERN int      noconvertcase; /* 2000.10.6 */
 
@@ -328,9 +328,9 @@ EXTERN unsigned long origsize, compsize;
 EXTERN unsigned short dicbit;
 EXTERN unsigned short maxmatch;
 EXTERN unsigned long count;
-EXTERN unsigned long loc;			/* short -> long .. Changed N.Watazaki */
+EXTERN unsigned long loc;           /* short -> long .. Changed N.Watazaki */
 EXTERN unsigned char *text;
-EXTERN int		prev_char;
+EXTERN int      prev_char;
 
 /* huf.c */
 #ifndef LHA_MAIN_SRC  /* t.okamoto 96/2/20 */
@@ -342,12 +342,12 @@ EXTERN unsigned short p_freq[], pt_table[], pt_code[], t_freq[];
 
 /* append.c */
 #ifdef NEED_INCREMENTAL_INDICATOR
-EXTERN long		indicator_count;
-EXTERN long		indicator_threshold;
+EXTERN long     indicator_count;
+EXTERN long     indicator_threshold;
 #endif
 
 /* bitio.c */
-EXTERN FILE		*infile, *outfile;
+EXTERN FILE     *infile, *outfile;
 EXTERN unsigned short bitbuf;
 
 /* crcio.c */
@@ -361,12 +361,6 @@ EXTERN unsigned int n_max;
 EXTERN int temporary_fd;
 
 /* ------------------------------------------------------------------------ */
-/*	Functions																*/
+/*  Functions                                                               */
 /* ------------------------------------------------------------------------ */
 #include "prototypes.h"
-
-/* Local Variables: */
-/* mode:c */
-/* tab-width:4 */
-/* End: */
-/* vi: set tabstop=4: */

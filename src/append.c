@@ -1,10 +1,10 @@
 /* ------------------------------------------------------------------------ */
-/* LHa for UNIX    															*/
-/*				append.c -- append to archive								*/
-/*																			*/
-/*		Modified          		Nobutaka Watazaki							*/
-/*																			*/
-/*	Ver. 1.14 	Source All chagned				1995.01.14	N.Watazaki		*/
+/* LHa for UNIX                                                             */
+/*              append.c -- append to archive                               */
+/*                                                                          */
+/*      Modified                Nobutaka Watazaki                           */
+/*                                                                          */
+/*  Ver. 1.14   Source All chagned              1995.01.14  N.Watazaki      */
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 
@@ -13,143 +13,143 @@ static long reading_size;
 /* ------------------------------------------------------------------------ */
 int
 encode_lzhuf(infp, outfp, size, original_size_var, packed_size_var,
-	     name, hdr_method)
-	FILE           *infp;
-	FILE           *outfp;
-	long            size;
-	long           *original_size_var;
-	long           *packed_size_var;
-	char           *name;
-	char           *hdr_method;
+         name, hdr_method)
+    FILE           *infp;
+    FILE           *outfp;
+    long            size;
+    long           *original_size_var;
+    long           *packed_size_var;
+    char           *name;
+    char           *hdr_method;
 {
-	static int      method = -1;
+    static int      method = -1;
     unsigned int crc;
 
-	if (method < 0) {
-		method = compress_method;
-		if (method > 0)
-			method = encode_alloc(method);
-	}
+    if (method < 0) {
+        method = compress_method;
+        if (method > 0)
+            method = encode_alloc(method);
+    }
 
-	interface.method = method;
+    interface.method = method;
 
-	if (interface.method > 0) {
-		interface.infile = infp;
-		interface.outfile = outfp;
-		interface.original = size;
-		start_indicator(name, size, "Freezing", 1 << dicbit);
-		crc = encode(&interface);
-		*packed_size_var = interface.packed;
-		*original_size_var = interface.original;
-	} else {
-		copyfile(infp, outfp, size, 0, &crc);
-		*packed_size_var = *original_size_var = size;
-	}
-	memcpy(hdr_method, "-lh -", 5);
-	hdr_method[3] = interface.method + '0';
+    if (interface.method > 0) {
+        interface.infile = infp;
+        interface.outfile = outfp;
+        interface.original = size;
+        start_indicator(name, size, "Freezing", 1 << dicbit);
+        crc = encode(&interface);
+        *packed_size_var = interface.packed;
+        *original_size_var = interface.original;
+    } else {
+        copyfile(infp, outfp, size, 0, &crc);
+        *packed_size_var = *original_size_var = size;
+    }
+    memcpy(hdr_method, "-lh -", 5);
+    hdr_method[3] = interface.method + '0';
 
-	finish_indicator2(name, "Frozen",
-		    (int) ((*packed_size_var * 100L) / *original_size_var));
-	return crc;
+    finish_indicator2(name, "Frozen",
+            (int) ((*packed_size_var * 100L) / *original_size_var));
+    return crc;
 }
 /* ------------------------------------------------------------------------ */
 void
 start_indicator(name, size, msg, def_indicator_threshold)
-	char           *name;
-	long            size;
-	char           *msg;
-	long            def_indicator_threshold;
+    char           *name;
+    long            size;
+    char           *msg;
+    long            def_indicator_threshold;
 {
 #ifdef NEED_INCREMENTAL_INDICATOR
-	long            i;
-	int             m;
+    long            i;
+    int             m;
 #endif
 
-	if (quiet)
-		return;
+    if (quiet)
+        return;
 
 #ifdef NEED_INCREMENTAL_INDICATOR
-	switch (quiet_mode) {
-	case 0:
-		m = MAX_INDICATOR_COUNT - strlen(name);
-		if (m < 1)		/* Bug Fixed by N.Watazaki */
-			m = 3;		/* (^_^) */
-		printf("\r%s\t- %s :  ", name, msg);
-		indicator_threshold =
-			((size + (m * def_indicator_threshold - 1)) /
-			 (m * def_indicator_threshold) *
-			 def_indicator_threshold);
-		if (indicator_threshold)
-			i = ((size + (indicator_threshold - 1)) / indicator_threshold);
-		else
-			i = 0;
-		while (i--)
-			putchar('.');
-		indicator_count = 0;
-		printf("\r%s\t- %s :  ", name, msg);
-		break;
-	case 1:
-		printf("\r%s :", name);
-		break;
-	}
+    switch (quiet_mode) {
+    case 0:
+        m = MAX_INDICATOR_COUNT - strlen(name);
+        if (m < 1)      /* Bug Fixed by N.Watazaki */
+            m = 3;      /* (^_^) */
+        printf("\r%s\t- %s :  ", name, msg);
+        indicator_threshold =
+            ((size + (m * def_indicator_threshold - 1)) /
+             (m * def_indicator_threshold) *
+             def_indicator_threshold);
+        if (indicator_threshold)
+            i = ((size + (indicator_threshold - 1)) / indicator_threshold);
+        else
+            i = 0;
+        while (i--)
+            putchar('.');
+        indicator_count = 0;
+        printf("\r%s\t- %s :  ", name, msg);
+        break;
+    case 1:
+        printf("\r%s :", name);
+        break;
+    }
 #else
-	printf("%s\t- ", name);
+    printf("%s\t- ", name);
 #endif
-	fflush(stdout);
-	reading_size = 0L;
+    fflush(stdout);
+    reading_size = 0L;
 }
 /* ------------------------------------------------------------------------ */
 #ifdef NEED_INCREMENTAL_INDICATOR
 void
 put_indicator(count)
-	long int        count;
+    long int        count;
 {
     reading_size += count;
-	if (!quiet && indicator_threshold) {
-		while (reading_size > indicator_count) {
-			putchar('o');
-			fflush(stdout);
-			indicator_count += indicator_threshold;
-		}
-	}
+    if (!quiet && indicator_threshold) {
+        while (reading_size > indicator_count) {
+            putchar('o');
+            fflush(stdout);
+            indicator_count += indicator_threshold;
+        }
+    }
 }
 #endif
 
 /* ------------------------------------------------------------------------ */
 void
 finish_indicator2(name, msg, pcnt)
-	char           *name;
-	char           *msg;
-	int             pcnt;
+    char           *name;
+    char           *msg;
+    int             pcnt;
 {
-	if (quiet)
-		return;
+    if (quiet)
+        return;
 
-	if (pcnt > 100)
-		pcnt = 100;	/* (^_^) */
+    if (pcnt > 100)
+        pcnt = 100; /* (^_^) */
 #ifdef NEED_INCREMENTAL_INDICATOR
-	printf("\r%s\t- %s(%d%%)\n", name,  msg, pcnt);
+    printf("\r%s\t- %s(%d%%)\n", name,  msg, pcnt);
 #else
-	printf("%s\n", msg);
+    printf("%s\n", msg);
 #endif
-	fflush(stdout);
+    fflush(stdout);
 }
 
 /* ------------------------------------------------------------------------ */
 void
 finish_indicator(name, msg)
-	char           *name;
-	char           *msg;
+    char           *name;
+    char           *msg;
 {
-	if (quiet)
-		return;
+    if (quiet)
+        return;
 
 #ifdef NEED_INCREMENTAL_INDICATOR
-	printf("\r%s\t- %s\n", name, msg);
+    printf("\r%s\t- %s\n", name, msg);
 #else
-	printf("%s\n", msg);
+    printf("%s\n", msg);
 #endif
-	fflush(stdout);
+    fflush(stdout);
 }
 /* Local Variables: */
 /* tab-width : 4 */
