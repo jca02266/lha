@@ -1,7 +1,7 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiscated for LHa for UNIX version 1.14i
-			Mon, Dec 16 2002 by Koji Arai <jca02266@nifty.ne.jp>
+			Tue, Dec 31 2002 by Koji Arai <jca02266@nifty.ne.jp>
 
 このファイルは LHa for UNIX version 1.14i を autoconf、automake 化した
 (autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
@@ -278,3 +278,9 @@ LHa for UNIX に関しては岡本継男さんのページ
   本バージョンの usage は以下のようになります。
 
     usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]
+
+・Cygwin での解凍
+
+  Cygwin で解凍した場合アーカイブが MS-DOS タイプなど permission の
+  情報を持たない場合は、0777 & ~umask で展開するようにしました。
+  これは、.exe や .dll に実行属性を付けるためです。
