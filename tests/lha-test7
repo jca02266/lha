@@ -12,6 +12,8 @@ $lha xw=test-tmp test-tmp.lzh
 diff -r test-1 test-tmp
 							check $? $LINENO
 (cd test-tmp
+
+ sleep 1
  echo foo > test-a
  echo bar > test-b
  echo baz > test-c
@@ -23,6 +25,10 @@ diff -r test-1 test-tmp
 
 # old files are in test-1 and in current directory
 # new files are in test-tmp
+$lha vv test-1.lzh
+							check $? $LINENO
+$lha vv test-tmp.lzh
+							check $? $LINENO
 
 $lha xw=test-tmp2 test-tmp.lzh
 							check $? $LINENO
