@@ -1,5 +1,15 @@
 2002-07-06  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: AC_REPLACE_FUNCS(vsnprintf).
+
+	* config.h.in: ditto.
+
+	* src/lha.h: ditto.
+
+	* src/vsnprintf.c: derived snprintf() which has BSD licence.
+
+	* configure.ac: fix typo.
+	
 	* configure.ac: checking whether strchr() is 8 bit clean or not.
 
 	* config.h.in: ditto.
