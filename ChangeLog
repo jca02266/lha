@@ -1,5 +1,9 @@
 2002-07-07  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lhadd.c (append_it): macro STRING_COMPARE() discarded.
+
+	* src/lha_macro.h: ditto.
+
 	* IFNAMES: NOVOID was removed.
 
 	* src/lharc.c (main): terminate with exit status 2 when specified
