@@ -1,5 +1,8 @@
 2002-08-11  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test.in, tests/lha-test12, tests/lha-test13:
+	added tests converting text files.
+
 	* src/header.c (get_extended_header): recognize the Windows time
 	stamp header (0x41), but ignored.
 
