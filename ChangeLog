@@ -1,5 +1,11 @@
 2002-06-29  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: modified for Mac OS X.
+
+	* src/header.c, lha.h, lha_macro.h, lharc.c: Merged a patch for
+	the Mac OS X, convert utf-8 filename to shift_jis. This patch was
+	contributed on LHa BBS. Thanks to Hiroto Sakai.
+
 	* src/lhext.c: replaced bcmp() with memcmp().
 
 	* src/lha_macro.h: ditto.
