@@ -20,6 +20,8 @@ static int ConvertUTF8ToEncoding(const char* inUTF8Buf, int inUTF8BufLength, cha
 
 #if !STRCHR_8BIT_CLEAN
 /* should use 8 bit clean version */
+#undef strchr
+#undef strrchr
 #define strchr  xstrchr
 #define strrchr  xstrrchr
 #endif

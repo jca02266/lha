@@ -342,7 +342,10 @@ void sjis2euc(int *p1, int *p2);
 
 /* from util.c */
 int xsnprintf(char *dest, size_t size, char *fmt, ...);
-
+char *xstrchr(const char *s, int c);
+char *xstrrchr(const char *s, int c);
+char *xmemchr(const char *s, int c, size_t n);
+char *xmemrchr(const char *s, int c, size_t n);
 
 /* Local Variables: */
 /* mode:c */
