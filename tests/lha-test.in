@@ -117,7 +117,7 @@ esac
 . $srcdir/lha-test13; cleanup
 case `$lha --version 2>&1` in
 *-pc-mingw*)
-  message testing the symbolic links ... skip
+  message testing to handle symbolic links ... skip
   ;;
 *)
   . $srcdir/lha-test14; cleanup

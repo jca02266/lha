@@ -37,7 +37,7 @@ cp test-a test-tmp-d1 &&
 mkdir test-tmp-d1/d2 &&
 cp test-b test-tmp-d1/d2 &&
 mkdir test-tmp-d1/d2/d3 &&
-cp test-c test-tmp-d1/d2/d3 &&
+cp test-c test-tmp-d1/d2/d3
 							check $? $LINENO
 $lha c0  test-tmp2-h0.lzh test-tmp-d1
 							check $? $LINENO
