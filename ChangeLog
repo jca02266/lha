@@ -61,8 +61,9 @@
 	SO CANNOT CONTAIN THE `\' IN FILENAME).
 	(init_header): Should not convert path separator here (Should do
 	in write_header()).
-	(write_header): Did not contain the directory part in level 0
-	archive.
+	(write_header): should set pathname (contains directory part) to
+	the LzHeader.name field on level 0 header archive even if the
+	archive methods is -lhd-.
 
 2002-07-09  Koji Arai  <jca02266@nifty.ne.jp>
 
