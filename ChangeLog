@@ -1,5 +1,7 @@
 2002-05-27  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test.in: replace with #!/bin/bash.
+
 	* README.autoconf: added E-Mail address.
 
 	* configure.ac: updated version and added bug report mail address.
