@@ -1,4 +1,10 @@
+2002-06-19  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* 00readme.autoconf: Modified.
+
 2002-06-18  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.in: Removed. (no support the Autoconf version 2.13).
 
 	* config.h.in: Changed meaning of the value of the `MULTIBYTE_FILENAME'.
 
