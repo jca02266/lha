@@ -91,32 +91,23 @@ diff -r test-1 test-m7
 
 message testing to print lha archive
 
-for f in test-a test-b test-c
-do
-  cat <<EOF > $f.p
-::::::::
-$f
-::::::::
-EOF
-  cat $f >> $f.p
-done
-$lha p test-m1.lzh test-a | diff test-a.p -
+$lha pq test-m1.lzh test-a | diff test-a -
 							check $?
-$lha p test-m5.lzh test-a | diff test-a.p -
+$lha pq test-m5.lzh test-a | diff test-a -
 							check $?
-$lha p test-m6.lzh test-a | diff test-a.p -
+$lha pq test-m6.lzh test-a | diff test-a -
 							check $?
-$lha p test-m7.lzh test-a | diff test-a.p -
+$lha pq test-m7.lzh test-a | diff test-a -
 							check $?
 
-cat test-[abc].p > test-abc.p
-$lha p test-m1.lzh | diff test-abc.p -
+cat test-[abc] > test-abc
+$lha pq test-m1.lzh | diff test-abc -
 							check $?
-$lha p test-m5.lzh | diff test-abc.p -
+$lha pq test-m5.lzh | diff test-abc -
 							check $?
-$lha p test-m6.lzh | diff test-abc.p -
+$lha pq test-m6.lzh | diff test-abc -
 							check $?
-$lha p test-m7.lzh | diff test-abc.p -
+$lha pq test-m7.lzh | diff test-abc -
 							check $?
 
 message testing to delete files from archive
