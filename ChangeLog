@@ -1,3 +1,12 @@
+2002-07-14  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/prototypes.h: regenerated.
+
+	* src/header.c (convert_filename): prefer to use the
+	`FILENAME_LENGTH' macro rather than 256.
+
+	* src/cproto.sh: fixed typo.
+
 2002-07-11  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/Makefile.am (EXTRA_DIST): lha-test9 and lha-test10 were missed.

@@ -158,7 +158,7 @@ main(argc, argv)
 	int             argc;
 	char           *argv[];
 {
-	char           *p, inpbuf[256];
+	char           *p;
 
 	int i;
 	int  ac;
@@ -372,6 +372,7 @@ work:
 
 	/* target file name */
 	if (get_filename_from_stdin) {
+        char inpbuf[4096];
         char **xfilev;
         int xfilec = 257;
 
