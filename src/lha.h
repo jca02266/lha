@@ -239,6 +239,12 @@ struct interfacing {
 /* ------------------------------------------------------------------------ */
 /*	Option switch variable													*/
 /* ------------------------------------------------------------------------ */
+#ifdef LHA_MAIN_SRC
+#define EXTERN
+#else
+#define EXTERN extern
+#endif
+
 /* command line options (common options) */
 EXTERN boolean  quiet;
 EXTERN boolean  text_mode;

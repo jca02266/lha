@@ -59,12 +59,6 @@
 #define GETSTAT stat
 #endif
 
-#ifdef LHA_MAIN_SRC
-#define EXTERN
-#else
-#define EXTERN				extern
-#endif	/* LHA_MAIN_SRC */
-
 #define LZHUFF0_METHOD			"-lh0-"
 #define LZHUFF1_METHOD			"-lh1-"
 #define LZHUFF2_METHOD			"-lh2-"
