@@ -1,3 +1,15 @@
+2002-12-28  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lha_macro.h (peekbits): newly added.
+
+	* src/huf.c (read_pt_len): use peekbits().
+	(read_c_len): ditto.
+	(decode_c_st1): ditto.
+	(decode_p_st1): ditto.
+
+	* src/shuf.c (decode_c_st0): ditto.
+	(decode_p_st0): ditto.
+
 2002-12-23  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: added a configure option: --enable-ignore-dot-files.
