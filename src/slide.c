@@ -7,7 +7,7 @@
 /*  Ver. 1.14d  Exchanging a search algorithm  1997.01.11    T.Okamoto      */
 /* ------------------------------------------------------------------------ */
 
-#if 0
+#if 1
 #define DEBUG 1
 #endif
 
@@ -186,6 +186,56 @@ insert_hash(token, pos)
     hash[token].pos = pos;
 }
 
+static void
+search_dict_1(token, pos, off, max, m)
+    unsigned int token;
+    unsigned int pos;
+    unsigned int off;
+    unsigned int max;           /* max. length of matching string */
+    struct matchdata *m;
+{
+    unsigned int chain = 0;
+    unsigned int scan_off = hash[token].pos;
+    int scan_pos = scan_off - off;
+    int scan_end = pos - dicsiz;
+    unsigned int len;
+
+    while (scan_pos > scan_end) {
+        chain++;
+
+        if (text[scan_pos + m->len] == text[pos + m->len]) {
+            {
+                /* collate token */
+                unsigned char *a = &text[scan_pos];
+                unsigned char *b = &text[pos];
+
+                for (len = 0; len < max && *a++ == *b++; len++);
+            }
+
+            if (len > m->len) {
+                m->off = pos - scan_pos;
+                m->len = len;
+                if (m->len == max)
+                    break;
+
+#ifdef DEBUG
+                if (noslide) {
+                    if (pos - m->off < dicsiz) {
+                        printf("matchpos=%u scan_pos=%u dicsiz=%u\n",
+                               pos - m->off, scan_pos, dicsiz);
+                    }
+                }
+#endif
+            }
+        }
+        scan_off = prev[scan_off & (dicsiz - 1)];
+        scan_pos = scan_off - off;
+    }
+
+    if (chain >= LIMIT)
+        hash[token].too_flag = 1;
+}
+
 /* search the most long token matching to current token */
 static void
 search_dict(token, pos, min, m)
@@ -214,55 +264,11 @@ search_dict(token, pos, min, m)
         tok = token;
     }
 
-    for (;;) {
-        unsigned int chain = 0;
-        unsigned int scan_off = hash[tok].pos;
-        int scan_pos = scan_off - off;
-        int scan_end = pos - dicsiz;
-        unsigned int len;
+    search_dict_1(tok, pos, off, max, m);
 
-        while (scan_pos > scan_end) {
-            chain++;
-
-            if (text[scan_pos + m->len] == text[pos + m->len]) {
-                {
-                    /* collate token */
-                    unsigned char *a = &text[scan_pos];
-                    unsigned char *b = &text[pos];
-
-                    for (len = 0; len < max && *a++ == *b++; len++);
-                }
-
-                if (len > m->len) {
-                    m->off = pos - scan_pos;
-                    m->len = len;
-                    if (m->len == max)
-                        break;
-
-#ifdef DEBUG
-                    if (noslide) {
-                        if (pos - m->off < dicsiz) {
-                            printf("matchpos=%u scan_pos=%u dicsiz=%u\n",
-                                   pos - m->off, scan_pos, dicsiz);
-                        }
-                    }
-#endif
-                }
-            }
-            scan_off = prev[scan_off & (dicsiz - 1)];
-            scan_pos = scan_off - off;
-        }
-
-        if (chain >= LIMIT)
-            hash[tok].too_flag = 1;
-
-        if (off == 0 || m->len > off + 2)
-            break;
-
-        max = off + 2;
-        off = 0;
-        tok = token;
-    }
+    if (off > 0 && m->len < off + 3)
+        /* re-search */
+        search_dict_1(token, pos, 0, off+2, m);
 
     if (m->len > remainder) m->len = remainder;
 }
