@@ -88,7 +88,7 @@ boolean find_files P_((char *name, int *v_filec, char ***v_filev));
 void free_files P_((int filec, char **filev));
 int build_temporary_name P_((void));
 void build_backup_name P_((char *buffer, char *original, size_t size));
-void build_standard_archive_name P_((char *buffer, char *orginal, size_t size));
+void build_standard_archive_name P_((char *buffer, char *original, size_t size));
 boolean need_file P_((char *name));
 FILE *xfopen P_((char *name, char *mode));
 FILE *open_old_archive P_((void));
