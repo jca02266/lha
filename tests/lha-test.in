@@ -36,6 +36,19 @@ cleanup()
   rm -rf test-tmp*
 }
 
+change_timestamp()
+{
+    typeset time=$1; shift
+
+    # assume that `touch' command supports POSIX's -t switch.
+
+    # -t [[CC]YY]MMDDhhmm[.ss]
+    touch -t $time "$@"
+
+    # [[CC]YY]MMDDhhmm
+    # touch $time "$@"
+}
+
 # create test data
 
 message testing $lha

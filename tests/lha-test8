@@ -60,3 +60,59 @@ test test-c -nt test-tmp-h2/test-c ||
 test test-c -ot test-tmp-h2/test-c
 test $? -ne 0
 							check $? $LINENO
+
+# Note: level 0, 1 header (generic) format use the MS-DOS `ftime'
+# structure, so it cannot save odd seconds.
+
+# set even seconds timestamp
+cp test-a test-tmp-a &&
+cp test-b test-tmp-b &&
+cp test-c test-tmp-c &&
+change_timestamp 01020304.02 test-tmp-a &&
+change_timestamp 01020304.04 test-tmp-b &&
+change_timestamp 01020304.06 test-tmp-c
+							check $? $LINENO
+
+# level 0 header (generic)
+$lha cg0 test-tmp-hg0.lzh test-tmp-[abc]
+							check $? $LINENO
+# show time stamp
+$lha vv test-tmp-hg0.lzh
+ls -l test-tmp-[abc]
+
+$lha xw=test-tmp-hg0 test-tmp-hg0.lzh
+							check $? $LINENO
+diff test-tmp-a test-tmp-hg0/test-tmp-a &&
+diff test-tmp-b test-tmp-hg0/test-tmp-b &&
+diff test-tmp-c test-tmp-hg0/test-tmp-c
+							check $? $LINENO
+test test-tmp-a -nt test-tmp-hg0/test-tmp-a ||
+test test-tmp-a -ot test-tmp-hg0/test-tmp-a ||
+test test-tmp-b -nt test-tmp-hg0/test-tmp-b ||
+test test-tmp-b -ot test-tmp-hg0/test-tmp-b ||
+test test-tmp-c -nt test-tmp-hg0/test-tmp-c ||
+test test-tmp-c -ot test-tmp-hg0/test-tmp-c
+test $? -ne 0
+							check $? $LINENO
+
+# level 1 header (generic)
+$lha cg1 test-tmp-hg1.lzh test-tmp-[abc]
+							check $? $LINENO
+# show time stamp
+$lha vv test-tmp-hg1.lzh
+ls -l test-tmp-[abc]
+
+$lha xw=test-tmp-hg1 test-tmp-hg1.lzh
+							check $? $LINENO
+diff test-tmp-a test-tmp-hg0/test-tmp-a &&
+diff test-tmp-b test-tmp-hg0/test-tmp-b &&
+diff test-tmp-c test-tmp-hg0/test-tmp-c
+							check $? $LINENO
+test test-tmp-a -nt test-tmp-hg1/test-tmp-a ||
+test test-tmp-a -ot test-tmp-hg1/test-tmp-a ||
+test test-tmp-b -nt test-tmp-hg1/test-tmp-b ||
+test test-tmp-b -ot test-tmp-hg1/test-tmp-b ||
+test test-tmp-c -nt test-tmp-hg1/test-tmp-c ||
+test test-tmp-c -ot test-tmp-hg1/test-tmp-c
+test $? -ne 0
+							check $? $LINENO
