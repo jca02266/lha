@@ -15,6 +15,7 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_MINIX
 AM_C_PROTOTYPES
+AC_SYS_LARGEFILE
 
 # Checks for libraries.
 AC_SEARCH_LIBS(opendir, [mingwex])
