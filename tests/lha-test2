@@ -1,4 +1,6 @@
-message testing to generic, lh5, lh6 and lh7 method archive.
+message testing to lh0, lh1, lh5, lh6 and lh7 method archive.
+$lha cz  test-tmp-m0.lzh test-a test-b test-c
+							check $?
 $lha co  test-tmp-m1.lzh test-a test-b test-c
 							check $?
 $lha co5 test-tmp-m5.lzh test-a test-b test-c
@@ -6,6 +8,8 @@ $lha co5 test-tmp-m5.lzh test-a test-b test-c
 $lha co6 test-tmp-m6.lzh test-a test-b test-c
 							check $?
 $lha co7 test-tmp-m7.lzh test-a test-b test-c
+							check $?
+$lha v test-tmp-m0.lzh | grep lh0
 							check $?
 $lha v test-tmp-m1.lzh | grep lh1
 							check $?
@@ -16,6 +20,8 @@ $lha v test-tmp-m6.lzh | grep lh6
 $lha v test-tmp-m7.lzh | grep lh7
 							check $?
 
+$lha xw=test-tmp-m0 test-tmp-m0.lzh
+							check $?
 $lha xw=test-tmp-m1 test-tmp-m1.lzh
 							check $?
 $lha xw=test-tmp-m5 test-tmp-m5.lzh
@@ -25,6 +31,8 @@ $lha xw=test-tmp-m6 test-tmp-m6.lzh
 $lha xw=test-tmp-m7 test-tmp-m7.lzh
 							check $?
 
+diff -r test-1 test-tmp-m0
+							check $?
 diff -r test-1 test-tmp-m1
 							check $?
 diff -r test-1 test-tmp-m5
@@ -32,4 +40,27 @@ diff -r test-1 test-tmp-m5
 diff -r test-1 test-tmp-m6
 							check $?
 diff -r test-1 test-tmp-m7
+							check $?
+
+$lha pq test-tmp-m0.lzh test-a | diff test-a -
+							check $?
+$lha pq test-tmp-m1.lzh test-a | diff test-a -
+							check $?
+$lha pq test-tmp-m5.lzh test-a | diff test-a -
+							check $?
+$lha pq test-tmp-m6.lzh test-a | diff test-a -
+							check $?
+$lha pq test-tmp-m7.lzh test-a | diff test-a -
+							check $?
+
+cat test-[abc] > test-tmp-abc
+$lha pq test-tmp-m0.lzh | diff test-tmp-abc -
+							check $?
+$lha pq test-tmp-m1.lzh | diff test-tmp-abc -
+							check $?
+$lha pq test-tmp-m5.lzh | diff test-tmp-abc -
+							check $?
+$lha pq test-tmp-m6.lzh | diff test-tmp-abc -
+							check $?
+$lha pq test-tmp-m7.lzh | diff test-tmp-abc -
 							check $?
