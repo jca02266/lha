@@ -1,5 +1,10 @@
 2002-08-10  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test5: added tests using pipe.
+
+	* src/lhadd.c (cmd_add): applied reverse patch.  intermediate file
+	is the necessary when created archive put in pipe.
+
 	* src/header.c (skip_bytes): newly added.
 	(dump_get_byte): newly added for dumping the data for debugging.
 	(dump_skip_bytes): ditto.
