@@ -1,5 +1,13 @@
 2002-06-23  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lhext.c: Fixed a misspelling. not `Symblic' but `Symbolic'.
+	  reported on LHa BBS (see <http://www2m.biglobe.ne.jp/~dolphin/>).
+
+	* src/lharc.c: ditto.
+
+	* src/slide.c (interface;): Fixed wrong index.
+	  reported on LHa BBS (see <http://www2m.biglobe.ne.jp/~dolphin/>).
+
 	* 00readme.autoconf: refined.
 
 	* tests/lha-test9: added tests for overriding files.
