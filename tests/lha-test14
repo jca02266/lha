@@ -1,5 +1,4 @@
 # -*- shell-script -*-
-FILENAME=lha-test14
 message testing to handle symbolic links
 
 ln -s test-a test-tmp-a &&

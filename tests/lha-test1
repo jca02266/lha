@@ -1,0 +1,41 @@
+# -*- shell-script -*-
+message testing to create/list/extract lha archive.
+
+i=0
+while (( i < 100 ))
+do
+    echo foo
+    ((i = i + 1))
+done > test-a
+sed 's/foo/bar/g' < test-a > test-b
+sed 's/foo/baz/g' < test-a > test-c
+
+$lha c test-1.lzh test-a test-b test-c
+							check $? $LINENO
+test -s test-1.lzh
+							check $? $LINENO
+
+$lha l test-1.lzh
+							check $? $LINENO
+
+test -d test-1 || mkdir test-1
+mv test-[abc] test-1
+$lha x test-1.lzh
+							check $? $LINENO
+diff test-1/test-a test-a
+							check $? $LINENO
+diff test-1/test-b test-b
+							check $? $LINENO
+diff test-1/test-c test-c
+							check $? $LINENO
+
+# followings are test data for remaining tests.
+test -f test-1.lzh &&
+test -f test-a &&
+test -f test-b &&
+test -f test-c &&
+test -d test-1 &&
+test -f test-1/test-a &&
+test -f test-1/test-b &&
+test -f test-1/test-c
+							check $? $LINENO

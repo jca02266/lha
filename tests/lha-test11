@@ -1,5 +1,4 @@
 # -*- shell-script -*-
-FILENAME=lha-test11
 message testing the long filename support
 # long long filename
 # assume that we are allowed to create 255 bytes filename (not path name).

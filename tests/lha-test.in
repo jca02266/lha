@@ -1,30 +1,43 @@
 #!/bin/bash
 
 : ${lha_dir=@top_builddir@/src}
-: ${lha=$(cd $lha_dir && pwd)/lha}
+: ${lha_cmd=$(cd $lha_dir && pwd)/lha}
 : ${srcdir=@srcdir@}
 
 trap '_stat=$?; rm -rf test-*; exit $_stat' 0 1 2 3 15
 
+typeset -i i	# for loop
 typeset -i test_number=0 error_num=0
 error_tests=""
 
-exec > test.log
+# fd 1: for logging
+# fd 2: output screen
+# fd 5: for logging
+exec 5>test.log >&5
 
-message() {
+lha=exec_lha
+exec_lha()
+{
+  echo "$ lha $@" >&5	# for logging (stdout(fd 1) may be redirected)
+  $lha_cmd "$@"
+}
+
+message()
+{
   echo "$@" >&2
   echo "$@"
 }
 
-check() {
+check()
+{
   ((test_number = test_number + 1))
   typeset status=$1
   typeset lineno=$2
   if [[ $status -eq 0 ]]; then
-    message test $test_number ... ok
-    echo at line $lineno in $FILENAME
+    echo    $FILENAME-$test_number ... ok >&2
+    echo    $FILENAME-$test_number ... ok at line $lineno
   else
-    message test $test_number ... failed at line $lineno in $FILENAME
+    message $FILENAME-$test_number ... failed at line $lineno
     ((error_num = error_num + 1))
     error_tests="$error_tests #$test_number"
     result=1
@@ -35,6 +48,18 @@ cleanup()
 {
   rm -rf test-tmp*
 }
+
+testsuite()
+{
+    # the `FILENAME' variable should be set the each test filename.
+    FILENAME=$1 test_number=0
+
+    . $srcdir/$FILENAME
+
+    cleanup
+}
+
+# utility functions
 
 change_timestamp()
 {
@@ -49,85 +74,36 @@ change_timestamp()
     # touch $time "$@"
 }
 
-# create test data
+# test start
 
 message testing $lha
+message `$lha --version 2>&1`
 
-# the `FILENAME' variable should be set the each test filename.
-FILENAME=lha-test
-message testing to create/list/extract lha archive.
-
-typeset -i i=0
-while (( i < 100 ))
-do
-    echo foo
-    ((i = i + 1))
-done > test-a
-sed 's/foo/bar/g' < test-a > test-b
-sed 's/foo/baz/g' < test-a > test-c
-
-$lha c test-1.lzh test-a test-b test-c
-							check $? $LINENO
-test -s test-1.lzh
-							check $? $LINENO
-
-$lha l test-1.lzh
-							check $? $LINENO
-
-test -d test-1 || mkdir test-1
-mv test-[abc] test-1
-$lha x test-1.lzh
-							check $? $LINENO
-diff test-1/test-a test-a
-							check $? $LINENO
-diff test-1/test-b test-b
-							check $? $LINENO
-diff test-1/test-c test-c
-							check $? $LINENO
-
-# followings are test data for remaining tests.
-test -f test-1.lzh &&
-test -f test-a &&
-test -f test-b &&
-test -f test-c &&
-test -d test-1 &&
-test -f test-1/test-a &&
-test -f test-1/test-b &&
-test -f test-1/test-c
-							check $? $LINENO
-
-
-. $srcdir/lha-test2; cleanup
-. $srcdir/lha-test3; cleanup
-. $srcdir/lha-test4; cleanup
-. $srcdir/lha-test5; cleanup
-# . $srcdir/lha-test6; cleanup		# this feature was removed.
-. $srcdir/lha-test7; cleanup
-. $srcdir/lha-test8; cleanup
-case `$lha --version 2>&1` in
-*-pc-cygwin*|*-pc-mingw*)
-    message testing extracting to existent files ... skip;;
-*)
-#    . $srcdir/lha-test9; cleanup
-    ;;
-esac
-. $srcdir/lha-test10; cleanup
-. $srcdir/lha-test11; cleanup
-. $srcdir/lha-test12; cleanup
-. $srcdir/lha-test13; cleanup
+testsuite lha-test1		# create test data. it is needed for each test
+testsuite lha-test2
+testsuite lha-test3
+testsuite lha-test4
+testsuite lha-test5
+#testsuite lha-test6		# this feature was removed.
+testsuite lha-test7
+testsuite lha-test8
+#testsuite lha-test9		# incomplete
+testsuite lha-test10
+testsuite lha-test11
+testsuite lha-test12
+testsuite lha-test13
 case `$lha --version 2>&1` in
 *-pc-mingw*)
   message testing to handle symbolic links ... skip
   ;;
 *)
-  . $srcdir/lha-test14; cleanup
-  ;;
+  testsuite lha-test14
 esac
-. $srcdir/lha-test15; cleanup
+testsuite lha-test15
 
 if (( $error_num != 0 )); then
-  echo $error_num tests failed! >&2
-  echo test number: $error_tests >&2
+  message $error_num tests failed!
+  message test number: $error_tests
 fi
 
 exit $result

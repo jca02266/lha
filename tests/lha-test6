@@ -1,5 +1,4 @@
 # -*- shell-script -*-
-FILENAME=lha-test6
 message testing to treat stdin/stdout as file list.
 message Warning: On MinGW, these tests will fail for now.
 cat <<EOF | $lha c test-tmp.lzh

@@ -1,5 +1,4 @@
 # -*- shell-script -*-
-FILENAME=lha-test13
 message testing the kanji code conversion.
 
 # printf '\xb4\xc1\xbb\xfa\n' > test-tmp-euc

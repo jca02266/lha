@@ -1,5 +1,4 @@
 # -*- shell-script -*-
-FILENAME=lha-test4
 message testing to delete files from archive.
 
 cp test-1.lzh test-tmp.lzh
