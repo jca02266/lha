@@ -40,9 +40,10 @@ add_one(fp, nafp, hdr)
 		}		/* if quiet .. */
 	}
 
-	if (hdr->original_size == 0)	/* empty file or directory */
+	if (hdr->original_size == 0) {	/* empty file or directory */
+        finish_indicator2(hdr->name, "Frozen", 0);
 		return;		/* previous write_header is not DUMMY. (^_^) */
-
+    }
 	org_pos = ftell(fp);
 	data_pos = ftell(nafp);
 
