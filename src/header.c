@@ -150,7 +150,7 @@ get_longword()
     if (verbose_listing && verbose > 1)
         printf("%ld(0x%08lx)\n", l, l);
 #endif
-	return (b3 << 24) + (b2 << 16) + (b1 << 8) + b0;
+	return l;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1223,6 +1223,42 @@ init_header(name, v_stat, hdr)
 #endif
 }
 
+static void
+write_unix_info(hdr)
+    LzHeader *hdr;
+{
+    /* UNIX specific informations */
+
+    put_word(5);            /* size */
+    put_byte(0x50);         /* permission */
+    put_word(hdr->unix_mode);
+
+    put_word(7);            /* size */
+    put_byte(0x51);         /* gid and uid */
+    put_word(hdr->unix_gid);
+    put_word(hdr->unix_uid);
+
+    if (hdr->group[0]) {
+        int len = strlen(hdr->group);
+        put_word(len + 3);  /* size */
+        put_byte(0x52);     /* group name */
+        put_bytes(hdr->group, len);
+    }
+
+    if (hdr->user[0]) {
+        int len = strlen(hdr->user);
+        put_word(len + 3);  /* size */
+        put_byte(0x53);     /* user name */
+        put_bytes(hdr->user, len);
+    }
+
+    if (hdr->header_level == 1) {
+        put_word(7);        /* size */
+        put_byte(0x54);     /* time stamp */
+        put_longword(hdr->unix_last_modified_stamp);
+    }
+}
+
 /* ------------------------------------------------------------------------ */
 /* Write unix extended header or generic header. */
 
@@ -1357,38 +1393,8 @@ write_header_level1(data, hdr, pathname)
         put_bytes(dirname, dir_length);
     }
 
-    if (!generic_format) {
-        /* UNIX specific informations */
-
-        put_word(5);            /* size */
-        put_byte(0x50);         /* permission */
-        put_word(hdr->unix_mode);
-
-        put_word(7);            /* size */
-        put_byte(0x51);         /* gid and uid */
-        put_word(hdr->unix_gid);
-        put_word(hdr->unix_uid);
-
-        if (hdr->group[0]) {
-            int len = strlen(hdr->group);
-            put_word(len + 3);  /* size */
-            put_byte(0x52);     /* group name */
-            put_bytes(hdr->group, len);
-        }
-
-        if (hdr->user[0]) {
-            int len = strlen(hdr->user);
-            put_word(len + 3);  /* size */
-            put_byte(0x53);     /* user name */
-            put_bytes(hdr->user, len);
-        }
-
-        if (hdr->header_level == 1) {
-            put_word(7);        /* size */
-            put_byte(0x54);     /* time stamp */
-            put_longword(hdr->unix_last_modified_stamp);
-        }
-    }       /* if generic .. */
+    if (!generic_format)
+        write_unix_info(hdr);
 
     put_word(0x0000);           /* next header size */
 
@@ -1472,38 +1478,8 @@ write_header_level2(data, hdr, pathname)
         put_bytes(dirname, dir_length);
     }
 
-    if (!generic_format) {
-        /* UNIX specific informations */
-
-        put_word(5);            /* size */
-        put_byte(0x50);         /* permission */
-        put_word(hdr->unix_mode);
-
-        put_word(7);            /* size */
-        put_byte(0x51);         /* gid and uid */
-        put_word(hdr->unix_gid);
-        put_word(hdr->unix_uid);
-
-        if (hdr->group[0]) {
-            int len = strlen(hdr->group);
-            put_word(len + 3);  /* size */
-            put_byte(0x52);     /* group name */
-            put_bytes(hdr->group, len);
-        }
-
-        if (hdr->user[0]) {
-            int len = strlen(hdr->user);
-            put_word(len + 3);  /* size */
-            put_byte(0x53);     /* user name */
-            put_bytes(hdr->user, len);
-        }
-
-        if (hdr->header_level == 1) {
-            put_word(7);        /* size */
-            put_byte(0x54);     /* time stamp */
-            put_longword(hdr->unix_last_modified_stamp);
-        }
-    }       /* if generic .. */
+    if (!generic_format)
+        write_unix_info(hdr);
 
     put_word(0x0000);           /* next header size */
 
