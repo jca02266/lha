@@ -347,6 +347,12 @@ char *xstrrchr(const char *s, int c);
 char *xmemchr(const char *s, int c, size_t n);
 char *xmemrchr(const char *s, int c, size_t n);
 
+/* from vsnprintf.c */
+#if !HAVE_VSNPRINTF
+int vsnprintf(char *str, size_t n, const char *fmt, va_list ap);
+int snprintf(char *str, size_t n, char const *fmt, ...);
+#endif
+
 /* Local Variables: */
 /* mode:c */
 /* tab-width:4 */
