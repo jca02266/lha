@@ -19,7 +19,7 @@ size_t
 copyfile(f1, f2, size, text_flg, crcp)  /* return: size of source file */
     FILE *f1;
     FILE *f2;
-    long size;
+    size_t size;
     int text_flg;               /* 0: binary, 1: read text, 2: write text */
     unsigned int *crcp;
 {
@@ -50,8 +50,12 @@ copyfile(f1, f2, size, text_flg, crcp)  /* return: size of source file */
             if (fread(buf, 1, xsize, f1) != xsize) {
                 fatal_error("file read error");
             }
-            size -= xsize;
+            if (size < xsize)
+                size = 0;
+            else
+                size -= xsize;
         }
+
         /* write */
         if (f2) {
             if (text_flg & 2) {
@@ -65,6 +69,7 @@ copyfile(f1, f2, size, text_flg, crcp)  /* return: size of source file */
                 }
             }
         }
+
         /* calculate crc */
         if (crcp) {
             *crcp = calccrc(*crcp, buf, xsize);

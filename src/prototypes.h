@@ -66,7 +66,7 @@ unsigned short decode_p_lz5 P_((void));
 void decode_start_lz5 P_((void));
 /* lhadd.c */
 FILE *append_it P_((char *name, FILE *oafp, FILE *nafp));
-void temporary_to_new_archive_file P_((long new_archive_size));
+void temporary_to_new_archive_file P_((size_t new_archive_size));
 void cmd_add P_((void));
 void cmd_delete P_((void));
 /* lharc.c */
@@ -116,7 +116,7 @@ int encode_alloc P_((int method));
 unsigned int encode P_((struct interfacing *interface));
 unsigned int decode P_((struct interfacing *interface));
 /* util.c */
-size_t copyfile P_((FILE *f1, FILE *f2, long size, int text_flg, unsigned int *crcp));
+size_t copyfile P_((FILE *f1, FILE *f2, size_t size, int text_flg, unsigned int *crcp));
 int encode_stored_crc P_((FILE *ifp, FILE *ofp, size_t size, size_t *original_size_var, size_t *write_size_var));
 boolean archive_is_msdos_sfx1 P_((char *name));
 int xsnprintf P_((char *dest, size_t size, char *fmt, ...));

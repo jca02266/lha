@@ -95,7 +95,7 @@ append_it(name, oafp, nafp)
         error("Cannot access file \"%s\"", name);   /* See cleaning_files, Why? */
         return oafp;
     }
-    
+
     directory = is_directory(&stbuf);
 #ifdef S_IFLNK
     symlink = is_symlink(&stbuf);
@@ -312,9 +312,9 @@ report_archive_name_if_different()
 /* ------------------------------------------------------------------------ */
 void
 temporary_to_new_archive_file(new_archive_size)
-    long            new_archive_size;
+    size_t new_archive_size;
 {
-    FILE           *oafp, *nafp;
+    FILE *oafp, *nafp;
 
     if (!strcmp(new_archive_name, "-")) {
         nafp = stdout;
@@ -437,7 +437,7 @@ cmd_add()
     int             i;
     long            old_header;
     boolean         old_archive_exist;
-    long            new_archive_size;
+    size_t          new_archive_size;
 
     /* exit if no operation */
     if (!update_if_newer && cmd_filec == 0) {
@@ -536,8 +536,17 @@ cmd_add()
 
     new_archive_size = 0;       /* avoid compiler warnings `uninitialized' */
     if (!noexec) {
+        off_t tmp;
+
         write_archive_tail(nafp);
-        new_archive_size = ftello(nafp);
+        tmp = ftello(nafp);
+        if (tmp == -1) {
+            warning("ftello(): %s", strerror(errno));
+            new_archive_size = 0;
+        }
+        else
+            new_archive_size = tmp;
+
         fclose(nafp);
     }
 
@@ -548,9 +557,13 @@ cmd_add()
     report_archive_name_if_different();
 
     /* copy temporary file to new archive file */
-    if (!noexec && (!strcmp(new_archive_name, "-") ||
-            rename(temporary_name, new_archive_name) < 0))
-        temporary_to_new_archive_file(new_archive_size);
+    if (!noexec) {
+        if (strcmp(new_archive_name, "-") == 0 ||
+            rename(temporary_name, new_archive_name) < 0) {
+
+            temporary_to_new_archive_file(new_archive_size);
+        }
+    }
 
     /* set new archive file mode/group */
     set_archive_file_mode();
@@ -566,8 +579,8 @@ cmd_add()
 void
 cmd_delete()
 {
-    FILE           *oafp, *nafp;
-    long            new_archive_size;
+    FILE *oafp, *nafp;
+    size_t new_archive_size;
 
     /* open old archive if exist */
     if ((oafp = open_old_archive()) == NULL)
@@ -600,8 +613,17 @@ cmd_delete()
 
     new_archive_size = 0;       /* avoid compiler warnings `uninitialized' */
     if (!noexec) {
+        off_t tmp;
+
         write_archive_tail(nafp);
-        new_archive_size = ftello(nafp);
+        tmp = ftello(nafp);
+        if (tmp == -1) {
+            warning("ftello(): %s", strerror(errno));
+            new_archive_size = 0;
+        }
+        else
+            new_archive_size = tmp;
+
         fclose(nafp);
     }
 
@@ -621,8 +643,10 @@ cmd_delete()
     report_archive_name_if_different();
 
     /* copy temporary file to new archive file */
-    if (!noexec && rename(temporary_name, new_archive_name) < 0)
-        temporary_to_new_archive_file(new_archive_size);
+    if (!noexec) {
+        if (rename(temporary_name, new_archive_name) < 0)
+            temporary_to_new_archive_file(new_archive_size);
+    }
 
     /* set new archive file mode/group */
     set_archive_file_mode();
