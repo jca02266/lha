@@ -1056,16 +1056,20 @@ write_header(nafp, hdr)
 
             {
                 int i, len = strlen(hdr->group);
-                put_word(len + 3);
-                put_byte(0x52);	/* group name */
-                for (i = 0; i < len; i++)
-                    put_byte(hdr->group[i]);
+                if (len > 0) {
+                    put_word(len + 3);
+                    put_byte(0x52);	/* group name */
+                    for (i = 0; i < len; i++)
+                        put_byte(hdr->group[i]);
+                }
 
                 len = strlen(hdr->user);
-                put_word(len + 3);
-                put_byte(0x53);	/* user name */
-                for (i = 0; i < len; i++)
-                    put_byte(hdr->user[i]);
+                if (len > 0) {
+                    put_word(len + 3);
+                    put_byte(0x53);	/* user name */
+                    for (i = 0; i < len; i++)
+                        put_byte(hdr->user[i]);
+                }
             }
 
 			if (p = strrchr(lzname, LHA_PATHSEP)) {
