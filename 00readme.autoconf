@@ -225,7 +225,7 @@ LHa for UNIX に関しては岡本継男さんのページ
       限を越えた不正なアーカイブが作成されていました(実際には、オリジ
       ナルは level 0 header にディレクトリの情報を一切書かないのでこの
       制限はやはりファイル名長だけが対象になります)。autoconf 版では制
-      限を越えたパス名は warning メッセージを出力し、パス名の後ろをを
+      限を越えたパス名は warning メッセージを出力し、パス名の後ろを
       切り詰めます。(level 0 header は使用するべきではありません)
 
       空の(ディレクトリ名情報のない) -lhd- ヘッダが作成されていました。
@@ -317,6 +317,31 @@ LHa for UNIX に関しては岡本継男さんのページ
   MS-DOS タイプなど permission の情報を持たないアーカイブを Cygwin で
   解凍する場合は、0777 & ~umask で展開するようにしました。これは、.exe 
   や .dll に実行属性を付けるためです。
+
+・large files 対応
+
+  一応、2G over な large file に対応しているつもりです(あまりテストさ
+  れてません)。これを有効にするには、large file を有効にするコンパイラ
+  オプションを指定する必要があります。
+
+  例えば、Linux (glibc) では以下のようにします。
+
+	./configure CPPFLAGS=-D_FILE_OFFSET_BITS=64
+
+  HP-UX 11.0 では以下のようにします。(HP-UX では、fsadm で largefiles 
+  対応のファイルシステムを作る必要があります)
+
+  	./configure CC='cc -Ae +DA2.0W'
+
+  コンパイルオプションは、getconf コマンドがあれば、以下の結果を参考に
+  できると思います。
+
+      getconf LFS_CFLAGS
+      getconf LFS_LDFLAGS
+      getconf LFS_LIBS
+
+  なお、level 0, 1, 2 ヘッダの仕様上 4G 未満のファイルしか書庫に格納で
+  きません。
 
 ・再配布について
 
