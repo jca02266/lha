@@ -129,10 +129,12 @@ AC_ARG_ENABLE(multibyte-filename,
   # default
   enable_multibyte_filename=auto)
 
+# Note: On Mac OS X, specify sjis, although the kanji code of filename
+# is used utf-8.
 case $enable_multibyte_filename in
 auto|yes)
   AC_EGREP_CPP(SJIS,[
-#if defined(__CYGWIN__) || defined(__MINGW32__) || defined(__hpux)
+#if defined(__CYGWIN__) || defined(__MINGW32__) || defined(__hpux) || defined(__APPLE__)
 SJIS
 #else
 EUC
