@@ -22,12 +22,12 @@ char *optional_archive_delim = NULL;
 char *optional_system_delim = NULL;
 int optional_filename_case = NONE;
 
-#if defined(__CYGWIN__) || defined(__MINGW32__) || defined(__hpux)
-/* Cygwin, HP-UX and other UNIX are able to use SJIS as native code. */
-int default_system_kanji_code = CODE_SJIS;
+#ifdef MULTIBYTE_FILENAME
+int default_system_kanji_code = MULTIBYTE_FILENAME;
 #else
-int default_system_kanji_code = CODE_EUC;
+int default_system_kanji_code = NONE;
 #endif
+
 /* ------------------------------------------------------------------------ */
 int
 calc_sum(p, len)
