@@ -18,6 +18,23 @@ static size_t indicator_count;
 static long indicator_threshold;
 #endif
 
+static void
+carriage_return()
+{
+    static int tty = -1;
+    if (tty == -1) {
+        if (isatty(1))          /* stdout */
+            tty = 1;
+        else
+            tty = 0;
+    }
+
+    if (tty)
+        fputs("\r", stdout);
+    else
+        fputs("\n", stdout);
+}
+
 void
 start_indicator(name, size, msg, def_indicator_threshold)
     char           *name;
@@ -39,7 +56,8 @@ start_indicator(name, size, msg, def_indicator_threshold)
         m = MAX_INDICATOR_COUNT - strlen(name);
         if (m < 1)      /* Bug Fixed by N.Watazaki */
             m = 3;      /* (^_^) */
-        printf("\r%s\t- %s :  ", name, msg);
+        carriage_return();
+        printf("%s\t- %s :  ", name, msg);
         indicator_threshold =
             ((size + (m * def_indicator_threshold - 1)) /
              (m * def_indicator_threshold) *
@@ -51,10 +69,12 @@ start_indicator(name, size, msg, def_indicator_threshold)
         while (i--)
             putchar('.');
         indicator_count = 0;
-        printf("\r%s\t- %s :  ", name, msg);
+        carriage_return();
+        printf("%s\t- %s :  ", name, msg);
         break;
     case 1:
-        printf("\r%s :", name);
+        carriage_return();
+        printf("%s :", name);
         break;
     }
 #else
@@ -92,7 +112,8 @@ finish_indicator2(name, msg, pcnt)
     if (pcnt > 100)
         pcnt = 100; /* (^_^) */
 #ifdef NEED_INCREMENTAL_INDICATOR
-    printf("\r%s\t- %s(%d%%)\n", name,  msg, pcnt);
+    carriage_return();
+    printf("%s\t- %s(%d%%)\n", name,  msg, pcnt);
 #else
     printf("%s\n", msg);
 #endif
@@ -108,7 +129,8 @@ finish_indicator(name, msg)
         return;
 
 #ifdef NEED_INCREMENTAL_INDICATOR
-    printf("\r%s\t- %s\n", name, msg);
+    carriage_return();
+    printf("%s\t- %s\n", name, msg);
 #else
     printf("%s\n", msg);
 #endif
