@@ -314,7 +314,7 @@ report_archive_name_if_different()
 {
 	if (!quiet && new_archive_name == new_archive_name_buffer) {
 		/* warning at old archive is SFX */
-		printf("New archive file is \"%s\"\n", new_archive_name);
+		fprintf(stderr, "New archive file is \"%s\"\n", new_archive_name);
 	}
 }
 
@@ -588,7 +588,7 @@ cmd_delete()
 	/* 1999.5.24 t.oka */
 	if(!noexec && new_archive_size <= 1){
 		unlink(temporary_name);
-		printf("New archive file \"%s\" is not created because it would be empty.\n", new_archive_name);
+		fprintf(stderr, "New archive file \"%s\" is not created because it would be empty.\n", new_archive_name);
 		return;
 	}
 
