@@ -1,3 +1,9 @@
+2003-02-14  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lharc.c (find_files): `goto' requires expression after label.
+
+	* src/lhadd.c (cmd_add): ditto.
+
 2003-02-05  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* tests/lha-test7: sleep 1 to make sure for updating tests.
