@@ -236,7 +236,7 @@ putc_euc(c, fd)
 			return putc(c, fd);
 		}
 		putc_euc_cache = c;	/* save first byte */
-		return;
+		return c;
 	}
 	d = putc_euc_cache;
 	putc_euc_cache = EOF;
