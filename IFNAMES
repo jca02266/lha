@@ -35,7 +35,7 @@ NONSYSTEM_DIR_LIBRARY lha_macro.h	no use (???)
 # NOSTRDUP util.c			replace with !HAVE_STRDUP
 NOT_COMPATIBLE_MODE header.c lhext.c
 NOT_USED header.c
-NOVOID lha_macro.h			removed
+# NOVOID lha_macro.h			removed
 # NO_INODE lharc.c			replace with !HAVE_STRUCT_STAT_ST_INO
 # HAVE_NO_LCHOWN lhext.c		replace with !HAVE_LCHOWN
 NULL lha_macro.h
