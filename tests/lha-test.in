@@ -4,7 +4,7 @@
 
 trap "rm -rf test-*" 0 1 2 3 15
 
-test_number=0
+declare -i test_number=0
 
 exec > test.log
 
@@ -15,8 +15,8 @@ message() {
 
 check() {
   ((test_number = test_number + 1))
-  status=$1
-  if [[ $status = 0 ]]; then
+  local status=$1
+  if [[ $status -eq 0 ]]; then
     message test $test_number ... ok
   else
     message test $test_number ... failed
@@ -25,7 +25,7 @@ check() {
 }
 
 message testing $lha
-message testing to create/list/extract lha archive
+message testing to create/list/extract lha archive.
 
 for i in `seq 100`
 do
@@ -53,7 +53,7 @@ diff test-1/test-b test-b
 diff test-1/test-c test-c
 							check $?
 
-message testing to generic, lh5, lh6 and lh7 method archive
+message testing to generic, lh5, lh6 and lh7 method archive.
 $lha co  test-m1.lzh test-a test-b test-c
 							check $?
 $lha co5 test-m5.lzh test-a test-b test-c
@@ -89,7 +89,7 @@ diff -r test-1 test-m6
 diff -r test-1 test-m7
 							check $?
 
-message testing to print lha archive
+message testing to print lha archive.
 
 $lha pq test-m1.lzh test-a | diff test-a -
 							check $?
@@ -110,7 +110,7 @@ $lha pq test-m6.lzh | diff test-abc -
 $lha pq test-m7.lzh | diff test-abc -
 							check $?
 
-message testing to delete files from archive
+message testing to delete files from archive.
 
 cp test-m5.lzh test-2.lzh
 
@@ -144,8 +144,7 @@ test -s test-stderr
 test ! -f test-2.lzh
 							check $?
 
-
-message testing to stdin/stdout archive
+message testing to treat stdin/stdout as archive file.
 
 $lha c - test-a test-b test-c > test-3.lzh
 							check $?
