@@ -1,5 +1,15 @@
 2002-07-06  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* tests/lha-test10: added testing the header level 0, 1 and 2.
+
+	* tests/lha-test.in: ditto.
+
+	* src/lharc.c: `#include <stdarg.h>' moved to lha.h.
+
+	* src/lha.h: ditto.
+
+	* src/util.c: ditto.
+
 	* configure.ac: AC_REPLACE_FUNCS(vsnprintf).
 
 	* config.h.in: ditto.
