@@ -1,3 +1,18 @@
+2004-09-18  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.ac: updated version.
+
+	* 00readme.autoconf: added a description about
+	`--extract-broken-archive' option.
+
+	* src/lharc.c (init_variable, parse_option): added an option
+	`--extract-broken-archive' to extract broken archive.
+
+	* src/lha.h (extract_broken_archive): ditto.
+
+	* src/slide.c (encode, decode): fixed a *FATAL* bug which make a
+	broken archive.
+
 2004-05-08  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: updated version.
