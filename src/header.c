@@ -196,10 +196,10 @@ unix_to_generic_filename(name, len)
 
 /* added by Koji Arai */
 static void
-filename_conv(name, len, size,
-              from_code, to_code,
-              from_delim, to_delim,
-              case_to)
+convert_filename(name, len, size,
+                 from_code, to_code,
+                 from_delim, to_delim,
+                 case_to)
 	register char  *name;
 	register int    len;
 	register int    size;
@@ -208,6 +208,18 @@ filename_conv(name, len, size,
 
 {
 	register int    i;
+#ifdef MULTIBYTE_FILENAME
+    char tmp[256];              /* 256 is sizeof(LzHeader.name) */
+
+    if (from_code == CODE_SJIS && to_code == CODE_UTF8) {
+        sjis_to_utf8(tmp, name, sizeof(tmp));
+        strncpy(name, tmp, size);
+    }
+    else if (from_code == CODE_UTF8 && to_code == CODE_SJIS) {
+        utf8_to_sjis(tmp, name, sizeof(tmp));
+        strncpy(name, tmp, size);
+    }
+#endif
 
 	for (i = 0; i < len; i ++) {
 #ifdef MULTIBYTE_FILENAME
@@ -804,17 +816,10 @@ get_header(fp, hdr)
 		name_length += dir_length;
 	}
 
-    filename_conv(hdr->name, name_length, sizeof(hdr->name),
-                  archive_kanji_code,
-                  system_kanji_code,
-                  archive_delim, system_delim, filename_case);
-
-#ifdef __APPLE__
-    {
-        char *p = sjis_to_utf8_static(hdr->name);
-        strncpy(hdr->name, p, sizeof(hdr->name));
-    }
-#endif
+    convert_filename(hdr->name, name_length, sizeof(hdr->name),
+                     archive_kanji_code,
+                     system_kanji_code,
+                     archive_delim, system_delim, filename_case);
 
 	return TRUE;
 }
@@ -916,16 +921,10 @@ init_header(name, v_stat, hdr)
         archive_delim = "\\";
     }
 
-    filename_conv(hdr->name, len, sizeof(hdr->name),
-                  system_kanji_code,
-                  system_kanji_code, /* no change code */
-                  system_delim, archive_delim, filename_case);
-#ifdef __APPLE__
-    {
-        char *p = sjis_to_utf8_static(hdr->name);
-        strncpy(hdr->name, p, sizeof(hdr->name));
-    }
-#endif
+    convert_filename(hdr->name, len, sizeof(hdr->name),
+                     system_kanji_code,
+                     system_kanji_code, /* no change code */
+                     system_delim, archive_delim, filename_case);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -972,18 +971,11 @@ write_header(nafp, hdr)
 
 	put_byte(hdr->header_level);
 
-#ifdef __APPLE__
-    {
-        char *p = utf8_to_sjis_static(hdr->name);
-        strcpy(lzname, p);
-    }
-#else
-    strcpy(lzname, hdr->name);
-#endif
-    filename_conv(lzname, strlen(lzname), sizeof(lzname),
-                  system_kanji_code,
-                  archive_kanji_code,
-                  "\xff\\/", "\xff\xff\xff", NONE);
+    strncpy(lzname, hdr->name, sizeof(lzname));
+    convert_filename(lzname, strlen(lzname), sizeof(lzname),
+                     system_kanji_code,
+                     archive_kanji_code,
+                     "\xff\\/", "\xff\xff\xff", NONE);
 
 	if (hdr->header_level != HEADER_LEVEL2) {
 		if (p = (char *) strrchr(lzname, DELIM2))
@@ -1128,68 +1120,111 @@ enum {
   kCFStringEncodingASCIICompatibleConversion = (1 << 10),
 };
 
-char *sjis_to_utf8_static(const char *from) {
-  static char cvtbuf[2048];
-  unsigned char *dst;
-  unsigned char *src;
-  
-  src = (unsigned char *)from;
-  dst = (unsigned char *)cvtbuf;
+static int
+ConvertEncodingToUTF8(const char* inCStr,
+                      char* outUTF8Buffer,
+                      int outUTF8BufferLength,
+                      unsigned long scriptEncoding,
+                      unsigned long flags)
+{
+    unsigned long unicodeChars;
+    unsigned long srcCharsUsed;
+    unsigned long usedByteLen = 0;
+    UniChar uniStr[512];
+    unsigned long cfResult;
 
-  dst[0] = '\0';
-  ConvertEncodingToUTF8((const char*) src, dst, 2048, kCFStringEncodingDOSJapanese, kCFStringEncodingUseHFSPlusCanonical); 
+    cfResult = CFStringEncodingBytesToUnicode(scriptEncoding,
+                                              flags,
+                                              (char *)inCStr,
+                                              strlen(inCStr),
+                                              &srcCharsUsed,
+                                              uniStr,
+                                              512,
+                                              &unicodeChars);
+    if (cfResult == 0) {
+        cfResult = CFStringEncodingUnicodeToBytes(kCFStringEncodingUTF8,
+                                                  flags,
+                                                  uniStr,
+                                                  unicodeChars,
+                                                  &srcCharsUsed,
+                                                  (char*)outUTF8Buffer,
+                                                  outUTF8BufferLength - 1,
+                                                  &usedByteLen);
+        outUTF8Buffer[usedByteLen] = '\0';
+    }
 
-  return cvtbuf;
+    return cfResult;
 }
 
-char *utf8_to_sjis_static(const char *from) {
-  static char cvtbuf[2048];
-  unsigned char *src;
-  unsigned char *dst;
-  int srclen;
+static int
+ConvertUTF8ToEncoding(const char* inUTF8Buf,
+                      int inUTF8BufLength,
+                      char* outCStrBuffer,
+                      int outCStrBufferLength,
+                      unsigned long scriptEncoding,
+                      unsigned long flags)
+{
+    unsigned long unicodeChars;
+    unsigned long srcCharsUsed;
+    unsigned long usedByteLen = 0;
+    UniChar uniStr[256];
+    unsigned long cfResult;
 
-  src = (unsigned char *)from; 
-  dst = (unsigned char *)cvtbuf;
+    cfResult = CFStringEncodingBytesToUnicode(kCFStringEncodingUTF8,
+                                              flags,
+                                              (char*)inUTF8Buf,
+                                              inUTF8BufLength,
+                                              &srcCharsUsed,
+                                              uniStr,
+                                              255,
+                                              &unicodeChars);
+    if (cfResult == 0) {
+        cfResult = CFStringEncodingUnicodeToBytes(scriptEncoding,
+                                                  flags,
+                                                  uniStr,
+                                                  unicodeChars,
+                                                  &srcCharsUsed,
+                                                  (char*)outCStrBuffer,
+                                                  outCStrBufferLength - 1,
+                                                  &usedByteLen);
+        outCStrBuffer[usedByteLen] = '\0';
+    }
+
+    return cfResult;
+}
+#endif /* __APPLE__ */
+
+char *
+sjis_to_utf8(char *dst, const char *from, size_t dstsize)
+{
+#ifdef __APPLE__
+  dst[0] = '\0';
+  ConvertEncodingToUTF8(src, dst, 2048,
+                        kCFStringEncodingDOSJapanese,
+                        kCFStringEncodingUseHFSPlusCanonical);
+
+#else
+  /* not supported */
+#endif
+  return dst;
+}
+
+char *
+utf8_to_sjis(char *dst, const char *src, size_t dstsize)
+{
+#ifdef __APPLE__
+  int srclen;
 
   dst[0] = '\0';
   srclen = strlen(src);
-  ConvertUTF8ToEncoding((const char*) src, srclen, dst, 2048, kCFStringEncodingDOSJapanese, kCFStringEncodingUseHFSPlusCanonical);           
-
-  return cvtbuf;
+  ConvertUTF8ToEncoding((const char*) src, srclen, dst, dstsize,
+                        kCFStringEncodingDOSJapanese,
+                        kCFStringEncodingUseHFSPlusCanonical);
+#else
+  /* not supported */
+#endif
+  return dst;
 }
-
-static int ConvertEncodingToUTF8(const char* inCStr, char* outUTF8Buffer, int outUTF8BufferLength, unsigned long scriptEncoding, unsigned long flags) {
-  unsigned long unicodeChars;
-  unsigned long srcCharsUsed;
-  unsigned long usedByteLen = 0;
-  UniChar uniStr[512];
-  unsigned long cfResult;
-
-  cfResult = CFStringEncodingBytesToUnicode(scriptEncoding, flags, (char *)inCStr, strlen(inCStr), &srcCharsUsed, uniStr, 512, &unicodeChars);
-  if (cfResult == 0) {
-    cfResult = CFStringEncodingUnicodeToBytes(kCFStringEncodingUTF8, flags, uniStr, unicodeChars, &srcCharsUsed, (char*)outUTF8Buffer, outUTF8BufferLength - 1, &usedByteLen);
-    outUTF8Buffer[usedByteLen] = '\0';
-  }
-
-  return cfResult;
-}
-
-static int ConvertUTF8ToEncoding(const char* inUTF8Buf, int inUTF8BufLength, char* outCStrBuffer, int outCStrBufferLength, unsigned long scriptEncoding, unsigned long flags) {
-  unsigned long unicodeChars;
-  unsigned long srcCharsUsed;
-  unsigned long usedByteLen = 0;
-  UniChar uniStr[256];
-  unsigned long cfResult;
-
-  cfResult = CFStringEncodingBytesToUnicode(kCFStringEncodingUTF8, flags, (char*)inUTF8Buf, inUTF8BufLength, &srcCharsUsed, uniStr, 255, &unicodeChars);
-  if (cfResult == 0) {
-    cfResult = CFStringEncodingUnicodeToBytes(scriptEncoding, flags, uniStr, unicodeChars, &srcCharsUsed, (char*)outCStrBuffer, outCStrBufferLength - 1, &usedByteLen);
-     outCStrBuffer[usedByteLen] = '\0';
-  }
-
-  return cfResult;
-}
-#endif /* __APPLE__ */
 
 /*
  * SJIS <-> EUC 変換関数
