@@ -642,7 +642,7 @@ fatal_error(fmt, va_alist)
 /* ------------------------------------------------------------------------ */
 RETSIGTYPE
 interrupt(signo)
-    int             signo;
+    int signo;
 {
     message("Interrupted");
 
