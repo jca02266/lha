@@ -517,6 +517,7 @@ cmd_add()
 
         oafp = append_it(cmd_filev[i], oafp, nafp);
     next:
+        ;
     }
 
     if (oafp) {

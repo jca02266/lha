@@ -975,6 +975,7 @@ find_files(name, v_filec, v_filev)
         }
 #endif
     next:
+        ;
     }
     closedir(dirp);
     finish_sp(&sp, v_filec, v_filev);
