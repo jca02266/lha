@@ -1,3 +1,10 @@
+2003-12-18  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/header.c (wintime_to_unix_stamp): no use 64bit constant to
+	avoid the warning `integer constant is too large for "long" type'
+	on GCC. however, for portability, no use the unsigned long long
+	suffix "ULL".
+
 2003-12-13  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: updated version.
