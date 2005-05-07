@@ -1,3 +1,8 @@
+2005-05-08  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* src/lhext.c (is_directory_traversal): should return true when
+	just ".." was found.
+
 2004-10-02  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* src/lharc.c (print_tiny_usage): added long option helps.
