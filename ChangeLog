@@ -1,5 +1,20 @@
 2005-05-08  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* configure.ac: updated version.
+
+	* src/lharc.c (print_usage): updated.
+
+	* src/lhadd.c, src/header.c (remove_leading_dots): move to
+	header.c for readlink().
+
+	* src/lhadd.c (add_one): symbolic link indication was contrary.
+	( not "realname -> linkname" but "linkname -> realname" )
+	(delete): ditto.
+
+	* src/lhext.c (extract_one): ditto.
+
+	* src/lhlist.c (list_one): ditto.
+
 	* src/lhadd.c (remove_leading_dots): newly added.
 
 	* src/lhadd.c (append_it): remove leading relative path from
