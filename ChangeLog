@@ -1,5 +1,10 @@
 2005-05-08  Koji Arai  <jca02266@nifty.ne.jp>
 
+	* src/lhadd.c (remove_leading_dots): newly added.
+
+	* src/lhadd.c (append_it): remove leading relative path from
+	archive.
+
 	* src/lhext.c (is_directory_traversal): should return true when
 	just ".." was found.
 
