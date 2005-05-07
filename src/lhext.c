@@ -400,15 +400,15 @@ extract_one(afp, hdr)
                 if (l_code < 0) {
                     if (quiet != TRUE)
                         warning("Can't make Symbolic Link \"%s\" -> \"%s\"",
-                                hdr->realname, name);
+                                name, hdr->realname);
                 }
                 if (quiet != TRUE) {
                     message("Symbolic Link %s -> %s",
-                            hdr->realname, name);
+                            name, hdr->realname);
                 }
 #else
                 warning("Can't make Symbolic Link %s -> %s",
-                        hdr->realname, name);
+                        name, hdr->realname);
                 return read_size;
 #endif
             } else { /* make directory */

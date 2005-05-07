@@ -1176,6 +1176,44 @@ seek_lha_header(fp)
     return -1;
 }
 
+
+/* remove leading `xxxx/..' */
+static char *
+remove_leading_dots(char *path)
+{
+    char *first = path;
+    char *ptr = 0;
+
+    if (strcmp(first, "..") == 0) {
+        warning("Removing leading `..' from member name.");
+        return first+1;         /* change to "." */
+    }
+
+    if (strstr(first, "..") == 0)
+        return first;
+
+    while (path && *path) {
+
+        if (strcmp(path, "..") == 0)
+            ptr = path = path+2;
+        else if (strncmp(path, "../", 3) == 0)
+            ptr = path = path+3;
+        else
+            path = strchr(path, '/');
+
+        if (path && *path == '/') {
+            path++;
+        }
+    }
+
+    if (ptr) {
+        warning("Removing leading `%.*s' from member name.", ptr-first, first);
+        return ptr;
+    }
+
+    return first;
+}
+
 void
 init_header(name, v_stat, hdr)
     char           *name;
@@ -1194,7 +1232,9 @@ init_header(name, v_stat, hdr)
     hdr->original_size = v_stat->st_size;
     hdr->attribute = GENERIC_ATTRIBUTE;
     hdr->header_level = header_level;
-    len = str_safe_copy(hdr->name, name, sizeof(hdr->name));
+    len = str_safe_copy(hdr->name,
+                        remove_leading_dots(name),
+                        sizeof(hdr->name));
     hdr->crc = 0x0000;
     hdr->extend_type = EXTEND_UNIX;
     hdr->unix_last_modified_stamp = v_stat->st_mtime;

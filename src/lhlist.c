@@ -128,7 +128,7 @@ list_one(hdr)
         if ((hdr->unix_mode & UNIX_FILE_SYMLINK) != UNIX_FILE_SYMLINK)
             printf("%s\n", hdr->name);
         else
-            printf("%s -> %s\n", hdr->realname, hdr->name);
+            printf("%s -> %s\n", hdr->name, hdr->realname);
     }
 
     strncpy(method, hdr->method, 5);
@@ -262,7 +262,7 @@ list_one(hdr)
         if ((hdr->unix_mode & UNIX_FILE_SYMLINK) != UNIX_FILE_SYMLINK)
             printf(" %s", hdr->name);
         else {
-            printf(" %s -> %s", hdr->realname, hdr->name);
+            printf(" %s -> %s", hdr->name, hdr->realname);
         }
     }
     if (verbose)

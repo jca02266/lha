@@ -32,7 +32,7 @@ add_one(fp, nafp, hdr)
 
     if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
         if (!quiet)
-            printf("%s -> %s\t- Symbolic Link\n", hdr->realname, hdr->name);
+            printf("%s -> %s\t- Symbolic Link\n", hdr->name, hdr->realname);
     }
 
     if (hdr->original_size == 0) {  /* empty file, symlink or directory */
@@ -73,42 +73,6 @@ add_one(fp, nafp, hdr)
     fseeko(nafp, next_pos, SEEK_SET);
 }
 
-static char *
-remove_leading_dots(char *path)
-{
-    char *first = path;
-    char *ptr = 0;
-
-    if (strcmp(first, "..") == 0) {
-        first[1] = 0;
-        return first;
-    }
-
-    if (strstr(first, "..") == 0)
-        return first;
-
-    while (path && *path) {
-
-        if (strcmp(path, "..") == 0)
-            ptr = path = path+2;
-        else if (strncmp(path, "../", 3) == 0)
-            ptr = path = path+3;
-        else
-            path = strchr(path, '/');
-
-        if (path && *path == '/') {
-            path++;
-        }
-    }
-
-    if (ptr) {
-        warning("Removing leading `%.*s' from member name.", ptr-first, first);
-        return ptr;
-    }
-
-    return first;
-}
-
 FILE           *
 append_it(name, oafp, nafp)
     char           *name;
@@ -146,7 +110,7 @@ append_it(name, oafp, nafp)
         }
     }
 
-    init_header(remove_leading_dots(name), &stbuf, &hdr);
+    init_header(name, &stbuf, &hdr);
 
     cmp = 0;                    /* avoid compiler warnings `uninitialized' */
     while (oafp) {
@@ -262,7 +226,7 @@ delete(oafp, nafp)
             fseeko(oafp, ahdr.packed_size, SEEK_CUR);
             if (noexec || !quiet) {
                 if ((ahdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK)
-                    message("delete %s -> %s", ahdr.realname, ahdr.name);
+                    message("delete %s -> %s", ahdr.name, ahdr.realname);
                 else
                     message("delete %s", ahdr.name);
             }
