@@ -73,8 +73,42 @@ add_one(fp, nafp, hdr)
     fseeko(nafp, next_pos, SEEK_SET);
 }
 
+static char *
+remove_leading_dots(char *path)
+{
+    char *first = path;
+    char *ptr = 0;
 
-/* ------------------------------------------------------------------------ */
+    if (strcmp(first, "..") == 0) {
+        first[1] = 0;
+        return first;
+    }
+
+    if (strstr(first, "..") == 0)
+        return first;
+
+    while (path && *path) {
+
+        if (strcmp(path, "..") == 0)
+            ptr = path = path+2;
+        else if (strncmp(path, "../", 3) == 0)
+            ptr = path = path+3;
+        else
+            path = strchr(path, '/');
+
+        if (path && *path == '/') {
+            path++;
+        }
+    }
+
+    if (ptr) {
+        warning("Removing leading `%.*s' from member name.", ptr-first, first);
+        return ptr;
+    }
+
+    return first;
+}
+
 FILE           *
 append_it(name, oafp, nafp)
     char           *name;
@@ -102,7 +136,6 @@ append_it(name, oafp, nafp)
 #else
     symlink = 0;
 #endif
-    init_header(name, &stbuf, &hdr);
 
     fp = NULL;
     if (!directory && !symlink && !noexec) {
@@ -112,6 +145,8 @@ append_it(name, oafp, nafp)
             return oafp;
         }
     }
+
+    init_header(remove_leading_dots(name), &stbuf, &hdr);
 
     cmp = 0;                    /* avoid compiler warnings `uninitialized' */
     while (oafp) {
