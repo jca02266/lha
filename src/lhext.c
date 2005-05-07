@@ -485,30 +485,32 @@ cmd_extract()
 }
 
 int
-is_directory_traversal(char *string)
+is_directory_traversal(char *path)
 {
-    unsigned int type = 0; /* 0 = new, 1 = only dots, 2 = other chars than dots */
-    char *temp;
+    int state = 0;
 
-    temp = string;
-
-    while (*temp != 0) {
-        if (temp[0] == '/') {
-            if (type == 1) { return 1; }
-            type = 0;
-            temp++;
-            continue;
+    for (; *path; path++) {
+        switch (state) {
+        case 0:
+            if (*path == '.') state = 1;
+            else state = 3;
+            break;
+        case 1:
+            if (*path == '.') state = 2;
+            else if (*path == '/') state = 0;
+            else state = 3;
+            break;
+        case 2:
+            if (*path == '/') return 1;
+            else state = 3;
+            break;
+        case 3:
+            if (*path == '/') state = 0;
+            break;
         }
+    }
 
-        if ((temp[0] == '.') && (type < 2))
-            type = 1;
-        if (temp[0] != '.')
-            type = 2;
-
-        temp++;
-    } /* while */
-
-    return (type == 1);
+    return state == 2;
 }
 
 /*
