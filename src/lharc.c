@@ -383,6 +383,8 @@ parse_suboption(int argc, char **argv)
                 error("unknown kanji code \"%s\"", optarg);
                 return -1;
             }
+            break;
+
         case ARCHIVE_KANJI_CODE_OPTION:
             if (!optarg) {
                 error("kanji code not specified for --%s",
