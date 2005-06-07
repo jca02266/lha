@@ -1,3 +1,11 @@
+2005-06-08  Koji Arai  <jca02266@nifty.ne.jp>
+
+	* configure.ac: updated version.
+
+	* src/lharc.c (parse_suboption): fixed a bug, when the
+	--system-kanji-code option specified, the --archive-kanji-code
+	option was infected.
+
 2005-05-08  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: updated version.
