@@ -1,3 +1,13 @@
+2005-09-24  Koji Arai  <jca02266@nifty.com>
+
+	* released.
+
+	* configure.ac: updated version and my mail address.
+
+	* Hacking_of_LHa: updated. (2003-02-23 edition)
+
+	* 00readme.autoconf: updated.
+
 2005-06-08  Koji Arai  <jca02266@nifty.ne.jp>
 
 	* configure.ac: updated version.
