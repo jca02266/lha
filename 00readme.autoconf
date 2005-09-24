@@ -339,7 +339,18 @@ LHa for UNIX に関しては岡本継男さんのページ
 
   	./configure --disable-largefile
 
-  のようにします。
+  HP-UX 11.0 で large files に対応するには、以下のようにします。
+
+	./configure --with-tmp-file=no CC="cc -Ae +DA2.0W" \
+				ac_cv_have_mktime=yes \
+				ac_cv_func_mktime=yes
+
+	--with-tmp-file=no は、中間ファイルを出力先と同じディレクトリに
+	作成します。テンポラリディレクトリが 2G over をサポートしていない
+	場合を考慮しています。
+
+	(largefiles 対応とは関係ありませんが ac_cv_*=yes は、HP-UX ではなぜ
+	か mktime の判定に失敗するため強制的に mktime を使うようにしています)
 
   なお、level 0, 1, 2 ヘッダの仕様上 4G 未満のファイルしか書庫に格納で
   きません。
@@ -383,8 +394,8 @@ LHa for UNIX に関しては岡本継男さんのページ
 	   <http://www.gnu.org/licenses/license-list.ja.html>
            <http://www.opensource.org/licenses/>
 
-  現在のところ、src/vsnprintf.c, src/fnmatch.c, src/fnmatch.h を除くそ
-  の他の構成物や LHa for UNIX 全体には man/lha.man に含まれる条項が適
-  用されます。(vsnprintf.c, fnmatch.c を利用するように make した LHa
-  for UNIX には、各ソースに記述された条項も適用されることに注意してく
-  ださい)
+  現在のところ、src/vsnprintf.c, src/fnmatch.[ch], src/getopt_long.[ch]
+  を除くその他の構成物や LHa for UNIX 全体には man/lha.man に含まれる
+  条項が適用されます。(vsnprintf.c, fnmatch.c を利用するように make し
+  た LHa for UNIX には、各ソースに記述された条項も適用されることに注意
+  してください)
