@@ -3,7 +3,7 @@ $Id$
                The Hacking of LHa for UNIX (2nd draft)
              -------------------------------------------
 
-                                Koji Arai <mailto:jca02266@nifty.ne.jp>
+                                Koji Arai <mailto:jca02266@nifty.com>
 
 本書は、LHa for UNIX 1.14i のソースを解読し、その圧縮アルゴリズムの実
 装を確認するためのものだ。この成果は別の形でまとめなおされ資料になるか
@@ -2143,7 +2143,7 @@ init_putbits( /* void */ )
 }
 
 それぞれ bit 入力、bit 出力を行うための初期化処理だ。CHAR_BIT というの
-は 8 で、char の bit サイズを表しているらしい。詳細はわからないが初期
+は 8 で、char 型の bit サイズを表しているらしい。詳細はわからないが初期
 状態はとにかくこれだ。ここで使用されている変数は、
 
 static unsigned char subbitbuf, bitcount;
@@ -2305,7 +2305,7 @@ n{16} より小さいのでループに入る。n は 16 のままだ。
 (B) で、subbitbuf に残っている bit を bitbuf にずらしている。今はまだ
 空なのでbitbuf はここでもまだ空だ。
 
-(C) で、8 ビットファイルからデータを読む(compsize は常に0でないと考え
+(C) で、ファイルからデータを8 ビット読む(compsize は常に0ではないと考え
 る)。bitcount は 8 になる。この時点で bitバッファ全体は subbitbuf だけ
 値が入った状態になる。
 
@@ -2328,7 +2328,7 @@ bit いっぱいになる。bitcount は 0 だ。
 う。処理内容を確認してみればわかる。
 
 ここで、subbitbuf の用途に気づいた。ファイルからの読み込みが 8 ビット
-単位でしかできないので、それを補うための先読みバッファであろう。例えば
+単位でしかできないので、それを補うための保存用バッファであろう。例えば
 1 ビットだけ bitbuf を fill したければ subbitbuf に 7 bit 残し、1 bit
 だけ bitbuf に設定される(確認してみればわかる)
 
@@ -2579,10 +2579,18 @@ LHa for UNIX では、静的 Huffman 法として、shuf.c、動的 Huffman 法とし
 
 このテキストは 9 バイトあるわけだが、このファイルで使われている文字は3 
 種類しかない、a, b, c だ。だからこのファイルだけに関して言えば 1 文字
-は 2 ビットあれば表現可能である(このファイルの場合全体で、18ビットあれ
-ば表現可能)。さらに、出現頻度の高い文字を少ないビット数で表現し、まれ
-にしか現れない文字を長いビット数で表すようにすればよりビット数を少なく
-できる。例えば
+は 2 ビットあれば表現可能である。例えば各文字に対して以下のビットを
+割り当てたとすると
+
+        文字   ビット表現
+        a      00
+        b      01
+        c      10
+
+先のテキストファイルの内容 abcabcaba は、18ビットあれば表現可能となる。
+
+さらに、出現頻度の高い文字を少ないビット数で表現し、まれにしか現れない
+文字を長いビット数で表すようにすればよりビット数を少なくできる。例えば
 
         文字   ビット表現
         a      0
@@ -2596,33 +2604,57 @@ LHa for UNIX では、静的 Huffman 法として、shuf.c、動的 Huffman 法とし
 を求めておく必要があり、復号化の際はどのビット列がどの文字に対応するか
 をあらかじめ知る必要がある。
 
-では、符号化の際に文字に対応するビット列を求める方法だが、以下がそのア
-ルゴリズムだ。ハフマン法ではハフマン木という木構造を構築する。各文字の
-出現回数
+文字毎にビット長のばらつきがあるような可変長符号には以下の条件がある。
 
-        a:4、b:3、c:2
+   ある符号のビットパターンは、他の符号のビットパターンの開始にはなら
+   ない。
 
-から、出現回数の低いもの同士を一つの節に束ねる。この節は 3+2=5 という
-出現回数を持つものと考える。
+というものだ。これを「語頭条件」と言うらしい。例えば、先の例では a に 
+0 を割り当てたので他の文字は必ず 1 から始まるようになっている。この条
+件を満たさなければならない理由はちょっと考えればわかる。仮に以下の間違っ
+た割当を行ったとする。
 
-          5
-         / \
-        b   c
+        文字   ビット表現
+        a      0
+        b      10
+        c      01
+
+これだと、ビットパターン 010 が ab なのか ca なのか曖昧になるのがわか
+るだろう。
+
+文字に対応する語頭条件を満たす(最適な)ビット列を求める方法、それがハフ
+マン法だ。ハフマン法ではハフマン木という木構造を構築するのだが、そのア
+ルゴリズムは以下のとおりだ。
+
+まず、圧縮対象であるテキストに関して各文字の出現回数を数える。例えば 
+abcabcaba というテキストでは、a は 4回、bは3回、cは2回なので、
+
+        4    3    2
+        |    |    |
+        a    b    c
+
+となる。次に、出現回数の低いもの同士を一つの節に束ねる。この節は 3+2=5 
+という出現回数を持つものと考える。
+
+        4      5
+        |     / \
+        a    b   c
 
 以降さらに出現回数の低いもの同士を一つの節に束ねる操作を繰り返す。この
 例では、もう一度束ねれば終りだ。
 
-       /\
-      /  \
-     /  / \
-    a  b   c
+           9
+           /\
+          /  \
+         /  / \
+        a  b   c
 
 ここで、木の左側が 0 右側が 1 であるとすると。a は根から左に1つ進むだ
 けなので 0。b は、右(1)→左(0) なので、10。c は右(1)→右(1) なので、11 
 となる。実際の符号化の際は文字からビット列を求めるので葉から根にむかっ
 て逆順に辿ることになる。また、復号の際は入力のビット列に沿ってこの木を
-辿ることで対応する文字を求める(なので圧縮文にはこの木構造が一緒に情報
-として格納されることになる)。
+根から辿ることで対応する文字を求める(なので圧縮文にはこの木構造が一緒
+に情報として格納されることになる)。
 
 このようなハフマン木を作成する箇所があるかどうかを探してみたところ 
 maketree.c:make_tree() が見つかった。これは「C言語による最新アルゴリズ
@@ -3041,7 +3073,7 @@ count_len() を呼び出すだけのものなのでもうよいだろう。
         len_cnt[i] = 0;
     count_len(root);
 
-これで、len_cnt[0:16] にはハフマン木の各層の葉の数が計上される。続いて (B)
+これで、len_cnt[1..16] にはハフマン木の各層の葉の数が計上される。続いて (B)
 
     /* (B) */
     cum = 0;
@@ -3299,7 +3331,12 @@ make_code(n, len, code)
     }
 }
 
-最初の for 文では、変数 i に対して、weight[i] が以下のように設定される。
+# 後で気がついたことだが、あらかじめ設定していた codeparm[] の内容はこ
+# こでは使用されない。つまり、codeparm[] は先程はワーク用のバッファと
+# して利用されていたが、ここでの codeparm[] は処理結果を表すという二つ
+# の役割がある
+
+最初の for 文では、変数 i に対して、weight[i] が下のように設定される
 
   weight[i=1..16] = 2^(16-i)
 
@@ -3389,8 +3426,9 @@ a, b, c がそれぞれ以下のハフマン木で表現されたとする。
   b     2     2         4            2^14  01000000 00000000
   c     2     2         4            2^14  10000000 00000000
   d     2     2         4            2^14  11000000 00000000
+                                           ^^ <- ハフマン符号
 
-だ。以降、code[] (実際には codeparm) を利用することで表引きで文字に
+だ。以降、code[] (実際には codeparm) を利用することで表引きで文字 c に
 対応するハフマン符号を得ることができるようになっている(code[c]のうち上
 位 len[c] ビットだけを見る)。符号化の際に木を辿る必要はなく、高速な符号
 化が可能になる(と期待される。どの程度効果があるかはいずれ検証してみた
@@ -3674,7 +3712,7 @@ output_st1(c, p)
 
 (B) は、buf に引数で渡された文字 c を格納し、c_freq[c] の値(文字の出現
 頻度)を足している。どうやら基本は渡された文字 c を延々と buf に格納し、
-後で、圧縮を行う(おそらく (A) だろう)ようになっているようだ。
+後で圧縮を行う(おそらく (A) だろう)ようだ。
 
 この buf のサイズはと言うと、これは alloc_buf() で割り当てられていた。
 
@@ -3829,7 +3867,8 @@ buf     |  32 | c1  | c2  | len |    off    |  c3 |  c4 |  c5 |  c6 |  c7 |
 で、3 * CHAR_BIT というのは <len, off> の格納バイト数を示している。
 (と思ったが、3 * CHAR_BIT ではビット数だ。一方、bufsiz はバイト数だ。
 計算に使用している単位が違う。何やらバグっぽい雰囲気があるが、バグだと
-してもバッファを効率的に使用できないだけなので大したことはないのだろう)
+してもバッファをちょっとだけ無駄にしているだけなので大したことはないの
+だろう)
 
 output_pos = 0 としていることからこの時点の buf の中身がすべて 
 send_block() で圧縮されファイルに出力されるだろうことが想像できる。
@@ -3980,9 +4019,9 @@ root が NC よりも大きい場合を判断しているが、ハフマン木の根は必ず NC よ
 
 ----------------------------------------------------------------------------
 
-これが、1ブロックに1種類しか文字がない場合のファイルの状態だ(offの情報
-はまだ含まない)。(B)の if が真のときがどうなるかは複雑そうなので後で見
-ることにしよう。
+これが、1ブロックに1種類しか文字がない場合の出力だ(offの情報はまだ含ま
+ない)。(B)の if が真のときがどうなるかは複雑そうなので後で見ることにし
+よう。
 
 続いて (C)
 
@@ -4420,7 +4459,7 @@ c_len[i] != 0 の場合
 
 こうして、文字の Huffman 符号表は、pt_len[] と pt_code[](pt_code[] は
 つまり c_len[] の Huffman 符号)を出力することで表現される。c_code[] が
-出力されてない思うかもしれないが、おそらく、decode 処理が c_len[] の値
+出力されてないと思うかもしれないが、おそらく、decode 処理が c_len[] の値
 から計算して求めているのではないかと思われる。これは decode 処理の解読
 で明らかになるだろう。
 
@@ -4447,7 +4486,6 @@ dicbit + 1 である。-lh4- のときにdicbit + 2 なのが不思議だが、これは歴
     -lh5-   13      14  4
     -lh6-   15      16  5
     -lh7-   16      17  5
-
 
 まとめると LHA における圧縮ファイルの構造は以下の連続であると言えるよ
 うだ。
@@ -4487,6 +4525,519 @@ dicbit + 1 である。-lh4- のときにdicbit + 2 なのが不思議だが、これは歴
 ここまでの解読では細部をかなりはしょったが、decode 処理を見ればわかる
 こともあるであろうことを期待している。以降、decode 処理の内容を処理の
 流れを追うことで確認しよう。
+
+では、いよいよ decode 処理の解読に入る。これが終れば LHA の処理の全貌
+を一応は網羅したことになるので、気合いを入れて進めよう。
+
+decode 処理は以下の関数から成っている。これらは、slide.c の decode 関
+数から呼ばれている。
+
+huf.c:decode_c_st1()          /* 文字、長さの decode 処理 */
+huf.c:decode_p_st1()          /* 位置の decode 処理 */
+huf.c:decode_start_st1()      /* decode 処理の初期化 */
+
+                        (実際には、struct decode_option の decode_c,
+                        decode_p, decode_start を介して呼ばれる)
+
+decode_start_st1() は、以下の通りだ。これは encode_start_st1() のとき
+と特別変わる所はない。特に説明の必要はないだろう。
+
+void
+decode_start_st1( /* void */ )
+{
+    if (dicbit <= 13)  {
+        np = 14;
+        pbit = 4;
+    } else {
+        if (dicbit == 16) {
+            np = 17; /* for -lh7- */
+        } else {
+            np = 16;
+        }
+        pbit = 5;
+    }
+
+    init_getbits();
+    blocksize = 0;
+}
+
+では、decode_c_st1() を見よう。
+
+unsigned short
+decode_c_st1( /*void*/ )
+{
+    unsigned short  j, mask;
+
+    if (blocksize == 0) {
+        blocksize = getbits(16);
+        read_pt_len(NT, TBIT, 3);
+        read_c_len();
+        read_pt_len(np, pbit, -1);
+    }
+    blocksize--;
+    j = c_table[bitbuf >> 4];
+    if (j < NC)
+        fillbuf(c_len[j]);
+    else {
+        fillbuf(12);
+        mask = 1 << (16 - 1);
+        do {
+            if (bitbuf & mask)
+                j = right[j];
+            else
+                j = left[j];
+            mask >>= 1;
+        } while (j >= NC);
+        fillbuf(c_len[j] - 12);
+    }
+    return j;
+}
+
+blocksize == 0 の場合に
+
+    if (blocksize == 0) {
+        blocksize = getbits(16);
+        read_pt_len(NT, TBIT, 3);
+        read_c_len();
+        read_pt_len(np, pbit, -1);
+    }
+
+と、いろいろとやっているがこの部分はすぐ想像がつく。< LHA ファイルの構
+造 > のハフマン符号表を読み込んでいるのだろう。そうして、一度読み込ん
+だ後は後続の処理で 1 ブロック分(blocksize 分)完了するまで decode を行
+うだけだ。
+
+    blocksize--;
+    j = c_table[bitbuf >> 4];
+
+decode 処理はハフマン符号表を表引きするだけなので単純だ。bitbuf >> 4 
+は、bitbuf >> (16 - 12) と読み変えた方がわかりやすい。これは以前何度も
+出た形だが bitbuf の上位 12 bit を取り出している。そうしてその値(ハフ
+マン符号)を元に表引きした結果 j が復号した文字となる。なぜ 12 bit なのか
+はよくわからない後で考えよう。この後の部分で、
+
+    if (j < NC)
+        fillbuf(c_len[j]);
+    else {
+        fillbuf(12);
+        mask = 1 << (16 - 1);
+        do {
+            if (bitbuf & mask)
+                j = right[j];
+            else
+                j = left[j];
+            mask >>= 1;
+        } while (j >= NC);
+        fillbuf(c_len[j] - 12);
+    }
+    return j;
+
+j < NC の場合は c_len[j] でハフマン符号のビット長分を fillbuf() してい
+る。つまり先程表引きした 12 bit のうち c_len[j] bit が本当のハフマン符
+号なのだが、表引きの際に実際のビット長を気にする必要がないのが特徴的だ。
+
+else の部分は、j を求め直していることから、どうやら符号表からの表引き
+では復号できない場合を表しているらしい。この場合、表引きに使用した 12
+bit を捨て(fillbuf(12))、ハフマン木(left[], right[])を辿る事で、復号を
+行っている。この後、fillbuf(c_len[j] - 12) していることから、符号長は 
+12 bit 以上あるのだろう。
+
+decode_c_st1() が decode する圧縮文の構造は図で表すと以下のようになる
+
+----------------------------------------------------------------------------
+
+j < NC の場合 (c_len[j] < 12 の場合)
+
+         <-  c_len[j] ->
+         <----- 12 ------->
+        +--------------+----------
+圧縮文  | ハフマン符号 |
+        +--------------+----------
+
+j >= NC の場合 (c_len[j] > 12 の場合)
+
+         <------------ c_len[j] --------->
+         <------ 12 ------>
+        +------------------+--------------+--------
+圧縮文  |    root          | ハフマン符号 |
+        +------------------+--------------+--------
+
+            root: ハフマン木の根
+
+----------------------------------------------------------------------------
+
+はたして、圧縮処理のときにこのような構造を作った覚えはないのだがどうい
+うことだろう？課題を残しつつ今度は decode_p_st1() (位置の復号処理)を見
+る。
+
+unsigned short
+decode_p_st1( /* void */ )
+{
+    unsigned short  j, mask;
+
+    j = pt_table[bitbuf >> (16 - 8)];
+    if (j < np)
+        fillbuf(pt_len[j]);
+    else {
+        fillbuf(8);
+        mask = 1 << (16 - 1);
+        do {
+            if (bitbuf & mask)
+                j = right[j];
+            else
+                j = left[j];
+            mask >>= 1;
+        } while (j >= np);
+        fillbuf(pt_len[j] - 8);
+    }
+    if (j != 0)
+        j = (1 << (j - 1)) + getbits(j - 1);
+    return j;
+}
+
+先程と同じだ。今度は、bitbuf のうち 8 bit を使用して表引きを行い、
+j < np なら pt_len[j] を詰め、そうでなければハフマン木を辿っている。
+復号した j は位置を表す値の bit 長なので最後に
+
+        j = (1 << (j - 1)) + getbits(j - 1);
+
+で、本当の位置の値を読んでいる(encode_p() がそういう処理だった事を思い
+出そう)。
+
+decode_p_st1() が decode する圧縮文の構造は図で表すと以下のようになる
+
+----------------------------------------------------------------------------
+
+j < np の場合 (pt_len[j] < 8 の場合)
+
+         <- pt_len[j] ->
+         <------ 8 ------->
+        +--------------+----------
+圧縮文  | ハフマン符号 |
+        +--------------+----------
+
+j >= np の場合 (pt_len[j] > 8 の場合)
+
+         <----------- pt_len[j] --------->
+         <------ 8 ------->
+        +------------------+--------------+----------+----------
+圧縮文  |      root        | ハフマン符号 | 位置の値 |
+        +------------------+--------------+----------+----------
+
+            root: ハフマン木の根
+
+----------------------------------------------------------------------------
+
+以上が、decode 処理の概要だ。ここまでの処理は別にどうという事もないだ
+ろう。decode 処理のキモは、圧縮文に埋め込んだハフマン符号表の読み込み
+にある。blocksize == 0 のときに、decode_c_st1() で呼ばれる 
+read_pt_len(), read_c_len() だ。これにより、decode 処理で使用するテーブル
+
+c_table[]       ハフマン符号 -> 文字の変換テーブル
+c_len[]         ハフマン符号 -> ハフマン符号のビット長の対応
+pt_table[]      ハフマン符号 -> 位置のビット長の変換テーブル
+pt_len[]        ハフマン符号 -> ハフマン符号のビット長の対応
+left[]          ハフマン木(左のノード)
+right[]         ハフマン木(右のノード)
+
+が構築される。この部分の方が decode 処理本体よりややこしそうだ。
+では、これらを見て行こう。
+
+    if (blocksize == 0) {
+        blocksize = getbits(16);
+        read_pt_len(NT, TBIT, 3);
+        read_c_len();
+        read_pt_len(np, pbit, -1);
+    }
+
+最初は、read_pt_len(NT, TBIT, 3) から
+
+static void
+read_pt_len(nn, nbit, i_special)
+    short           nn;
+    short           nbit;
+    short           i_special;
+{
+    int           i, c, n;
+
+    n = getbits(nbit);
+    if (n == 0) {
+        c = getbits(nbit);
+        for (i = 0; i < nn; i++)
+            pt_len[i] = 0;
+        for (i = 0; i < 256; i++)
+            pt_table[i] = c;
+    }
+    else {
+        i = 0;
+        while (i < n) {
+            c = bitbuf >> (16 - 3);
+            if (c == 7) {
+                unsigned short  mask = 1 << (16 - 4);
+                while (mask & bitbuf) {
+                    mask >>= 1;
+                    c++;
+                }
+            }
+            fillbuf((c < 7) ? 3 : c - 3);
+            pt_len[i++] = c;
+            if (i == i_special) {
+                c = getbits(2);
+                while (--c >= 0)
+                    pt_len[i++] = 0;
+            }
+        }
+        while (i < nn)
+            pt_len[i++] = 0;
+        make_table(nn, pt_len, 8, pt_table);
+    }
+}
+
+実際、大した事はない。< pt_len[] の出力フォーマット > にしたがって、
+pt_len[] を読み直しているだけだ。read_c_len() も見よう。
+
+static void
+read_c_len( /* void */ )
+{
+    short           i, c, n;
+
+    n = getbits(CBIT);
+    if (n == 0) {
+        c = getbits(CBIT);
+        for (i = 0; i < NC; i++)
+            c_len[i] = 0;
+        for (i = 0; i < 4096; i++)
+            c_table[i] = c;
+    } else {
+        i = 0;
+        while (i < n) {
+            c = pt_table[bitbuf >> (16 - 8)];
+            if (c >= NT) {
+                unsigned short  mask = 1 << (16 - 9);
+                do {
+                    if (bitbuf & mask)
+                        c = right[c];
+                    else
+                        c = left[c];
+                    mask >>= 1;
+                } while (c >= NT);
+            }
+            fillbuf(pt_len[c]);
+            if (c <= 2) {
+                if (c == 0)
+                    c = 1;
+                else if (c == 1)
+                    c = getbits(4) + 3;
+                else
+                    c = getbits(CBIT) + 20;
+                while (--c >= 0)
+                    c_len[i++] = 0;
+            }
+            else
+                c_len[i++] = c - 2;
+        }
+        while (i < NC)
+            c_len[i++] = 0;
+        make_table(NC, c_len, 12, c_table);
+    }
+}
+
+こちらも、< c_len[] の出力フォーマット > にしたがって、c_len[] を読み
+直しているだけだ。結局キモとなるのは、make_table() にあるらしい。この
+関数により、読み込んだ pt_len[], c_len[] から pt_table[], c_table[]
+(そして、ハフマン木 left[], right[])を構築しているのだろう。
+
+結局、decode 処理 read_c_len(), read_pt_len() を読んでもなぜこのような
+符号化を行っているのかよくわからなかった。何か統計的な根拠でもあるのだ
+ろうか？それとも LHA にとって歴史的な事情でもあるのか？これに関しては
+別途検証の必要があるだろう。
+
+では、最後の関数 make_table() を解読しよう。これは、maketbl.c で定義さ
+れている。
+
+void
+make_table(nchar, bitlen, tablebits, table)
+    short           nchar;
+    unsigned char   bitlen[];
+    short           tablebits;
+    unsigned short  table[];
+{
+    unsigned short  count[17];  /* count of bitlen */
+    unsigned short  weight[17]; /* 0x10000ul >> bitlen */
+    unsigned short  start[17];  /* first code of bitlen */
+    unsigned short  total;
+    unsigned int    i, l;
+    int             j, k, m, n, avail;
+    unsigned short *p;
+
+    /* (A) */
+    avail = nchar;
+
+    /* initialize */
+    for (i = 1; i <= 16; i++) {
+        count[i] = 0;
+        weight[i] = 1 << (16 - i);
+    }
+
+    /* (B) */
+    /* count */
+    for (i = 0; i < nchar; i++)
+        count[bitlen[i]]++;
+
+    /* (C) */
+    /* calculate first code */
+    total = 0;
+    for (i = 1; i <= 16; i++) {
+        start[i] = total;
+        total += weight[i] * count[i];
+    }
+    if ((total & 0xffff) != 0)
+        error("make_table()", "Bad table (5)\n");
+
+    /* (D) */
+    /* shift data for make table. */
+    m = 16 - tablebits;
+    for (i = 1; i <= tablebits; i++) {
+        start[i] >>= m;
+        weight[i] >>= m;
+    }
+
+    /* (E) */
+    /* initialize */
+    j = start[tablebits + 1] >> m;
+    k = 1 << tablebits;
+    if (j != 0)
+        for (i = j; i < k; i++)
+            table[i] = 0;
+
+    /* (F) */
+    /* create table and tree */
+    for (j = 0; j < nchar; j++) {
+        k = bitlen[j];
+        if (k == 0)
+            continue;
+        l = start[k] + weight[k];
+        if (k <= tablebits) {
+            /* code in table */
+            for (i = start[k]; i < l; i++)
+                table[i] = j;
+        }
+        else {
+            /* code not in table */
+            p = &table[(i = start[k]) >> m];
+            i <<= tablebits;
+            n = k - tablebits;
+            /* make tree (n length) */
+            while (--n >= 0) {
+                if (*p == 0) {
+                    right[avail] = left[avail] = 0;
+                    *p = avail++;
+                }
+                if (i & 0x8000)
+                    p = &right[*p];
+                else
+                    p = &left[*p];
+                i <<= 1;
+            }
+            *p = j;
+        }
+        start[k] = l;
+    }
+}
+
+順に見て行こう。
+
+    /* (A) */
+    avail = nchar;
+
+    /* initialize */
+    for (i = 1; i <= 16; i++) {
+        count[i] = 0;
+        weight[i] = 1 << (16 - i);
+    }
+
+avail はおそらく maketree.c:make_tree() でそうであったように、木の節の
+初期値だろうと予想しておく。count[], weight[] も、maketree.c での 
+len_cnt[] weight[] と同義だろう(すなわち、count[i] は、木の深さ i 番目
+の葉の数、weight[i] は重み)
+
+    /* (B) */
+    /* count */
+    for (i = 0; i < nchar; i++)
+        count[bitlen[i]]++;
+
+count[] を求めている。bitlen[i] は、文字 i のハフマン符号での bit 長で
+あった。やはり count[] は予想通りだ。
+
+    /* (C) */
+    /* calculate first code */
+    total = 0;
+    for (i = 1; i <= 16; i++) {
+        start[i] = total;
+        total += weight[i] * count[i];
+    }
+    if ((total & 0xffff) != 0)
+        error("make_table()", "Bad table (5)\n");
+
+これは、maketree.c:make_code() の前半部分とまったく同じだ。これにより、
+深さ i に対して、以下の対応表ができる(これは前にも書いた。Li は、
+count[i] の値を表している)。
+
+     i     count[i]   weight[i]   start[i]
+ --------------------------------------------
+     1         L1        2^15       0
+     2         L2        2^14      2^15 * L1
+     3         L3        2^13      2^15 * L1 + 2^14 * L2
+     4         L4        2^12      2^15 * L1 + 2^14 * L2 + 2^13 * L3
+
+これが何を表すかと言うと深さ i の符号(つまり bit 長 i の符号)は、
+start[i] から start[i+1]-1 の範囲の値を持つと言う事を意味する。再度、
+例で示そう。
+
+       /\               a: 0
+      a /\              b: 10
+        b c             c: 11
+
+     i     count[i]   weight[i]   start[i]
+ --------------------------------------------
+     1         1        2^15       0
+     2         2        2^14      2^15
+     3         0        2^13      2^15 + 2^14 * 2
+
+これより、深さ 1 の葉 a は、start[1] .. start[2]-1 つまり、
+00000000 00000000 .. 01111111 11111111 の範囲の符号となる。
+深さ 2 の葉 b, c は、start[2] .. start[3]-1 つまり、
+10000000 00000000 ... 11111111 11111111 となる。
+
+    /* (D) */
+    /* shift data for make table. */
+    m = 16 - tablebits;
+    for (i = 1; i <= tablebits; i++) {
+        start[i] >>= m;
+        weight[i] >>= m;
+    }
+
+理由はわからないが、作成するテーブルを引数で渡された bit 数のテーブル
+になるよう写像している。つまり、値の範囲の初期値 start[] と weight[]
+を 16 - tablebits でシフトすることで、
+
+         01111111 11111111
+
+というテーブルの値は(tablebits が 12 であるとすると)、
+
+         00000111 11111111
+
+の値にする。encode するときは、16 bit のテーブルをそのまま使用していた
+にも関わらず decode のときにはテーブルの bit 数を減らしているのだ。まっ
+たく理由がわからない。
+
+当然、encode で使用していたときのテーブルより情報量が減っているので、
+すべてをテーブル参照で decode することはできない。そこで、足りない部分
+は後の処理で木を作ることで補っているようだ。
+
+ちょっと気分的にノらないのではしょるが、後の (E), (F) は木を同時に作っ
+ていることを除けば、maketree.c:make_code() の後半部分と同じだと考えて
+いいだろう。
 
 # Local Variables:
 # mode : indented-text
