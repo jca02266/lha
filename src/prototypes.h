@@ -16,12 +16,12 @@ void init_getbits P_((void));
 void init_putbits P_((void));
 /* crcio.c */
 void make_crctable P_((void));
-unsigned int calccrc P_((unsigned int crc, unsigned char *p, unsigned int n));
-int fread_crc P_((unsigned int *crcp, unsigned char *p, int n, FILE *fp));
-void fwrite_crc P_((unsigned int *crcp, unsigned char *p, int n, FILE *fp));
+unsigned int calccrc P_((unsigned int crc, char *p, unsigned int n));
+int fread_crc P_((unsigned int *crcp, void *p, int n, FILE *fp));
+void fwrite_crc P_((unsigned int *crcp, void *p, int n, FILE *fp));
 void init_code_cache P_((void));
-int fwrite_txt P_((unsigned char *p, int n, FILE *fp));
-int fread_txt P_((unsigned char *p, int n, FILE *fp));
+int fwrite_txt P_((void *vp, int n, FILE *fp));
+int fread_txt P_((void *vp, int n, FILE *fp));
 /* dhuf.c */
 void start_c_dyn P_((void));
 void decode_start_dyn P_((void));
@@ -32,7 +32,7 @@ void encode_end_dyn P_((void));
 /* extract.c */
 int decode_lzhuf P_((FILE *infp, FILE *outfp, size_t original_size, size_t packed_size, char *name, int method, size_t *read_sizep));
 /* header.c */
-int calc_sum P_((char *p, int len));
+int calc_sum P_((void *p, int len));
 void convert_filename P_((char *name, int len, int size, int from_code, int to_code, char *from_delim, char *to_delim, int case_to));
 boolean get_header P_((FILE *fp, LzHeader *hdr));
 int seek_lha_header P_((FILE *fp));

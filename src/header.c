@@ -57,12 +57,12 @@ int default_system_kanji_code = NONE;
 
 int
 calc_sum(p, len)
-    char *p;
+    void *p;
     int len;
 {
     int sum = 0;
 
-    while (len--) sum += *p++;
+    while (len--) sum += *(unsigned char*)p++;
 
     return sum & 0xff;
 }
