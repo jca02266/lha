@@ -1,3 +1,13 @@
+2005-09-25  Koji Arai  <jca02266@nifty.com>
+
+	* src/prototypes.h: updated.
+
+	* src/crcio.c (calccrc, fread_crc, fwrite_crc, fread_txt, fwrite_txt): suppress compiler warnings on gcc-4.0.
+
+	* src/header.c (calc_sum): ditto.
+
+	* src/lha_macro.h (UPDATE_CRC): ditto.
+
 2005-09-24  Koji Arai  <jca02266@nifty.com>
 
 	* released.
