@@ -19,7 +19,7 @@ EXTRA_DIST =	lha-test1 \
 DISTCLEANFILES = test.log
 
 check-local:
-	bash ./lha-test
+	@sh_for_lha_test@ ./lha-test
 
 lha-test: $(top_builddir)/config.status $(srcdir)/lha-test.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@

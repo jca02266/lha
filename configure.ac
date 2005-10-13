@@ -16,6 +16,7 @@ AC_PROG_MAKE_SET
 AC_MINIX
 AM_C_PROTOTYPES
 AC_SYS_LARGEFILE
+AC_CHECK_PROGS(sh_for_lha_test, [zsh bash ksh pdksh], [sh])
 
 # Checks for libraries.
 AC_SEARCH_LIBS(opendir, [mingwex])
