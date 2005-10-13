@@ -1,3 +1,12 @@
+2005-10-13  Koji Arai  <jca02266@nifty.com>
+
+	* tests/lha-test.in: emulate POSIX shell when it is executed by
+	zsh or bash. (this part is derived from GNU Autoconf 2.59)
+
+	* tests/Makefile.am: replaced `bash' with `@sh_for_lha_test@'
+
+	* configure.ac: search shell programs to execute the lha-test.
+
 2005-09-25  Koji Arai  <jca02266@nifty.com>
 
 	* src/prototypes.h: updated.
