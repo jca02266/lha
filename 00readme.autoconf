@@ -334,12 +334,13 @@ LHa for UNIX に関しては岡本継男さんのページ
 ・large files 対応
 
   システムが対応していれば、2G over な large file を扱うことができます
-  (configure が適当なコンパイラオプションを指定してくれます)、もしこれ
-  を「無効」にしたければ、
+  (configure が適当なコンパイラオプションを指定してくれます)
 
-  	./configure --disable-largefile
+  ただし、HP-UX 11.0 で large files に対応するには以下のように
 
-  HP-UX 11.0 で large files に対応するには、以下のようにします。
+        CC="cc -Ae +DA2.0W"
+
+  と指示してあげる必要があるようです。
 
 	./configure --with-tmp-file=no CC="cc -Ae +DA2.0W" \
 				ac_cv_have_mktime=yes \
@@ -351,6 +352,12 @@ LHa for UNIX に関しては岡本継男さんのページ
 
 	(largefiles 対応とは関係ありませんが ac_cv_*=yes は、HP-UX ではなぜ
 	か mktime の判定に失敗するため強制的に mktime を使うようにしています)
+
+  もし large files 対応を「無効」にしたければ、
+
+  	./configure --disable-largefile
+
+  のようにします。
 
   なお、level 0, 1, 2 ヘッダの仕様上 4G 未満のファイルしか書庫に格納で
   きません。
