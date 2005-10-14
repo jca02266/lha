@@ -1,3 +1,9 @@
+2005-10-15  Koji Arai  <jca02266@nifty.com>
+
+	* src/lha_macro.h (UPDATE_CRC): To casting with (unsigned char)
+	should not be for the variable (c) but for the (crc). Thanks to
+	OKUMURA N. Shin-ya.
+
 2005-10-13  Koji Arai  <jca02266@nifty.com>
 
 	* tests/lha-test.in: emulate POSIX shell when it is executed by
