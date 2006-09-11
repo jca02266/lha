@@ -1,5 +1,11 @@
 2006-09-11  Koji Arai  <jca02266@nifty.com>
 
+	* configure.ac: updated version.
+
+	* src/lharc.c (print_usage): updated.
+
+2006-09-11  Koji Arai  <jca02266@nifty.com>
+
 	* config.h.in (HAVE_LIBAPPLEFILE): added `b' option which extract
 	the MacBinary. Thanks to Hiroto Sakai.
 
