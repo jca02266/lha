@@ -193,7 +193,11 @@ commands:                           options:\n\
 static int
 parse_suboption(int argc, char **argv)
 {
+#if IGNORE_DOT_FILES
+    char *short_options = "q[012]vnfto[567]dizg012ew:x:X";
+#else
     char *short_options = "q[012]vnfto[567]dizg012ew:x:";
+#endif
     /* "[...]" means optional 1 byte argument (original extention) */
     enum {
         HELP_OPTION = 256,
