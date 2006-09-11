@@ -150,6 +150,10 @@ int fnmatch(const char *pattern, const char *string, int flags);
 # define FNM_PERIOD   4
 #endif
 
+#if HAVE_LIBAPPLEFILE
+#include <applefile.h>
+#endif
+
 #ifndef SEEK_SET
 #define SEEK_SET        0
 #define SEEK_CUR        1
@@ -322,6 +326,7 @@ EXTERN int      quiet_mode;
 
 EXTERN boolean backup_old_archive;
 EXTERN boolean  extract_broken_archive;
+EXTERN boolean decode_macbinary_contents;
 
 /* ------------------------------------------------------------------------ */
 /*  Globale Variable                                                        */

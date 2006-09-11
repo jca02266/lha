@@ -28,6 +28,10 @@ static char    *methods[] =
 static void add_dirinfo(char* name, LzHeader* hdr);
 static void adjust_dirinfo();
 
+#ifdef HAVE_LIBAPPLEFILE
+static boolean decode_macbinary(FILE *ofp, size_t size, const char *outPath);
+#endif
+
 /* ------------------------------------------------------------------------ */
 static          boolean
 inquire_extract(name)
@@ -213,6 +217,9 @@ extract_one(afp, hdr)
     LzHeader       *hdr;
 {
     FILE           *fp; /* output file */
+#if HAVE_LIBAPPLEFILE
+    FILE           *tfp; /* temporary output file */
+#endif
     struct stat     stbuf;
     char            name[FILENAME_LENGTH];
     unsigned int crc;
@@ -282,6 +289,14 @@ extract_one(afp, hdr)
         reading_filename = archive_name;
         writing_filename = name;
         if (output_to_stdout || verify_mode) {
+            /* "Icon\r" should be a resource fork file encoded in MacBinary
+               format, so that it should be skipped. */
+            if (hdr->extend_type == EXTEND_MACOS
+                && strcmp(basename(name), "Icon\r") == 0
+                && decode_macbinary_contents) {
+                return read_size;
+            }
+
             if (noexec) {
                 printf("%s %s\n", verify_mode ? "VERIFY" : "EXTRACT", name);
                 return read_size;
@@ -306,9 +321,29 @@ extract_one(afp, hdr)
                 old_mode = setmode(fileno(stdout), O_BINARY);
 #endif
 
+#if HAVE_LIBAPPLEFILE
+            /* On default, MacLHA encodes into MacBinary. */
+            if (hdr->extend_type == EXTEND_MACOS && !verify_mode && decode_macbinary_contents) {
+                /* build temporary file */
+                tfp = NULL; /* avoid compiler warnings `uninitialized' */
+                tfp = build_temporary_file();
+
+                crc = decode_lzhuf(afp, tfp,
+                                   hdr->original_size, hdr->packed_size,
+                                   name, method, &read_size);
+                fclose(tfp);
+                decode_macbinary(stdout, hdr->original_size, name);
+                unlink(temporary_name);
+            } else {
+                crc = decode_lzhuf(afp, stdout,
+                                   hdr->original_size, hdr->packed_size,
+                                   name, method, &read_size);
+            }
+#else
             crc = decode_lzhuf(afp, stdout,
                                hdr->original_size, hdr->packed_size,
                                name, method, &read_size);
+#endif /* HAVE_LIBAPPLEFILE */
 #if __MINGW32__
                 fflush(stdout);
                 setmode(fileno(stdout), old_mode);
@@ -318,6 +353,16 @@ extract_one(afp, hdr)
             verbose = save_verbose;
         }
         else {
+#ifndef __APPLE__
+            /* "Icon\r" should be a resource fork of parent folder's icon,
+               so that it can be skipped when system is not Mac OS X. */
+            if (hdr->extend_type == EXTEND_MACOS
+                && strcmp(basename(name), "Icon\r") == 0
+                && decode_macbinary_contents) {
+                make_parent_path(name); /* create directory only */
+                return read_size;
+            }
+#endif /* __APPLE__ */
             if (skip_flg == FALSE)  {
                 up_flag = inquire_extract(name);
                 if (up_flag == FALSE && force == FALSE) {
@@ -347,9 +392,35 @@ extract_one(afp, hdr)
             remove_extracting_file_when_interrupt = TRUE;
 
             if ((fp = open_with_make_path(name)) != NULL) {
+#if HAVE_LIBAPPLEFILE
+                if (hdr->extend_type == EXTEND_MACOS && !verify_mode && decode_macbinary_contents) {
+                    /* build temporary file */
+                    tfp = NULL; /* avoid compiler warnings `uninitialized' */
+                    tfp = build_temporary_file();
+
+                    crc = decode_lzhuf(afp, tfp,
+                                       hdr->original_size, hdr->packed_size,
+                                       name, method, &read_size);
+                    fclose(tfp);
+                    decode_macbinary(fp, hdr->original_size, name);
+#ifdef __APPLE__
+                    /* TODO: set resource fork */
+                    /* after processing, "Icon\r" is not needed. */
+                    if (strcmp(basename(name), "Icon\r") == 0) {
+                        unlink(name);
+                    }
+#endif /* __APPLE__ */
+                    unlink(temporary_name);
+                } else {
+                    crc = decode_lzhuf(afp, fp,
+                                       hdr->original_size, hdr->packed_size,
+                                       name, method, &read_size);
+                }
+#else /* HAVE_LIBAPPLEFILE */
                 crc = decode_lzhuf(afp, fp,
                                    hdr->original_size, hdr->packed_size,
                                    name, method, &read_size);
+#endif /* HAVE_LIBAPPLEFILE */
                 fclose(fp);
             }
             remove_extracting_file_when_interrupt = FALSE;
@@ -557,3 +628,36 @@ static void adjust_dirinfo()
         }
     }
 }
+
+#if HAVE_LIBAPPLEFILE
+static boolean
+decode_macbinary(ofp, size, outPath)
+    FILE *ofp;
+    size_t size;
+    const char *outPath;
+{
+    af_file_t *afp = NULL;
+    FILE *ifp = NULL;
+    unsigned char *datap;
+    size_t dlen;
+
+    if ((afp = af_open(temporary_name)) != NULL) {
+        /* fetch datafork */
+        datap = af_data(afp, &dlen);
+        fwrite(datap, sizeof(unsigned char), dlen, ofp);
+        af_close(afp);
+        return TRUE;
+    } else { /* it may be not encoded in MacBinary */
+        /* try to copy */
+        if ((ifp = fopen(temporary_name, READ_BINARY)) == NULL) {
+            error("Cannot open a temporary file \"%s\"", temporary_name);
+            return FALSE;
+        }
+        copyfile(ifp, ofp, size, 0, 0);
+        fclose(ifp);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+#endif /* HAVE_LIBAPPLEFILE */

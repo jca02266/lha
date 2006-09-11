@@ -20,6 +20,7 @@ AC_CHECK_PROGS(sh_for_lha_test, [zsh bash ksh pdksh], [sh])
 
 # Checks for libraries.
 AC_SEARCH_LIBS(opendir, [mingwex])
+AC_CHECK_LIB(applefile, af_open)
 
 # Checks for header files.
 AC_HEADER_DIRENT

@@ -105,6 +105,7 @@ init_variable()     /* Added N.Watazaki */
 #endif
 
     extract_broken_archive = FALSE;
+    decode_macbinary_contents = FALSE;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -118,6 +119,17 @@ init_variable()     /* Added N.Watazaki */
 static void
 print_tiny_usage()
 {
+#if HAVE_LIBAPPLEFILE
+    fprintf(stderr, "\
+usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
+  commands:  [axelvudmcpt]\n\
+  options:   [q[012]vnfto[567]dizg012eb[w=<dir>|x=<pattern>]]\n\
+  long options: --system-kanji-code={euc,sjis,utf8,cap}\n\
+                --archive-kanji-code={euc,sjis,utf8,cap}\n\
+                --extract-broken-archive\n\
+                --help\n\
+                --version\n");
+#else
     fprintf(stderr, "\
 usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
   commands:  [axelvudmcpt]\n\
@@ -127,6 +139,7 @@ usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
                 --extract-broken-archive\n\
                 --help\n\
                 --version\n");
+#endif
 }
 
 static void
@@ -174,6 +187,11 @@ commands:                           options:\n\
                                      e  TEXT code convert from/to EUC\n\
 ");
 #endif
+#if HAVE_LIBAPPLEFILE
+    fprintf(stderr, "\
+                                     b  decode MacBinary (x/e)\n\
+");
+#endif
     fprintf(stderr, "\
                                      w=<dir> specify extract directory (x/e)\n\
                                      x=<pattern>  eXclude files (a/u/c)\n\
@@ -193,12 +211,6 @@ commands:                           options:\n\
 static int
 parse_suboption(int argc, char **argv)
 {
-#if IGNORE_DOT_FILES
-    char *short_options = "q[012]vnfto[567]dizg012ew:x:X";
-#else
-    char *short_options = "q[012]vnfto[567]dizg012ew:x:";
-#endif
-    /* "[...]" means optional 1 byte argument (original extention) */
     enum {
         HELP_OPTION = 256,
         VERSION_OPTION,
@@ -217,6 +229,16 @@ parse_suboption(int argc, char **argv)
         {0, 0, 0, 0}
     };
     int i;
+
+    char short_options[256] = "q[012]vnfto[567]dizg012ew:x:";
+    /* "[...]" means optional 1 byte argument (original extention) */
+
+#if IGNORE_DOT_FILES
+    strncat(short_options, "X", sizeof(short_options)-strlen(short_options)-1);
+#endif
+#if HAVE_LIBAPPLEFILE
+    strncat(short_options, "b", sizeof(short_options)-strlen(short_options)-1);
+#endif
 
     /* parse option */
     while (1) {
@@ -276,6 +298,11 @@ parse_suboption(int argc, char **argv)
         case 'e':
             text_mode = TRUE;
             euc_mode = TRUE;
+            break;
+#endif
+#if HAVE_LIBAPPLEFILE
+        case 'b':
+            decode_macbinary_contents = TRUE;
             break;
 #endif
         case 'n':

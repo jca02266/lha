@@ -1,3 +1,25 @@
+2006-09-11  Koji Arai  <jca02266@nifty.com>
+
+	* config.h.in (HAVE_LIBAPPLEFILE): added `b' option which extract
+	the MacBinary. Thanks to Hiroto Sakai.
+
+	* configure.ac: ditto.
+
+	* src/lha.h (decode_macbinary_contents): ditto.
+
+	* src/lhadd.c (build_temporary_file): ditto.
+
+	* src/lharc.c (decode_macbinary_contents, print_tiny_usage, parse_suboption): ditto.
+
+	* src/lhext.c (extract_one, decode_macbinary): ditto.
+
+	* src/prototypes.h (build_temporary_file): ditto.
+
+2006-09-11  Koji Arai  <jca02266@nifty.com>
+
+	* src/lharc.c (parse_suboption): `-X' option has been ineffective.
+	Thanks to Hiroto Sakai.
+
 2005-10-15  Koji Arai  <jca02266@nifty.com>
 
 	* src/lha_macro.h (UPDATE_CRC): To casting with (unsigned char)

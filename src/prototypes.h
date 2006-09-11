@@ -66,6 +66,7 @@ unsigned short decode_p_lz5 P_((void));
 void decode_start_lz5 P_((void));
 /* lhadd.c */
 FILE *append_it P_((char *name, FILE *oafp, FILE *nafp));
+FILE *build_temporary_file P_((void));
 void temporary_to_new_archive_file P_((size_t new_archive_size));
 void cmd_add P_((void));
 void cmd_delete P_((void));
