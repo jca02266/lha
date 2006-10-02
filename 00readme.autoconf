@@ -2,7 +2,7 @@
 # -*- Mode: text ; Coding: euc-japan -*-
 
 autoconfiscated for LHa for UNIX version 1.14i
-					    Koji Arai <jca02266@nifty.ne.jp>
+					 Koji Arai <arai@users.sourceforge.jp>
 
 このファイルは LHa for UNIX version 1.14i を autoconf、automake 化した
 (autoconfiscate と言うそうです。Jargon 参照)ときのメモです。

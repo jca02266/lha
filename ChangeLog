@@ -1,3 +1,7 @@
+2006-10-02  Koji Arai  <arai@users.sourceforge.jp>
+
+	* 00readme.autoconf, configure.ac: changed mail address.
+
 2006-09-11  Koji Arai  <jca02266@nifty.com>
 
 	* configure.ac: updated version.
@@ -1914,3 +1918,7 @@
 
 	* src/dhuf.c, src/extract.c, src/header.c, src/huf.c, src/larc.c, src/lhadd.c:
 	import the lha-114f
+
+Local Variables:
+user-mail-address : "arai@users.sourceforge.jp"
+End:
