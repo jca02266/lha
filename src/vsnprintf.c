@@ -198,7 +198,7 @@ typedef	struct __sFILE {
 #endif
 
 
-#if defined(__hpux) && !defined(__GNUC__) || defined(__DECC)
+#if defined(__hpux) && !defined(__GNUC__) || defined(__DECC) || defined(__DJGPP__)
 #include <string.h>
 #endif
 

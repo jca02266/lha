@@ -30,7 +30,7 @@ add_one(fp, nafp, hdr)
     header_pos = ftello(nafp);
     write_header(nafp, hdr);/* DUMMY */
 
-    if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
+    if (S_ISLNK(hdr->unix_mode)) {
         if (!quiet)
             printf("%s -> %s\t- Symbolic Link\n", hdr->name, hdr->realname);
     }
@@ -192,11 +192,11 @@ find_update_files(oafp)
 
     init_sp(&sp);
     while (get_header(oafp, &hdr)) {
-        if ((hdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_REGULAR) {
+        if (S_ISREG(hdr.unix_mode)) {
             if (stat(hdr.name, &stbuf) >= 0)    /* exist ? */
                 add_sp(&sp, hdr.name, strlen(hdr.name) + 1);
         }
-        else if ((hdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_DIRECTORY) {
+        else if (S_ISDIR(hdr.unix_mode)) {
             strcpy(name, hdr.name); /* ok */
             len = strlen(name);
             if (len > 0 && name[len - 1] == '/')
@@ -225,7 +225,7 @@ delete(oafp, nafp)
         if (need_file(ahdr.name)) { /* skip */
             fseeko(oafp, ahdr.packed_size, SEEK_CUR);
             if (noexec || !quiet) {
-                if ((ahdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK)
+                if (S_ISLNK(ahdr.unix_mode))
                     message("delete %s -> %s", ahdr.name, ahdr.realname);
                 else
                     message("delete %s", ahdr.name);
@@ -317,8 +317,8 @@ temporary_to_new_archive_file(new_archive_size)
 
     if (!strcmp(new_archive_name, "-")) {
         nafp = stdout;
-        writing_filename = "starndard output";
-#if __MINGW32__
+        writing_filename = "standard output";
+#if defined(__MINGW32__) || defined(__DJGPP__)
         setmode(fileno(stdout), O_BINARY);
 #endif
     }

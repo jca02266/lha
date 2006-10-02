@@ -125,7 +125,7 @@ list_one(hdr)
     char modebits[11];
 
     if (verbose) {
-        if ((hdr->unix_mode & UNIX_FILE_SYMLINK) != UNIX_FILE_SYMLINK)
+        if (S_ISLNK(hdr->unix_mode))
             printf("%s\n", hdr->name);
         else
             printf("%s -> %s\n", hdr->name, hdr->realname);
@@ -138,9 +138,9 @@ list_one(hdr)
     case EXTEND_UNIX:
         mode = hdr->unix_mode;
 
-        if (mode & UNIX_FILE_DIRECTORY)
+        if (S_ISDIR(mode))
             modebits[0] = 'd';
-        else if ((mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK)
+        else if (S_ISLNK(mode))
             modebits[0] = 'l';
         else
             modebits[0] = '-';
@@ -259,7 +259,7 @@ list_one(hdr)
     print_stamp(hdr->unix_last_modified_stamp);
 
     if (!verbose) {
-        if ((hdr->unix_mode & UNIX_FILE_SYMLINK) != UNIX_FILE_SYMLINK)
+        if (!(S_ISLNK(hdr->unix_mode)))
             printf(" %s", hdr->name);
         else {
             printf(" %s -> %s", hdr->name, hdr->realname);

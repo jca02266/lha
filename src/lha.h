@@ -154,6 +154,10 @@ int fnmatch(const char *pattern, const char *string, int flags);
 #include <applefile.h>
 #endif
 
+#ifdef __DJGPP__
+#include <io.h>
+#endif /* __DJGPP__ */
+
 #ifndef SEEK_SET
 #define SEEK_SET        0
 #define SEEK_CUR        1

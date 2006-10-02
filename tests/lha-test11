@@ -10,7 +10,7 @@ message testing the long filename support
 #
 mkdir test-tmp1
 case $(uname) in
-CYGWIN*)
+MS-DOS* | CYGWIN*)
   # 190 bytes
   file=1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 ;;
 *)
@@ -24,7 +24,7 @@ $lha cg  test-tmp1-hg.lzh test-tmp1 2> test-stderr
 # on Cygwin/MinGW, skip this test.
 # the length of pathname does not amount to the limit of level 0 header.
 case $(uname) in
-CYGWIN*) true ;;
+MS-DOS* | CYGWIN*) true ;;
 *) test -s test-stderr ;;
 esac
 							check $? $LINENO
@@ -33,7 +33,7 @@ $lha c0  test-tmp1-h0.lzh test-tmp1 2> test-stderr
 # on Cygwin/MinGW, skip this test.
 # the length of pathname does not amount to the limit of level 0 header.
 case $(uname) in
-CYGWIN*) true ;;
+MS-DOS* | CYGWIN*) true ;;
 *) test -s test-stderr ;;
 esac
 							check $? $LINENO

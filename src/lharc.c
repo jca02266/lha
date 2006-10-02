@@ -120,7 +120,7 @@ static void
 print_tiny_usage()
 {
 #if HAVE_LIBAPPLEFILE
-    fprintf(stderr, "\
+    fprintf(stdout, "\
 usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
   commands:  [axelvudmcpt]\n\
   options:   [q[012]vnfto[567]dizg012eb[w=<dir>|x=<pattern>]]\n\
@@ -130,7 +130,7 @@ usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
                 --help\n\
                 --version\n");
 #else
-    fprintf(stderr, "\
+    fprintf(stdout, "\
 usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
   commands:  [axelvudmcpt]\n\
   options:   [q[012]vnfto[567]dizg012e[w=<dir>|x=<pattern>]]\n\
@@ -145,7 +145,7 @@ usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
 static void
 print_usage()
 {
-    fprintf(stderr, "\
+    fprintf(stdout, "\
 LHarc    for UNIX  V 1.02  Copyright(C) 1989  Y.Tagawa\n\
 LHx      for MSDOS V C2.01 Copyright(C) 1990  H.Yoshizaki\n\
 LHx(arc) for OSK   V 2.01  Modified     1990  Momozou\n\
@@ -157,7 +157,7 @@ LHa      for UNIX  V 1.14i Modified     2000  Tsugio Okamoto\n\
 
     print_tiny_usage();
 
-    fprintf(stderr, "\
+    fprintf(stdout, "\
 commands:                           options:\n\
  a   Add(or replace) to archive      q{num} quiet (num:quiet mode)\n\
  x,e EXtract from archive            v  verbose\n\
@@ -165,16 +165,16 @@ commands:                           options:\n\
  u   Update newer files to archive   f  force (over write at extract)\n\
  d   Delete from archive             t  FILES are TEXT file\n");
 #ifdef SUPPORT_LH7
-    fprintf(stderr, "\
+    fprintf(stdout, "\
  m   Move to archive (means 'ad')    o[567] compression method (a/u/c)\n\
 ");
 #endif
 #ifndef SUPPORT_LH7
-    fprintf(stderr, "\
+    fprintf(stdout, "\
  m   Move to archive (means 'ad')    o  use LHarc compatible method (a/u/c)\n\
 ");
 #endif
-    fprintf(stderr, "\
+    fprintf(stdout, "\
  c   re-Construct new archive        d  delete FILES after (a/u/c)\n\
  p   Print to STDOUT from archive    i  ignore directory path (x/e)\n\
  t   Test file CRC in archive        z  files not compress (a/u/c)\n\
@@ -183,21 +183,21 @@ commands:                           options:\n\
                                      0/1/2 header level (a/u/c)\n\
 ");
 #ifdef EUC
-    fprintf(stderr, "\
+    fprintf(stdout, "\
                                      e  TEXT code convert from/to EUC\n\
 ");
 #endif
 #if HAVE_LIBAPPLEFILE
-    fprintf(stderr, "\
+    fprintf(stdout, "\
                                      b  decode MacBinary (x/e)\n\
 ");
 #endif
-    fprintf(stderr, "\
+    fprintf(stdout, "\
                                      w=<dir> specify extract directory (x/e)\n\
                                      x=<pattern>  eXclude files (a/u/c)\n\
 ");
 #if IGNORE_DOT_FILES            /* experimental feature */
-    fprintf(stderr, "\
+    fprintf(stdout, "\
                                      X ignore dot files (a/u/c)\n\
 ");
 #endif
@@ -1321,7 +1321,7 @@ open_old_archive()
 
     if (!strcmp(archive_name, "-")) {
         if (cmd == CMD_EXTRACT || cmd == CMD_LIST) {
-#if __MINGW32__
+#if defined(__MINGW32__) || defined(__DJGPP__)
             setmode(fileno(stdin), O_BINARY);
 #endif
             return stdin;

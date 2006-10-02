@@ -106,7 +106,8 @@ testsuite lha-test11
 testsuite lha-test12
 testsuite lha-test13
 case `$lha --version 2>&1` in
-*-pc-mingw*)
+*djgpp* | *-pc-mingw*)
+  # No symlink support on DJGPP and MinGW
   message testing to handle symbolic links ... skip
   ;;
 *)

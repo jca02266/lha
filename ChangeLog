@@ -1,5 +1,8 @@
 2006-10-02  Koji Arai  <arai@users.sourceforge.jp>
 
+	* src/header.c, src/lha.h, src/lha_macro.h, src/lhadd.c, src/lharc.c, src/lhext.c, src/lhlist.c, src/vsnprintf.c, tests/lha-test.in, tests/lha-test11, tests/lha-test12:
+	applied the patch for the DJGPP. Thanks to Doug Kaufman.
+
 	* 00readme.autoconf, configure.ac: changed mail address.
 
 2006-09-11  Koji Arai  <jca02266@nifty.com>

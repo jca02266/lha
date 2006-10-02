@@ -164,7 +164,7 @@ adjust_info(name, hdr)
     /* adjust file stamp */
     utimebuf.actime = utimebuf.modtime = hdr->unix_last_modified_stamp;
 
-    if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK)
+    if (!(S_ISLNK(hdr->unix_mode)))
         utime(name, &utimebuf);
 
     if (hdr->extend_type == EXTEND_UNIX
@@ -173,7 +173,7 @@ adjust_info(name, hdr)
 #ifdef NOT_COMPATIBLE_MODE
         Please need your modification in this space.
 #else
-        if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK)
+        if (!(S_ISLNK(hdr->unix_mode)))
             chmod(name, hdr->unix_mode);
 #endif
         if (!getuid()){
@@ -271,7 +271,7 @@ extract_one(afp, hdr)
             break;
     }
 
-    if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_REGULAR
+    if (S_ISREG(hdr->unix_mode)
         && method != LZHDIRS_METHOD_NUM) {
     extract_regular:
 #if 0
@@ -314,7 +314,7 @@ extract_one(afp, hdr)
                 verbose = TRUE;
             }
 
-#if __MINGW32__
+#if defined(__MINGW32__) || defined(__DJGPP__)
             {
                 int old_mode;
                 fflush(stdout);
@@ -344,7 +344,7 @@ extract_one(afp, hdr)
                                hdr->original_size, hdr->packed_size,
                                name, method, &read_size);
 #endif /* HAVE_LIBAPPLEFILE */
-#if __MINGW32__
+#if defined(__MINGW32__) || defined(__DJGPP__)
                 fflush(stdout);
                 setmode(fileno(stdout), old_mode);
             }
@@ -435,8 +435,8 @@ extract_one(afp, hdr)
         if (hdr->has_crc && crc != hdr->crc)
             error("CRC error: \"%s\"", name);
     }
-    else if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_DIRECTORY
-             || (hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK
+    else if (S_ISDIR(hdr->unix_mode)
+             || S_ISLNK(hdr->unix_mode)
              || method == LZHDIRS_METHOD_NUM) {
         /* ↑これで、Symbolic Link は、大丈夫か？ */
         if (!ignore_directory && !verify_mode) {
@@ -446,7 +446,7 @@ extract_one(afp, hdr)
                 return read_size;
             }
             /* NAME has trailing SLASH '/', (^_^) */
-            if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK) {
+            if (S_ISLNK(hdr->unix_mode)) {
                 int             l_code;
 
 #ifdef S_IFLNK
@@ -482,7 +482,8 @@ extract_one(afp, hdr)
                         name, hdr->realname);
                 return read_size;
 #endif
-            } else { /* make directory */
+            }
+            else { /* make directory */
                 if (!output_to_stdout && !make_parent_path(name))
                     return read_size;
                 /* save directory information */

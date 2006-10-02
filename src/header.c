@@ -719,7 +719,7 @@ get_header_level0(fp, hdr, data)
     hdr->name[i] = '\0';
 
     /* defaults for other type */
-    hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
+    hdr->unix_mode = S_IFREG | UNIX_RW_RW_RW;
     hdr->unix_gid = 0;
     hdr->unix_uid = 0;
 
@@ -732,7 +732,7 @@ get_header_level0(fp, hdr, data)
             hdr->has_crc = FALSE;
 
             return TRUE;
-        } 
+        }
 
         error("Unkonwn header (lha file?)");
         exit(1);
@@ -836,7 +836,7 @@ get_header_level1(fp, hdr, data)
     hdr->name[i] = '\0';
 
     /* defaults for other type */
-    hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
+    hdr->unix_mode = S_IFREG | UNIX_RW_RW_RW;
     hdr->unix_gid = 0;
     hdr->unix_uid = 0;
 
@@ -919,7 +919,7 @@ get_header_level2(fp, hdr, data)
     hdr->header_level = get_byte();
 
     /* defaults for other type */
-    hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
+    hdr->unix_mode = S_IFREG | UNIX_RW_RW_RW;
     hdr->unix_gid = 0;
     hdr->unix_uid = 0;
 
@@ -999,7 +999,7 @@ get_header_level3(fp, hdr, data)
     hdr->header_level = get_byte();
 
     /* defaults for other type */
-    hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
+    hdr->unix_mode = S_IFREG | UNIX_RW_RW_RW;
     hdr->unix_gid = 0;
     hdr->unix_uid = 0;
 
@@ -1119,7 +1119,7 @@ get_header(fp, hdr)
                      system_kanji_code,
                      archive_delim, system_delim, filename_case);
 
-    if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
+    if (S_ISLNK(hdr->unix_mode)) {
         char *p;
         /* split symbolic link */
         p = strchr(hdr->name, '|');
@@ -1285,7 +1285,7 @@ init_header(name, v_stat, hdr)
         }
     }
 
-#ifdef S_IFLNK
+#if defined(S_IFLNK) && !defined(__DJGPP__)
     if (is_symlink(v_stat)) {
         memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STORAGE);
         hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
@@ -1600,7 +1600,7 @@ write_header(fp, hdr)
         archive_delim = "\\";
     }
 
-    if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
+    if (S_ISLNK(hdr->unix_mode)) {
         char *p;
         p = strchr(hdr->name, '|');
         if (p) {

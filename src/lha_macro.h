@@ -171,6 +171,34 @@
 
 #define LZHEADER_STORAGE        4096
 
+#ifndef S_IFREG
+#define S_IFREG			UNIX_FILE_REGULAR
+#endif
+
+#ifndef S_IFDIR
+#define S_IFDIR			UNIX_FILE_DIRECTORY
+#endif
+
+#ifndef S_IFLNK
+#define S_IFLNK			UNIX_FILE_SYMLINK
+#endif
+
+#ifndef S_ISREG
+#define S_ISREG(m)		(((m) & UNIX_FILE_TYPEMASK) == S_IFREG)
+#endif
+
+#ifndef S_ISDIR
+#define S_ISDIR(m)		(((m) & UNIX_FILE_TYPEMASK) == S_IFDIR)
+#endif
+
+#ifndef S_ISLNK
+#ifdef __DJGPP__
+#define S_ISLNK(m)		0
+#else
+#define S_ISLNK(m)		(((m) & UNIX_FILE_TYPEMASK) == S_IFLNK)
+#endif
+#endif
+
 /* ------------------------------------------------------------------------ */
 /*  FILE Attribute                                                          */
 /* ------------------------------------------------------------------------ */
