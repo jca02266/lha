@@ -254,10 +254,15 @@ LHa for UNIX に関しては岡本継男さんのページ
 
       なお、level 0 header で -lhd- method は使えないという説がある
 
-        <http://kuwa.omosiro.com/x68k/KGARC/ARC/LHAHED15.ZIP>
+        <http://kuwa.xps.jp/x68k/KGARC/ARC/LHAHED15.ZIP>
 
       のですが、吉崎栄泰氏のオリジナル LHA (DOS/Windows版) (ver 2.55,
       2.67) などは -lhd- method を level 0 header で作成します。
+
+      ※ この意見は認められ(<http://kuwa.xps.jp/diary/2002-10.html#27_3>)、
+         上記のドキュメントは、訂正されたようです。
+
+        <http://kuwa.xps.jp/x68k/KGARC/ARC/LHAHED21.ZIP>
 
     o g オプションを付けたときの level 0, 1, 2 header
 
