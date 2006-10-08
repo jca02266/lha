@@ -1938,5 +1938,5 @@
 	import the lha-114f
 
 Local Variables:
-user-mail-address : "arai@users.sourceforge.jp"
+eval: (if (string= (user-login-name) "arai") (setq user-mail-address "arai@users.sourceforge.jp"))
 End:
