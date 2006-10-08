@@ -1,5 +1,11 @@
 2006-10-08  Koji Arai  <arai@users.sourceforge.jp>
 
+	* 00readme.autoconf: updated.
+
+	* Hacking_of_LHa: changed mail address.
+
+2006-10-08  Koji Arai  <arai@users.sourceforge.jp>
+
 	* configure.ac: updated version.
 
 	* configure.ac, src/header.c, src/lha_macro.h, src/lhadd.c, src/lhext.c, src/lhlist.c, tests/lha-test12:
