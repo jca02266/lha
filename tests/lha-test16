@@ -1,0 +1,17 @@
+# -*- shell-script -*-
+message testing the header CRC
+
+# The header CRC is only in level 2 header (and level 3 header)
+
+# generic header
+$lha t $srcdir/lha-test16-lg.lzh
+							check $? $LINENO
+# level 0 header
+$lha t $srcdir/lha-test16-l0.lzh
+							check $? $LINENO
+# level 1 header
+$lha t $srcdir/lha-test16-l1.lzh
+							check $? $LINENO
+# level 2 header (it should be detect CRC error)
+$lha t $srcdir/lha-test16-l2.lzh
+							check $? $LINENO

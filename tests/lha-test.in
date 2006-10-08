@@ -114,6 +114,7 @@ case `$lha --version 2>&1` in
   testsuite lha-test14
 esac
 testsuite lha-test15
+testsuite lha-test16
 
 if (( $error_num != 0 )); then
   message $error_num tests failed!
