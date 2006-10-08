@@ -44,9 +44,9 @@ message()
 check()
 {
   ((test_number = test_number + 1))
-  typeset status=$1
+  typeset exit_status=$1
   typeset lineno=$2
-  if [[ $status -eq 0 ]]; then
+  if [[ $exit_status -eq 0 ]]; then
     echo    "$FILENAME #$test_number ... ok" >&2
     echo    "$FILENAME #$test_number ... ok at line $lineno"
   else
@@ -89,7 +89,7 @@ change_timestamp()
 
 # test start
 
-message testing $lha
+message testing $lha_cmd
 message `$lha --version 2>&1`
 
 testsuite lha-test1		# create test data. it is needed for each test
