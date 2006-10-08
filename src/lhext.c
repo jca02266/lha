@@ -164,16 +164,20 @@ adjust_info(name, hdr)
     /* adjust file stamp */
     utimebuf.actime = utimebuf.modtime = hdr->unix_last_modified_stamp;
 
-    if (!(S_ISLNK(hdr->unix_mode)))
+    if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK)
         utime(name, &utimebuf);
 
     if (hdr->extend_type == EXTEND_UNIX
         || hdr->extend_type == EXTEND_OS68K
         || hdr->extend_type == EXTEND_XOSK) {
 #ifdef NOT_COMPATIBLE_MODE
-        Please need your modification in this space.
+        /* Please need your modification in this space. */
+#ifdef __DJGPP__
+        if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK)
+            chmod(name, hdr->unix_mode);
+#endif /* __DJGPP__ */
 #else
-        if (!(S_ISLNK(hdr->unix_mode)))
+        if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK)
             chmod(name, hdr->unix_mode);
 #endif
         if (!getuid()){
@@ -271,7 +275,7 @@ extract_one(afp, hdr)
             break;
     }
 
-    if (S_ISREG(hdr->unix_mode)
+    if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_REGULAR
         && method != LZHDIRS_METHOD_NUM) {
     extract_regular:
 #if 0
@@ -435,8 +439,8 @@ extract_one(afp, hdr)
         if (hdr->has_crc && crc != hdr->crc)
             error("CRC error: \"%s\"", name);
     }
-    else if (S_ISDIR(hdr->unix_mode)
-             || S_ISLNK(hdr->unix_mode)
+    else if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_DIRECTORY
+             || (hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK
              || method == LZHDIRS_METHOD_NUM) {
         /* ↑これで、Symbolic Link は、大丈夫か？ */
         if (!ignore_directory && !verify_mode) {
@@ -446,7 +450,7 @@ extract_one(afp, hdr)
                 return read_size;
             }
             /* NAME has trailing SLASH '/', (^_^) */
-            if (S_ISLNK(hdr->unix_mode)) {
+            if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK) {
                 int             l_code;
 
 #ifdef S_IFLNK

@@ -8,7 +8,14 @@ $lha ct test-tmp-crlf.lzh test-a test-b test-c
 $lha xw=test-tmp-crlf test-tmp-crlf.lzh
 							check $? $LINENO
 # use GNU diff option --binary for DJGPP.
+case `$lha --version 2>&1` in
+*msdosdjgpp*)
 diff -r --binary test-1 test-tmp-crlf
+  ;;
+*)
+diff -r test-1 test-tmp-crlf
+  ;;
+esac
 test $? -ne 0
 							check $? $LINENO
 sed -e 's/$/

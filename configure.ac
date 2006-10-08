@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([LHa for UNIX], 1.14i-ac20061002, arai@users.sourceforge.jp, lha)
+AC_INIT([LHa for UNIX], 1.14i-ac20061008, arai@users.sourceforge.jp, lha)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
@@ -290,6 +290,12 @@ if test "x$enable_ignore_dot_files" = xyes; then
   AC_DEFINE(IGNORE_DOT_FILES, 1,
 	    [Define to 1 if you want to ignore dot files with -X command line switch])
 fi
+
+case $host_os in 
+*msdosdjgpp*)
+CFLAGS="$CFLAGS -DNOT_COMPATIBLE_MODE"
+;;
+esac
 
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile olddoc/Makefile])
 AC_CONFIG_FILES([tests/Makefile tests/lha-test])

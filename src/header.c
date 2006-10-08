@@ -719,7 +719,7 @@ get_header_level0(fp, hdr, data)
     hdr->name[i] = '\0';
 
     /* defaults for other type */
-    hdr->unix_mode = S_IFREG | UNIX_RW_RW_RW;
+    hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
     hdr->unix_gid = 0;
     hdr->unix_uid = 0;
 
@@ -836,7 +836,7 @@ get_header_level1(fp, hdr, data)
     hdr->name[i] = '\0';
 
     /* defaults for other type */
-    hdr->unix_mode = S_IFREG | UNIX_RW_RW_RW;
+    hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
     hdr->unix_gid = 0;
     hdr->unix_uid = 0;
 
@@ -919,7 +919,7 @@ get_header_level2(fp, hdr, data)
     hdr->header_level = get_byte();
 
     /* defaults for other type */
-    hdr->unix_mode = S_IFREG | UNIX_RW_RW_RW;
+    hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
     hdr->unix_gid = 0;
     hdr->unix_uid = 0;
 
@@ -999,7 +999,7 @@ get_header_level3(fp, hdr, data)
     hdr->header_level = get_byte();
 
     /* defaults for other type */
-    hdr->unix_mode = S_IFREG | UNIX_RW_RW_RW;
+    hdr->unix_mode = UNIX_FILE_REGULAR | UNIX_RW_RW_RW;
     hdr->unix_gid = 0;
     hdr->unix_uid = 0;
 
@@ -1119,7 +1119,7 @@ get_header(fp, hdr)
                      system_kanji_code,
                      archive_delim, system_delim, filename_case);
 
-    if (S_ISLNK(hdr->unix_mode)) {
+    if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
         char *p;
         /* split symbolic link */
         p = strchr(hdr->name, '|');
@@ -1241,6 +1241,37 @@ init_header(name, v_stat, hdr)
     /* since 00:00:00 JAN.1.1970 */
 #ifdef NOT_COMPATIBLE_MODE
     /* Please need your modification in this space. */
+#ifdef __DJGPP__
+    hdr->unix_mode = 0;
+    if (S_ISREG(v_stat->st_mode))
+	    hdr->unix_mode = hdr->unix_mode | UNIX_FILE_REGULAR;
+    if (S_ISDIR(v_stat->st_mode))
+	    hdr->unix_mode = hdr->unix_mode | UNIX_FILE_DIRECTORY;
+    if (S_ISLNK(v_stat->st_mode))
+	    hdr->unix_mode = hdr->unix_mode | UNIX_FILE_SYMLINK;
+    if (v_stat->st_mode & S_IRUSR) 
+	    hdr->unix_mode = hdr->unix_mode | UNIX_OWNER_READ_PERM;
+    if (v_stat->st_mode & S_IRGRP) 
+	    hdr->unix_mode = hdr->unix_mode | UNIX_GROUP_READ_PERM;
+    if (v_stat->st_mode & S_IROTH) 
+	    hdr->unix_mode = hdr->unix_mode | UNIX_OTHER_READ_PERM;
+    if (v_stat->st_mode & S_IWUSR) 
+	    hdr->unix_mode = hdr->unix_mode | UNIX_OWNER_WRITE_PERM;
+    if (v_stat->st_mode & S_IWGRP) 
+	    hdr->unix_mode = hdr->unix_mode | UNIX_GROUP_WRITE_PERM;
+    if (v_stat->st_mode & S_IWOTH) 
+	    hdr->unix_mode = hdr->unix_mode | UNIX_OTHER_WRITE_PERM;
+    if (v_stat->st_mode & S_IXUSR) 
+	    hdr->unix_mode = hdr->unix_mode | UNIX_OWNER_EXEC_PERM;
+    if (v_stat->st_mode & S_IXGRP) 
+	    hdr->unix_mode = hdr->unix_mode | UNIX_GROUP_EXEC_PERM;
+    if (v_stat->st_mode & S_IXOTH) 
+	    hdr->unix_mode = hdr->unix_mode | UNIX_OTHER_EXEC_PERM;
+    if (v_stat->st_mode & S_ISUID) 
+	    hdr->unix_mode = hdr->unix_mode | UNIX_SETUID;
+    if (v_stat->st_mode & S_ISGID) 
+	    hdr->unix_mode = hdr->unix_mode | UNIX_SETGID;
+#endif /* __DJGPP__ */
 #else
     hdr->unix_mode = v_stat->st_mode;
 #endif
@@ -1285,7 +1316,7 @@ init_header(name, v_stat, hdr)
         }
     }
 
-#if defined(S_IFLNK) && !defined(__DJGPP__)
+#ifdef S_IFLNK
     if (is_symlink(v_stat)) {
         memcpy(hdr->method, LZHDIRS_METHOD, METHOD_TYPE_STORAGE);
         hdr->attribute = GENERIC_DIRECTORY_ATTRIBUTE;
@@ -1600,7 +1631,7 @@ write_header(fp, hdr)
         archive_delim = "\\";
     }
 
-    if (S_ISLNK(hdr->unix_mode)) {
+    if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
         char *p;
         p = strchr(hdr->name, '|');
         if (p) {

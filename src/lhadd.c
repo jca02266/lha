@@ -30,7 +30,7 @@ add_one(fp, nafp, hdr)
     header_pos = ftello(nafp);
     write_header(nafp, hdr);/* DUMMY */
 
-    if (S_ISLNK(hdr->unix_mode)) {
+    if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
         if (!quiet)
             printf("%s -> %s\t- Symbolic Link\n", hdr->name, hdr->realname);
     }
@@ -192,11 +192,11 @@ find_update_files(oafp)
 
     init_sp(&sp);
     while (get_header(oafp, &hdr)) {
-        if (S_ISREG(hdr.unix_mode)) {
+        if ((hdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_REGULAR) {
             if (stat(hdr.name, &stbuf) >= 0)    /* exist ? */
                 add_sp(&sp, hdr.name, strlen(hdr.name) + 1);
         }
-        else if (S_ISDIR(hdr.unix_mode)) {
+        else if ((hdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_DIRECTORY) {
             strcpy(name, hdr.name); /* ok */
             len = strlen(name);
             if (len > 0 && name[len - 1] == '/')
@@ -225,7 +225,7 @@ delete(oafp, nafp)
         if (need_file(ahdr.name)) { /* skip */
             fseeko(oafp, ahdr.packed_size, SEEK_CUR);
             if (noexec || !quiet) {
-                if (S_ISLNK(ahdr.unix_mode))
+                if ((ahdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK)
                     message("delete %s -> %s", ahdr.name, ahdr.realname);
                 else
                     message("delete %s", ahdr.name);

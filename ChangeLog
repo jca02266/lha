@@ -1,4 +1,13 @@
+2006-10-08  Koji Arai  <arai@users.sourceforge.jp>
+
+	* configure.ac: updated version.
+
+	* configure.ac, src/header.c, src/lha_macro.h, src/lhadd.c, src/lhext.c, src/lhlist.c, tests/lha-test12:
+	re-applied the correct DJGPP patch. Thanks to Doug Kaufman.
+
 2006-10-02  Koji Arai  <arai@users.sourceforge.jp>
+
+	* configure.ac: updated version.
 
 	* src/header.c, src/lha.h, src/lha_macro.h, src/lhadd.c, src/lharc.c, src/lhext.c, src/lhlist.c, src/vsnprintf.c, tests/lha-test.in, tests/lha-test11, tests/lha-test12:
 	applied the patch for the DJGPP. Thanks to Doug Kaufman.
