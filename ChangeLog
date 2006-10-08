@@ -1,10 +1,10 @@
 2006-10-09  Koji Arai  <arai@users.sourceforge.jp>
 
-	* lha-test.in: the function local variable `$status' is treated as
+	* tests/lha-test.in: the function local variable `$status' is treated as
 	the builtin variable on the Zsh version 4.3.2, so it was renamed to
 	$exit_status.
 
-	* Makefile.am, lha-test.in, lha-test16, lha-test16-l0.lzh, lha-test16-l1.lzh, lha-test16-l2.lzh, lha-test16-lg.lzh:
+	* tests/Makefile.am, tests/lha-test.in, tests/lha-test16, tests/lha-test16-l0.lzh, tests/lha-test16-l1.lzh, tests/lha-test16-l2.lzh, tests/lha-test16-lg.lzh:
 	added tests for the header CRC.
 
 2006-10-08  Koji Arai  <arai@users.sourceforge.jp>
