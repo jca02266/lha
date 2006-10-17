@@ -338,7 +338,7 @@ read_pt_len(nn, nbit, i_special)
     }
     else {
         i = 0;
-        while (i < n) {
+        while (i < MIN(n, NPT)) {
             c = peekbits(3);
             if (c != 7)
                 fillbuf(3);
@@ -354,7 +354,7 @@ read_pt_len(nn, nbit, i_special)
             pt_len[i++] = c;
             if (i == i_special) {
                 c = getbits(2);
-                while (--c >= 0)
+                while (--c >= 0 && i < NPT)
                     pt_len[i++] = 0;
             }
         }
@@ -379,7 +379,7 @@ read_c_len( /* void */ )
             c_table[i] = c;
     } else {
         i = 0;
-        while (i < n) {
+        while (i < MIN(n,NC)) {
             c = pt_table[peekbits(8)];
             if (c >= NT) {
                 unsigned short  mask = 1 << (16 - 9);
@@ -389,7 +389,7 @@ read_c_len( /* void */ )
                     else
                         c = left[c];
                     mask >>= 1;
-                } while (c >= NT);
+                } while (c >= NT && (mask || c != left[c])); /* CVE-2006-4338 */
             }
             fillbuf(pt_len[c]);
             if (c <= 2) {
@@ -437,7 +437,7 @@ decode_c_st1( /*void*/ )
             else
                 j = left[j];
             mask >>= 1;
-        } while (j >= NC);
+        } while (j >= NC && (mask || j != left[j])); /* CVE-2006-4338 */
         fillbuf(c_len[j] - 12);
     }
     return j;
@@ -462,7 +462,7 @@ decode_p_st1( /* void */ )
             else
                 j = left[j];
             mask >>= 1;
-        } while (j >= np);
+        } while (j >= np && (mask || j != left[j])); /* CVE-2006-4338 */
         fillbuf(pt_len[j] - 8);
     }
     if (j != 0)

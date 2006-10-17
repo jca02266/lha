@@ -194,6 +194,8 @@
 /* Individual macro define                                                  */
 /* ------------------------------------------------------------------------ */
 
+#define MIN(a,b) ((a) <= (b) ? (a) : (b))
+
 /* bitio.c */
 #define peekbits(n)     (bitbuf >> (sizeof(bitbuf)*8 - (n)))
 

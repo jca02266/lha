@@ -32,8 +32,15 @@ make_table(nchar, bitlen, tablebits, table)
     }
 
     /* count */
-    for (i = 0; i < nchar; i++)
-        count[bitlen[i]]++;
+    for (i = 0; i < nchar; i++) {
+        if (bitlen[i] > 16) {
+            /* CVE-2006-4335 */
+            error("Bad table (case a)");
+            exit(1);
+        }
+        else
+            count[bitlen[i]]++;
+    }
 
     /* calculate first code */
     total = 0;
@@ -41,8 +48,10 @@ make_table(nchar, bitlen, tablebits, table)
         start[i] = total;
         total += weight[i] * count[i];
     }
-    if ((total & 0xffff) != 0)
-        error("make_table(): Bad table (5)");
+    if ((total & 0xffff) != 0 || tablebits > 16) { /* 16 for weight below */
+        error("make_table(): Bad table (case b)");
+        exit(1);
+    }
 
     /* shift data for make table. */
     m = 16 - tablebits;
@@ -53,7 +62,7 @@ make_table(nchar, bitlen, tablebits, table)
 
     /* initialize */
     j = start[tablebits + 1] >> m;
-    k = 1 << tablebits;
+    k = MIN(1 << tablebits, 4096);
     if (j != 0)
         for (i = j; i < k; i++)
             table[i] = 0;
@@ -66,12 +75,19 @@ make_table(nchar, bitlen, tablebits, table)
         l = start[k] + weight[k];
         if (k <= tablebits) {
             /* code in table */
+            l = MIN(l, 4096);
             for (i = start[k]; i < l; i++)
                 table[i] = j;
         }
         else {
             /* code not in table */
-            p = &table[(i = start[k]) >> m];
+            i = start[k];
+            if ((i >> m) > 4096) {
+                /* CVE-2006-4337 */
+                error("Bad table (case c)");
+                exit(1);
+            }
+            p = &table[i >> m];
             i <<= tablebits;
             n = k - tablebits;
             /* make tree (n length) */

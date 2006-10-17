@@ -1,5 +1,15 @@
 2006-10-09  Koji Arai  <arai@users.sourceforge.jp>
 
+	* src/lha_macro.h (MIN): newly added a macro for below.
+
+	* maketbl.c (make_table): applied the security patch for the
+	CVE-2006-4335 and CVE-2006-4337.
+
+	* huf.c (read_pt_len, read_c_len, decode_c_st1, decode_p_st1):
+	applied the security patch for the CVE-2006-4338.
+
+2006-10-09  Koji Arai  <arai@users.sourceforge.jp>
+
 	* tests/lha-test.in: the function local variable `$status' is treated as
 	the builtin variable on the Zsh version 4.3.2, so it was renamed to
 	$exit_status.
