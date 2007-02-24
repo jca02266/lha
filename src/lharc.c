@@ -139,6 +139,7 @@ usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
                 --archive-kanji-code={euc,sjis,utf8,cap}\n\
                 --extract-broken-archive\n\
                 --convert-filename-case\n\
+                --traditional\n\
                 --help\n\
                 --version\n");
 #endif
@@ -217,6 +218,7 @@ parse_suboption(int argc, char **argv)
         VERSION_OPTION,
         SYSTEM_KANJI_CODE_OPTION,
         ARCHIVE_KANJI_CODE_OPTION,
+        TRADITIONAL_BEHAVIOR,
     };
 
     struct option long_options[] = {
@@ -228,6 +230,7 @@ parse_suboption(int argc, char **argv)
         {"archive-kanji-code", required_argument, 0, ARCHIVE_KANJI_CODE_OPTION},
         {"extract-broken-archive", no_argument, &extract_broken_archive, 1},
         {"convert-filename-case", no_argument, &convertcase, TRUE},
+        {"traditional", no_argument, 0, TRADITIONAL_BEHAVIOR},
         {0, 0, 0, 0}
     };
     int i;
@@ -439,6 +442,10 @@ parse_suboption(int argc, char **argv)
                 error("unknown kanji code \"%s\"", optarg);
                 return -1;
             }
+            break;
+
+        case TRADITIONAL_BEHAVIOR:
+            convertcase = TRUE;
             break;
 
         default:

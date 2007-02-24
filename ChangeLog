@@ -1,5 +1,9 @@
 2007-02-24  Koji Arai  <arai@users.sourceforge.jp>
 
+	* src/lharc.c (print_tiny_usage, parse_suboption): added a long
+	option "--traditional". it is just the same
+	"--convert-filename-case" for the present.
+
 	* src/header.c (get_header): the variable "noconvertcase" changed
 	to "convertcase".
 	it means that this LHa does not convert filename case automatically.
