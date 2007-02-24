@@ -1,5 +1,11 @@
 2007-02-24  Koji Arai  <arai@users.sourceforge.jp>
 
+	* configure.ac: updated version.
+
+	* src/lharc.c (print_usage): updated.
+
+2007-02-24  Koji Arai  <arai@users.sourceforge.jp>
+
 	* src/header.c (copy_path_element, remove_dots, init_header):
 	should treat "foo" and "./foo" as same file, so remove "./" from
 	archived path name.
