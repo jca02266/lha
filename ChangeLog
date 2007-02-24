@@ -1,5 +1,24 @@
 2007-02-24  Koji Arai  <arai@users.sourceforge.jp>
 
+	* src/header.c (get_header): the variable "noconvertcase" changed
+	to "convertcase".
+	it means that this LHa does not convert filename case automatically.
+
+	* src/lha.h: ditto.
+
+	* src/lharc.c (init_variable): ditto.
+
+	* src/lharc.c (print_tiny_usage, parse_suboption): added a long
+	option "--convert-filename-case" that change to the old behavior.
+
+	* src/lharc.c (print_usage, parse_suboption): the "g" option has
+	no meaning when extracting.
+
+	* src/header.c (write_header): no upcase filename when the generic
+	archive creating.
+
+2007-02-24  Koji Arai  <arai@users.sourceforge.jp>
+
 	* configure.ac: updated version.
 
 	* src/lharc.c (print_usage): updated.

@@ -348,7 +348,7 @@ EXTERN char     *reading_filename, *writing_filename;
 EXTERN int      archive_file_mode;
 EXTERN int      archive_file_gid;
 
-EXTERN int      noconvertcase; /* 2000.10.6 */
+EXTERN int      convertcase;    /* 2000.10.6 */
 
 /* slide.c */
 EXTERN int      unpackable;

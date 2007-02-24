@@ -93,7 +93,7 @@ init_variable()     /* Added N.Watazaki */
     exclude_files                           = NULL;
     verify_mode                             = FALSE;
 
-    noconvertcase                           = FALSE;
+    convertcase                             = FALSE;
 
     extract_directory = NULL;
     temporary_fd = -1;
@@ -127,6 +127,7 @@ usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
   long options: --system-kanji-code={euc,sjis,utf8,cap}\n\
                 --archive-kanji-code={euc,sjis,utf8,cap}\n\
                 --extract-broken-archive\n\
+                --convert-filename-case\n\
                 --help\n\
                 --version\n");
 #else
@@ -137,6 +138,7 @@ usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
   long options: --system-kanji-code={euc,sjis,utf8,cap}\n\
                 --archive-kanji-code={euc,sjis,utf8,cap}\n\
                 --extract-broken-archive\n\
+                --convert-filename-case\n\
                 --help\n\
                 --version\n");
 #endif
@@ -179,7 +181,6 @@ commands:                           options:\n\
  p   Print to STDOUT from archive    i  ignore directory path (x/e)\n\
  t   Test file CRC in archive        z  files not compress (a/u/c)\n\
                                      g  Generic format (for compatibility)\n\
-                                        or not convert case when extracting\n\
                                      0/1/2 header level (a/u/c)\n\
 ");
 #ifdef EUC
@@ -226,6 +227,7 @@ parse_suboption(int argc, char **argv)
         {"system-kanji-code", required_argument, 0, SYSTEM_KANJI_CODE_OPTION},
         {"archive-kanji-code", required_argument, 0, ARCHIVE_KANJI_CODE_OPTION},
         {"extract-broken-archive", no_argument, &extract_broken_archive, 1},
+        {"convert-filename-case", no_argument, &convertcase, TRUE},
         {0, 0, 0, 0}
     };
     int i;
@@ -310,7 +312,6 @@ parse_suboption(int argc, char **argv)
             break;
         case 'g':
             generic_format = TRUE;
-            noconvertcase = TRUE;
             header_level = 0;
             break;
         case 'd':

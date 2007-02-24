@@ -1080,7 +1080,7 @@ get_header(fp, hdr)
     /* filename conversion */
     switch (hdr->extend_type) {
     case EXTEND_MSDOS:
-        filename_case = noconvertcase ? NONE : TO_LOWER;
+        filename_case = convertcase ? TO_LOWER : NONE;
         break;
     case EXTEND_HUMAN:
     case EXTEND_OS68K:
@@ -1098,7 +1098,7 @@ get_header(fp, hdr)
         break;
 
     default:
-        filename_case = noconvertcase ? NONE : TO_LOWER;
+        filename_case = convertcase ? TO_LOWER : NONE;
         break;
     }
 
@@ -1679,7 +1679,7 @@ write_header(fp, hdr)
     if (optional_system_kanji_code)
         system_kanji_code = optional_system_kanji_code;
 
-    if (generic_format)
+    if (generic_format && convertcase)
         filename_case = TO_UPPER;
 
     if (hdr->header_level == 0) {
