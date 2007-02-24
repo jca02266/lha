@@ -1214,6 +1214,61 @@ remove_leading_dots(char *path)
     return first;
 }
 
+static int
+copy_path_element(char *dst, const char *src, int size)
+{
+    int i;
+
+    if (size < 1) return 0;
+
+    for (i = 0; i < size; i++) {
+        dst[i] = src[i];
+	if (dst[i] == '\0')
+	    return i;
+        if (dst[i] == '/') {
+            dst[++i] = 0;
+            return i;
+        }
+    }
+
+    dst[--i] = 0;
+
+    return i;
+}
+
+/* remove leading "xxx/../" and "./" */
+static int
+remove_dots(char *newpath, char *path, size_t size)
+{
+    int len;
+    char *p = newpath;
+
+    path = remove_leading_dots(path);
+
+    while (*path) {
+        if (path[0] == '.' && path[1] == '/')
+            path += 2;
+        else {
+            int len;
+            len = copy_path_element(newpath, path, size);
+
+            path += len;
+            newpath += len;
+            size -= len;
+            if (size <= 1)
+                break;
+        }
+    }
+
+    /* When newpath is empty, set "." */
+    if (newpath == p) {
+        strcpy(newpath, ".");
+        newpath++;
+    }
+
+    return newpath - p;         /* string length */
+}
+
 void
 init_header(name, v_stat, hdr)
     char           *name;
@@ -1232,9 +1287,9 @@ init_header(name, v_stat, hdr)
     hdr->original_size = v_stat->st_size;
     hdr->attribute = GENERIC_ATTRIBUTE;
     hdr->header_level = header_level;
-    len = str_safe_copy(hdr->name,
-                        remove_leading_dots(name),
-                        sizeof(hdr->name));
+
+    len = remove_dots(hdr->name, name, sizeof(hdr->name));
+
     hdr->crc = 0x0000;
     hdr->extend_type = EXTEND_UNIX;
     hdr->unix_last_modified_stamp = v_stat->st_mtime;

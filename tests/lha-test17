@@ -1,0 +1,168 @@
+# -*- shell-script -*-
+message testing to remove relative path
+
+# remove leading "../"; this behavior will be like the GNU tar.
+
+echo -------------------------------------------------------------------
+# "../xx/xx" -> "xx/xx"
+(cd test-1 &&
+  $lha c $builddir/test-tmp-1.lzh ../test-1/test-a
+  ) 2> test-tmp-stderr
+							check $? $LINENO
+
+cat <<"EOF" | diff - test-tmp-stderr
+LHa: Warning: Removing leading `../' from member name.
+EOF
+							check $? $LINENO
+
+$lha vvq test-tmp-1.lzh | head -1
+$lha vvq test-tmp-1.lzh | head -1 | egrep '^test-1/test-a$'
+							check $? $LINENO
+
+echo -------------------------------------------------------------------
+# ../xx/../xx (result: xx not "../xx")
+(cd test-1 &&
+  $lha c $builddir/test-tmp-2.lzh ../test-1/../test-a
+  ) 2> test-tmp-stderr
+							check $? $LINENO
+
+cat <<"EOF" | diff - test-tmp-stderr
+LHa: Warning: Removing leading `../test-1/../' from member name.
+EOF
+							check $? $LINENO
+
+$lha vvq test-tmp-2.lzh | head -1
+$lha vvq test-tmp-2.lzh | head -1 | egrep '^test-a$'
+							check $? $LINENO
+echo -------------------------------------------------------------------
+# ../xx/xx/../xx (result: xx not "xx/xx")
+mkdir test-tmp-3 &&
+cp -pr test-1 test-tmp-3 &&
+cp -p test-a test-tmp-3
+							check $? $LINENO
+(cd test-tmp-3 &&
+  $lha c $builddir/test-tmp-3.lzh ../test-tmp-3/test-1/../test-a
+  ) 2> test-tmp-stderr
+							check $? $LINENO
+
+cat <<"EOF" | diff - test-tmp-stderr
+LHa: Warning: Removing leading `../test-tmp-3/test-1/../' from member name.
+EOF
+							check $? $LINENO
+
+$lha vvq test-tmp-3.lzh | head -1
+$lha vvq test-tmp-3.lzh | head -1 | egrep '^test-a$'
+							check $? $LINENO
+echo -------------------------------------------------------------------
+# just a ".." (result: ".")
+mkdir test-tmp-4 &&
+cp -pr test-1 test-tmp-4
+							check $? $LINENO
+(cd test-tmp-4/test-1 &&
+  $lha c $builddir/test-tmp-4.lzh ..
+  ) 2> test-tmp-stderr
+							check $? $LINENO
+
+cat <<"EOF" | diff - test-tmp-stderr
+LHa: Warning: Removing leading `..' from member name.
+LHa: Warning: Removing leading `../' from member name.
+LHa: Warning: Removing leading `../' from member name.
+LHa: Warning: Removing leading `../' from member name.
+LHa: Warning: Removing leading `../' from member name.
+EOF
+							check $? $LINENO
+
+$lha vvq test-tmp-4.lzh
+$lha vvq test-tmp-4.lzh > test-tmp-stdout
+							check $? $LINENO
+
+cat <<"EOF" > test-tmp-expect
+./
+test-1/
+test-1/test-a
+test-1/test-b
+test-1/test-c
+EOF
+
+egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+							check $? $LINENO
+echo -------------------------------------------------------------------
+# "xx/./xx" -> "xx/xx"
+$lha c test-tmp-5.lzh test-1/./test-a
+							check $? $LINENO
+$lha vvq test-tmp-5.lzh
+$lha vvq test-tmp-5.lzh > test-tmp-stdout
+							check $? $LINENO
+cat <<"EOF" > test-tmp-expect
+test-1/test-a
+EOF
+
+egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+							check $? $LINENO
+echo -------------------------------------------------------------------
+# "./xx/././xx" -> "xx/xx"
+$lha c test-tmp-6.lzh ./test-1/././test-a
+							check $? $LINENO
+$lha vvq test-tmp-6.lzh
+$lha vvq test-tmp-6.lzh > test-tmp-stdout
+							check $? $LINENO
+cat <<"EOF" > test-tmp-expect
+test-1/test-a
+EOF
+
+egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+							check $? $LINENO
+echo -------------------------------------------------------------------
+# "xx/./xx/./././xx" -> "xx/xx/xx"
+mkdir test-tmp-7 &&
+cp -pr test-1 test-tmp-7 &&
+cp -p test-a test-tmp-7
+							check $? $LINENO
+$lha c test-tmp-7.lzh test-tmp-7/./test-1/./././test-a
+							check $? $LINENO
+$lha vvq test-tmp-7.lzh
+$lha vvq test-tmp-7.lzh > test-tmp-stdout
+							check $? $LINENO
+cat <<"EOF" > test-tmp-expect
+test-tmp-7/test-1/test-a
+EOF
+
+egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+							check $? $LINENO
+echo -------------------------------------------------------------------
+# "./" -> "."
+(cd test-1 &&
+  $lha c $builddir/test-tmp-8.lzh ./
+  )
+							check $? $LINENO
+$lha vvq test-tmp-8.lzh
+$lha vvq test-tmp-8.lzh > test-tmp-stdout
+							check $? $LINENO
+cat <<"EOF" > test-tmp-expect
+./
+test-a
+test-b
+test-c
+EOF
+
+egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+							check $? $LINENO
+echo -------------------------------------------------------------------
+# "." -> "."
+(cd test-1 &&
+  $lha c $builddir/test-tmp-9.lzh .
+  )
+							check $? $LINENO
+$lha vvq test-tmp-9.lzh
+$lha vvq test-tmp-9.lzh > test-tmp-stdout
+							check $? $LINENO
+cat <<"EOF" > test-tmp-expect
+./
+test-a
+test-b
+test-c
+EOF
+
+egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+							check $? $LINENO
+echo -------------------------------------------------------------------
