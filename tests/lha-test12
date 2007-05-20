@@ -18,14 +18,12 @@ diff -r test-1 test-tmp-crlf
 esac
 test $? -ne 0
 							check $? $LINENO
-sed -e 's/$/
-/' < test-a | diff test-tmp-crlf/test-a -
+
+sed -e 's/$/X/' < test-a | tr 'X' '\015' | diff test-tmp-crlf/test-a -
 							check $? $LINENO
-sed -e 's/$/
-/' < test-b | diff test-tmp-crlf/test-b -
+sed -e 's/$/X/' < test-b | tr 'X' '\015' | diff test-tmp-crlf/test-b -
 							check $? $LINENO
-sed -e 's/$/
-/' < test-c | diff test-tmp-crlf/test-c -
+sed -e 's/$/X/' < test-c | tr 'X' '\015' | diff test-tmp-crlf/test-c -
 							check $? $LINENO
 # CR LF to LF
 $lha xtw=test-tmp-nl test-tmp-crlf.lzh
