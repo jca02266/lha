@@ -1,0 +1,14 @@
+*~
+Makefile.in
+aclocal.m4
+autom4te.cache
+config.guess
+config.sub
+configure
+depcomp
+install-sh
+man/Makefile.in
+missing
+olddoc/Makefile.in
+src/Makefile.in
+tests/Makefile.in
