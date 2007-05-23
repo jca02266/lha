@@ -1,5 +1,19 @@
 2007-05-23  Koji Arai  <arai@users.sourceforge.jp>
 
+	* tests/lha-test.in: added an optional numeric command-line
+	argument, and a command-line switch -n.
+        when the numeric argument is specified, only the testsuite is
+	performed.  and the -n switch is specified, it is not made cleanup
+	trash files which is result of the test.
+
+	* tests/lha-test11: On MS-Windows, should consider the length of
+	current path.
+
+	* tests/lha-test11: On MS-Windows, if current directory is too
+	deep, skip this test.
+
+2007-05-23  Koji Arai  <arai@users.sourceforge.jp>
+
 	* config.h.in, configure.ac, src/lharc.c: the option -X was deprecated.
 	In place of it, added a long option --ignore-mac-files which
 	ignore Mac specific files ._*, .DS_Store and Icon\r when the

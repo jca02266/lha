@@ -8,14 +8,17 @@ message testing the long filename support
 # Note that on Cygwin/MinGW, on NTFS, the maximam length of whole path
 # name (contain the drive letter) is limited probably. it seems to be 259 (?)
 #
+
+# 255 bytes
+file=123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345
+
 mkdir test-tmp1
 case $(uname) in
 MS-DOS* | CYGWIN*)
-  # 190 bytes
-  file=1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 ;;
+  # omit the length of current path.
+  file=$(echo $file | cut -c$((echo X: && cd test-tmp1 && pwd && echo test-tmp1-hg) | wc -c)-)
+  ;;
 *)
-  # 255 bytes
-  file=123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345 ;;
 esac
 (cd test-tmp1 && touch $file)
 							check $? $LINENO
@@ -77,16 +80,22 @@ test -f test-tmp1-h2/test-tmp1/$file
 # 0x100 is never set on the header size field on level 2 header
 file=test-tmp9012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 touch $file
+if [ $? -ne 0 ]; then
+  echo "$FILENAME: Warning: current directory is too deep. skip this test..." >&2
+else
+
+  $lha c2 test-tmp4-h2.lzh $file
 							check $? $LINENO
-$lha c2 test-tmp4-h2.lzh $file
+  $lha vv test-tmp4-h2.lzh
 							check $? $LINENO
-$lha vv test-tmp4-h2.lzh
+  $lha vv test-tmp4-h2.lzh | egrep '\[2\].?$'
 							check $? $LINENO
-$lha vv test-tmp4-h2.lzh | egrep '\[2\].?$'
+  rm -f $file
 							check $? $LINENO
-$lha xw=test-tmp4 test-tmp4-h2.lzh
+  $lha x test-tmp4-h2.lzh
 							check $? $LINENO
-test x"`$lha vvvq test-tmp4-h2.lzh | head -1`" = x"00  2: 257(0x0101)"
+  test x"`$lha vvvq test-tmp4-h2.lzh | head -1`" = x"00  2: 257(0x0101)"
 							check $? $LINENO
-test -f test-tmp4/$file
+  test -f $file
 							check $? $LINENO
+fi
