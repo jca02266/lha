@@ -1,6 +1,13 @@
+2007-05-23  Koji Arai  <arai@users.sourceforge.jp>
+
+	* config.h.in, configure.ac, src/lharc.c: the option -X was deprecated.
+	In place of it, added a long option --ignore-mac-files which
+	ignore Mac specific files ._*, .DS_Store and Icon\r when the
+	archive is created. Thanks to Hiroto Sakai.
+
 2007-05-20  Koji Arai  <arai@users.sourceforge.jp>
 
-	* repository changed into the Subversion.
+	* repository changed to the Subversion.
 
 	* tests/lha-test12: should not use the raw CR code.
 	  (when checkout from SVN repos, raw CR code is removed.)

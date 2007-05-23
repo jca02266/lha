@@ -119,30 +119,29 @@ init_variable()     /* Added N.Watazaki */
 static void
 print_tiny_usage()
 {
-#if HAVE_LIBAPPLEFILE
     fprintf(stdout, "\
 usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
   commands:  [axelvudmcpt]\n\
-  options:   [q[012]vnfto[567]dizg012eb[w=<dir>|x=<pattern>]]\n\
+  options:   [q[012]vnfto[567]dizg012%s%s[w=<dir>|x=<pattern>]]\n\
   long options: --system-kanji-code={euc,sjis,utf8,cap}\n\
                 --archive-kanji-code={euc,sjis,utf8,cap}\n\
                 --extract-broken-archive\n\
                 --convert-filename-case\n\
-                --help\n\
-                --version\n");
-#else
-    fprintf(stdout, "\
-usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
-  commands:  [axelvudmcpt]\n\
-  options:   [q[012]vnfto[567]dizg012e[w=<dir>|x=<pattern>]]\n\
-  long options: --system-kanji-code={euc,sjis,utf8,cap}\n\
-                --archive-kanji-code={euc,sjis,utf8,cap}\n\
-                --extract-broken-archive\n\
-                --convert-filename-case\n\
+		--ignore-mac-files\n\
                 --traditional\n\
                 --help\n\
-                --version\n");
+                --version\n"
+#ifdef EUC
+            ,"e"
+#else
+            ,""
 #endif
+#if HAVE_LIBAPPLEFILE
+            ,"b"                 /* decode_macbinary_contents */
+#else
+            ,""
+#endif
+            );
 }
 
 static void
@@ -198,11 +197,6 @@ commands:                           options:\n\
                                      w=<dir> specify extract directory (x/e)\n\
                                      x=<pattern>  eXclude files (a/u/c)\n\
 ");
-#if IGNORE_DOT_FILES            /* experimental feature */
-    fprintf(stdout, "\
-                                     X ignore dot files (a/u/c)\n\
-");
-#endif
 }
 
 #include "getopt_long.h"
@@ -219,6 +213,7 @@ parse_suboption(int argc, char **argv)
         SYSTEM_KANJI_CODE_OPTION,
         ARCHIVE_KANJI_CODE_OPTION,
         TRADITIONAL_BEHAVIOR,
+        IGNORE_MAC_FILES,
     };
 
     struct option long_options[] = {
@@ -231,6 +226,7 @@ parse_suboption(int argc, char **argv)
         {"extract-broken-archive", no_argument, &extract_broken_archive, 1},
         {"convert-filename-case", no_argument, &convertcase, TRUE},
         {"traditional", no_argument, 0, TRADITIONAL_BEHAVIOR},
+        {"ignore-mac-files", no_argument, 0, IGNORE_MAC_FILES},
         {0, 0, 0, 0}
     };
     int i;
@@ -238,9 +234,6 @@ parse_suboption(int argc, char **argv)
     char short_options[256] = "q[012]vnfto[567]dizg012ew:x:";
     /* "[...]" means optional 1 byte argument (original extention) */
 
-#if IGNORE_DOT_FILES
-    strncat(short_options, "X", sizeof(short_options)-strlen(short_options)-1);
-#endif
 #if HAVE_LIBAPPLEFILE
     strncat(short_options, "b", sizeof(short_options)-strlen(short_options)-1);
 #endif
@@ -366,17 +359,6 @@ parse_suboption(int argc, char **argv)
             exclude_files[i+1] = 0;
 
             break;
-#if IGNORE_DOT_FILES            /* experimental feature */
-        case 'X':
-            for (i = 0; exclude_files && exclude_files[i]; i++)
-                ;
-            exclude_files = (char**)xrealloc(exclude_files,
-                                             sizeof(char*) * (i+2));
-
-            exclude_files[i] = xstrdup(".*");
-            exclude_files[i+1] = 0;
-            break;
-#endif
         case 'w':
             if (!optarg) {
                 error("working directory does not specified for `-w'");
@@ -446,6 +428,20 @@ parse_suboption(int argc, char **argv)
 
         case TRADITIONAL_BEHAVIOR:
             convertcase = TRUE;
+            break;
+
+        case IGNORE_MAC_FILES:
+            /* ignore Mac specific files (._*, .DS_Store and Icon\r)
+               when archiving */
+            for (i = 0; exclude_files && exclude_files[i]; i++)
+                ;
+            exclude_files = (char**)xrealloc(exclude_files,
+                                             sizeof(char*) * (i+4));
+
+            exclude_files[i] = xstrdup("._*");
+            exclude_files[i+1] = xstrdup(".DS_Store");
+            exclude_files[i+2] = xstrdup("Icon\r");
+            exclude_files[i+3] = 0;
             break;
 
         default:

@@ -202,9 +202,6 @@
 /* Define to 1 if you have the `vsnprintf' function. */
 #undef HAVE_VSNPRINTF
 
-/* Define to 1 if you want to ignore dot files with -X command line switch */
-#undef IGNORE_DOT_FILES
-
 /* Define to 1 if you want to use the user/group name extened header */
 #undef INCLUDE_OWNER_NAME_IN_HEADER
 
