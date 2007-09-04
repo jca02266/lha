@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([LHa for UNIX], 1.14i-ac20070224, arai@users.sourceforge.jp, lha)
+AC_INIT([LHa for UNIX], 1.14i-ac20070904, arai@users.sourceforge.jp, lha)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
@@ -35,6 +35,7 @@ AC_STRUCT_TM
 AC_STRUCT_TIMEZONE
 
 AC_CHECK_SIZEOF(long)
+AC_CHECK_SIZEOF(off_t)
 AC_CHECK_TYPES([uid_t, gid_t, long long, uint64_t, ssize_t])
 AC_CHECK_MEMBERS([struct tm.tm_gmtoff, struct stat.st_ino],,,
 [

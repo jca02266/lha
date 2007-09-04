@@ -19,14 +19,19 @@
 /* ------------------------------------------------------------------------ */
 /* need 14 or 22 (when verbose_listing is TRUE) column spaces */
 static void
-print_size(packed_size, original_size)
-    long packed_size, original_size;
+print_size(off_t packed_size, off_t original_size)
 {
+#if SIZEOF_OFF_T == 8
+    if (verbose_listing)
+        printf("%7llu ", packed_size);
+
+    printf("%7llu ", original_size);
+#else
     if (verbose_listing)
         printf("%7lu ", packed_size);
 
     printf("%7lu ", original_size);
-
+#endif
     if (original_size == 0L)
         printf("******");
     else    /* Changed N.Watazaki */

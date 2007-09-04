@@ -1,22 +1,35 @@
-# $Id$
 # -*- Mode: text ; Coding: euc-japan -*-
 
-autoconfiscated for LHa for UNIX version 1.14i
+LHa for UNIX with Autoconf
 					 Koji Arai <arai@users.sourceforge.jp>
 
-このファイルは LHa for UNIX version 1.14i を autoconf、automake 化した
-(autoconfiscate と言うそうです。Jargon 参照)ときのメモです。
+このファイルは、Autoconf 版 LHa for UNIX について説明します。
 
-LHa for UNIX に関しては岡本継男さんのページ
-  <http://www2m.biglobe.ne.jp/~dolphin/lha/lha.htm>
-を参照してください。
+1. コンパイルの手順
+2. オリジナルからの変更点
+   ・-lh6-, -lh7- メソッドのアーカイブ作成
+   ・アーカイブ中の漢字ファイル名
+   ・標準入力からの展開ファイルの指定
+   ・拡張ヘッダ(ユーザ名/グループ名)のサポート
+   ・バックアップファイル作成の抑止
+   ・header.c の書き換え
+   ・level 3 header
+   ・ヘッダのダンプ
+   ・デフォルトヘッダレベル
+   ・拡張ヘッダ
+   ・-x オプション
+   ・Cygwin での解凍
+   ・large files 対応
+3. バグ
+4. 再配布について
 
-・コンパイルの手順
+1. コンパイルの手順
+====================
 
   コンパイルの手順は以下のようになります。
 
-    gzip -dc lha-114i.autoconf-xxxx.tar.gz | tar xvf -
-    cd lha-114i.autoconf-xxx
+    gzip -dc lha-1.14i-acXXXXXXXX.tar.gz | tar xvf -
+    cd lha-114i-acXXXXXXXX
 
     sh ./configure
     make
@@ -50,32 +63,30 @@ LHa for UNIX に関しては岡本継男さんのページ
   す。autoconf/automake のバージョンはそれぞれ autoconf 2.5x, automake
   1.6.x 以降での利用を前提としています。
 
-    gzip -dc lha-114i.autoconf-xxxx.tar.gz | tar xvf -
-    cd lha-114i.autoconf-xxxx
+    gzip -dc lha-1.14i-acXXXXXXXX.tar.gz | tar xvf -
+    cd lha-114i-acXXXXXXXX
 
     aclocal
     automake -a
     autoheader
     autoconf
+
+    # aclocal から autoconf 実行までの手順は、最近では、autoreconf -is
+    # でいけるようです。
+
     sh ./configure
     make
     make check
     make install
 
-・マクロの置き換え
+2. オリジナルからの変更点
+=========================
 
-  オリジナルの LHa for UNIX 1.14i で使われていたマクロは autoconf 標準
-  のマクロ名に置き換えられました。(olddoc/IFNAMES ファイルに詳細が書か
-  れています)
+Autoconf 版 LHa for UNIX は、
+LHa for UNIX ver1.14i <http://www2m.biglobe.ne.jp/~dolphin/lha/lha.htm>
+を元に改変されました。
 
-  IFNAMESファイルは、
-     マクロ名 定義のあるファイル...  コメント
-  という構成になっています。このファイルはautoconfと一緒に配布される
-  ifnamesコマンドの出力を元にしました。
-  IFNAMESファイルの# で始まっている行は該当のマクロが置き換えられたり、
-  configure コマンドのコマンドオプションで指定されるようになったことを
-  示します。そのままの行はautoconfで判断する必要がないかまたは私が判断
-  できないため、そのまま放置したことを示します。
+主な変更点を下記に挙げます。
 
 ・-lh6-, -lh7- メソッドのアーカイブ作成
 
@@ -163,6 +174,15 @@ LHa for UNIX に関しては岡本継男さんのページ
 
   Mac OS X 用の utf8 <-> sjis 変換は、2002/6 に坂井浩人さんに作成して
   いただきました。ありがとうございます。
+
+  また、Mac OS X 以外でも、iconv ライブラリを使用すれば、UTF-8 を使用す
+  ることができます。ただし、現在のところ iconv ライブラリの存在を自動的
+  に検出しないので、libc に iconv() 関数がなく、libiconv が存在する
+  (iconvライブラリをリンクする必要がある)環境では、コンパイル時に
+
+     sh ./configure LIBS=-liconv
+
+  などとする必要があります。
 
 ・標準入力からの展開ファイルの指定
 
@@ -304,7 +324,7 @@ LHa for UNIX に関しては岡本継男さんのページ
     lha vvv foo.lzh
   とすると、アーカイブの内容一覧にまざってダンプが出力されます。
 
-・ヘッダレベル
+・デフォルトヘッダレベル
 
   アーカイブを作成するときのデフォルトのヘッダレベルを 2 にしました。
   (オリジナルの LHa for UNIX 1.14i ではレベル 1 がデフォルト)
@@ -364,8 +384,18 @@ LHa for UNIX に関しては岡本継男さんのページ
 
   のようにします。
 
-  なお、level 0, 1, 2 ヘッダの仕様上 4G 未満のファイルしか書庫に格納で
-  きません。
+  なお、正規の LHA では、level 0, 1, 2 ヘッダの仕様上 4G 未満のファイル
+  しか書庫に格納できません(ファイルサイズを格納する領域が 4 bytes しかない)。
+
+  しかし、UNLHA32.DLL などは、拡張ヘッダ(0x42)により、4G over なファイ
+  ルも扱えるようになっています。autoconf 版では、今のところ展開のときの
+  みこの拡張ヘッダを参照して、4G overファイルをサポートします。
+
+  (作成に対応していないのは、安易にUNLHA32.DLLに従うことが正しいのかよ
+  くわからなかったからです。)
+
+3. バグ
+=======
 
 ・壊れたアーカイブの展開 (--extract-broken-archive)
 
@@ -389,7 +419,8 @@ LHa for UNIX に関しては岡本継男さんのページ
   for UNIX (autoconf版)で作成されたものである場合には)このオプションを
   試してみてください。
 
-・再配布について
+4. 再配布について
+=================
 
   私は、src/header.c にはもはや元の lha 1.14i にあったコードは含まれて
   いないと考えています。src/header.c は私の著作物です。ただし、lha
