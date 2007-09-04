@@ -126,19 +126,19 @@ boolean archive_is_msdos_sfx1 P_((char *name));
 int xsnprintf P_((char *dest, size_t size, char *fmt, ...));
 char *xstrchr P_((const char *s, int c));
 char *xstrrchr P_((const char *s, int c));
-char *xmemchr P_((const char *s, int c, off_t n));
-char *xmemrchr P_((const char *s, int c, off_t n));
+char *xmemchr P_((const char *s, int c, size_t n));
+char *xmemrchr P_((const char *s, int c, size_t n));
 int str_safe_copy P_((char *dst, const char *src, int dstsz));
 
 /* util.c */
 #if !HAVE_MEMMOVE
-void *memmove P_((void *dst, const void *src, off_t cnt));
+void *memmove P_((void *dst, const void *src, size_t cnt));
 #endif
 #if !HAVE_STRDUP
 char *strdup P_((const char *buf));
 #endif
 #if !HAVE_MEMSET
-char *memset P_((char *s, int c, off_t n));
+char *memset P_((char *s, int c, size_t n));
 #endif
 #if !HAVE_STRCASECMP
 int strcasecmp P_((const char *p1, const char *p2));
