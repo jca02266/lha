@@ -251,8 +251,8 @@ typedef struct LzHeader {
     size_t          header_size;
     int             size_field_length;
     char            method[METHOD_TYPE_STORAGE];
-    size_t          packed_size;
-    size_t          original_size;
+    off_t           packed_size;
+    off_t           original_size;
     unsigned char   attribute;
     unsigned char   header_level;
     char            name[FILENAME_LENGTH];
@@ -275,9 +275,9 @@ typedef struct LzHeader {
 struct interfacing {
     FILE            *infile;
     FILE            *outfile;
-    size_t          original;
-    size_t          packed;
-    size_t          read_size;
+    off_t           original;
+    off_t           packed;
+    off_t           read_size;
     int             dicbit;
     int             method;
 };
@@ -352,10 +352,10 @@ EXTERN int      convertcase;    /* 2000.10.6 */
 
 /* slide.c */
 EXTERN int      unpackable;
-EXTERN size_t origsize, compsize;
+EXTERN off_t origsize, compsize;
 EXTERN unsigned short dicbit;
 EXTERN unsigned short maxmatch;
-EXTERN size_t decode_count;
+EXTERN off_t decode_count;
 EXTERN unsigned long loc;           /* short -> long .. Changed N.Watazaki */
 EXTERN unsigned char *text;
 

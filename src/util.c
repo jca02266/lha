@@ -15,17 +15,17 @@
  */
 #include <errno.h>
 
-size_t
+off_t
 copyfile(f1, f2, size, text_flg, crcp)  /* return: size of source file */
     FILE *f1;
     FILE *f2;
-    size_t size;
+    off_t size;
     int text_flg;               /* 0: binary, 1: read text, 2: write text */
     unsigned int *crcp;
 {
     unsigned short  xsize;
     char *buf;
-    size_t rsize = 0;
+    off_t rsize = 0;
 
     if (!text_mode)
         text_flg = 0;
@@ -86,9 +86,9 @@ copyfile(f1, f2, size, text_flg, crcp)  /* return: size of source file */
 int
 encode_stored_crc(ifp, ofp, size, original_size_var, write_size_var)
     FILE *ifp, *ofp;
-    size_t size;
-    size_t *original_size_var;
-    size_t *write_size_var;
+    off_t size;
+    off_t *original_size_var;
+    off_t *write_size_var;
 {
     int save_quiet;
     unsigned int crc;

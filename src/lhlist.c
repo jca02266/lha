@@ -275,7 +275,7 @@ list_one(hdr)
 static void
 list_tailer(list_files, packed_size_total, original_size_total)
     int list_files;
-    unsigned long packed_size_total, original_size_total;
+    off_t packed_size_total, original_size_total;
 {
     struct stat     stbuf;
 
@@ -307,8 +307,8 @@ cmd_list()
     LzHeader        hdr;
     int             i;
 
-    unsigned long packed_size_total;
-    unsigned long original_size_total;
+    off_t packed_size_total;
+    off_t original_size_total;
     int list_files;
 
     /* initialize total count */

@@ -11,10 +11,10 @@
 
 #define MAX_INDICATOR_COUNT     58
 
-static size_t reading_size;
+static off_t reading_size;
 
 #ifdef NEED_INCREMENTAL_INDICATOR
-static size_t indicator_count;
+static off_t indicator_count;
 static long indicator_threshold;
 #endif
 
@@ -40,7 +40,7 @@ carriage_return()
 void
 start_indicator(name, size, msg, def_indicator_threshold)
     char           *name;
-    size_t          size;
+    off_t          size;
     char           *msg;
     long            def_indicator_threshold;
 {

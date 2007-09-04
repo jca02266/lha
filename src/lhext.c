@@ -215,7 +215,7 @@ adjust_info(name, hdr)
 }
 
 /* ------------------------------------------------------------------------ */
-static size_t
+static off_t
 extract_one(afp, hdr)
     FILE           *afp;    /* archive file */
     LzHeader       *hdr;
@@ -230,7 +230,7 @@ extract_one(afp, hdr)
     int             method;
     boolean         save_quiet, save_verbose, up_flag;
     char           *q = hdr->name, c;
-    size_t read_size = 0;
+    off_t read_size = 0;
 
     if (ignore_directory && strrchr(hdr->name, '/')) {
         q = (char *) strrchr(hdr->name, '/') + 1;
@@ -517,7 +517,7 @@ cmd_extract()
     LzHeader        hdr;
     off_t           pos;
     FILE           *afp;
-    size_t read_size;
+    off_t read_size;
 
     /* open archive file */
     if ((afp = open_old_archive()) == NULL)
@@ -537,7 +537,7 @@ cmd_extract()
                 if (pos != -1 && afp != stdin)
                     fseeko(afp, pos + hdr.packed_size - read_size, SEEK_SET);
                 else {
-                    size_t i = hdr.packed_size - read_size;
+                    off_t i = hdr.packed_size - read_size;
                     while (i--) fgetc(afp);
                 }
             }
@@ -545,7 +545,7 @@ cmd_extract()
             if (afp != stdin)
                 fseeko(afp, hdr.packed_size, SEEK_CUR);
             else {
-                size_t i = hdr.packed_size;
+                off_t i = hdr.packed_size;
                 while (i--) fgetc(afp);
             }
         }
@@ -638,13 +638,13 @@ static void adjust_dirinfo()
 static boolean
 decode_macbinary(ofp, size, outPath)
     FILE *ofp;
-    size_t size;
+    off_t size;
     const char *outPath;
 {
     af_file_t *afp = NULL;
     FILE *ifp = NULL;
     unsigned char *datap;
-    size_t dlen;
+    off_t dlen;
 
     if ((afp = af_open(temporary_name)) != NULL) {
         /* fetch datafork */

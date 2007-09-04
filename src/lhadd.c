@@ -20,7 +20,7 @@ add_one(fp, nafp, hdr)
     LzHeader       *hdr;
 {
     off_t header_pos, next_pos, org_pos, data_pos;
-    size_t v_original_size, v_packed_size;
+    off_t v_original_size, v_packed_size;
 
     reading_filename = hdr->name;
     writing_filename = temporary_name;
@@ -311,7 +311,7 @@ report_archive_name_if_different()
 /* ------------------------------------------------------------------------ */
 void
 temporary_to_new_archive_file(new_archive_size)
-    size_t new_archive_size;
+    off_t new_archive_size;
 {
     FILE *oafp, *nafp;
 
@@ -434,7 +434,7 @@ cmd_add()
     int             i;
     long            old_header;
     boolean         old_archive_exist;
-    size_t          new_archive_size;
+    off_t           new_archive_size;
 
     /* exit if no operation */
     if (!update_if_newer && cmd_filec == 0) {
@@ -579,7 +579,7 @@ void
 cmd_delete()
 {
     FILE *oafp, *nafp;
-    size_t new_archive_size;
+    off_t new_archive_size;
 
     /* open old archive if exist */
     if ((oafp = open_old_archive()) == NULL)

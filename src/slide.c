@@ -295,7 +295,7 @@ encode(interface)
     struct interfacing *interface;
 {
     unsigned int token, pos, crc;
-    size_t count;
+    off_t count;
     struct matchdata match, last;
 
 #ifdef DEBUG

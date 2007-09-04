@@ -13,9 +13,9 @@ encode_lzhuf(infp, outfp, size, original_size_var, packed_size_var,
          name, hdr_method)
     FILE           *infp;
     FILE           *outfp;
-    size_t          size;
-    size_t         *original_size_var;
-    size_t         *packed_size_var;
+    off_t          size;
+    off_t          *original_size_var;
+    off_t          *packed_size_var;
     char           *name;
     char           *hdr_method;
 {

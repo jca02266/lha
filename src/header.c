@@ -161,6 +161,50 @@ put_longword(v)
     put_byte(v >> 24);
 }
 
+#ifdef HAVE_UINT64_T
+static uint64_t
+get_longlongword()
+{
+    uint64_t b0, b1, b2, b3, b4, b5, b6, b7;
+    uint64_t l;
+
+#if DUMP_HEADER
+    if (verbose_listing && verbose > 1)
+        printf("%02d %2d: ", get_ptr - start_ptr, 4);
+#endif
+    b0 = GET_BYTE();
+    b1 = GET_BYTE();
+    b2 = GET_BYTE();
+    b3 = GET_BYTE();
+    b4 = GET_BYTE();
+    b5 = GET_BYTE();
+    b6 = GET_BYTE();
+    b7 = GET_BYTE();
+
+    l = (b7 << 24) + (b6 << 16) + (b5 << 8) + b4;
+    l <<= 32;
+    l |= (b3 << 24) + (b2 << 16) + (b1 << 8) + b0;
+#if DUMP_HEADER
+    if (verbose_listing && verbose > 1)
+        printf("%lld(%#016llx)\n", l, l);
+#endif
+    return l;
+}
+
+static void
+put_longlongword(uint64_t v)
+{
+    put_byte(v);
+    put_byte(v >> 8);
+    put_byte(v >> 16);
+    put_byte(v >> 24);
+    put_byte(v >> 32);
+    put_byte(v >> 40);
+    put_byte(v >> 48);
+    put_byte(v >> 56);
+}
+#endif
+
 static int
 get_bytes(buf, len, size)
     char *buf;
@@ -499,6 +543,10 @@ get_extended_header(fp, hdr, header_size, hcrc)
     name_length = strlen(hdr->name);
 
     while (header_size) {
+#if DUMP_HEADER
+        if (verbose_listing && verbose > 1)
+            printf("---\n");
+#endif
         setup_get(data);
         if (sizeof(data) < header_size) {
             error("header size (%ld) too large.", header_size);
@@ -513,6 +561,9 @@ get_extended_header(fp, hdr, header_size, hcrc)
         ext_type = get_byte();
         switch (ext_type) {
         case 0:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < header crc >\n");
+#endif
             /* header crc (CRC-16) */
             hdr->header_crc = get_word();
             /* clear buffer for CRC calculation. */
@@ -520,21 +571,33 @@ get_extended_header(fp, hdr, header_size, hcrc)
             skip_bytes(header_size - n - 2);
             break;
         case 1:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < filename >\n");
+#endif
             /* filename */
             name_length =
                 get_bytes(hdr->name, header_size-n, sizeof(hdr->name)-1);
             hdr->name[name_length] = 0;
             break;
         case 2:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < directory >\n");
+#endif
             /* directory */
             dir_length = get_bytes(dirname, header_size-n, sizeof(dirname)-1);
             dirname[dir_length] = 0;
             break;
         case 0x40:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < MS-DOS attribute >\n");
+#endif
             /* MS-DOS attribute */
             hdr->attribute = get_word();
             break;
         case 0x41:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < Windows time stamp (FILETIME) >\n");
+#endif
             /* Windows time stamp (FILETIME structure) */
             /* it is time in 100 nano seconds since 1601-01-01 00:00:00 */
 
@@ -549,26 +612,55 @@ get_extended_header(fp, hdr, header_size, hcrc)
             skip_bytes(8); /* last access time is ignored */
 
             break;
+        case 0x42:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < Windows file size header>\n");
+#endif
+#ifdef HAVE_UINT64_T
+            /* Windows file size header (UNLHA32 extension) */
+            hdr->packed_size = get_longlongword();
+            hdr->original_size = get_longlongword();
+#else
+            skip_bytes(8);
+            skip_bytes(8);
+#endif
+
+            break;
         case 0x50:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < UNIX permission >\n");
+#endif
             /* UNIX permission */
             hdr->unix_mode = get_word();
             break;
         case 0x51:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < UNIX gid and uid >\n");
+#endif
             /* UNIX gid and uid */
             hdr->unix_gid = get_word();
             hdr->unix_uid = get_word();
             break;
         case 0x52:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < UNIX group name >\n");
+#endif
             /* UNIX group name */
             i = get_bytes(hdr->group, header_size-n, sizeof(hdr->group)-1);
             hdr->group[i] = '\0';
             break;
         case 0x53:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < UNIX user name >\n");
+#endif
             /* UNIX user name */
             i = get_bytes(hdr->user, header_size-n, sizeof(hdr->user)-1);
             hdr->user[i] = '\0';
             break;
         case 0x54:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < UNIX last modifed time (time_t) >\n");
+#endif
             /* UNIX last modified time */
             hdr->unix_last_modified_stamp = (time_t) get_longword();
             break;

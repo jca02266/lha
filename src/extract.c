@@ -12,11 +12,11 @@ int
 decode_lzhuf(infp, outfp, original_size, packed_size, name, method, read_sizep)
     FILE           *infp;
     FILE           *outfp;
-    size_t          original_size;
-    size_t          packed_size;
+    off_t           original_size;
+    off_t           packed_size;
     char           *name;
     int             method;
-    size_t         *read_sizep;
+    off_t          *read_sizep;
 {
     unsigned int crc;
     struct interfacing interface;

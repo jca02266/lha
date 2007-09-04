@@ -1,3 +1,8 @@
+2007-09-03  Koji Arai  <arai@users.sourceforge.jp>
+
+	* src/append.c, src/extract.c, src/header.c, src/indicator.c, src/lha.h, src/lhadd.c, src/lhext.c, src/lhlist.c, src/prototypes.h, src/slide.c, src/util.c: 
+	Possible to extract 4G over files, use UNLHA32.DLL specific extended header.
+
 2007-05-23  Koji Arai  <arai@users.sourceforge.jp>
 
 	* tests/lha-test.in: added an optional numeric command-line
