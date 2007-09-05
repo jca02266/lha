@@ -20,6 +20,7 @@ LHa for UNIX with Autoconf
    ・-x オプション
    ・Cygwin での解凍
    ・large files 対応
+   ・MacBinaryつきアーカイブのサポート
 3. バグ
 4. 再配布について
 
@@ -393,6 +394,20 @@ LHa for UNIX ver1.14i <http://www2m.biglobe.ne.jp/~dolphin/lha/lha.htm>
 
   (作成に対応していないのは、安易にUNLHA32.DLLに従うことが正しいのかよ
   くわからなかったからです。)
+
+・MacBinaryつきアーカイブのサポート
+
+  MacLHAで「MacBinary」チェックボックスをONにして作成したアーカイブに
+  格納されているファイルは、MacBinaryエンコードされています。
+  解凍時に -b オプションを指定すると、解凍後にMacBinaryデコードを行い、
+  データフォークのみを取り出します（リソースフォークは無視されます）。
+  また、普通のアーカイブに対して b オプションを指定して解凍した場合は
+  通常の解凍処理が行われます。
+
+  この機能を利用するにはapplefileライブラリが必要です。
+  applefileライブラリは下記より入手できます。
+
+      http://sourceforge.net/projects/applefile/
 
 3. バグ
 =======
