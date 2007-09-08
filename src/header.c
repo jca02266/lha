@@ -614,10 +614,10 @@ get_extended_header(fp, hdr, header_size, hcrc)
             break;
         case 0x42:
 #if DUMP_HEADER
-            if (verbose_listing && verbose > 1) printf("     < Windows file size header>\n");
+            if (verbose_listing && verbose > 1) printf("     < 64bits file size header >\n");
 #endif
 #ifdef HAVE_UINT64_T
-            /* Windows file size header (UNLHA32 extension) */
+            /* 64bits file size header (UNLHA32 extension) */
             hdr->packed_size = get_longlongword();
             hdr->original_size = get_longlongword();
 #else
@@ -801,8 +801,8 @@ get_header_level0(fp, hdr, data)
     }
 
     get_bytes(hdr->method, 5, sizeof(hdr->method));
-    hdr->packed_size = get_longword();
-    hdr->original_size = get_longword();
+    hdr->packed_size = (unsigned long)get_longword();
+    hdr->original_size = (unsigned long)get_longword();
     hdr->unix_last_modified_stamp = generic_to_unix_stamp(get_longword());
     hdr->attribute = get_byte(); /* MS-DOS attribute */
     hdr->header_level = get_byte();
@@ -917,8 +917,8 @@ get_header_level1(fp, hdr, data)
     }
 
     get_bytes(hdr->method, 5, sizeof(hdr->method));
-    hdr->packed_size = get_longword(); /* skip size */
-    hdr->original_size = get_longword();
+    hdr->packed_size = (unsigned long)get_longword(); /* skip size */
+    hdr->original_size = (unsigned long)get_longword();
     hdr->unix_last_modified_stamp = generic_to_unix_stamp(get_longword());
     hdr->attribute = get_byte(); /* 0x20 fixed */
     hdr->header_level = get_byte();
@@ -1004,8 +1004,8 @@ get_header_level2(fp, hdr, data)
     }
 
     get_bytes(hdr->method, 5, sizeof(hdr->method));
-    hdr->packed_size = get_longword();
-    hdr->original_size = get_longword();
+    hdr->packed_size = (unsigned long)get_longword();
+    hdr->original_size = (unsigned long)get_longword();
     hdr->unix_last_modified_stamp = get_longword();
     hdr->attribute = get_byte(); /* reserved */
     hdr->header_level = get_byte();
@@ -1084,8 +1084,8 @@ get_header_level3(fp, hdr, data)
     }
 
     get_bytes(hdr->method, 5, sizeof(hdr->method));
-    hdr->packed_size = get_longword();
-    hdr->original_size = get_longword();
+    hdr->packed_size = (unsigned long)get_longword();
+    hdr->original_size = (unsigned long)get_longword();
     hdr->unix_last_modified_stamp = get_longword();
     hdr->attribute = get_byte(); /* reserved */
     hdr->header_level = get_byte();
