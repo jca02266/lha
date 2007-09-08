@@ -1,0 +1,7 @@
+# -*- shell-script -*-
+message testing to extract 4G over files
+
+echo -------------------------------------------------------------------
+$lha t $srcdir/lha-test52-4G.lzh
+							check $? $LINENO
+echo -------------------------------------------------------------------

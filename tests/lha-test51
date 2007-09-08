@@ -1,0 +1,7 @@
+# -*- shell-script -*-
+message testing to extract 2G over files
+
+echo -------------------------------------------------------------------
+$lha t $srcdir/lha-test51-2G.lzh
+							check $? $LINENO
+echo -------------------------------------------------------------------

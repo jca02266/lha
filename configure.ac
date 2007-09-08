@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([LHa for UNIX], 1.14i-ac20070904, arai@users.sourceforge.jp, lha)
+AC_INIT([LHa for UNIX], 1.14i-ac20070909, arai@users.sourceforge.jp, lha)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE

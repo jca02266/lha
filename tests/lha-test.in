@@ -107,7 +107,7 @@ message `$lha --version 2>&1`
 
 testsuite lha-test1		# create test data. it is needed for each test
 
-if [[ $perform_number != "" ]]; then
+if [[ $perform_number != "" ]] && [[ $perform_number != all ]]; then
   testsuite lha-test$perform_number
 else
   testsuite lha-test2
@@ -133,6 +133,11 @@ else
   testsuite lha-test15
   testsuite lha-test16
   testsuite lha-test17
+  # followings will take a long time
+  if [[ $perform_number = all ]]; then
+    testsuite lha-test51	# extract 2G over files
+    testsuite lha-test52	# extract 4G over files
+  fi
 fi
 
 if (( $error_num != 0 )); then

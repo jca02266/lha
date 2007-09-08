@@ -20,12 +20,12 @@ EXTRA_DIST =	lha-test1 \
 		lha-test16-l0.lzh \
 		lha-test16-l1.lzh \
 		lha-test16-l2.lzh \
-		lha-test17
+		lha-test17 \
+		lha-test51 \
+		lha-test51-2G.lzh \
+		lha-test52-4G.lzh
 
 DISTCLEANFILES = test.log
 
 check-local:
 	@sh_for_lha_test@ ./lha-test
-
-lha-test: $(top_builddir)/config.status $(srcdir)/lha-test.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
