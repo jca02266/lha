@@ -1,3 +1,32 @@
+2007-09-09  Koji Arai  <arai@users.sourceforge.jp>
+
+	* src/header.c: `put_longword()' should be used the ANSI-C declaration.
+
+	Created archives was broken on Big-endian machine (and 64-bits machine).
+
+2007-09-08  Koji Arai  <arai@users.sourceforge.jp>
+
+	* Added tests for extract large files.
+
+	Added two tests for extract 2G and 4G over files.
+	These are not performed in default, because it will be take a long time.
+
+2007-09-08  Koji Arai  <arai@users.sourceforge.jp>
+
+	* Fix a bug: Could not extract 2G over files.
+
+2007-09-05  Koji Arai  <arai@users.sourceforge.jp>
+
+	* 00readme.autoconf: Added description for the -b switch which extract MacBinaries.
+
+2007-09-04  Koji Arai  <arai@users.sourceforge.jp>
+
+	* use the length modifier `ll' (%llu) for printing 64bit value.
+
+2007-09-04  Koji Arai  <arai@users.sourceforge.jp>
+
+	* update prototypes.h using cproto
+
 2007-09-03  Koji Arai  <arai@users.sourceforge.jp>
 
 	* src/append.c, src/extract.c, src/header.c, src/indicator.c, src/lha.h, src/lhadd.c, src/lhext.c, src/lhlist.c, src/prototypes.h, src/slide.c, src/util.c: 

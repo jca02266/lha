@@ -152,8 +152,7 @@ get_longword()
 }
 
 static void
-put_longword(v)
-    long v;
+put_longword(long v)
 {
     put_byte(v);
     put_byte(v >> 8);
