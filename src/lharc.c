@@ -154,7 +154,7 @@ LHx(arc) for OSK   V 2.01  Modified     1990  Momozou\n\
 LHa      for UNIX  V 1.00  Copyright(C) 1992  Masaru Oki\n\
 LHa      for UNIX  V 1.14  Modified     1995  Nobutaka Watazaki\n\
 LHa      for UNIX  V 1.14i Modified     2000  Tsugio Okamoto\n\
-                   Autoconfiscated 2001-2007  Koji Arai\n\
+                   Autoconfiscated 2001-2008  Koji Arai\n\
 ");
 
     print_tiny_usage();
@@ -672,6 +672,7 @@ print_version()
        defined in config.h by configure script */
     fprintf(stderr, "%s version %s (%s)\n",
             PACKAGE_NAME, PACKAGE_VERSION, PLATFORM);
+    fprintf(stderr, "  configure options: %s\n", LHA_CONFIGURE_OPTIONS);
 }
 
 void
@@ -1319,8 +1320,8 @@ open_old_archive_1(name, v_fp)
 FILE           *
 open_old_archive()
 {
-    FILE           *fp;
-    char           *p;
+    FILE           *fp = NULL;
+    char           *p = NULL, *ext, *ext2;
     static char expanded_archive_name[FILENAME_LENGTH];
 
     if (!strcmp(archive_name, "-")) {
@@ -1333,46 +1334,60 @@ open_old_archive()
         else
             return NULL;
     }
-    p = strrchr(archive_name, '.');
-    if (p) {
-        if (strcasecmp(".LZH", p) == 0
-            || strcasecmp(".LZS", p) == 0
-            || strcasecmp(".COM", p) == 0  /* DOS SFX */
-            || strcasecmp(".EXE", p) == 0
-            || strcasecmp(".X", p) == 0    /* HUMAN SFX */
-            || strcasecmp(".BAK", p) == 0) {   /* for BackUp */
-            open_old_archive_1(archive_name, &fp);
-            return fp;
+
+    ext2 = strrchr(archive_name, '.');
+    if (ext2) {
+        ext2++;
+
+        /* .com: DOS SFX
+           .exe: DOS SFX
+           .x:   HUMAN SFX
+           .bak: Backup file
+           .lha: Amiga(?) */
+        p = xstrdup("lzh," ADDITIONAL_SUFFIXES);
+        for (ext = strtok(p, ",");
+             ext;
+             ext = strtok(NULL, ",")) {
+
+            if (*ext == 0) continue;
+
+            if (strcasecmp(ext, ext2)) {
+                /* Try to open file just specified filename
+                   with usual suffixes.
+                   Return NULL if the file is not exist. */
+
+                open_old_archive_1(archive_name, &fp);
+                goto ret;       /* found or not */
+            }
+        }
+        free(p);
+        p = NULL;
+    }
+
+    /* Try to open file just specified filename */
+    if (open_old_archive_1(archive_name, &fp))
+        goto ret;               /* found */
+
+    /* Try to open file with implicit suffixes */
+    p = xstrdup("lzh," ADDITIONAL_SUFFIXES);
+    for (ext = strtok(p, ",");
+         ext;
+         ext = strtok(NULL, ",")) {
+
+        if (*ext == 0) continue;
+
+        xsnprintf(expanded_archive_name, sizeof(expanded_archive_name),
+                  "%s.%s", archive_name, ext);
+
+        if (open_old_archive_1(expanded_archive_name, &fp)) {
+            archive_name = expanded_archive_name;
+            goto ret;           /* found */
         }
     }
 
-    if (open_old_archive_1(archive_name, &fp))
-        return fp;
-    xsnprintf(expanded_archive_name, sizeof(expanded_archive_name),
-              "%s.lzh", archive_name);
-    if (open_old_archive_1(expanded_archive_name, &fp)) {
-        archive_name = expanded_archive_name;
-        return fp;
-    }
-    /*
-     * if ( (errno&0xffff)!=E_PNNF ) { archive_name =
-     * expanded_archive_name; return NULL; }
-     */
-    xsnprintf(expanded_archive_name, sizeof(expanded_archive_name),
-              "%s.lzs", archive_name);
-    if (open_old_archive_1(expanded_archive_name, &fp)) {
-        archive_name = expanded_archive_name;
-        return fp;
-    }
-    /*
-     * if ( (errno&0xffff)!=E_PNNF ) { archive_name =
-     * expanded_archive_name; return NULL; }
-     */
-    /*
-     * sprintf( expanded_archive_name , "%s.lzh",archive_name);
-     * archive_name = expanded_archive_name;
-     */
-    return NULL;
+ret:
+    if (p) free(p);
+    return fp;
 }
 
 /* ------------------------------------------------------------------------ */

@@ -1,5 +1,7 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([LHa for UNIX], 1.14i-ac20070909, arai@users.sourceforge.jp, lha)
+AC_INIT([LHa for UNIX], 1.14i-ac20080117, arai@users.sourceforge.jp, lha)
+AC_DEFINE_UNQUOTED(LHA_CONFIGURE_OPTIONS, "$ac_configure_args",
+	    [specified options for the configure script.])
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
@@ -165,11 +167,11 @@ SUPPORT_LZHUFF_METHOD=-DSUPPORT_LH7
 # whether use the -lh567- method
 AC_MSG_CHECKING(default archive method)
 AC_ARG_WITH(default-method,
-  AC_HELP_STRING([--with-default-method=[[567]]],
-		 [create the -lh[[567]]- archive default [[default=5]]]),
+  [AC_HELP_STRING([[[[--with-default-method=[567]]]]],
+		 [create the -lh[567]- archive default [default=5]])],
   [case $withval in
-   [567]) ;;
-   *) AC_MSG_ERROR(you should have specified 5, 6 or 7);;
+   [[567]]) ;;
+   *) AC_MSG_ERROR([you should have specified 5, 6 or 7]);;
    esac],
   with_default_method=5)
 AC_MSG_RESULT(-lh$with_default_method-)
@@ -276,7 +278,19 @@ if test "x$enable_backup_archive" = xyes; then
 	    [Define to 1 if you want to leave an old archive])
 fi
 
-case $host_os in 
+# additional suffixes of archive filename.
+AC_MSG_CHECKING(additional suffixes of archive filename)
+AC_ARG_WITH(additional-suffixes,
+  [AC_HELP_STRING([[[--with-additional-suffixes=foo,bar]]],
+		 [additional suffixes of archive filename, default is empty string])],
+  ,
+  with_additional_suffixes="")
+
+AC_MSG_RESULT($with_additional_suffixes)
+AC_DEFINE_UNQUOTED(ADDITIONAL_SUFFIXES, "$with_additional_suffixes",
+	    [Define to comma separated suffixes list if you wish to regard it as implicit archive suffixes.])
+
+case $host_os in
 *msdosdjgpp*)
 CFLAGS="$CFLAGS -DNOT_COMPATIBLE_MODE"
 ;;
