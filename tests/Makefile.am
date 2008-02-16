@@ -21,6 +21,7 @@ EXTRA_DIST =	lha-test1 \
 		lha-test16-l1.lzh \
 		lha-test16-l2.lzh \
 		lha-test17 \
+		lha-test18 \
 		lha-test51 \
 		lha-test51-2G.lzh \
 		lha-test52-4G.lzh

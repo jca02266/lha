@@ -1,3 +1,27 @@
+2008-02-17  Koji Arai  <arai@users.sourceforge.jp>
+
+	* src/lhext.c (extract_one) could not extract files under readonly directories, like:
+
+	    dr-xr-xr-x 2 arai arai 4096 Jan  5 03:30 foo/
+	    -rw-r--r-- 1 arai arai    0 Jan  5 03:30 foo/bar
+
+	* tests/Makefile.am: added a test for above.
+
+	* tests/lha-test.in: ditto.
+
+	* tests/lha-test18: ditto.
+
+2008-02-05  Koji Arai  <arai@users.sourceforge.jp>
+
+	* config.h. configure.ac: added a configure option
+	--with-additional-suffixes for SuSE Linux.
+
+	* src/lharc.c (open_old_archive): make it possible to add archive
+	suffixes.
+
+	* src/lharc.c (print_version): show the configure option by the
+	--version option.
+
 2007-09-09  Koji Arai  <arai@users.sourceforge.jp>
 
 	* src/header.c: `put_longword()' should be used the ANSI-C declaration.

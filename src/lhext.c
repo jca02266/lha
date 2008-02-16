@@ -170,16 +170,11 @@ adjust_info(name, hdr)
     if (hdr->extend_type == EXTEND_UNIX
         || hdr->extend_type == EXTEND_OS68K
         || hdr->extend_type == EXTEND_XOSK) {
-#ifdef NOT_COMPATIBLE_MODE
-        /* Please need your modification in this space. */
-#ifdef __DJGPP__
-        if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK)
+
+        if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK) {
             chmod(name, hdr->unix_mode);
-#endif /* __DJGPP__ */
-#else
-        if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK)
-            chmod(name, hdr->unix_mode);
-#endif
+        }
+
         if (!getuid()){
             uid_t uid = hdr->unix_uid;
             gid_t gid = hdr->unix_gid;
@@ -502,8 +497,10 @@ extract_one(afp, hdr)
             error("Unknown file type: \"%s\". use `f' option to force extract.", name);
     }
 
-    if (!output_to_stdout)
-        adjust_info(name, hdr);
+    if (!output_to_stdout) {
+        if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_DIRECTORY)
+            adjust_info(name, hdr);
+    }
 
     return read_size;
 }
@@ -590,12 +587,12 @@ is_directory_traversal(char *path)
 }
 
 /*
- * restore directory information (time stamp).
+ * restore directory information (timestamp, permission and uid/gid).
  * added by A.Iriyama  2003.12.12
  */
 
-typedef struct lhdDirectoryInfo_t {
-    struct lhdDirectoryInfo_t *next;
+typedef struct LzHeaderList_t {
+    struct LzHeaderList_t *next;
     LzHeader hdr;
 } LzHeaderList;
 

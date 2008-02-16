@@ -12,3 +12,7 @@ missing
 olddoc/Makefile.in
 src/Makefile.in
 tests/Makefile.in
+GPATH
+GRTAGS
+GSYMS
+GTAGS

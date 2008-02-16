@@ -1,8 +1,20 @@
 #!/bin/bash
 
+print_usage()
+{
+  cat <<EOF
+usage: $0 [-n] [test number]
+
+option:
+   -n:   do not cleanup.
+EOF
+  exit
+}
+
 for _opt
 do
    case $_opt in
+   --help) print_usage ;;
    -n) no_cleanup=true; shift ;;
    *) perform_number=$1; shift ;;
    esac
@@ -27,7 +39,8 @@ DUALCASE=1; export DUALCASE # for MKS sh
 : ${builddir=$(cd @builddir@ && pwd)}
 
 if [[ x$no_cleanup = x ]]; then
-  trap '_stat=$?; rm -rf test-*; exit $_stat' 0 1 2 3 15
+  trap '_stat=$?; chmod -R 755 test-* 2>/dev/null;
+        rm -rf test-*; exit $_stat' 0 1 2 3 15
 fi
 
 typeset -i i	# for loop
@@ -71,6 +84,7 @@ check()
 cleanup()
 {
   if [[ x$no_cleanup = x ]]; then
+    chmod -R 755 test-tmp* 2>/dev/null
     rm -rf test-tmp*
   fi
 }
@@ -133,6 +147,7 @@ else
   testsuite lha-test15
   testsuite lha-test16
   testsuite lha-test17
+  testsuite lha-test18
   # followings will take a long time
   if [[ $perform_number = all ]]; then
     testsuite lha-test51	# extract 2G over files
