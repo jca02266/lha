@@ -166,3 +166,27 @@ EOF
 egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
 							check $? $LINENO
 echo -------------------------------------------------------------------
+# remove duplicated slash "xxx//xxx" -> "xxx/xxx"
+(cd test-1 &&
+  $lha c $builddir/test-tmp-10.lzh ./test-a .//test-b .///test-c
+  )
+							check $? $LINENO
+$lha a test-tmp-10.lzh ./test-1/test-a .//test-1//test-b .///test-1///test-c
+
+$lha vvq test-tmp-10.lzh
+$lha vvq test-tmp-10.lzh > test-tmp-stdout
+							check $? $LINENO
+# followings is sorted by argument strings.
+# XXX: this behavior is undesirable.
+cat <<"EOF" > test-tmp-expect
+test-1/test-c
+test-1/test-b
+test-1/test-a
+test-c
+test-b
+test-a
+EOF
+
+egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+							check $? $LINENO
+echo -------------------------------------------------------------------

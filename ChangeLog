@@ -1,3 +1,10 @@
+2008-02-21  Koji Arai  <arai@users.sourceforge.jp>
+
+	* src/header.c (canon_path): should remove duplicated slash.
+	(the function name is renamed from remove_dots().)
+
+	* tests/lha-test17: added a test for above.
+
 2008-02-17  Koji Arai  <arai@users.sourceforge.jp>
 
 	* src/lhext.c (extract_one) could not extract files under readonly directories, like:

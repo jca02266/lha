@@ -1327,9 +1327,15 @@ copy_path_element(char *dst, const char *src, int size)
     return i;
 }
 
-/* remove leading "xxx/../" and "./" */
+/*
+  canonicalize path
+
+  remove leading "xxx/../"
+  remove "./", "././", "././ ... ./"
+  remove duplicated "/"
+*/
 static int
-remove_dots(char *newpath, char *path, size_t size)
+canon_path(char *newpath, char *path, size_t size)
 {
     int len;
     char *p = newpath;
@@ -1349,6 +1355,9 @@ remove_dots(char *newpath, char *path, size_t size)
             if (size <= 1)
                 break;
         }
+
+        /* remove duplicated '/' */
+        while (*path == '/') path++;
     }
 
     /* When newpath is empty, set "." */
@@ -1379,7 +1388,7 @@ init_header(name, v_stat, hdr)
     hdr->attribute = GENERIC_ATTRIBUTE;
     hdr->header_level = header_level;
 
-    len = remove_dots(hdr->name, name, sizeof(hdr->name));
+    len = canon_path(hdr->name, name, sizeof(hdr->name));
 
     hdr->crc = 0x0000;
     hdr->extend_type = EXTEND_UNIX;
