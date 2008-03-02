@@ -1,3 +1,7 @@
+2008-03-02  Koji Arai  <arai@users.sourceforge.jp>
+
+	* man/lha.1: refined.
+
 2008-02-21  Koji Arai  <arai@users.sourceforge.jp>
 
 	* src/header.c (canon_path): should remove duplicated slash.

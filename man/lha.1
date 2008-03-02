@@ -25,7 +25,7 @@
 .TH LHA "1" "February 2008" "LHa for UNIX" "User Commands"
 
 .SH NAME
-LHa for UNIX \- Oldish compressor and archiver.
+LHa for UNIX \- Traditional compressor and archiver.
 
 .SH SYNOPSIS
 
@@ -271,30 +271,30 @@ This option is experimental.
 \fB\-w\fR=\fIdir\fR
 When extracting, extract files are create in the \fIdir\fR directory.
 
-equal mark is omittable like, \-w dir.
+An equal mark is omittable like, \-w dir.
 
 .TP
 \fB\-x\fR=\fIpattern\fR
 When archiving, exclude files matched the glob pattern \fIpattern\fR.
 This option is able to specify any times in a command line.
 
-equal mark is omittable like, \-x pattern.
+An equal mark is omittable like, \-x pattern.
 
 .SH LONG OPTIONS
 
 .TP
 \fB\-\-archive\-kanji\-code\fR={euc,sjis,utf8,cap,none}
-On LZH file, specifying the filename encoding in archive is not ruled.
-However, In Japan, Shift_JIS is defacto standard, so the LHa for UNIX is saved with Shift_JIS. this option is able to change it.
+Consider the multi-byte encoding of archived pathname to be specified.
 
-The utf8 is possible to specify using iconv library.
+Default is sjis as Shift_JIS.
+
+On LZH file, The encoding of pathname in archive is not ruled.
+However, In Japan, Shift_JIS (exactly Windows-31J) is defacto standard.
 
 .TP
 \fB\-\-system\-kanji\-code\fR={euc,sjis,utf8,cap,none}
-This option specify the filename encoding on the filesystem.
+This option specify the encoding of pathname on the filesystem.
 Default is euc as EUC-JP.
-
-The utf8 is possible to specify using iconv library.
 
 .TP
 \fB\-\-extract\-broken\-archive\fR
@@ -347,12 +347,7 @@ In 1989, the LHarc was ported on UNIX by Yoichi Tagawa.
 Haruhiko Okumura and Haruyasu Yoshizaki improved the algorithm of the LHarc.
 
 In 1990, the LHx 2.00 which is the LHarc improvement was implemented by Haruyasu Yoshizaki.
-
-The ar002 was implemented by Haruhiko Okumura. It is distributed as the Public Domain Software (the ar002.exe is the SFX file).
-
-http://oku.edu.mie-u.ac.jp/~okumura/compression/ar002.exe.
-
-Note that it has security problems CVE-2006-4335, 4337 and 4338.
+The ar002 was implemented by Haruhiko Okumura. It is distributed as the Public Domain Software.
 
 In 1991, Haruyasu Yoshizaki improved the LHx and renamed to the LHa, and renamed again to the LHA.
 
