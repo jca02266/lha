@@ -32,7 +32,7 @@
 
 	* Added tests for extract large files.
 
-	Added two tests for extract 2G and 4G over files.
+	Added two tests for extract files over 2G and 4G bytes.
 	These are not performed in default, because it will be take a long time.
 
 2007-09-08  Koji Arai  <arai@users.sourceforge.jp>
@@ -54,7 +54,7 @@
 2007-09-03  Koji Arai  <arai@users.sourceforge.jp>
 
 	* src/append.c, src/extract.c, src/header.c, src/indicator.c, src/lha.h, src/lhadd.c, src/lhext.c, src/lhlist.c, src/prototypes.h, src/slide.c, src/util.c: 
-	Possible to extract 4G over files, use UNLHA32.DLL specific extended header.
+	Possible to extract files over 4G, use UNLHA32.DLL specific extended header.
 
 2007-05-23  Koji Arai  <arai@users.sourceforge.jp>
 
