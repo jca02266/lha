@@ -185,7 +185,10 @@ has_argument_short(char *arg, const char *shortopts)
                 fprintf(stderr, "getopt_long() -- unbalanced bracket in short options");
                 return -1;
             }
-            break;
+
+            /* shortopts = "a[0123]b", arg = "ab"
+               -> "-a -b" */
+            return 0;   /* no argument */
         default:
             return 0;   /* no argument */
         }

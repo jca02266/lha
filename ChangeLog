@@ -1,5 +1,10 @@
 2008-03-02  Koji Arai  <arai@users.sourceforge.jp>
 
+	* src/getopt_long.c (has_argument_short): should treat "-ab" as "-a -b"
+	for shortopts="-a[0123]b".
+
+2008-03-02  Koji Arai  <arai@users.sourceforge.jp>
+
 	* man/lha.1: refined.
 
 2008-02-21  Koji Arai  <arai@users.sourceforge.jp>
