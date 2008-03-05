@@ -1,3 +1,7 @@
+2008-03-04  Koji Arai  <arai@users.sourceforge.jp>
+
+	* man/lha.1: correct English by Stanislav Brabec. Thanks.
+
 2008-03-02  Koji Arai  <arai@users.sourceforge.jp>
 
 	* src/getopt_long.c (has_argument_short): should treat "-ab" as "-a -b"

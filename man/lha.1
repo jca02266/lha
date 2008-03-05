@@ -56,7 +56,7 @@ lha archive_file.lzh [specific files]
 The LHa for UNIX is an archiver and compressor using the LZSS and the Huffman encoding compression algorithm.
 It is possible to create the archive file called the "LZH" file, and possible to extract it.
 
-It is possible to extract the self-extracting archive file called the SFX file. (It is mainly created on the MS-DOS and the MS-Windows), but impossible to create it.
+It is possible to extract the self-extracting archive file called the SFX file (mainly created on the MS-DOS and the MS-Windows), but impossible to create it.
 
 .SH COMMANDS
 
@@ -76,7 +76,7 @@ The \fB\-e\fR command is synonym of \fB\-x\fR.
 
 .TP
 \fB\-l\fR, \fB\-v\fR
-The \fB\-l\fR command lists the contents of archive to stdout. the \fB\-v\fR command is more verbosely command.
+The \fB\-l\fR command lists the contents of archive to stdout. The \fB\-v\fR command is more verbosely command.
 The term of list is below.
 .RS
 .TP
@@ -154,7 +154,7 @@ The header level. It is shown by the \fB\-v\fR option.
 The level 0 and 1 are deprecated. The level 2 header is widely used.
 The level 3 header is more improved, however, it is rarely used.
 
-The LHa for Unix is able to create the 0, 1 and 2. (level 3 is readable)
+The LHa for Unix is able to create the 0, 1 and 2. (Level 3 is readable.)
 
 .TP
 NAME
@@ -163,7 +163,7 @@ Filename or directory name.
 
 .TP
 \fB\-u\fR, \fB\-m\fR
-The \fB\-u\fR command updates the archive. When the specified files newer than the content of the archive, it is replaced.
+The \fB\-u\fR command updates the archive. When the specified files are newer than the content of the archive, they are replaced.
 The \fB\-m\fR command always replace with the specified files.
 
 .TP
@@ -184,49 +184,49 @@ The header string is omitable by the \fB\-q\fR option.
 
 .TP
 \fB\-t\fR
-The \fB\-t\fR command same as the \fB\-x\fR command except to non-extract actually.
+The \fB\-t\fR command is the same as the \fB\-x\fR command except to non-extract actually.
 This command is used to check the archive file.
 
 .SH OPTIONS
 
 .TP
 \fB\-q\fR[\fInum\fR]
-The \fB\-q\fR option specify the level of quiet mode. \fInum\fR is 0, 1, 2 or nothing.
+The \fB\-q\fR option specifies the level of quiet mode. \fInum\fR is 0, 1, 2 or nothing.
 
 The \fB\-q\fR0 option is default level.
-The \fB\-q\fR1 option inhibit to show the extracting indicator(progressing meter?).
-The \fB\-q\fR2 option inhibit to show the other output decoration. this option has the effects of the \fB\-f\fR option.
+The \fB\-q\fR1 option inhibits the extracting indicator (progress bar).
+The \fB\-q\fR2 option inhibits other output decoration. this option has the effects of the \fB\-f\fR option.
 The \fB\-q\fR is same as \fB\-q\fR2.
 
 .TP
 \fB\-v\fR
 When listing with the \fB\-l\fR or the \fB\-v\fR command, the \fB\-v\fR option lists more verbosely.
 
-Each elements are listed one file per two line. The first line show the filename, following line show other elements added the timestamp (full-time format) and the header level.
+Elements are listed one file per two lines. The first line shows the filename, following line shows other elements and the timestamp (full-time format) and the header level.
 
-Special case, the \fB\-v\fR command trailing two \fB\-v\fR options like,
+In special case, the \fB\-v\fR command trailing two \fB\-v\fR options like,
 lha vvv archive_file.lzh
-show the header dump. This feature is for debugging.
+shows the header dump. This is a debugging feature.
 
 .TP
 \fB\-n\fR
-The \fB\-n\fR option display the message instead of doing the command action.
+The \fB\-n\fR option displays the message instead of doing the command action.
 
 .TP
 \fB\-f\fR
-Force extraction. When the extract file is already exists,
-normally, lha ask the Overwriting, or Skipping or All files skipping.
-This option always make to overwrite without the asking.
+Force extraction. When extracted file already exists,
+normally, lha asks for the Overwriting, or Skipping or All files skipping.
+This option forces overwrite without asking.
 
 .TP
 \fB\-t\fR
-The \fB\-t\fR option treats extracting files as text file.
+The \fB\-t\fR option treats extracting files as text files.
 CR codes on the end of each lines are removed. (convert DOS format text to UNIX format text)
 With the \fB\-e\fR option, KANJI code in extracting files are converted.
 
 .TP
 \fB\-o\fR[5\-7]
-When archiving, the \fB\-o\fR option specified the compressing method.
+When archiving, the \fB\-o\fR option specifies the compressing method.
 the \fB\-o\fR5 means to use the \-lh5\- method. It is widely used and default method.
 the \fB\-o\fR6 and \fB\-o\fR7 means to use the \-lh6\- and \-lh7\- method.
 These methods reduced archive file more than the \-lh5\- method.
@@ -244,18 +244,18 @@ When extracting, ignore the directory path. extracting file is put flatten on th
 
 .TP
 \fB\-z\fR
-When archiving. no compress the specified file. (archive with the \-lh0\- method)
+When archiving. do not compress the specified file. (archive with the \-lh0\- method)
 
 .TP
 \fB\-g\fR
-When extracting, this option is nothing to do. this is historical reason.
+When extracting, this option does nothing. It exists for historical reason.
 
-When archiving, this option is archived with general (obsolete) header format.
-It is used the level 0 header, filename is uppercased in archive, no saved the Unix specific elements such as permission, user-id and so on.
+When archiving with this option, archive with general (obsolete) header format.
+It uses the level 0 header, filename is uppercased in the archive,Unix specific elements such as permission, user-id and so on are not saved.
 
 .TP
 \fB\-0\fR, \fB\-1\fR, \fB\-2\fR
-The \-0, \-1 and \-2 option is specified the format of the header version (called the header level).
+The \-0, \-1 and \-2 option specifies the version of the format header (called the header level).
 
 .TP
 \fB\-e\fR
@@ -276,7 +276,7 @@ An equal mark is omittable like, \-w dir.
 .TP
 \fB\-x\fR=\fIpattern\fR
 When archiving, exclude files matched the glob pattern \fIpattern\fR.
-This option is able to specify any times in a command line.
+It is possible to use this option anywhere in the command line.
 
 An equal mark is omittable like, \-x pattern.
 
@@ -284,27 +284,27 @@ An equal mark is omittable like, \-x pattern.
 
 .TP
 \fB\-\-archive\-kanji\-code\fR={euc,sjis,utf8,cap,none}
-Consider the multi-byte encoding of archived pathname to be specified.
+Specifies the multi-byte encoding of the archived pathname.
 
 Default is sjis as Shift_JIS.
 
-On LZH file, The encoding of pathname in archive is not ruled.
+On LZH file, the encoding of pathname in archive is not ruled.
 However, In Japan, Shift_JIS (exactly Windows-31J) is defacto standard.
 
 .TP
 \fB\-\-system\-kanji\-code\fR={euc,sjis,utf8,cap,none}
-This option specify the encoding of pathname on the filesystem.
+This option specifies the encoding of the pathname on the filesystem.
 Default is euc as EUC-JP.
 
 .TP
 \fB\-\-extract\-broken\-archive\fR
-When extracting, If CRC error is occurred and its archive is created by old version of LHa for UNIX, this option may be last resort.
+If CRC error occurrs when extracting, and its archive is created by old version of LHa for UNIX, this option may be last resort.
 
 .TP
 \fB\-\-convert\-filename\-case\fR
 When extracting, the archive format is MS-DOS or Generic, and the
-whole of the filename (and directory name) is uppercase, extracted
-filename make to be small capital.
+whole filename (and directory name) is uppercase, extracted
+filename will be in lowercase.
 
 It was default behavior on the old version of the LHa for UNIX.
 However, many software create the LZH archive with case-sensitive filename even if it is a MS-DOS type archive.
@@ -336,7 +336,7 @@ zip(1), unzip(1), gzip(1), gunzip(1), zcat(1)
 Koji Arai
 
 .SH HISTORY
-In 1988, Haruhiko Okumura developed the LZARI. it was experimental implementation used the LZSS and the arithmetic coding.
+In 1988, Haruhiko Okumura developed the LZARI. It was experimental implementation used the LZSS and the arithmetic coding.
 
 Kazuhiko Miki developed the LArc. (it was used the \-lzs\- method)
 
@@ -362,6 +362,6 @@ However, its license is vague. so it is not recognized as the Open Source Softwa
 
 .SH BUGS
 
-The extracting code of the \-lzs\- method was broken. But it is not problem that is not used for long time.
+Extracted files of the \-lzs\- method are broken. But it is not problem that is not used for long time.
 
-The LHa for UNIX expects the sorted contents by filename in the LZH archive (like the LHarc), but the LHA (for MS-DOS) does not.
+The LHa for UNIX expects contents sorted by the filename in the LZH archive (like the LHarc), but the LHA (for MS-DOS) does not so.
