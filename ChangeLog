@@ -1,5 +1,7 @@
 2008-03-04  Koji Arai  <arai@users.sourceforge.jp>
 
+	* man/lha.1: changed a little. the BUGS section was removed.
+
 	* man/lha.1: correct English by Stanislav Brabec. Thanks.
 
 2008-03-02  Koji Arai  <arai@users.sourceforge.jp>

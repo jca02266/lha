@@ -81,7 +81,7 @@ The term of list is below.
 .RS
 .TP
 PERMISSION
-For the Unix specific archive, it is permission string like ls(1).
+For the Unix specific archive, it is permission string like \fBls\fR(1).
 For the others, it is the string of OS type.
 .TP
 UID/GID
@@ -244,7 +244,7 @@ When extracting, ignore the directory path. extracting file is put flatten on th
 
 .TP
 \fB\-z\fR
-When archiving. do not compress the specified file. (archive with the \-lh0\- method)
+When archiving, do not compress the specified file. (archive with the \-lh0\- method)
 
 .TP
 \fB\-g\fR
@@ -330,10 +330,10 @@ Show the briefly usage.
 Show the version string.
 
 .SH SEE ALSO
-zip(1), unzip(1), gzip(1), gunzip(1), zcat(1)
+\fBzip\fR(1), \fBunzip\fR(1), \fBgzip\fR(1), \fBgunzip\fR(1), \fBzcat\fR(1)
 
-.SH AUTHORS
-Koji Arai
+.SH AUTHOR
+Koji Arai <arai@users.sourceforge.jp>
 
 .SH HISTORY
 In 1988, Haruhiko Okumura developed the LZARI. It was experimental implementation used the LZSS and the arithmetic coding.
@@ -359,9 +359,3 @@ In 1992, It was ported on UNIX by Masaru Oki. It was called the LHa for UNIX, an
 The LHa for UNIX was used to exchange files for MS-DOS world, and its source codes might be used interestingly and implement another LZH archiver.
 
 However, its license is vague. so it is not recognized as the Open Source Software defined by the Open Source Initiative.
-
-.SH BUGS
-
-Extracted files of the \-lzs\- method are broken. But it is not problem that is not used for long time.
-
-The LHa for UNIX expects contents sorted by the filename in the LZH archive (like the LHarc), but the LHA (for MS-DOS) does not so.
