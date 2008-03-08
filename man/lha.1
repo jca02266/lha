@@ -162,9 +162,14 @@ Filename or directory name.
 .RE
 
 .TP
-\fB\-u\fR, \fB\-m\fR
+\fB\-u\fR
 The \fB\-u\fR command updates the archive. When the specified files are newer than the content of the archive, they are replaced.
-The \fB\-m\fR command always replace with the specified files.
+The \fB\-a\fR command always replace with the specified files.
+
+.TP
+\fB\-m\fR
+The \fB\-m\fR command moves specified files into the archive.
+It is same as the \fB\-ad\fR (\fB\-a\fR command and \fB\-d\fR option).
 
 .TP
 \fB\-d\fR
@@ -180,7 +185,7 @@ Each contents are printed with filename as header string like below.
     ::::::::
     contents of the file.....
 
-The header string is omitable by the \fB\-q\fR option.
+If you wish to non-display the header string, use with the \fB\-q\fR option.
 
 .TP
 \fB\-t\fR
@@ -220,9 +225,10 @@ This option forces overwrite without asking.
 
 .TP
 \fB\-t\fR
-The \fB\-t\fR option treats extracting files as text files.
-CR codes on the end of each lines are removed. (convert DOS format text to UNIX format text)
-With the \fB\-e\fR option, KANJI code in extracting files are converted.
+The \fB\-t\fR option treats archiving or extracting files as text files.
+When extracting, CR codes on the end of each lines are removed. (convert DOS format text to UNIX format text)
+When archiving, oppositely, CR codes append on the end of each lines. (convert UNIX format text to DOS format text)
+With the \fB\-e\fR option, KANJI code are converted as well.
 
 .TP
 \fB\-o\fR[5\-7]

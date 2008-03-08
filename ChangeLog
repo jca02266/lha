@@ -1,3 +1,7 @@
+2008-03-07  Koji Arai  <arai@users.sourceforge.jp>
+
+	* man/lha.1: correct the description about the -m command.
+
 2008-03-04  Koji Arai  <arai@users.sourceforge.jp>
 
 	* man/lha.1: changed a little. the BUGS section was removed.
