@@ -600,7 +600,7 @@ static LzHeaderList *dirinfo;
 
 static void add_dirinfo(char *name, LzHeader *hdr)
 {
-    LzHeaderList *p;
+    LzHeaderList *p, *tmp, top;
 
     if (memcmp(hdr->method, LZHDIRS_METHOD, 5) != 0)
         return;
@@ -611,16 +611,54 @@ static void add_dirinfo(char *name, LzHeader *hdr)
     strncpy(p->hdr.name, name, sizeof(p->hdr.name));
     p->hdr.name[sizeof(p->hdr.name)-1] = 0;
 
+#if 0
+    /* push front */
     {
-        LzHeaderList *tmp = dirinfo;
+        tmp = dirinfo;
         dirinfo = p;
         dirinfo->next = tmp;
     }
+#else
+
+    /*
+      reverse sorted by pathname order
+
+         p->hdr.name = "a"
+
+         dirinfo->hdr.name             = "a/b/d"
+         dirinfo->next->hdr.name       = "a/b/c"
+         dirinfo->next->next->hdr.name = "a/b"
+
+       result:
+
+         dirinfo->hdr.name                   = "a/b/d"
+         dirinfo->next->hdr.name             = "a/b/c"
+         dirinfo->next->next->hdr.name       = "a/b"
+         dirinfo->next->next->next->hdr.name = "a"
+    */
+
+    top.next = dirinfo;
+
+    for (tmp = &top; tmp->next; tmp = tmp->next) {
+        if (strcmp(p->hdr.name, tmp->next->hdr.name) > 0) {
+            p->next = tmp->next;
+            tmp->next = p;
+            break;
+        }
+    }
+    if (tmp->next == NULL) {
+        p->next = NULL;
+        tmp->next = p;
+    }
+
+    dirinfo = top.next;
+#endif
 }
 
 static void adjust_dirinfo()
 {
     while (dirinfo) {
+        /* message("adjusting [%s]", dirinfo->hdr.name); */
         adjust_info(dirinfo->hdr.name, &dirinfo->hdr);
 
         {

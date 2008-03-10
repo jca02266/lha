@@ -122,6 +122,17 @@ append_it(name, oafp, nafp)
             break;
         }
 
+        if (!sort_contents) {
+            if (!noexec) {
+                fseeko(oafp, old_header, SEEK_SET);
+                copy_old_one(oafp, nafp, &ahdr);
+            }
+            else
+                fseeko(oafp, ahdr.packed_size, SEEK_CUR);
+            cmp = -1;           /* to be -1 always */
+            continue;
+        }
+
         cmp = strcmp(ahdr.name, hdr.name);
         if (cmp < 0) {          /* SKIP */
             /* copy old to new */
@@ -166,7 +177,7 @@ append_it(name, oafp, nafp)
 
     if (fp) fclose(fp);
 
-    if (directory) {            /* recursive call */
+    if (directory && recursive_archiving) {            /* recursive call */
         if (find_files(name, &filec, &filev)) {
             for (i = 0; i < filec; i++)
                 oafp = append_it(filev[i], oafp, nafp);
@@ -400,7 +411,7 @@ remove_one(name)
 #ifdef S_IFLNK
     else if (is_symlink(&stbuf)) {
         if (noexec)
-            printf("REMOVE SYMBOLIC LINK %s.\n", name);
+            message("REMOVE SYMBOLIC LINK %s.", name);
         else if (unlink(name) < 0)
             warning("Cannot remove", name);
         else if (verbose)

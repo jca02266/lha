@@ -1,3 +1,22 @@
+2008-03-08  Koji Arai  <arai@users.sourceforge.jp>
+
+	* src/lhext.c (add_dirinfo): no longer suppose that contents of the LZH archive is sorted by pathname.
+
+	* tests/lha-test18: added tests for above.
+
+	* src/lharc.c (parse_suboption): added debugging option `--debug=nosort' and `--debug=norecursion'
+	for above tests.
+
+	* src/lha.h: added two global variables for above options: sort_contents, recursive_archiving;
+
+	* src/lharc.c (init_variable): ditto.
+	(sort_files): no sort arguments with --debug=nosort.
+	(find_files): no sort directory entries with --debug=nosort.
+
+	* src/lhadd.c (append_it): non-sorted and non-recursive archiving with --debug=nosort and --debug=norecursion.
+
+	* src/lhadd.c (remove_one): should use the message() instead of printf().
+
 2008-03-07  Koji Arai  <arai@users.sourceforge.jp>
 
 	* man/lha.1: correct the description about the -m command.

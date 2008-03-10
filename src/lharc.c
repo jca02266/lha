@@ -106,6 +106,8 @@ init_variable()     /* Added N.Watazaki */
 
     extract_broken_archive = FALSE;
     decode_macbinary_contents = FALSE;
+    sort_contents = TRUE;
+    recursive_archiving = TRUE;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -214,6 +216,7 @@ parse_suboption(int argc, char **argv)
         ARCHIVE_KANJI_CODE_OPTION,
         TRADITIONAL_BEHAVIOR,
         IGNORE_MAC_FILES,
+        DEBUG_OPTION,
     };
 
     struct option long_options[] = {
@@ -227,6 +230,7 @@ parse_suboption(int argc, char **argv)
         {"convert-filename-case", no_argument, &convertcase, TRUE},
         {"traditional", no_argument, 0, TRADITIONAL_BEHAVIOR},
         {"ignore-mac-files", no_argument, 0, IGNORE_MAC_FILES},
+        {"debug", required_argument, 0, DEBUG_OPTION},
         {0, 0, 0, 0}
     };
     int i;
@@ -442,6 +446,25 @@ parse_suboption(int argc, char **argv)
             exclude_files[i+1] = xstrdup(".DS_Store");
             exclude_files[i+2] = xstrdup("Icon\r");
             exclude_files[i+3] = 0;
+            break;
+
+        case DEBUG_OPTION:
+            if (!optarg) {
+                error("debugging item is not specified for --%s=item",
+                      long_options[option_index].name);
+                return -1;
+            }
+            if (strcmp(optarg, "nosort") == 0) {
+                sort_contents = FALSE;
+            }
+            else if (strcmp(optarg, "norecursion") == 0) {
+                recursive_archiving = FALSE;
+            }
+            else {
+                error("unknown debugging item \"%s\" for --%s=item",
+                      optarg, long_options[option_index].name);
+                return -1;
+            }
             break;
 
         default:
@@ -845,7 +868,7 @@ sort_by_ascii(a, b)
 static void
 sort_files()
 {
-    if (cmd_filec > 1)
+    if (cmd_filec > 1 && sort_contents)
         qsort(cmd_filev, cmd_filec, sizeof(char *), sort_by_ascii);
 }
 
@@ -1139,7 +1162,7 @@ find_files(name, v_filec, v_filev)
     }
     closedir(dirp);
     finish_sp(&sp, v_filec, v_filev);
-    if (*v_filec > 1)
+    if (*v_filec > 1 && sort_contents)
         qsort(*v_filev, *v_filec, sizeof(char *), sort_by_ascii);
     cleaning_files(v_filec, v_filev);
 

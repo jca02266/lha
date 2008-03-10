@@ -329,8 +329,13 @@ EXTERN boolean  verify_mode;
 EXTERN int      quiet_mode;
 
 EXTERN boolean backup_old_archive;
-EXTERN boolean  extract_broken_archive;
+EXTERN boolean extract_broken_archive;
 EXTERN boolean decode_macbinary_contents;
+
+/* for debugging */
+EXTERN boolean sort_contents;
+EXTERN boolean recursive_archiving;
+
 
 /* ------------------------------------------------------------------------ */
 /*  Globale Variable                                                        */

@@ -13,15 +13,92 @@ chmod 544 test-tmp1
 
 $lha c test-tmp1.lzh test-tmp1
 							check $? $LINENO
-
-$lha xw=test-tmp2 test-tmp1.lzh
+$lha v test-tmp1.lzh
+							check $? $LINENO
+$lha xw=test-tmp1x test-tmp1.lzh
 							check $? $LINENO
 
-diff -r test-tmp2/test-tmp1 test-tmp1
+diff -r test-tmp1x/test-tmp1 test-tmp1
 							check $? $LINENO
 
-ls -ld test-tmp2/test-tmp1                    | grep '^dr-xr--r--' &&
-ls -ld test-tmp2/test-tmp1/test1              | grep '^drwxr--r--' &&
-ls -ld test-tmp2/test-tmp1/test1/test2        | grep '^drwxrw-rw-' &&
-ls -ld test-tmp2/test-tmp1/test1/test2/test-1 | grep '^dr-xr--r--'
+ls -ld test-tmp1x/test-tmp1                    | grep '^dr-xr--r--' &&
+ls -ld test-tmp1x/test-tmp1/test1              | grep '^drwxr--r--' &&
+ls -ld test-tmp1x/test-tmp1/test1/test2        | grep '^drwxrw-rw-' &&
+ls -ld test-tmp1x/test-tmp1/test1/test2/test-1 | grep '^dr-xr--r--'
+							check $? $LINENO
+echo -------------------------------------------------------------------
+
+mkdir -p test-tmp2/test1/test2 &&
+cp -r test-1 test-tmp2/test1/test2 &&
+chmod 766 test-tmp2/test1/test2 &&
+chmod 744 test-tmp2/test1 &&
+chmod 544 test-tmp2
+							check $? $LINENO
+
+
+change_timestamp 01020304.05 test-tmp2
+							check $? $LINENO
+
+$lha c test-tmp3.lzh ./test-tmp2/test1/test2 \
+                     ./test-tmp2/test1 \
+                     ./test-tmp2
+							check $? $LINENO
+
+$lha c test-tmp2.lzh ./test-tmp2/test1/test2
+							check $? $LINENO
+$lha a --debug=norecursion --debug=nosort test-tmp2.lzh \
+                     ./test-tmp2/test1/
+							check $? $LINENO
+
+chmod 444 test-tmp2
+							check $? $LINENO
+$lha a --debug=norecursion --debug=nosort test-tmp2.lzh \
+                     ./test-tmp2/
+							check $? $LINENO
+
+# PERMISSION  UID  GID    PACKED    SIZE  RATIO METHOD CRC     STAMP     NAME
+# ---------- ----------- ------- ------- ------ ---------- ------------ ----------
+# drwxrw-rw-  1010/513         0       0 ****** -lhd- 0000 Mar  8 20:27 test-tmp2/test1/test2/
+# drwxr-xr-x  1010/513         0       0 ****** -lhd- 0000 Mar  8 20:27 test-tmp2/test1/test2/test-1/
+# -rw-r--r--  1010/513        16     400   4.0% -lh5- 6e5b Mar  8 20:27 test-tmp2/test1/test2/test-1/test-a
+# -rw-r--r--  1010/513        17     400   4.2% -lh5- 8fe6 Mar  8 20:27 test-tmp2/test1/test2/test-1/test-b
+# -rw-r--r--  1010/513        17     400   4.2% -lh5- 0861 Mar  8 20:27 test-tmp2/test1/test2/test-1/test-c
+# drwxr--r--  1010/513         0       0 ****** -lhd- 0000 Mar  8 20:27 test-tmp2/test1/
+# dr--r--r--  1010/513         0       0 ****** -lhd- 0000 Jan  2 03:04 test-tmp2/
+$lha v test-tmp2.lzh
+							check $? $LINENO
+
+$lha v test-tmp3.lzh
+							check $? $LINENO
+
+$lha xqw=test-tmp2x test-tmp2.lzh
+							check $? $LINENO
+
+$lha xqw=test-tmp3x test-tmp3.lzh
+							check $? $LINENO
+
+ls -ld test-tmp2x/test-tmp2                    | grep '^dr--r--r--'
+							check $? $LINENO
+chmod 544 test-tmp2x/test-tmp2
+							check $? $LINENO
+
+find test-tmp2x | xargs ls -ld
+# drwxr-xr-x+ 3 arai ‚È‚µ   0 Mar  8 20:30 test-tmp2x
+# dr-xr--r--+ 3 arai ‚È‚µ   0 Jan  2 03:04 test-tmp2x/test-tmp2
+# drwxr--r--+ 3 arai ‚È‚µ   0 Mar  8 20:30 test-tmp2x/test-tmp2/test1
+# drwxrw-rw-+ 3 arai ‚È‚µ   0 Mar  8 20:30 test-tmp2x/test-tmp2/test1/test2
+# drwxr-xr-x+ 2 arai ‚È‚µ   0 Mar  8 20:30 test-tmp2x/test-tmp2/test1/test2/test-1
+# -rw-r--r--  1 arai ‚È‚µ 400 Mar  8 20:30 test-tmp2x/test-tmp2/test1/test2/test-1/test-a
+# -rw-r--r--  1 arai ‚È‚µ 400 Mar  8 20:30 test-tmp2x/test-tmp2/test1/test2/test-1/test-b
+# -rw-r--r--  1 arai ‚È‚µ 400 Mar  8 20:30 test-tmp2x/test-tmp2/test1/test2/test-1/test-c
+# dr-xr--r--+ 3 arai ‚È‚µ 0 Jan  2 03:04 test-tmp2x/test-tmp2
+# drwxr--r--+ 3 arai ‚È‚µ 0 Mar  8 20:30 test-tmp2x/test-tmp2/test1
+# drwxrw-rw-+ 3 arai ‚È‚µ 0 Mar  8 20:30 test-tmp2x/test-tmp2/test1/test2
+
+diff -r test-tmp2x test-tmp3x
+							check $? $LINENO
+
+ls -ld test-tmp2x/test-tmp2                    | grep '^dr-xr--r--' &&
+ls -ld test-tmp2x/test-tmp2/test1              | grep '^drwxr--r--' &&
+ls -ld test-tmp2x/test-tmp2/test1/test2        | grep '^drwxrw-rw-'
 							check $? $LINENO
