@@ -20,7 +20,32 @@ $lha l test-1.lzh
 
 test -d test-1 || mkdir test-1
 mv test-[abc] test-1
-$lha x test-1.lzh
+$lha x test-1.lzh --debug=dumplzss > test-tmp-stdout
+							check $? $LINENO
+cat test-tmp-stdout
+cat <<EOF | diff test-tmp-stdout -
+
+0000 66(f)
+0001 6f(o)
+0002 6f(o)
+0003 0a(?)
+0004 <256 0>
+0260 <140 256>
+
+0000 62(b)
+0001 61(a)
+0002 72(r)
+0003 0a(?)
+0004 <256 0>
+0260 <140 256>
+
+0000 62(b)
+0001 61(a)
+0002 7a(z)
+0003 0a(?)
+0004 <256 0>
+0260 <140 256>
+EOF
 							check $? $LINENO
 diff test-1/test-a test-a
 							check $? $LINENO

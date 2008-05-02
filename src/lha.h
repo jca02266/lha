@@ -335,6 +335,7 @@ EXTERN boolean decode_macbinary_contents;
 /* for debugging */
 EXTERN boolean sort_contents;
 EXTERN boolean recursive_archiving;
+EXTERN boolean dump_lzss;
 
 
 /* ------------------------------------------------------------------------ */

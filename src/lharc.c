@@ -108,6 +108,7 @@ init_variable()     /* Added N.Watazaki */
     decode_macbinary_contents = FALSE;
     sort_contents = TRUE;
     recursive_archiving = TRUE;
+    dump_lzss = FALSE;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -450,7 +451,7 @@ parse_suboption(int argc, char **argv)
 
         case DEBUG_OPTION:
             if (!optarg) {
-                error("debugging item is not specified for --%s=item",
+                error("debugging item is not specified for --%s",
                       long_options[option_index].name);
                 return -1;
             }
@@ -460,8 +461,12 @@ parse_suboption(int argc, char **argv)
             else if (strcmp(optarg, "norecursion") == 0) {
                 recursive_archiving = FALSE;
             }
+            else if (strcmp(optarg, "dumplzss") == 0) {
+                dump_lzss = TRUE;
+                quiet = TRUE;
+            }
             else {
-                error("unknown debugging item \"%s\" for --%s=item",
+                error("unknown debugging item \"%s\" for --%s",
                       optarg, long_options[option_index].name);
                 return -1;
             }

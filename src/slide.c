@@ -430,9 +430,15 @@ decode(interface)
     while (decode_count < origsize) {
         c = decode_set.decode_c();
         if (c < 256) {
-#ifdef DEBUG
-          fprintf(fout, "%u C %02X\n", decode_count, c);
+            if (dump_lzss) {
+#if SIZEOF_OFF_T == 8
+                printf("%04llu %02x(%c)\n",
+                       decode_count, c, isprint(c) ? c : '?');
+#else
+                printf("%04lu %02x(%c)\n",
+                       decode_count, c, isprint(c) ? c : '?');
 #endif
+            }
             dtext[loc++] = c;
             if (loc == dicsiz) {
                 fwrite_crc(&crc, dtext, dicsiz, outfile);
@@ -447,25 +453,35 @@ decode(interface)
             match.len = c - adjust;
             match.off = decode_set.decode_p() + 1;
             matchpos = (loc - match.off) & dicsiz1;
-#ifdef DEBUG
-            fprintf(fout, "%u M <%u %u> ",
-                    decode_count, match.len, decode_count-match.off);
+            if (dump_lzss) {
+#if SIZEOF_OFF_T == 8
+                printf("%04llu <%u %llu>\n",
+                       decode_count, match.len, decode_count-match.off);
+#else
+                printf("%04lu <%u %lu>\n",
+                       decode_count, match.len, decode_count-match.off);
 #endif
+            }
+
             decode_count += match.len;
             for (i = 0; i < match.len; i++) {
                 c = dtext[(matchpos + i) & dicsiz1];
-#ifdef DEBUG
-                fprintf(fout, "%02X ", c & 0xff);
-#endif
+                /*
+                if (dump_lzss) {
+                    printf(" %02x", c & 0xff);
+                }
+                */
                 dtext[loc++] = c;
                 if (loc == dicsiz) {
                     fwrite_crc(&crc, dtext, dicsiz, outfile);
                     loc = 0;
                 }
             }
-#ifdef DEBUG
-            fprintf(fout, "\n");
-#endif
+            /*
+            if (dump_lzss) {
+                printf("\n");
+            }
+            */
         }
     }
     if (loc != 0) {

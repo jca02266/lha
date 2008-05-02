@@ -73,6 +73,10 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method, read_sizep)
                         original_size,
                         verify_mode ? "Testing " : "Melting ",
                         2048);
+
+        if (dump_lzss)
+            printf("no use slide\n");
+
         *read_sizep = copyfile(infp, (verify_mode ? NULL : outfp),
                                original_size, 2, &crc);
     }
@@ -81,6 +85,9 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method, read_sizep)
                         original_size,
                         verify_mode ? "Testing " : "Melting ",
                         1 << interface.dicbit);
+        if (dump_lzss)
+            printf("\n");
+
         crc = decode(&interface);
         *read_sizep = interface.read_size;
     }

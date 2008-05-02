@@ -1,3 +1,7 @@
+2008-05-02  Koji Arai  <arai@users.sourceforge.jp>
+
+	* added a long option --debug=dumplzss which display debugging information for the LZSS.
+
 2008-03-08  Koji Arai  <arai@users.sourceforge.jp>
 
 	* src/lhext.c (add_dirinfo): no longer suppose that contents of the LZH archive is sorted by pathname.
