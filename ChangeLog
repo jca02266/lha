@@ -1,3 +1,7 @@
+2008-05-14  Koji Arai  <arai@users.sourceforge.jp>
+
+	* src/lhext.c (extract_one): The -t command should not affect extracting file attributes.
+
 2008-05-02  Koji Arai  <arai@users.sourceforge.jp>
 
 	* added a long option --debug=dumplzss which display debugging information for the LZSS.

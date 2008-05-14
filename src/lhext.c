@@ -497,7 +497,7 @@ extract_one(afp, hdr)
             error("Unknown file type: \"%s\". use `f' option to force extract.", name);
     }
 
-    if (!output_to_stdout) {
+    if (!output_to_stdout && !verify_mode) {
         if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_DIRECTORY)
             adjust_info(name, hdr);
     }
