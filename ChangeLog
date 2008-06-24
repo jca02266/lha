@@ -1,3 +1,7 @@
+2008-06-24  Koji Arai  <arai@users.sourceforge.jp>
+
+	* Hacking_of_LHa: updated.
+
 2008-05-14  Koji Arai  <arai@users.sourceforge.jp>
 
 	* src/lhext.c (extract_one): The -t command should not affect extracting file attributes.
