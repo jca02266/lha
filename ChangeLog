@@ -1,3 +1,11 @@
+2008-08-03  Koji Arai  <arai@users.sourceforge.jp>
+
+	* src/header.c (convert_filename): Fixed a bug:
+	If the utf8 is specified for the --system-kanji-code and the path
+	separator is used with the backslash (0x5c) in archive (level 0
+	header is used 0x5c as path separator), when extracting, it has been
+	converted to the U+00A5 (yen sign) instead of the slash (0x2f).
+
 2008-06-24  Koji Arai  <arai@users.sourceforge.jp>
 
 	* Hacking_of_LHa: updated.
