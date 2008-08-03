@@ -279,9 +279,15 @@ convert_filename(name, len, size,
     }
 
     if (from_code == CODE_SJIS && to_code == CODE_UTF8) {
-        for (i = 0; i < len; i++)
-            /* FIXME: provisionally fix for the Mac OS CoreFoundation */
-            if ((unsigned char)name[i] == LHA_PATHSEP)  name[i] = '/';
+        for (i = 0; i < len; i++) {
+            if (SJIS_FIRST_P(name[i]) && SJIS_SECOND_P(name[i+1]))
+                i++;
+            else {
+                /* FIXME: provisionally fix for the Mac OS CoreFoundation */
+                if (strchr(from_delim, name[i]))
+                    name[i] = '/';
+            }
+        }
         sjis_to_utf8(tmp, name, sizeof(tmp));
         strncpy(name, tmp, size);
         name[size-1] = 0;
@@ -1337,7 +1343,6 @@ copy_path_element(char *dst, const char *src, int size)
 static int
 canon_path(char *newpath, char *path, size_t size)
 {
-    int len;
     char *p = newpath;
 
     path = remove_leading_dots(path);

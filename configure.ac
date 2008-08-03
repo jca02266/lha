@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([LHa for UNIX], 1.14i-ac20080515, arai@users.sourceforge.jp, lha)
+AC_INIT([LHa for UNIX], 1.14i-ac20080802, arai@users.sourceforge.jp, lha)
 AC_DEFINE_UNQUOTED(LHA_CONFIGURE_OPTIONS, "$ac_configure_args",
 	    [specified options for the configure script.])
 AC_CANONICAL_HOST
