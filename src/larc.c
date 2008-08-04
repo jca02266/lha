@@ -82,11 +82,11 @@ decode_start_lz5( /*void*/ )
 
     flagcnt = 0;
     for (i = 0; i < 256; i++)
-        memset(&text[i * 13 + 18], i, 13);
+        memset(&dtext[i * 13 + 18], i, 13);
     for (i = 0; i < 256; i++)
-        text[256 * 13 + 18 + i] = i;
+        dtext[256 * 13 + 18 + i] = i;
     for (i = 0; i < 256; i++)
-        text[256 * 13 + 256 + 18 + i] = 255 - i;
-    memset(&text[256 * 13 + 512 + 18], 0, 128);
-    memset(&text[256 * 13 + 512 + 128 + 18], ' ', 128 - 18);
+        dtext[256 * 13 + 256 + 18 + i] = 255 - i;
+    memset(&dtext[256 * 13 + 512 + 18], 0, 128);
+    memset(&dtext[256 * 13 + 512 + 128 + 18], ' ', 128 - 18);
 }

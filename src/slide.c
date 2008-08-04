@@ -386,7 +386,6 @@ decode(interface)
 {
     unsigned int i, c;
     unsigned int dicsiz1, adjust;
-    unsigned char *dtext;
     unsigned int crc;
 
 #ifdef DEBUG

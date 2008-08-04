@@ -363,7 +363,8 @@ EXTERN unsigned short dicbit;
 EXTERN unsigned short maxmatch;
 EXTERN off_t decode_count;
 EXTERN unsigned long loc;           /* short -> long .. Changed N.Watazaki */
-EXTERN unsigned char *text;
+EXTERN unsigned char *text;         /* encoding buffer */
+EXTERN unsigned char *dtext;        /* decoding buffer */
 
 /* huf.c */
 #ifndef LHA_MAIN_SRC  /* t.okamoto 96/2/20 */
