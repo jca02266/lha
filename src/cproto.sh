@@ -22,6 +22,7 @@ SOURCES='append.c bitio.c crcio.c dhuf.c extract.c header.c
 	huf.c indicator.c larc.c lhadd.c lharc.c lhext.c
 	lhlist.c maketbl.c maketree.c patmatch.c
 	shuf.c slide.c util.c
+	pm2.c
 '
 
 test -f prototypes.h && mv -f prototypes.h prototypes.h.bak

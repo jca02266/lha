@@ -64,10 +64,6 @@ void decode_start_lzs P_((void));
 unsigned short decode_c_lz5 P_((void));
 unsigned short decode_p_lz5 P_((void));
 void decode_start_lz5 P_((void));
-/* pm2.c */
-unsigned short decode_c_pm2 P_((void));
-unsigned short decode_p_pm2 P_((void));
-void decode_start_pm2 P_((void));
 /* lhadd.c */
 FILE *append_it P_((char *name, FILE *oafp, FILE *nafp));
 FILE *build_temporary_file P_((void));
@@ -133,6 +129,10 @@ char *xstrrchr P_((const char *s, int c));
 char *xmemchr P_((const char *s, int c, size_t n));
 char *xmemrchr P_((const char *s, int c, size_t n));
 int str_safe_copy P_((char *dst, const char *src, int dstsz));
+/* pm2.c */
+void decode_start_pm2 P_((void));
+unsigned short decode_c_pm2 P_((void));
+unsigned short decode_p_pm2 P_((void));
 
 /* util.c */
 #if !HAVE_MEMMOVE
