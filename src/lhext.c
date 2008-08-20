@@ -22,6 +22,7 @@ static char    *methods[] =
     LZHUFF4_METHOD, LZHUFF5_METHOD, LZHUFF6_METHOD, LZHUFF7_METHOD,
     LARC_METHOD, LARC5_METHOD, LARC4_METHOD,
     LZHDIRS_METHOD,
+    PMARC0_METHOD, PMARC2_METHOD,
     NULL
 };
 
@@ -262,7 +263,7 @@ extract_one(afp, hdr)
     /* 1999.4.30 t.okamoto */
     for (method = 0;; method++) {
         if (methods[method] == NULL) {
-            error("Unknown method \"%.*s\"; \"%s\" will be skiped ...",
+            error("Unknown method \"%.*s\"; \"%s\" will be skipped ...",
                   5, hdr->method, name);
             return read_size;
         }

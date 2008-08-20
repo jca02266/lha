@@ -64,6 +64,10 @@ void decode_start_lzs P_((void));
 unsigned short decode_c_lz5 P_((void));
 unsigned short decode_p_lz5 P_((void));
 void decode_start_lz5 P_((void));
+/* pm2.c */
+unsigned short decode_c_pm2 P_((void));
+unsigned short decode_p_pm2 P_((void));
+void decode_start_pm2 P_((void));
 /* lhadd.c */
 FILE *append_it P_((char *name, FILE *oafp, FILE *nafp));
 FILE *build_temporary_file P_((void));

@@ -157,6 +157,7 @@ LHx(arc) for OSK   V 2.01  Modified     1990  Momozou\n\
 LHa      for UNIX  V 1.00  Copyright(C) 1992  Masaru Oki\n\
 LHa      for UNIX  V 1.14  Modified     1995  Nobutaka Watazaki\n\
 LHa      for UNIX  V 1.14i Modified     2000  Tsugio Okamoto\n\
+LHA-PMA  for UNIX  V 2     PMA added    2000  Maarten ter Huurne\n\
                    Autoconfiscated 2001-2008  Koji Arai\n\
 ");
 

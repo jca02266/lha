@@ -62,13 +62,19 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method, read_sizep)
     case LARC4_METHOD_NUM:      /* -lz4- */
         interface.dicbit = LARC4_DICBIT;
         break;
+    case PMARC0_METHOD_NUM:     /* -pm0- */
+        interface.dicbit = PMARC0_DICBIT;
+        break;
+    case PMARC2_METHOD_NUM:     /* -pm2- */
+        interface.dicbit = PMARC2_DICBIT;
+        break;
     default:
         warning("unknown method %d", method);
         interface.dicbit = LZHUFF5_DICBIT; /* for backward compatibility */
         break;
     }
 
-    if (interface.dicbit == 0) { /* LZHUFF0_DICBIT or LARC4_DICBIT */
+    if (interface.dicbit == 0) { /* LZHUFF0_DICBIT or LARC4_DICBIT or PMARC0_DICBIT*/
         start_indicator(name,
                         original_size,
                         verify_mode ? "Testing " : "Melting ",
