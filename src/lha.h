@@ -298,6 +298,7 @@ EXTERN boolean  text_mode;
 EXTERN boolean  verbose;
 EXTERN boolean  noexec;     /* debugging option */
 EXTERN boolean  force;
+EXTERN boolean  timestamping;
 EXTERN boolean  delete_after_append;
 EXTERN int      compress_method;
 EXTERN int      header_level;
@@ -365,6 +366,7 @@ EXTERN off_t decode_count;
 EXTERN unsigned long loc;           /* short -> long .. Changed N.Watazaki */
 EXTERN unsigned char *text;         /* encoding buffer */
 EXTERN unsigned char *dtext;        /* decoding buffer */
+EXTERN time_t file_time_stamp;
 
 /* huf.c */
 #ifndef LHA_MAIN_SRC  /* t.okamoto 96/2/20 */

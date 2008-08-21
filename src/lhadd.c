@@ -206,6 +206,9 @@ find_update_files(oafp)
         if ((hdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_REGULAR) {
             if (stat(hdr.name, &stbuf) >= 0)    /* exist ? */
                 add_sp(&sp, hdr.name, strlen(hdr.name) + 1);
+            if (file_time_stamp < hdr.unix_last_modified_stamp) {
+                file_time_stamp = hdr.unix_last_modified_stamp;
+            }
         }
         else if ((hdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_DIRECTORY) {
             strcpy(name, hdr.name); /* ok */
@@ -358,6 +361,7 @@ set_archive_file_mode()
 {
     int             umask_value;
     struct stat     stbuf;
+    struct utimbuf  utimebuf;
 
     if (archive_file_gid < 0) {
         umask(umask_value = umask(0));
@@ -369,6 +373,11 @@ set_archive_file_mode()
         chown(new_archive_name, getuid(), archive_file_gid);
 
     chmod(new_archive_name, archive_file_mode);
+
+    if (timestamping) {
+        utimebuf.actime = utimebuf.modtime = file_time_stamp;
+        utime(new_archive_name, &utimebuf);
+    }
 }
 
 /* ------------------------------------------------------------------------ */

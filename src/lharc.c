@@ -64,11 +64,13 @@ init_variable()     /* Added N.Watazaki */
     verbose         = 0;
     noexec          = FALSE;    /* debugging option */
     force           = FALSE;
+    timestamping    = FALSE;
 
     compress_method = DEFAULT_LZHUFF_METHOD; /* defined in config.h */
 
     header_level    = 2;        /* level 2 */
     quiet_mode      = 0;
+    file_time_stamp = 0;
 
 #ifdef EUC
     euc_mode        = FALSE;
@@ -125,7 +127,7 @@ print_tiny_usage()
     fprintf(stdout, "\
 usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
   commands:  [axelvudmcpt]\n\
-  options:   [q[012]vnfto[567]dizg012%s%s[w=<dir>|x=<pattern>]]\n\
+  options:   [q[012]vnfto[567]dizg012s%s%s[w=<dir>|x=<pattern>]]\n\
   long options: --system-kanji-code={euc,sjis,utf8,cap}\n\
                 --archive-kanji-code={euc,sjis,utf8,cap}\n\
                 --extract-broken-archive\n\
@@ -197,6 +199,7 @@ commands:                           options:\n\
 ");
 #endif
     fprintf(stdout, "\
+                                     s  time-stamp archive (a)\n\
                                      w=<dir> specify extract directory (x/e)\n\
                                      x=<pattern>  eXclude files (a/u/c)\n\
 ");
@@ -236,7 +239,7 @@ parse_suboption(int argc, char **argv)
     };
     int i;
 
-    char short_options[256] = "q[012]vnfto[567]dizg012ew:x:";
+    char short_options[256] = "q[012]vnfto[567]dizg012esw:x:";
     /* "[...]" means optional 1 byte argument (original extention) */
 
 #if HAVE_LIBAPPLEFILE
@@ -308,6 +311,9 @@ parse_suboption(int argc, char **argv)
             decode_macbinary_contents = TRUE;
             break;
 #endif
+        case 's':
+            timestamping = TRUE;
+            break;
         case 'n':
             noexec = TRUE;
             break;
