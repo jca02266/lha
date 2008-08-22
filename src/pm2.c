@@ -1,7 +1,6 @@
 /***********************************************************
 	pm2.c -- extract pmext2 coding
 ***********************************************************/
-#include <stdio.h>
 #include "lha.h"
 #include "pm2hist.h"
 #include "pm2tree.h"

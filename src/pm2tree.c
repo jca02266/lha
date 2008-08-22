@@ -1,12 +1,8 @@
 /***********************************************************
 	pm2tree.c -- tree for pmext2 decoding
 ***********************************************************/
-
-#ifdef __STDC__
-#include <stdlib.h>
-#endif
-#include "pm2tree.h"
 #include "lha.h"
+#include "pm2tree.h"
 
 static unsigned char tree1left[32];
 static unsigned char tree1right[32];
