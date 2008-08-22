@@ -1,3 +1,9 @@
+2008-08-23  Koji Arai  <arai@users.sourceforge.jp>
+
+	* src/lhext.c (cmd_extract): stream position was adjusted by wrong value.
+
+	* src/lhext.c (extract_one): fixed misspelling.
+
 2008-08-04  Koji Arai  <arai@users.sourceforge.jp>
 
 	* src/larc.c (decode_start_lz5): should use the dtext[] instead of the text[].

@@ -277,7 +277,7 @@ extract_one(afp, hdr)
 #if 0
         for (method = 0;; method++) {
             if (methods[method] == NULL) {
-                error("Unknown method \"%.*s\"; \"%s\" will be skiped ...",
+                error("Unknown method \"%.*s\"; \"%s\" will be skipped ...",
                       5, hdr->method, name);
                 return read_size;
             }
@@ -533,7 +533,7 @@ cmd_extract()
                 /* when error occurred in extract_one(), should adjust
                    point of file stream */
                 if (pos != -1 && afp != stdin)
-                    fseeko(afp, pos + hdr.packed_size - read_size, SEEK_SET);
+                    fseeko(afp, pos + hdr.packed_size, SEEK_SET);
                 else {
                     off_t i = hdr.packed_size - read_size;
                     while (i--) fgetc(afp);
