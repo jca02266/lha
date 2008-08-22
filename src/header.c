@@ -1245,9 +1245,11 @@ seek_lha_header(fp)
     n = fread(buffer, 1, sizeof(buffer), fp);
 
     for (p = buffer; p < buffer + n; p++) {
-        if (! (p[I_METHOD]=='-' && p[I_METHOD+1]=='l' && p[I_METHOD+4]=='-'))
+        if (! (p[I_METHOD]=='-' &&
+               (p[I_METHOD+1]=='l' || p[I_METHOD+1]=='p') &&
+               p[I_METHOD+4]=='-'))
             continue;
-        /* found "-l??-" keyword (as METHOD type string) */
+        /* found "-[lp]??-" keyword (as METHOD type string) */
 
         /* level 0 or 1 header */
         if ((p[I_HEADER_LEVEL] == 0 || p[I_HEADER_LEVEL] == 1)
