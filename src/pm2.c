@@ -5,11 +5,11 @@
 #include "pm2hist.h"
 #include "pm2tree.h"
 
-static unsigned long nextcount;
-static unsigned short lastupdate;
+static off_t nextcount;
+static unsigned long lastupdate;
 
 /* repeated from slide.c */
-static unsigned short dicsiz1;
+static unsigned int dicsiz1;
 #define offset (0x100 - 2)
 
 void
@@ -39,38 +39,41 @@ decode_c_pm2(void)
         hist_update(dtext[lastupdate]);
         lastupdate = (lastupdate + 1) & dicsiz1;
     }
-    while (decode_count >= nextcount)
+
+    while (decode_count >= nextcount) {
         /* Actually it will never loop, because count doesn't grow that fast.
            However, this is the way LHA does it.
            Probably other encoding methods can have repeats larger than 256 bytes.
            Note: LHA puts this code in decode_p...
-         */
-    {
-        if (nextcount == 0x0000) {
+        */
+
+        switch (nextcount) {
+        case 0x0000:
             maketree1();
             maketree2(5);
             nextcount = 0x0400;
-        }
-        else if (nextcount == 0x0400) {
+            break;
+        case 0x0400:
             maketree2(6);
             nextcount = 0x0800;
-        }
-        else if (nextcount == 0x0800) {
+            break;
+        case 0x0800:
             maketree2(7);
             nextcount = 0x1000;
-        }
-        else if (nextcount == 0x1000) {
+            break;
+        case 0x1000:
             if (getbits(1) != 0)
                 maketree1();
             maketree2(8);
             nextcount = 0x2000;
-        }
-        else {                  /* 0x2000, 0x3000, 0x4000, ... */
+            break;
+        default:                /* 0x2000, 0x3000, 0x4000, ... */
             if (getbits(1) != 0) {
                 maketree1();
                 maketree2(8);
             }
             nextcount += 0x1000;
+            break;
         }
     }
     gettree1 = tree_get(&tree1);        /* value preserved for decode_p */

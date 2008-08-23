@@ -21,6 +21,7 @@ void
 maketree1()
 {
     int i, nbits, x;
+
     tree1bound = getbits(5);
     mindepth = getbits(3);
     if (mindepth == 0) {
@@ -101,7 +102,7 @@ tree_rebuild(struct tree *t,
     unsigned char *parentarr, d;
     int i, curr, empty, n;
 
-    parentarr = (unsigned char *)malloc(bound * sizeof(unsigned char));
+    parentarr = (unsigned char *)xmalloc(bound);
     t->root = 0;
     for (i = 0; i < bound; i++) {
         t->leftarr[i] = 0;
@@ -118,38 +119,47 @@ tree_rebuild(struct tree *t,
     empty = mindepth;
     for (d = mindepth; TRUE; d++) {
         for (i = 0; i < bound; i++) {
-            if (table[i] == d) {
-                if (t->leftarr[curr] == 0)
-                    t->leftarr[curr] = i | 128;
-                else {
-                    t->rightarr[curr] = i | 128;
-                    n = 0;
-                    while (t->rightarr[curr] != 0) {
-                        if (curr == 0) {        /* root? -> done */
-                            free(parentarr);
-                            return;
-                        }
-                        curr = parentarr[curr];
-                        n++;
-                    }
-                    t->rightarr[curr] = empty;
-                    for (;;) {
-                        parentarr[empty] = curr;
-                        curr = empty;
-                        empty++;
+            if (table[i] != d)
+                continue;
 
-                        n--;
-                        if (n == 0)
-                            break;
-                        t->leftarr[curr] = empty;
-                    }
+            if (t->leftarr[curr] == 0) {
+                t->leftarr[curr] = i | 128;
+                continue;
+            }
+
+            t->rightarr[curr] = i | 128;
+            n = 0;
+            while (t->rightarr[curr] != 0) {
+                if (curr == 0) {        /* root? -> done */
+                    free(parentarr);
+                    return;
                 }
+                curr = parentarr[curr];
+                n++;
+            }
+
+            t->rightarr[curr] = empty;
+            for (;;) {
+                parentarr[empty] = curr;
+                curr = empty;
+                empty++;
+
+                n--;
+                if (n == 0)
+                    break;
+                t->leftarr[curr] = empty;
             }
         }
+
         if (t->leftarr[curr] == 0)
             t->leftarr[curr] = empty;
         else
             t->rightarr[curr] = empty;
+
+        if (empty >= bound) {
+            error("bad archive");
+            exit(1);
+        }
 
         parentarr[empty] = curr;
         curr = empty;
