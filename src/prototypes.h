@@ -95,7 +95,6 @@ FILE *xfopen P_((char *name, char *mode));
 FILE *open_old_archive P_((void));
 int inquire P_((char *msg, char *name, char *selective));
 void write_archive_tail P_((FILE *nafp));
-void copy_old_one P_((FILE *oafp, FILE *nafp, LzHeader *hdr));
 void lha_exit P_((int status));
 /* lhext.c */
 void cmd_extract P_((void));

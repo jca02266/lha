@@ -13,7 +13,29 @@ static void     remove_files();
 
 static char     new_archive_name_buffer[FILENAME_LENGTH];
 static char    *new_archive_name;
-/* ------------------------------------------------------------------------ */
+static time_t most_recent;      /* for time-stamp archiving */
+
+static void
+copy_old_one(oafp, nafp, hdr)
+    FILE           *oafp, *nafp;
+    LzHeader       *hdr;
+{
+    if (noexec) {
+        fseeko(oafp, hdr->header_size + hdr->packed_size, SEEK_CUR);
+    }
+    else {
+        reading_filename = archive_name;
+        writing_filename = temporary_name;
+        copyfile(oafp, nafp, hdr->header_size + hdr->packed_size, 0, 0);
+
+        if (!((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK ||
+              (hdr->unix_mode & UNIX_FILE_DIRECTORY) == UNIX_FILE_DIRECTORY)) {
+            if (most_recent < hdr->unix_last_modified_stamp)
+                most_recent = hdr->unix_last_modified_stamp;
+        }
+    }
+}
+
 static void
 add_one(fp, nafp, hdr)
     FILE           *fp, *nafp;
@@ -24,6 +46,12 @@ add_one(fp, nafp, hdr)
 
     reading_filename = hdr->name;
     writing_filename = temporary_name;
+
+    if (!((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK ||
+          (hdr->unix_mode & UNIX_FILE_DIRECTORY) == UNIX_FILE_DIRECTORY)) {
+        if (most_recent < hdr->unix_last_modified_stamp)
+            most_recent = hdr->unix_last_modified_stamp;
+    }
 
     if (!fp && generic_format)  /* [generic] doesn't need directory info. */
         return;
@@ -206,9 +234,6 @@ find_update_files(oafp)
         if ((hdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_REGULAR) {
             if (stat(hdr.name, &stbuf) >= 0)    /* exist ? */
                 add_sp(&sp, hdr.name, strlen(hdr.name) + 1);
-            if (file_time_stamp < hdr.unix_last_modified_stamp) {
-                file_time_stamp = hdr.unix_last_modified_stamp;
-            }
         }
         else if ((hdr.unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_DIRECTORY) {
             strcpy(name, hdr.name); /* ok */
@@ -361,7 +386,6 @@ set_archive_file_mode()
 {
     int             umask_value;
     struct stat     stbuf;
-    struct utimbuf  utimebuf;
 
     if (archive_file_gid < 0) {
         umask(umask_value = umask(0));
@@ -374,8 +398,9 @@ set_archive_file_mode()
 
     chmod(new_archive_name, archive_file_mode);
 
-    if (timestamping) {
-        utimebuf.actime = utimebuf.modtime = file_time_stamp;
+    if (timestamp_archive && most_recent) {
+        struct utimbuf  utimebuf;
+        utimebuf.actime = utimebuf.modtime = most_recent;
         utime(new_archive_name, &utimebuf);
     }
 }
@@ -534,6 +559,7 @@ cmd_add()
                 goto next;
         }
 
+        most_recent = 0;
         oafp = append_it(cmd_filev[i], oafp, nafp);
     next:
         ;
@@ -582,10 +608,10 @@ cmd_add()
 
             temporary_to_new_archive_file(new_archive_size);
         }
-    }
 
-    /* set new archive file mode/group */
-    set_archive_file_mode();
+        /* set new archive file mode/group */
+        set_archive_file_mode();
+    }
 
     /* remove archived files */
     if (delete_after_append)
@@ -600,6 +626,8 @@ cmd_delete()
 {
     FILE *oafp, *nafp;
     off_t new_archive_size;
+
+    most_recent = 0;
 
     /* open old archive if exist */
     if ((oafp = open_old_archive()) == NULL)
@@ -667,10 +695,10 @@ cmd_delete()
     if (!noexec) {
         if (rename(temporary_name, new_archive_name) < 0)
             temporary_to_new_archive_file(new_archive_size);
-    }
 
-    /* set new archive file mode/group */
-    set_archive_file_mode();
+        /* set new archive file mode/group */
+        set_archive_file_mode();
+    }
 
     return;
 }

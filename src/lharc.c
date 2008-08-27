@@ -64,13 +64,12 @@ init_variable()     /* Added N.Watazaki */
     verbose         = 0;
     noexec          = FALSE;    /* debugging option */
     force           = FALSE;
-    timestamping    = FALSE;
+    timestamp_archive = FALSE;
 
     compress_method = DEFAULT_LZHUFF_METHOD; /* defined in config.h */
 
     header_level    = 2;        /* level 2 */
     quiet_mode      = 0;
-    file_time_stamp = 0;
 
 #ifdef EUC
     euc_mode        = FALSE;
@@ -127,12 +126,13 @@ print_tiny_usage()
     fprintf(stdout, "\
 usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
   commands:  [axelvudmcpt]\n\
-  options:   [q[012]vnfto[567]dizg012s%s%s[w=<dir>|x=<pattern>]]\n\
+  options:   [q[012]vnfto[567]dizg012%s%s[w=<dir>|x=<pattern>]]\n\
   long options: --system-kanji-code={euc,sjis,utf8,cap}\n\
                 --archive-kanji-code={euc,sjis,utf8,cap}\n\
                 --extract-broken-archive\n\
                 --convert-filename-case\n\
-		--ignore-mac-files\n\
+                --ignore-mac-files\n\
+                --timestamp-archive\n\
                 --traditional\n\
                 --help\n\
                 --version\n"
@@ -199,7 +199,6 @@ commands:                           options:\n\
 ");
 #endif
     fprintf(stdout, "\
-                                     s  time-stamp archive (a)\n\
                                      w=<dir> specify extract directory (x/e)\n\
                                      x=<pattern>  eXclude files (a/u/c)\n\
 ");
@@ -234,12 +233,13 @@ parse_suboption(int argc, char **argv)
         {"convert-filename-case", no_argument, &convertcase, TRUE},
         {"traditional", no_argument, 0, TRADITIONAL_BEHAVIOR},
         {"ignore-mac-files", no_argument, 0, IGNORE_MAC_FILES},
+        {"timestamp-archive", no_argument, &timestamp_archive, 1},
         {"debug", required_argument, 0, DEBUG_OPTION},
         {0, 0, 0, 0}
     };
     int i;
 
-    char short_options[256] = "q[012]vnfto[567]dizg012esw:x:";
+    char short_options[256] = "q[012]vnfto[567]dizg012ew:x:";
     /* "[...]" means optional 1 byte argument (original extention) */
 
 #if HAVE_LIBAPPLEFILE
@@ -311,9 +311,6 @@ parse_suboption(int argc, char **argv)
             decode_macbinary_contents = TRUE;
             break;
 #endif
-        case 's':
-            timestamping = TRUE;
-            break;
         case 'n':
             noexec = TRUE;
             break;
@@ -1454,21 +1451,6 @@ write_archive_tail(nafp)
 }
 
 /* ------------------------------------------------------------------------ */
-void
-copy_old_one(oafp, nafp, hdr)
-    FILE           *oafp, *nafp;
-    LzHeader       *hdr;
-{
-    if (noexec) {
-        fseeko(oafp, hdr->header_size + hdr->packed_size, SEEK_CUR);
-    }
-    else {
-        reading_filename = archive_name;
-        writing_filename = temporary_name;
-        copyfile(oafp, nafp, hdr->header_size + hdr->packed_size, 0, 0);
-    }
-}
-
 #undef exit
 
 void

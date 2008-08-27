@@ -611,12 +611,9 @@ get_extended_header(fp, hdr, header_size, hcrc)
             /* set last modified time */
             if (hdr->header_level >= 2)
                 skip_bytes(8);  /* time_t has been already set */
-            else {
+            else
                 hdr->unix_last_modified_stamp = wintime_to_unix_stamp();
-                if (file_time_stamp < hdr->unix_last_modified_stamp) {
-                    file_time_stamp = hdr->unix_last_modified_stamp;
-                }
-            }
+
             skip_bytes(8); /* last access time is ignored */
 
             break;
@@ -671,9 +668,6 @@ get_extended_header(fp, hdr, header_size, hcrc)
 #endif
             /* UNIX last modified time */
             hdr->unix_last_modified_stamp = (time_t) get_longword();
-            if (file_time_stamp < hdr->unix_last_modified_stamp) {
-                file_time_stamp = hdr->unix_last_modified_stamp;
-            }
             break;
         default:
             /* other headers */
@@ -815,9 +809,6 @@ get_header_level0(fp, hdr, data)
     hdr->packed_size = (unsigned long)get_longword();
     hdr->original_size = (unsigned long)get_longword();
     hdr->unix_last_modified_stamp = generic_to_unix_stamp(get_longword());
-    if (file_time_stamp < hdr->unix_last_modified_stamp) {
-        file_time_stamp = hdr->unix_last_modified_stamp;
-    }
     hdr->attribute = get_byte(); /* MS-DOS attribute */
     hdr->header_level = get_byte();
     name_length = get_byte();
@@ -857,9 +848,6 @@ get_header_level0(fp, hdr, data)
         if (extend_size >= 11) {
             hdr->minor_version = get_byte();
             hdr->unix_last_modified_stamp = (time_t) get_longword();
-            if (file_time_stamp < hdr->unix_last_modified_stamp) {
-                file_time_stamp = hdr->unix_last_modified_stamp;
-            }
             hdr->unix_mode = get_word();
             hdr->unix_uid = get_word();
             hdr->unix_gid = get_word();
@@ -937,9 +925,6 @@ get_header_level1(fp, hdr, data)
     hdr->packed_size = (unsigned long)get_longword(); /* skip size */
     hdr->original_size = (unsigned long)get_longword();
     hdr->unix_last_modified_stamp = generic_to_unix_stamp(get_longword());
-    if (file_time_stamp < hdr->unix_last_modified_stamp) {
-        file_time_stamp = hdr->unix_last_modified_stamp;
-    }
     hdr->attribute = get_byte(); /* 0x20 fixed */
     hdr->header_level = get_byte();
 
@@ -1027,9 +1012,6 @@ get_header_level2(fp, hdr, data)
     hdr->packed_size = (unsigned long)get_longword();
     hdr->original_size = (unsigned long)get_longword();
     hdr->unix_last_modified_stamp = get_longword();
-    if (file_time_stamp < hdr->unix_last_modified_stamp) {
-        file_time_stamp = hdr->unix_last_modified_stamp;
-    }
     hdr->attribute = get_byte(); /* reserved */
     hdr->header_level = get_byte();
 
@@ -1110,9 +1092,6 @@ get_header_level3(fp, hdr, data)
     hdr->packed_size = (unsigned long)get_longword();
     hdr->original_size = (unsigned long)get_longword();
     hdr->unix_last_modified_stamp = get_longword();
-    if (file_time_stamp < hdr->unix_last_modified_stamp) {
-        file_time_stamp = hdr->unix_last_modified_stamp;
-    }
     hdr->attribute = get_byte(); /* reserved */
     hdr->header_level = get_byte();
 
@@ -1419,7 +1398,6 @@ init_header(name, v_stat, hdr)
     hdr->crc = 0x0000;
     hdr->extend_type = EXTEND_UNIX;
     hdr->unix_last_modified_stamp = v_stat->st_mtime;
-    if (file_time_stamp < v_stat->st_mtime) { file_time_stamp = v_stat->st_mtime; }
     /* since 00:00:00 JAN.1.1970 */
 #ifdef NOT_COMPATIBLE_MODE
     /* Please need your modification in this space. */
