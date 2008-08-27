@@ -41,7 +41,7 @@ decode_c_pm2(void)
     }
 
     while (decode_count >= nextcount) {
-        /* Actually it will never loop, because count doesn't grow that fast.
+        /* Actually it will never loop, because decode_count doesn't grow that fast.
            However, this is the way LHA does it.
            Probably other encoding methods can have repeats larger than 256 bytes.
            Note: LHA puts this code in decode_p...

@@ -35,7 +35,7 @@ maketree1()
             x = getbits(nbits);
             table1[i] = (x == 0 ? 0 : x - 1 + mindepth);
         }
-        tree_rebuild(&tree1, tree1bound, mindepth, table1);
+        tree_rebuild(&tree1, tree1bound, mindepth, 31, table1);
     }
 }
 
@@ -69,7 +69,7 @@ maketree2(int par_b) /* in use: 5 <= par_b <= 8 */
     }
     else if (count > 1) {
         mindepth = 1;
-        tree_rebuild(&tree2, 8, mindepth, table2);
+        tree_rebuild(&tree2, 8, mindepth, 7, table2);
     }
     // Note: count == 0 is possible!
     //       Excluding that possibility was a bug in version 1.
@@ -97,12 +97,42 @@ void
 tree_rebuild(struct tree *t,
              unsigned char bound,
              unsigned char mindepth,
+             unsigned char maxdepth,
              unsigned char *table)
 {
-    unsigned char *parentarr, d;
+    unsigned char parentarr[32], d;
     int i, curr, empty, n;
 
-    parentarr = (unsigned char *)xmalloc(bound);
+    /* validate table */
+    {
+        unsigned int count[32];
+        double total;
+
+        memset(count, 0, sizeof(count));
+        for (i = 0; i < bound; i++) {
+            if (table[i] > maxdepth) {
+                error("Bad table");
+                exit(1);
+            }
+            count[table[i]]++;
+        }
+        total = 0.0;
+        for (i = 1; i <= maxdepth; i++) {
+            int max_leaves = (1<<i);
+            if (count[i] > max_leaves) {
+                error("Bad table");
+                exit(1);
+            }
+            total += 1.0/max_leaves * count[i];
+        }
+        if (total != 1.0) {
+            /* check the Kraft's inequality */
+            error("Bad table");
+            exit(1);
+        }
+    }
+
+    /* initialize tree */
     t->root = 0;
     for (i = 0; i < bound; i++) {
         t->leftarr[i] = 0;
@@ -110,6 +140,7 @@ tree_rebuild(struct tree *t,
         parentarr[i] = 0;
     }
 
+    /* build tree */
     for (i = 0; i < mindepth - 1; i++) {
         t->leftarr[i] = i + 1;
         parentarr[i + 1] = i;
@@ -117,7 +148,7 @@ tree_rebuild(struct tree *t,
 
     curr = mindepth - 1;
     empty = mindepth;
-    for (d = mindepth; TRUE; d++) {
+    for (d = mindepth; d <= maxdepth; d++) {
         for (i = 0; i < bound; i++) {
             if (table[i] != d)
                 continue;
@@ -131,7 +162,6 @@ tree_rebuild(struct tree *t,
             n = 0;
             while (t->rightarr[curr] != 0) {
                 if (curr == 0) {        /* root? -> done */
-                    free(parentarr);
                     return;
                 }
                 curr = parentarr[curr];
@@ -156,13 +186,12 @@ tree_rebuild(struct tree *t,
         else
             t->rightarr[curr] = empty;
 
-        if (empty >= bound) {
-            error("bad archive");
-            exit(1);
-        }
-
         parentarr[empty] = curr;
         curr = empty;
         empty++;
     }
+
+    /* unreachable */
+    error("bad table");
+    exit(1);
 }
