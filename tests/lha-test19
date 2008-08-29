@@ -1,0 +1,69 @@
+# -*- shell-script -*-
+message archive timestamping
+
+echo -------------------------------------------------------------------
+
+cp -r test-1 test-tmp1
+							check $? $LINENO
+change_timestamp 01020304.02 test-tmp1/test-a &&
+change_timestamp 01020304.04 test-tmp1/test-b &&
+change_timestamp 01020304.06 test-tmp1/test-c
+							check $? $LINENO
+
+# most recent file is test-a
+$lha c --timestamp-archive test-tmp1.lzh test-tmp1/test-a
+							check $? $LINENO
+identical_timestamp test-tmp1.lzh test-tmp1/test-a
+							check $? $LINENO
+
+# most recent file is test-c
+$lha a --timestamp-archive test-tmp1.lzh test-tmp1/test-c
+							check $? $LINENO
+identical_timestamp test-tmp1.lzh test-tmp1/test-c
+							check $? $LINENO
+
+$lha a --timestamp-archive test-tmp1.lzh test-tmp1/test-b
+							check $? $LINENO
+# most recent file is test-c
+identical_timestamp test-tmp1.lzh test-tmp1/test-c
+							check $? $LINENO
+
+$lha dq --timestamp-archive test-tmp1.lzh test-tmp1/test-c
+							check $? $LINENO
+# most recent file is test-b
+identical_timestamp test-tmp1.lzh test-tmp1/test-b
+							check $? $LINENO
+
+
+# directory is ignored
+mkdir test-tmp1/test-d &&
+$lha a --timestamp-archive test-tmp1.lzh test-tmp1/test-d
+							check $? $LINENO
+# most recent file is test-b
+identical_timestamp test-tmp1.lzh test-tmp1/test-b
+							check $? $LINENO
+
+case `$lha --version 2>&1` in
+*djgpp* | *-pc-mingw*)
+  ;;
+*)
+  # symbolic link is ignored
+  ln -s test-c test-tmp1/test-e
+  $lha a --timestamp-archive test-tmp1.lzh test-tmp1/test-e
+							check $? $LINENO
+  ;;
+esac
+
+# most recent file is test-b
+identical_timestamp test-tmp1.lzh test-tmp1/test-b
+							check $? $LINENO
+
+$lha dq --timestamp-archive test-tmp1.lzh test-tmp1/test-b
+							check $? $LINENO
+# most recent file is test-a
+identical_timestamp test-tmp1.lzh test-tmp1/test-a
+							check $? $LINENO
+
+
+$lha vv test-tmp1.lzh
+							check $? $LINENO
