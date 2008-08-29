@@ -28,8 +28,8 @@ copy_old_one(oafp, nafp, hdr)
         writing_filename = temporary_name;
         copyfile(oafp, nafp, hdr->header_size + hdr->packed_size, 0, 0);
 
-        if (!((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK ||
-              (hdr->unix_mode & UNIX_FILE_DIRECTORY) == UNIX_FILE_DIRECTORY)) {
+        /* directory and symlink are ignored for time-stamp archiving */
+        if (memcmp(hdr->method, "-lhd-", 5) != 0) {
             if (most_recent < hdr->unix_last_modified_stamp)
                 most_recent = hdr->unix_last_modified_stamp;
         }
@@ -47,8 +47,8 @@ add_one(fp, nafp, hdr)
     reading_filename = hdr->name;
     writing_filename = temporary_name;
 
-    if (!((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK ||
-          (hdr->unix_mode & UNIX_FILE_DIRECTORY) == UNIX_FILE_DIRECTORY)) {
+    /* directory and symlink are ignored for time-stamp archiving */
+    if (memcmp(hdr->method, "-lhd-", 5) != 0) {
         if (most_recent < hdr->unix_last_modified_stamp)
             most_recent = hdr->unix_last_modified_stamp;
     }
