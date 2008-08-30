@@ -2,8 +2,6 @@
 	pm2.c -- extract pmext2 coding
 ***********************************************************/
 #include "lha.h"
-#include "pm2hist.h"
-#include "pm2tree.h"
 
 static off_t nextcount;
 static unsigned long lastupdate;
@@ -76,7 +74,7 @@ decode_c_pm2(void)
             break;
         }
     }
-    gettree1 = tree_get(&tree1);        /* value preserved for decode_p */
+    gettree1 = tree1_get();        /* value preserved for decode_p */
     if (gettree1 >= 29) {
         error("Bad table");
         exit(1);
@@ -104,7 +102,7 @@ decode_p_pm2(void)
         delta = 0;
     }
     else if (gettree1 < 28) {   /* n-byte repeat with offset 0..8191 */
-        gettree2 = tree_get(&tree2);
+        gettree2 = tree2_get();
         if (gettree2 == 0) {
             nbits = 6;
             delta = 0;

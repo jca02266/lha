@@ -2,25 +2,33 @@
 	pm2tree.c -- tree for pmext2 decoding
 ***********************************************************/
 #include "lha.h"
-#include "pm2tree.h"
+
+struct tree {
+    unsigned char root, *leftarr, *rightarr;
+};
 
 static unsigned char tree1left[32];
 static unsigned char tree1right[32];
-struct tree tree1 = { 0, tree1left, tree1right };
-static unsigned char table1[32];
+static struct tree tree1 = { 0, tree1left, tree1right };
+static unsigned char tree1bound;
 
 static unsigned char tree2left[8];
 static unsigned char tree2right[8];
-struct tree tree2 = { 0, tree2left, tree2right };
-static unsigned char table2[8];
+static struct tree tree2 = { 0, tree2left, tree2right };
 
-static unsigned char tree1bound;
-static unsigned char mindepth;
+static void tree_setsingle(struct tree *t, unsigned char value);
+static void tree_rebuild(struct tree *t, unsigned char bound,
+                  unsigned char mindepth, unsigned char maxdepth,
+                  unsigned char *table);
+static void tree_setsingle(struct tree *t, unsigned char value);
 
 void
 maketree1()
 {
     int i, nbits, x;
+    unsigned char mindepth;
+    unsigned char table1[32];
+
 
     tree1bound = getbits(5);
     mindepth = getbits(3);
@@ -43,6 +51,8 @@ void
 maketree2(int tree2bound) /* in use: 5 <= tree2bound <= 8 */
 {
     int i, count, index;
+    unsigned char mindepth;
+    unsigned char table2[8];
 
     if (tree1bound < 10)
         return;
@@ -76,7 +86,7 @@ maketree2(int tree2bound) /* in use: 5 <= tree2bound <= 8 */
 
 }
 
-int
+static int
 tree_get(struct tree *t)
 {
     int i;
@@ -87,13 +97,25 @@ tree_get(struct tree *t)
     return i & 0x7F;
 }
 
-void
+int
+tree1_get()
+{
+    return tree_get(&tree1);
+}
+
+int
+tree2_get()
+{
+    return tree_get(&tree2);
+}
+
+static void
 tree_setsingle(struct tree *t, unsigned char value)
 {
     t->root = 128 | value;
 }
 
-void
+static void
 tree_rebuild(struct tree *t,
              unsigned char bound,
              unsigned char mindepth,

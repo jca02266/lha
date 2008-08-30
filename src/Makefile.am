@@ -4,7 +4,7 @@ lha_SOURCES = append.c bitio.c crcio.c dhuf.c extract.c header.c huf.c \
 	indicator.c larc.c lha.h lha_macro.h prototypes.h lhadd.c lharc.c \
 	lhext.c lhlist.c maketbl.c maketree.c patmatch.c shuf.c slide.c \
 	util.c getopt_long.c getopt_long.h \
-	pm2.c pm2hist.c pm2hist.h pm2tree.c pm2tree.h
+	pm2.c pm2hist.c pm2tree.c
 lha_LDADD = @LIBOBJS@
 EXTRA_DIST = lhdir.h fnmatch.h
 AM_CPPFLAGS=$(DEF_KCODE) $(SUPPORT_LZHUFF_METHOD)
