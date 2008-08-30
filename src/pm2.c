@@ -77,6 +77,10 @@ decode_c_pm2(void)
         }
     }
     gettree1 = tree_get(&tree1);        /* value preserved for decode_p */
+    if (gettree1 >= 29) {
+        error("Bad table");
+        exit(1);
+    }
 
     /* direct value (ret <= UCHAR_MAX) */
     if (gettree1 < 8)
