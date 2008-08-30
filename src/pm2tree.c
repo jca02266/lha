@@ -117,7 +117,7 @@ tree_rebuild(struct tree *t,
             count[table[i]]++;
         }
         total = 0.0;
-        for (i = 1; i <= maxdepth; i++) {
+        for (i = mindepth; i <= maxdepth; i++) {
             int max_leaves = (1<<i);
             if (count[i] > max_leaves) {
                 error("Bad table");
