@@ -9,7 +9,7 @@ struct tree {
 extern struct tree tree1, tree2;
 
 void maketree1();
-void maketree2(int par_b);
+void maketree2(int tree2bound);
 int tree_get(struct tree *t);
 void tree_setsingle(struct tree *t, unsigned char value);
 void tree_rebuild(struct tree *t, unsigned char bound,

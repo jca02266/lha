@@ -40,7 +40,7 @@ maketree1()
 }
 
 void
-maketree2(int par_b) /* in use: 5 <= par_b <= 8 */
+maketree2(int tree2bound) /* in use: 5 <= tree2bound <= 8 */
 {
     int i, count, index;
 
@@ -52,12 +52,12 @@ maketree2(int par_b) /* in use: 5 <= par_b <= 8 */
 
     for (i = 0; i < 8; i++)
         table2[i] = 0;
-    for (i = 0; i < par_b; i++)
+    for (i = 0; i < tree2bound; i++)
         table2[i] = getbits(3);
 
     index = 0;
     count = 0;
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < tree2bound; i++) {
         if (table2[i] != 0) {
             index = i;
             count++;
@@ -69,7 +69,7 @@ maketree2(int par_b) /* in use: 5 <= par_b <= 8 */
     }
     else if (count > 1) {
         mindepth = 1;
-        tree_rebuild(&tree2, 8, mindepth, 7, table2);
+        tree_rebuild(&tree2, tree2bound, mindepth, 7, table2);
     }
     // Note: count == 0 is possible!
     //       Excluding that possibility was a bug in version 1.
