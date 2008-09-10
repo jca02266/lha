@@ -21,12 +21,13 @@ static void tree_rebuild(struct tree *t, unsigned char bound,
                   unsigned char *table);
 static void tree_setsingle(struct tree *t, unsigned char value);
 
+static unsigned char tree1bound;
+static unsigned char mindepth;
+
 void
 maketree1()
 {
     int i, nbits, x;
-    unsigned char tree1bound;
-    unsigned char mindepth;
     unsigned char table1[32];
 
     tree1bound = getbits(5);
@@ -51,6 +52,18 @@ maketree2(int tree2bound) /* in use: 5 <= tree2bound <= 8 */
 {
     int i, count, index;
     unsigned char table2[8];
+
+
+    if (tree1bound < 10)
+        /* tree1bound=1..8: character only, offset value is no needed. */
+        /* tree1bound=9: offset value is not encoded by Huffman tree */
+        return;
+
+    if (tree1bound == 29 && mindepth == 0)
+        /* the length value is just 256 and offset value is just 0 */
+        return;
+
+    /* need to build tree2 for offset value */
 
     for (i = 0; i < 8; i++)
         table2[i] = 0;
