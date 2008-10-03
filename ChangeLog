@@ -1,3 +1,35 @@
+2008-10-04  Koji Arai  <arai@users.sourceforge.jp>
+
+	Timestamp archiving feature is added. Thanks to Reynir Stefansson.
+
+	* configure.ac: updated version.
+
+	* src/lha.h: added a variable, timestamp_archive.
+
+	* src/lhadd.c (copy_old_one): moved from src/lharc.c, and reset
+	most_recent to most recent timestamp.
+
+	* src/prototypes.h: copy_old_one() is changed to static function.
+
+	* src/lhadd.c (add_one): reset most_recent to most recent timestamp.
+
+	* src/lhadd.c (set_archive_file_mode): When --timestamp-archive is
+	specified, archive timestamp adjust to most recent file in the
+	archive.
+
+	* src/lhadd.c (cmd_add, cmd_delete): should call set_archive_file_mode() without noexec.
+
+	* src/lharc.c (init_variable, parse_suboption): added an option --timestamp-archive.
+
+	* tests/Makefile.am: added lha-test19.
+
+	* tests/lha-test19: newly added for checking the timestamp
+	archiving.
+
+	* tests/lha-test.in (identical_timestamp) added an utility function.
+
+	* man/lha.1: describe about --timestamp-archive.
+
 2008-08-23  Koji Arai  <arai@users.sourceforge.jp>
 
 	* src/lhext.c (cmd_extract): stream position was adjusted by wrong value.
