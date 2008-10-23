@@ -481,6 +481,8 @@ cmd_add()
     boolean         old_archive_exist;
     off_t           new_archive_size;
 
+    most_recent = 0;
+
     /* exit if no operation */
     if (!update_if_newer && cmd_filec == 0) {
         error("No files given in argument, do nothing.");
@@ -559,7 +561,6 @@ cmd_add()
                 goto next;
         }
 
-        most_recent = 0;
         oafp = append_it(cmd_filev[i], oafp, nafp);
     next:
         ;
