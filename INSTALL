@@ -1,0 +1,36 @@
+Configuring LHa for areas in Europe and elsewhere where single-byte
+filenames are used
+
+
+First, if there's no 'configure' script, you'll need to regenerate it.
+This requires the GNU autoconf tools. Run them like this:
+
+$ aclocal
+$ automake -a
+$ autoheader
+$ autoconf
+
+[or run the 'autoreconf -is' script.]
+
+To check that all is well, say:
+
+$ ./configure && make && make check
+
+This chain should run to completion with no failures. The only problem is
+that if you have files which have names with accented letters, LHa will
+store them correctly but mangle them when listing or extracting.
+
+The easiest way around this is to reconfigure LHa to ignore the existence of
+multi-byte filenames:
+
+$ ./configure --disable-multibyte-filename && make && make check
+
+It should still pass all tests after this.
+
+LHa will now never modify filenames, not even when you want it to.
+
+All that's left now is to install the program. In this case, it will be
+installed in /usr/local (if on a Unix/Linux computer) which is usually
+owned by 'root' (the super-user).
+
+$ su -c "make install"
