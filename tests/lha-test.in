@@ -178,6 +178,8 @@ fi
 if (( $error_num != 0 )); then
   message $error_num tests failed!
   message test number: $error_tests
+else
+  message All tests succeeded.
 fi
 
 exit $result
