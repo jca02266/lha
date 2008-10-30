@@ -18,7 +18,44 @@ AC_PROG_MAKE_SET
 AC_MINIX
 AM_C_PROTOTYPES
 AC_SYS_LARGEFILE
-AC_CHECK_PROGS(sh_for_lha_test, [zsh bash ksh pdksh], [sh])
+dnl Workaround for Zsh bug? on Cygwin:
+dnl
+dnl  Environment to trouble
+dnl    Cygwin version 1.1.5.25
+dnl    Zsh version 4.3.4
+dnl
+dnl  Examples:
+dnl
+dnl  o One machine(no problem)
+dnl    $ uname -srvmpio
+dnl    -> CYGWIN_NT-5.1 1.5.25(0.156/4/2) 2007-12-09 09:47 i686 unknown unknown Cygwin
+dnl    $ zsh -c 'echo | diff - /dev/null' >/dev/null
+dnl    -> $? set to 1
+dnl  o Another machine(problem)
+dnl    $ uname -srvmpio
+dnl    -> CYGWIN_NT-5.1 1.5.25(0.156/4/2) 2008-05-26 20:37 i686 unknown unknown Cygwin
+dnl    zsh -c 'echo | diff - /dev/null' >/dev/null
+dnl    -> diff: -: Illegal seek
+dnl    -> $? set to 2
+dnl
+dnl  I don't know why this problem happend.
+dnl
+# AC_CHECK_PROGS(sh_for_lha_test, [zsh bash ksh pdksh], [sh])
+AC_CACHE_VAL([lha_cv_prog_sh_for_lha_test],[
+AC_CHECK_PROG(sh_for_lha_test, [zsh], [zsh])
+
+if test -n "$sh_for_lha_test"; then
+  $sh_for_lha_test -c 'echo | diff - /dev/null' >/dev/null 2>&1
+  if test $? -eq 2; then
+    sh_for_lha_test=''   # cannot use Zsh
+    $as_unset ac_cv_prog_sh_for_lha_test
+  fi
+fi
+
+if test -z "$sh_for_lha_test"; then
+  AC_CHECK_PROGS(sh_for_lha_test, [bash ksh pdksh], [sh])
+fi
+])
 
 # Checks for libraries.
 AC_SEARCH_LIBS(opendir, [mingwex])
