@@ -61,8 +61,9 @@ calc_sum(p, len)
     int len;
 {
     int sum = 0;
+    unsigned char *pc = (unsigned char*)p;
 
-    while (len--) sum += *(unsigned char*)p++;
+    while (len--) sum += *pc++;
 
     return sum & 0xff;
 }
