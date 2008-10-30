@@ -21,10 +21,10 @@ diff -r test-tmp-euc test-tmp-euc-d/test-tmp-euc
 # sjis to euc
 $lha xew=test-tmp-unknown-d test-tmp-euc.lzh
 							check $? $LINENO
-diff -r test-tmp-euc test-tmp-unknown-d/test-tmp-euc
+diff -r test-tmp-euc test-tmp-unknown-d/test-tmp-euc 2>/dev/null
 test $? -ne 0
 							check $? $LINENO
-diff -r test-tmp-sjis test-tmp-unknown-d/test-tmp-euc
+diff -r test-tmp-sjis test-tmp-unknown-d/test-tmp-euc 2>/dev/null
 test $? -ne 0
 							check $? $LINENO
 
@@ -75,7 +75,7 @@ $lha xew=test-tmp-unknown2-d test-tmp-euc2.lzh
 diff -r test-tmp-euc2 test-tmp-unknown2-d/test-tmp-euc2
 test $? -ne 0
 							check $? $LINENO
-diff -r test-tmp-sjis2 test-tmp-unknown2-d/test-tmp-euc2
+diff -r test-tmp-sjis2 test-tmp-unknown2-d/test-tmp-euc2 2>/dev/null
 test $? -ne 0
 							check $? $LINENO
 
