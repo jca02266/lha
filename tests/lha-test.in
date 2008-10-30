@@ -81,10 +81,22 @@ check()
   fi
 }
 
+# On HP-UX 11.23, "chmod -R" cannot change the file permission in
+# non-writable and non-executable directory.
+chmod_R()
+{
+  typeset mode="$1"; shift
+  for x in "$@"
+  do
+    chmod $mode "$x"
+    test -d "$x" && (cd "$x" && chmod_R $mode *)
+  done
+}
+
 cleanup()
 {
   if [[ x$no_cleanup = x ]]; then
-    chmod -R 755 test-tmp* 2>/dev/null
+    chmod_R 755 test-tmp* 2>/dev/null
     rm -rf test-tmp*
   fi
 }
