@@ -128,6 +128,19 @@ char *xstrrchr P_((const char *s, int c));
 char *xmemchr P_((const char *s, int c, size_t n));
 char *xmemrchr P_((const char *s, int c, size_t n));
 int str_safe_copy P_((char *dst, const char *src, int dstsz));
+/* pm2.c */
+void decode_start_pm2 P_((void));
+unsigned short decode_c_pm2 P_((void));
+unsigned short decode_p_pm2 P_((void));
+/* pm2tree.c */
+void maketree1 P_((void));
+void maketree2 P_((int tree2bound));
+int tree1_get P_((void));
+int tree2_get P_((void));
+/* pm2hist.c */
+void hist_init P_((void));
+unsigned char hist_lookup P_((int n));
+void hist_update P_((unsigned char data));
 
 /* util.c */
 #if !HAVE_MEMMOVE

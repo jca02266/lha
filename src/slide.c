@@ -74,7 +74,15 @@ static struct decode_option decode_define[] = {
     /* lzs */
     {decode_c_lzs, decode_p_lzs, decode_start_lzs},
     /* lz5 */
-    {decode_c_lz5, decode_p_lz5, decode_start_lz5}
+    {decode_c_lz5, decode_p_lz5, decode_start_lz5},
+    /* lz4 */
+    {NULL        , NULL        , NULL            },
+    /* lhd */
+    {NULL        , NULL        , NULL            },
+    /* pm0 */
+    {NULL        , NULL        , NULL            },
+    /* pm2 */
+    {decode_c_pm2, decode_p_pm2, decode_start_pm2}
 };
 
 static struct encode_option encode_set;
@@ -421,7 +429,7 @@ decode(interface)
     decode_set.decode_start();
     dicsiz1 = dicsiz - 1;
     adjust = 256 - THRESHOLD;
-    if (interface->method == LARC_METHOD_NUM)
+    if ((interface->method == LARC_METHOD_NUM) || (interface->method == PMARC2_METHOD_NUM))
         adjust = 256 - 2;
 
     decode_count = 0;

@@ -73,6 +73,8 @@
 #define LARC5_METHOD            "-lz5-"
 #define LARC4_METHOD            "-lz4-"
 #define LZHDIRS_METHOD          "-lhd-"
+#define PMARC0_METHOD           "-pm0-"
+#define PMARC2_METHOD           "-pm2-"
 
 #define METHOD_TYPE_STORAGE     5
 
@@ -89,6 +91,8 @@
 #define LARC5_METHOD_NUM        9
 #define LARC4_METHOD_NUM        10
 #define LZHDIRS_METHOD_NUM      11
+#define PMARC0_METHOD_NUM       12
+#define PMARC2_METHOD_NUM       13
 /* Added N.Watazaki ..^ */
 
 #define LZHUFF0_DICBIT           0      /* no compress */
@@ -102,6 +106,8 @@
 #define LARC_DICBIT             11      /* 2^11 =  2KB sliding dictionary */
 #define LARC5_DICBIT            12      /* 2^12 =  4KB sliding dictionary */
 #define LARC4_DICBIT             0      /* no compress */
+#define PMARC0_DICBIT            0      /* no compress */
+#define PMARC2_DICBIT           13      /* 2^13 =  8KB sliding dictionary */
 
 #ifdef SUPPORT_LH7
 #define MAX_DICBIT          LZHUFF7_DICBIT      /* lh7 use 16bits */
