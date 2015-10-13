@@ -25,6 +25,7 @@ EXTRA_DIST =	lha-test1 \
 		lha-test19 \
 		lha-test51 \
 		lha-test51-2G.lzh \
+		lha-test52 \
 		lha-test52-4G.lzh
 
 DISTCLEANFILES = test.log
