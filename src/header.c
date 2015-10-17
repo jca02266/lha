@@ -278,6 +278,7 @@ convert_filename(name, len, size,
         to_code_save = CODE_CAP;
         to_code = CODE_SJIS;
     }
+#endif
 
     /* special case: if `name' has small lettter, not convert case. */
     if (from_code == CODE_SJIS && case_to == TO_LOWER) {
@@ -294,6 +295,7 @@ convert_filename(name, len, size,
         }
     }
 
+#ifdef MULTIBYTE_FILENAME
     if (from_code == CODE_SJIS && to_code == CODE_UTF8) {
         for (i = 0; i < len; i++) {
             if (SJIS_FIRST_P(name[i]) && SJIS_SECOND_P(name[i+1]))
