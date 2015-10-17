@@ -279,6 +279,21 @@ convert_filename(name, len, size,
         to_code = CODE_SJIS;
     }
 
+    /* special case: if `name' has small lettter, not convert case. */
+    if (from_code == CODE_SJIS && case_to == TO_LOWER) {
+        for (i = 0; i < len; i++) {
+#ifdef MULTIBYTE_FILENAME
+            if (SJIS_FIRST_P(name[i]) && SJIS_SECOND_P(name[i+1]))
+                i++;
+            else
+#endif
+            if (islower(name[i])) {
+                case_to = NONE;
+                break;
+            }
+        }
+    }
+
     if (from_code == CODE_SJIS && to_code == CODE_UTF8) {
         for (i = 0; i < len; i++) {
             if (SJIS_FIRST_P(name[i]) && SJIS_SECOND_P(name[i+1]))
@@ -310,21 +325,6 @@ convert_filename(name, len, size,
         from_code = CODE_SJIS;
     }
 #endif
-
-    /* special case: if `name' has small lettter, not convert case. */
-    if (from_code == CODE_SJIS && case_to == TO_LOWER) {
-        for (i = 0; i < len; i++) {
-#ifdef MULTIBYTE_FILENAME
-            if (SJIS_FIRST_P(name[i]) && SJIS_SECOND_P(name[i+1]))
-                i++;
-            else
-#endif
-            if (islower(name[i])) {
-                case_to = NONE;
-                break;
-            }
-        }
-    }
 
     for (i = 0; i < len; i ++) {
 #ifdef MULTIBYTE_FILENAME
