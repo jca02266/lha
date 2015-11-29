@@ -214,7 +214,7 @@ xsnprintf(dest, size, fmt, va_alist)
     len = vsnprintf(dest, size, fmt, v);
     va_end(v);
 
-    if (len == -1)
+    if (len < 0)
         return -1;
 
     if (len >= size) {
@@ -222,7 +222,7 @@ xsnprintf(dest, size, fmt, va_alist)
         return -1;
     }
 
-    return 0;
+    return len;
 }
 
 #if !STRCHR_8BIT_CLEAN

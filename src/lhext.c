@@ -83,6 +83,47 @@ inquire_extract(name)
     return TRUE;
 }
 
+static boolean
+make_name_with_pathcheck(char *name, size_t namesz, const char *dir, const char *q)
+{
+    int offset = 0;
+    const char *p;
+    int sz;
+    struct stat stbuf;
+
+    if (extract_directory) {
+        sz = xsnprintf(name, namesz, "%s/", extract_directory);
+        if (sz == -1) {
+            return FALSE;
+        }
+        offset += sz;
+    }
+
+    while ((p = strchr(q, '/')) != NULL) {
+        if (namesz - offset < (p - q) + 2) {
+            return FALSE;
+        }
+        memcpy(name + offset, q, (p - q));
+        name[offset + (p - q)] = 0;
+
+        offset += (p - q);
+        q = p + 1;
+
+        if (lstat(name, &stbuf) < 0) {
+            name[offset++] = '/';
+            break;
+        }
+        if (is_symlink(&stbuf)) {
+            return FALSE;
+        }
+        name[offset++] = '/';
+    }
+
+    str_safe_copy(name + offset, q, namesz - offset);
+
+    return TRUE;
+}
+
 /* ------------------------------------------------------------------------ */
 static          boolean
 make_parent_path(name)
@@ -254,10 +295,10 @@ extract_one(afp, hdr)
         }
     }
 
-    if (extract_directory)
-        xsnprintf(name, sizeof(name), "%s/%s", extract_directory, q);
-    else
-        str_safe_copy(name, q, sizeof(name));
+    if (!make_name_with_pathcheck(name, sizeof(name), extract_directory, q)) {
+        fprintf(stderr, "Possible symlink traversal hack attempt in %s\n", q);
+        exit(111);
+    }
 
     /* LZHDIRS_METHODを持つヘッダをチェックする */
     /* 1999.4.30 t.okamoto */
