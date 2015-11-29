@@ -1,0 +1,14 @@
+language: c
+compiler: gcc
+
+before_script:
+  - autoreconf -is
+
+script: "./configure && make check"
+
+notifications:
+  email:
+    recipients:
+      - jca02266@gmail.com
+  on_success: change
+  on_failure: change
