@@ -259,7 +259,7 @@ extract_one(afp, hdr)
     else
         str_safe_copy(name, q, sizeof(name));
 
-    /* LZHDIRS_METHOD¤ò»ı¤Ä¥Ø¥Ã¥À¤ò¥Á¥§¥Ã¥¯¤¹¤ë */
+    /* LZHDIRS_METHODã‚’æŒã¤ãƒ˜ãƒƒãƒ€ã‚’ãƒã‚§ãƒƒã‚¯ã™ã‚‹ */
     /* 1999.4.30 t.okamoto */
     for (method = 0;; method++) {
         if (methods[method] == NULL) {
@@ -438,7 +438,7 @@ extract_one(afp, hdr)
     else if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_DIRECTORY
              || (hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK
              || method == LZHDIRS_METHOD_NUM) {
-        /* ¢¬¤³¤ì¤Ç¡¢Symbolic Link ¤Ï¡¢Âç¾æÉ×¤«¡© */
+        /* â†‘ã“ã‚Œã§ã€Symbolic Link ã¯ã€å¤§ä¸ˆå¤«ã‹ï¼Ÿ */
         if (!ignore_directory && !verify_mode) {
             if (noexec) {
                 if (quiet != TRUE)

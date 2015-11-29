@@ -2019,9 +2019,9 @@ utf8_to_sjis(char *dst, const char *src, size_t dstsize)
 }
 
 /*
- * SJIS <-> EUC ÊÑ´¹´Ø¿ô
- * ¡ÖÆüËÜ¸ì¾ğÊó½èÍı¡×   ¥½¥Õ¥È¥Ğ¥ó¥¯(³ô)
- *  ¤è¤êÈ´¿è(by Koji Arai)
+ * SJIS <-> EUC å¤‰æ›é–¢æ•°
+ * ã€Œæ—¥æœ¬èªæƒ…å ±å‡¦ç†ã€   ã‚½ãƒ•ãƒˆãƒãƒ³ã‚¯(æ ª)
+ *  ã‚ˆã‚ŠæŠœç²‹(by Koji Arai)
  */
 void
 euc2sjis(int *p1, int *p2)
