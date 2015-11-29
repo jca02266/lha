@@ -274,8 +274,7 @@ extract_one(afp, hdr)
     }
     else {
         if (is_directory_traversal(q)) {
-            fprintf(stderr, "Possible directory traversal hack attempt in %s\n", q);
-            exit(111);
+            fatal_error("Possible directory traversal hack attempt in %s\n", q);
         }
 
         if (*q == '/') {
@@ -296,8 +295,7 @@ extract_one(afp, hdr)
     }
 
     if (!make_name_with_pathcheck(name, sizeof(name), extract_directory, q)) {
-        fprintf(stderr, "Possible symlink traversal hack attempt in %s\n", q);
-        exit(111);
+        fatal_error("Possible symlink traversal hack attempt in %s\n", q);
     }
 
     /* LZHDIRS_METHODを持つヘッダをチェックする */
