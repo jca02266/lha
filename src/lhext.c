@@ -84,7 +84,7 @@ inquire_extract(name)
 }
 
 static boolean
-make_name_with_pathcheck(char *name, size_t namesz, const char *dir, const char *q)
+make_name_with_pathcheck(char *name, size_t namesz, const char *q)
 {
     int offset = 0;
     const char *p;
@@ -295,7 +295,7 @@ extract_one(afp, hdr)
         }
     }
 
-    if (!make_name_with_pathcheck(name, sizeof(name), extract_directory, q)) {
+    if (!make_name_with_pathcheck(name, sizeof(name), q)) {
         error("Possible symlink traversal hack attempt in %s", q);
         exit(1);
     }
