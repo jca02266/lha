@@ -99,6 +99,7 @@ make_name_with_pathcheck(char *name, size_t namesz, const char *q)
         offset += sz;
     }
 
+#ifdef S_IFLNK
     while ((p = strchr(q, '/')) != NULL) {
         if (namesz - offset < (p - q) + 2) {
             return FALSE;
@@ -118,6 +119,7 @@ make_name_with_pathcheck(char *name, size_t namesz, const char *q)
         }
         name[offset++] = '/';
     }
+#endif
 
     str_safe_copy(name + offset, q, namesz - offset);
 
