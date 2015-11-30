@@ -84,7 +84,7 @@ inquire_extract(name)
 }
 
 static boolean
-make_name_with_pathcheck(char *name, size_t namesz, const char *dir, const char *q)
+make_name_with_pathcheck(char *name, size_t namesz, const char *q)
 {
     int offset = 0;
     const char *p;
@@ -99,6 +99,7 @@ make_name_with_pathcheck(char *name, size_t namesz, const char *dir, const char 
         offset += sz;
     }
 
+#ifdef S_IFLNK
     while ((p = strchr(q, '/')) != NULL) {
         if (namesz - offset < (p - q) + 2) {
             return FALSE;
@@ -118,6 +119,7 @@ make_name_with_pathcheck(char *name, size_t namesz, const char *dir, const char 
         }
         name[offset++] = '/';
     }
+#endif
 
     str_safe_copy(name + offset, q, namesz - offset);
 
@@ -295,7 +297,7 @@ extract_one(afp, hdr)
         }
     }
 
-    if (!make_name_with_pathcheck(name, sizeof(name), extract_directory, q)) {
+    if (!make_name_with_pathcheck(name, sizeof(name), q)) {
         error("Possible symlink traversal hack attempt in %s", q);
         exit(1);
     }
