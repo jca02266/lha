@@ -54,8 +54,8 @@ configure.ac, Makefile.am をメンテナンスする場合は以下の手順に
   cd lha-114i-acXXXXXXXX
 
   aclocal
-  automake -a
   autoheader
+  automake -a
   autoconf
 
   # aclocal から autoconf 実行までの手順は、最近では、autoreconf -is
