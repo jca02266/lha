@@ -6,8 +6,8 @@ First, if there's no 'configure' script, you'll need to regenerate it.
 This requires the GNU autoconf tools. Run them like this:
 
 $ aclocal
-$ automake -a
 $ autoheader
+$ automake -a
 $ autoconf
 
 [or run the 'autoreconf -is' script.]
