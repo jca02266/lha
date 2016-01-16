@@ -788,6 +788,7 @@ get_header_level0(fp, hdr, data)
     char *data;
 {
     size_t header_size;
+    ssize_t remain_size;
     ssize_t extend_size;
     int checksum;
     int name_length;
@@ -797,8 +798,14 @@ get_header_level0(fp, hdr, data)
     hdr->header_size = header_size = get_byte();
     checksum = get_byte();
 
-    if (fread(data + COMMON_HEADER_SIZE,
-              header_size + 2 - COMMON_HEADER_SIZE, 1, fp) == 0) {
+    /* The data variable has been already read as COMMON_HEADER_SIZE bytes.
+       So we must read the remaining header size by the header_size. */
+    remain_size = header_size + 2 - COMMON_HEADER_SIZE;
+    if (remain_size <= 0) {
+        error("Invalid header size (LHarc file ?)");
+        return FALSE;
+    }
+    if (fread(data + COMMON_HEADER_SIZE, remain_size, 1, fp) == 0) {
         error("Invalid header (LHarc file ?)");
         return FALSE;   /* finish */
     }
@@ -904,6 +911,7 @@ get_header_level1(fp, hdr, data)
     char *data;
 {
     size_t header_size;
+    ssize_t remain_size;
     ssize_t extend_size;
     int checksum;
     int name_length;
@@ -913,8 +921,14 @@ get_header_level1(fp, hdr, data)
     hdr->header_size = header_size = get_byte();
     checksum = get_byte();
 
-    if (fread(data + COMMON_HEADER_SIZE,
-              header_size + 2 - COMMON_HEADER_SIZE, 1, fp) == 0) {
+    /* The data variable has been already read as COMMON_HEADER_SIZE bytes.
+       So we must read the remaining header size by the header_size. */
+    remain_size = header_size + 2 - COMMON_HEADER_SIZE;
+    if (remain_size <= 0) {
+        error("Invalid header size (LHarc file ?)");
+        return FALSE;
+    }
+    if (fread(data + COMMON_HEADER_SIZE, remain_size, 1, fp) == 0) {
         error("Invalid header (LHarc file ?)");
         return FALSE;   /* finish */
     }
