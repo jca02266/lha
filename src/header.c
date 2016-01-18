@@ -210,7 +210,11 @@ get_longlongword()
     l |= (b3 << 24) + (b2 << 16) + (b1 << 8) + b0;
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
+#if SIZEOF_LONG < 8
         printf("%lld(%#016llx)\n", l, l);
+#else
+        printf("%ld(%#016lx)\n", l, l);
+#endif
 #endif
     return l;
 }
