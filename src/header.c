@@ -37,7 +37,7 @@ static char    *start_ptr;
 #else
 #define setup_get(PTR)  (get_ptr = (PTR))
 #define get_byte()      GET_BYTE()
-#define skip_bytes(len) (get_ptr += (len))
+#define skip_bytes(len) _skip_bytes(len)
 #endif
 #define put_ptr         get_ptr
 #define setup_put(PTR)  (put_ptr = (PTR))
@@ -68,6 +68,16 @@ calc_sum(p, len)
     return sum & 0xff;
 }
 
+static void
+_skip_bytes(len)
+{
+    if (len < 0) {
+      error("Invalid header: %d", len);
+      exit(1);
+    }
+    get_ptr += len;
+}
+
 #if DUMP_HEADER
 static int
 dump_get_byte()
@@ -93,12 +103,16 @@ dump_skip_bytes(len)
     if (len == 0) return;
     if (verbose_listing && verbose > 1) {
         printf("%02d %2d: ", get_ptr - start_ptr, len);
+        if (len < 0) {
+          error("Invalid header: %d", len);
+          exit(1);
+        }
         while (len--)
             printf("0x%02x ", GET_BYTE());
         printf("... ignored\n");
     }
     else
-        get_ptr += len;
+        _skip_bytes(len);
 }
 #endif
 
