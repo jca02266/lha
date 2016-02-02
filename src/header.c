@@ -229,6 +229,10 @@ get_bytes(buf, len, size)
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
         printf("%02d %2d: \"", get_ptr - start_ptr, len);
+    if (len < 0) {
+      error("Invalid header: %d", len);
+      exit(1);
+    }
 
     for (i = 0; i < len; i++) {
         if (i < size) buf[i] = get_ptr[i];
@@ -244,6 +248,10 @@ get_bytes(buf, len, size)
     if (verbose_listing && verbose > 1)
         printf("\"\n");
 #else
+    if (len < 0) {
+      error("Invalid header: %d", len);
+      exit(1);
+    }
     for (i = 0; i < len && i < size; i++)
         buf[i] = get_ptr[i];
 #endif
