@@ -27,16 +27,15 @@
 #endif
 
 static char    *get_ptr;
-#define GET_BYTE()      (*get_ptr++ & 0xff)
+static char    *start_ptr;
+static off_t   storage_size;
+#define setup_get(PTR, SIZE)  (start_ptr = get_ptr = (PTR), storage_size = (SIZE))
 
 #if DUMP_HEADER
-static char    *start_ptr;
-#define setup_get(PTR)  (start_ptr = get_ptr = (PTR))
 #define get_byte()      dump_get_byte()
 #define skip_bytes(len) dump_skip_bytes(len)
 #else
-#define setup_get(PTR)  (get_ptr = (PTR))
-#define get_byte()      GET_BYTE()
+#define get_byte()      _get_byte()
 #define skip_bytes(len) _skip_bytes(len)
 #endif
 #define put_ptr         get_ptr
@@ -78,6 +77,17 @@ _skip_bytes(len)
     get_ptr += len;
 }
 
+static int
+_get_byte()
+{
+  if (get_ptr < start_ptr || get_ptr - start_ptr >= storage_size) {
+      error("Invalid header");
+      exit(1);
+  }
+
+  return (*get_ptr++ & 0xff);
+}
+
 #if DUMP_HEADER
 static int
 dump_get_byte()
@@ -86,7 +96,7 @@ dump_get_byte()
 
     if (verbose_listing && verbose > 1)
         printf("%02d %2d: ", get_ptr - start_ptr, 1);
-    c = GET_BYTE();
+    c = _get_byte();
     if (verbose_listing && verbose > 1) {
         if (isprint(c))
             printf("%d(0x%02x) '%c'\n", c, c, c);
@@ -108,7 +118,7 @@ dump_skip_bytes(len)
           exit(1);
         }
         while (len--)
-            printf("0x%02x ", GET_BYTE());
+            printf("0x%02x ", _get_byte());
         printf("... ignored\n");
     }
     else
@@ -126,8 +136,8 @@ get_word()
     if (verbose_listing && verbose > 1)
         printf("%02d %2d: ", get_ptr - start_ptr, 2);
 #endif
-    b0 = GET_BYTE();
-    b1 = GET_BYTE();
+    b0 = _get_byte();
+    b1 = _get_byte();
     w = (b1 << 8) + b0;
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
@@ -154,10 +164,10 @@ get_longword()
     if (verbose_listing && verbose > 1)
         printf("%02d %2d: ", get_ptr - start_ptr, 4);
 #endif
-    b0 = GET_BYTE();
-    b1 = GET_BYTE();
-    b2 = GET_BYTE();
-    b3 = GET_BYTE();
+    b0 = _get_byte();
+    b1 = _get_byte();
+    b2 = _get_byte();
+    b3 = _get_byte();
     l = (b3 << 24) + (b2 << 16) + (b1 << 8) + b0;
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
@@ -186,14 +196,14 @@ get_longlongword()
     if (verbose_listing && verbose > 1)
         printf("%02d %2d: ", get_ptr - start_ptr, 4);
 #endif
-    b0 = GET_BYTE();
-    b1 = GET_BYTE();
-    b2 = GET_BYTE();
-    b3 = GET_BYTE();
-    b4 = GET_BYTE();
-    b5 = GET_BYTE();
-    b6 = GET_BYTE();
-    b7 = GET_BYTE();
+    b0 = _get_byte();
+    b1 = _get_byte();
+    b2 = _get_byte();
+    b3 = _get_byte();
+    b4 = _get_byte();
+    b5 = _get_byte();
+    b6 = _get_byte();
+    b7 = _get_byte();
 
     l = (b7 << 24) + (b6 << 16) + (b5 << 8) + b4;
     l <<= 32;
@@ -577,7 +587,7 @@ get_extended_header(fp, hdr, header_size, hcrc)
         if (verbose_listing && verbose > 1)
             printf("---\n");
 #endif
-        setup_get(data);
+        setup_get(data, sizeof(data));
         if (sizeof(data) < header_size) {
             error("header size (%ld) too large.", header_size);
             exit(1);
@@ -1179,7 +1189,7 @@ get_header(fp, hdr)
 
     memset(hdr, 0, sizeof(LzHeader));
 
-    setup_get(data);
+    setup_get(data, sizeof(data));
 
     if ((end_mark = getc(fp)) == EOF || end_mark == 0) {
         return FALSE;           /* finish */
