@@ -1044,6 +1044,7 @@ get_header_level2(fp, hdr, data)
     char *data;
 {
     size_t header_size;
+    ssize_t remain_size;
     ssize_t extend_size;
     int padding;
     unsigned int hcrc;
@@ -1051,6 +1052,13 @@ get_header_level2(fp, hdr, data)
     hdr->size_field_length = 2; /* in bytes */
     hdr->header_size = header_size = get_word();
 
+    /* The data variable has been already read as COMMON_HEADER_SIZE bytes.
+       So we must read the remaining header size without ext-header. */
+    remain_size = header_size - I_LEVEL2_HEADER_SIZE;
+    if (remain_size < 0) {
+        error("Invalid header size (LHarc file ?)");
+        return FALSE;
+    }
     if (fread(data + COMMON_HEADER_SIZE,
               I_LEVEL2_HEADER_SIZE - COMMON_HEADER_SIZE, 1, fp) == 0) {
         error("Invalid header (LHarc file ?)");
@@ -1082,7 +1090,12 @@ get_header_level2(fp, hdr, data)
         return FALSE;
 
     padding = header_size - I_LEVEL2_HEADER_SIZE - extend_size;
-    while (padding--)           /* padding should be 0 or 1 */
+    /* padding should be 0 or 1 */
+    if (padding != 0 && padding != 1) {
+        error("Invalid header size (padding: %d)", padding);
+        return FALSE;
+    }
+    while (padding--)
         hcrc = UPDATE_CRC(hcrc, fgetc(fp));
 
     if (hdr->header_crc != hcrc)
@@ -1125,6 +1138,7 @@ get_header_level3(fp, hdr, data)
     char *data;
 {
     size_t header_size;
+    ssize_t remain_size;
     ssize_t extend_size;
     int padding;
     unsigned int hcrc;
@@ -1153,6 +1167,11 @@ get_header_level3(fp, hdr, data)
     hdr->crc = get_word();
     hdr->extend_type = get_byte();
     hdr->header_size = header_size = get_longword();
+    remain_size = header_size - I_LEVEL3_HEADER_SIZE;
+    if (remain_size < 0) {
+        error("Invalid header size (LHarc file ?)");
+        return FALSE;
+    }
     extend_size = get_longword();
 
     INITIALIZE_CRC(hcrc);
@@ -1162,9 +1181,12 @@ get_header_level3(fp, hdr, data)
     if (extend_size == -1)
         return FALSE;
 
-    padding = header_size - I_LEVEL3_HEADER_SIZE - extend_size;
-    while (padding--)           /* padding should be 0 */
-        hcrc = UPDATE_CRC(hcrc, fgetc(fp));
+    padding = remain_size - extend_size;
+    /* padding should be 0 */
+    if (padding != 0) {
+        error("Invalid header size (padding: %d)", padding);
+        return FALSE;
+    }
 
     if (hdr->header_crc != hcrc)
         error("header CRC error");
