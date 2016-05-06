@@ -244,8 +244,8 @@ get_bytes(buf, len, size)
       exit(1);
     }
 
-    for (i = 0; i < len; i++) {
-        if (i < size) buf[i] = get_ptr[i];
+    for (i = 0; i < len && i < size; i++) {
+        buf[i] = get_ptr[i];
 
         if (verbose_listing && verbose > 1) {
             if (isprint(buf[i]))
