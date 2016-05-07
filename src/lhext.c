@@ -482,7 +482,7 @@ extract_one(afp, hdr)
              || (hdr->unix_mode & UNIX_FILE_TYPEMASK) == UNIX_FILE_SYMLINK
              || method == LZHDIRS_METHOD_NUM) {
         /* ↑これで、Symbolic Link は、大丈夫か？ */
-        if (!ignore_directory && !verify_mode) {
+        if (!ignore_directory && !verify_mode && !output_to_stdout) {
             if (noexec) {
                 if (quiet != TRUE)
                     printf("EXTRACT %s (directory)\n", name);
@@ -527,7 +527,7 @@ extract_one(afp, hdr)
 #endif
             }
             else { /* make directory */
-                if (!output_to_stdout && !make_parent_path(name))
+                if (!make_parent_path(name))
                     return read_size;
                 /* save directory information */
                 add_dirinfo(name, hdr);
