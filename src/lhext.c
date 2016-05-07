@@ -549,6 +549,25 @@ extract_one(afp, hdr)
     return read_size;
 }
 
+static int
+skip_to_nextpos(FILE *fp, off_t pos, off_t off, off_t read_size)
+{
+    if (pos != -1) {
+        if (fseeko(fp, pos + off, SEEK_SET) != 0) {
+            return -1;
+        }
+    }
+    else {
+        off_t i = off - read_size;
+        while (i--) {
+            if (fgetc(fp) == EOF) {
+                return -1;
+            }
+        }
+    }
+    return 0;
+}
+
 /* ------------------------------------------------------------------------ */
 /* EXTRACT COMMAND MAIN                                                     */
 /* ------------------------------------------------------------------------ */
@@ -569,25 +588,19 @@ cmd_extract()
 
     /* extract each files */
     while (get_header(afp, &hdr)) {
+        pos = ftello(afp);
         if (need_file(hdr.name)) {
-            pos = ftello(afp);
             read_size = extract_one(afp, &hdr);
             if (read_size != hdr.packed_size) {
                 /* when error occurred in extract_one(), should adjust
                    point of file stream */
-                if (pos != -1 && afp != stdin)
-                    fseeko(afp, pos + hdr.packed_size, SEEK_SET);
-                else {
-                    off_t i = hdr.packed_size - read_size;
-                    while (i--) fgetc(afp);
+                if (skip_to_nextpos(afp, pos, hdr.packed_size, read_size) == -1) {
+                    fatal_error("Cannot seek to next header position from \"%s\"", hdr.name);
                 }
             }
         } else {
-            if (afp != stdin)
-                fseeko(afp, hdr.packed_size, SEEK_CUR);
-            else {
-                off_t i = hdr.packed_size;
-                while (i--) fgetc(afp);
+            if (skip_to_nextpos(afp, pos, hdr.packed_size, 0) == -1) {
+                fatal_error("Cannot seek to next header position from \"%s\"", hdr.name);
             }
         }
     }
