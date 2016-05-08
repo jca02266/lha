@@ -20,7 +20,11 @@ fillbuf(n)          /* Shift bitbuf n bits left, read n bits */
         bitbuf = (bitbuf << bitcount) + (subbitbuf >> (CHAR_BIT - bitcount));
         if (compsize != 0) {
             compsize--;
-            subbitbuf = (unsigned char) getc(infile);
+            int c = getc(infile);
+            if (c == EOF) {
+                fatal_error("cannot read stream");
+            }
+            subbitbuf = (unsigned char)c;
         }
         else
             subbitbuf = 0;
