@@ -2,10 +2,10 @@
 message testing the long filename support
 # long long filename
 # assume that we are allowed to create 255 bytes filename (not path name).
-# the _POSIX_PATH_MAX (the maximam length of relative path name) value may
+# the _POSIX_PATH_MAX (the maximum length of relative path name) value may
 # be 255.
 #
-# Note that on Cygwin/MinGW, on NTFS, the maximam length of whole path
+# Note that on Cygwin/MinGW, on NTFS, the maximum length of whole path
 # name (contain the drive letter) is limited probably. it seems to be 259 (?)
 #
 
@@ -25,7 +25,7 @@ esac
 $lha cg  test-tmp1-hg.lzh test-tmp1 2> test-stderr
 							check $? $LINENO
 # on Cygwin/MinGW, skip this test.
-# the length of pathname does not amount to the limit of level 0 header.
+# the length of pathname does not exceed the limit of level 0 header.
 case $(uname) in
 MS-DOS* | CYGWIN*) true ;;
 *) test -s test-stderr ;;
@@ -34,7 +34,7 @@ esac
 $lha c0  test-tmp1-h0.lzh test-tmp1 2> test-stderr
 							check $? $LINENO
 # on Cygwin/MinGW, skip this test.
-# the length of pathname does not amount to the limit of level 0 header.
+# the length of pathname does not exceed the limit of level 0 header.
 case $(uname) in
 MS-DOS* | CYGWIN*) true ;;
 *) test -s test-stderr ;;
