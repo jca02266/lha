@@ -22,8 +22,9 @@ MinGW 対応はα版です。ほとんどテストされていません(make che
 する程度)。Cygwin 環境で MinGW 版を試すには
 
 ```
-  sh ./configure CC='gcc -mno-cygwin'
-              --build=i686-pc-mingw32
+  sh ./configure \
+              --build=i686-pc-mingw32 \
+              --host=x86_64-w64-mingw32 \
               --with-tmp-file=no
 ```
 
