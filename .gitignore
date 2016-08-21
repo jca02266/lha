@@ -20,7 +20,7 @@ man/Makefile.in
 missing
 olddoc/Makefile
 olddoc/Makefile.in
-src/.deps/
+.deps/
 src/lha
 src/Makefile
 src/Makefile.in
