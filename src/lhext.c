@@ -198,6 +198,23 @@ open_with_make_path(name)
 }
 
 /* ------------------------------------------------------------------------ */
+static int
+symlink_with_make_path(realname, name)
+    const char     *realname;
+    const char     *name;
+{
+    int l_code;
+
+    l_code = symlink(realname, name);
+    if (l_code < 0) {
+        make_parent_path(name);
+        l_code = symlink(realname, name);
+    }
+
+    return l_code;
+}
+
+/* ------------------------------------------------------------------------ */
 static void
 adjust_info(name, hdr)
     char           *name;
@@ -509,8 +526,7 @@ extract_one(afp, hdr)
                 }
 
                 unlink(name);
-                make_parent_path(name);
-                l_code = symlink(hdr->realname, name);
+                l_code = symlink_with_make_path(hdr->realname, name);
                 if (l_code < 0) {
                     if (quiet != TRUE)
                         warning("Can't make Symbolic Link \"%s\" -> \"%s\"",
