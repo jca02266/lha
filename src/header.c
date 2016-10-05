@@ -1907,7 +1907,7 @@ write_header(fp, hdr)
 
 #if MULTIBYTE_FILENAME
 
-#if defined(__APPLE__)  /* Added by Hiroto Sakai */
+#if defined(__APPLE__) && !defined(HAVE_ICONV)  /* Added by Hiroto Sakai */
 
 #include <CoreFoundation/CFString.h>
 #include <CoreFoundation/CFStringEncodingExt.h>
@@ -2045,11 +2045,16 @@ char *
 sjis_to_utf8(char *dst, const char *src, size_t dstsize)
 {
 #if defined(__APPLE__)
+#if !defined(HAVE_ICONV)
   dst[0] = '\0';
   if (ConvertEncodingToUTF8(src, dst, dstsize,
                             kCFStringEncodingDOSJapanese,
                             kCFStringEncodingUseHFSPlusCanonical) == 0)
       return dst;
+#else
+  if (ConvertEncodingByIconv(src, dst, dstsize, "SJIS", "UTF-8-MAC") != -1)
+      return dst;
+#endif
 #elif HAVE_ICONV
   if (ConvertEncodingByIconv(src, dst, dstsize, "SJIS", "UTF-8") != -1)
       return dst;
@@ -2066,6 +2071,7 @@ char *
 utf8_to_sjis(char *dst, const char *src, size_t dstsize)
 {
 #if defined(__APPLE__)
+#if !defined(HAVE_ICONV)
   int srclen;
 
   dst[0] = '\0';
@@ -2074,6 +2080,10 @@ utf8_to_sjis(char *dst, const char *src, size_t dstsize)
                             kCFStringEncodingDOSJapanese,
                             kCFStringEncodingUseHFSPlusCanonical) == 0)
       return dst;
+#else
+  if (ConvertEncodingByIconv(src, dst, dstsize, "UTF-8-MAC", "SJIS") != -1)
+      return dst;
+#endif
 #elif HAVE_ICONV
   if (ConvertEncodingByIconv(src, dst, dstsize, "UTF-8", "SJIS") != -1)
       return dst;
