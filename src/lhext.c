@@ -30,7 +30,7 @@ static void add_dirinfo(char* name, LzHeader* hdr);
 static void adjust_dirinfo();
 
 #ifdef HAVE_LIBAPPLEFILE
-static boolean decode_macbinary(FILE *ofp, size_t size, const char *outPath);
+static boolean decode_macbinary(FILE *ofp, off_t size, const char *outPath);
 #endif
 
 /* ------------------------------------------------------------------------ */
@@ -736,7 +736,7 @@ decode_macbinary(ofp, size, outPath)
     af_file_t *afp = NULL;
     FILE *ifp = NULL;
     unsigned char *datap;
-    off_t dlen;
+    size_t dlen;
 
     if ((afp = af_open(temporary_name)) != NULL) {
         /* fetch datafork */
