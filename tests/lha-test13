@@ -39,11 +39,15 @@ $lha xtw=test-tmp-sjis-d test-tmp-sjis.lzh
 							check $? $LINENO
 diff test-tmp-sjis test-tmp-sjis-d/test-tmp-euc
 							check $? $LINENO
+od -ct x1 test-tmp-sjis >&2
+od -ct x1 test-tmp-sjis-d/test-tmp-euc >&2
 # sjis to euc (CR LF to LF)
 $lha xew=test-tmp-euc-d2 test-tmp-sjis.lzh
 							check $? $LINENO
 diff test-tmp-euc test-tmp-euc-d2/test-tmp-euc
 							check $? $LINENO
+od -ct x1 test-tmp-euc >&2
+od -ct x1 test-tmp-euc-d2/test-tmp-euc >&2
 
 i=0
 while ((i < 10))
