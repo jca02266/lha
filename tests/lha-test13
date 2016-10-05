@@ -28,18 +28,18 @@ diff -r test-tmp-sjis test-tmp-unknown-d/test-tmp-euc 2>/dev/null
 test $? -ne 0
 							check $? $LINENO
 
-# euc to sjis (NL to CR NL)
+# euc to sjis (LF to CR LF)
 $lha ce test-tmp-sjis.lzh test-tmp-euc
 							check $? $LINENO
 # file size is too small, so no compressed
 $lha v test-tmp-euc.lzh | egrep lh0
 							check $? $LINENO
-# no convert (CR NL to NL)
+# no convert (CR LF to LF)
 $lha xtw=test-tmp-sjis-d test-tmp-sjis.lzh
 							check $? $LINENO
 diff test-tmp-sjis test-tmp-sjis-d/test-tmp-euc
 							check $? $LINENO
-# sjis to euc (CR NL to NL)
+# sjis to euc (CR LF to LF)
 $lha xew=test-tmp-euc-d2 test-tmp-sjis.lzh
 							check $? $LINENO
 diff test-tmp-euc test-tmp-euc-d2/test-tmp-euc
@@ -79,17 +79,17 @@ diff -r test-tmp-sjis2 test-tmp-unknown2-d/test-tmp-euc2 2>/dev/null
 test $? -ne 0
 							check $? $LINENO
 
-# euc to sjis (NL to CR NL)
+# euc to sjis (LF to CR LF)
 $lha ce test-tmp-sjis2.lzh test-tmp-euc2
 							check $? $LINENO
 $lha v test-tmp-euc2.lzh | egrep 'lh[567]'
 							check $? $LINENO
-# no convert (CR NL to NL)
+# no convert (CR LF to LF)
 $lha xtw=test-tmp-sjis2-d test-tmp-sjis2.lzh
 							check $? $LINENO
 diff test-tmp-sjis2 test-tmp-sjis2-d/test-tmp-euc2
 							check $? $LINENO
-# sjis to euc (CR NL to NL)
+# sjis to euc (CR LF to LF)
 $lha xew=test-tmp-euc2-d2 test-tmp-sjis2.lzh
 							check $? $LINENO
 diff test-tmp-euc2 test-tmp-euc2-d2/test-tmp-euc2
