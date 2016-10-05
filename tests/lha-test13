@@ -1,11 +1,24 @@
 # -*- shell-script -*-
 message testing the kanji code conversion.
 
-# printf '\xb4\xc1\xbb\xfa\n' > test-tmp-euc
-echo abcd | LANG=C tr abcd '\264\301\273\372'  > test-tmp-euc
+uname >&2
+case $(uname) in
+Darwin*)
+  printf '\xb4\xc1\xbb\xfa\n' > test-tmp-euc
+  ;;
+*)
+  echo abcd | LANG=C tr abcd '\264\301\273\372'  > test-tmp-euc
+  ;;
+esac
 							check $? $LINENO
-# printf '\x8a\xbf\x8e\x9a\n' > test-tmp-sjis
-echo abcd | LANG=C tr abcd '\212\277\216\232'  > test-tmp-sjis
+case $(uname) in
+Darwin*)
+  printf '\x8a\xbf\x8e\x9a\n' > test-tmp-sjis
+  ;;
+*)
+  echo abcd | LANG=C tr abcd '\212\277\216\232'  > test-tmp-sjis
+  ;;
+esac
 							check $? $LINENO
 # no convert
 $lha c test-tmp-euc.lzh test-tmp-euc
