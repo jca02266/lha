@@ -430,13 +430,11 @@ extract_one(afp, hdr)
                 }
             }
 
-            if (skip_flg == TRUE) { /* if skip_flg */
+            if (skip_flg == TRUE) {
                 if (stat(name, &stbuf) == 0 && force != TRUE) {
-                    /* if (stbuf.st_mtime >= hdr->unix_last_modified_stamp) {*/
-                        if (quiet != TRUE)
-                            printf("%s : Skipped...\n", name);
-                        return read_size;
-                    /* } */
+                    if (quiet != TRUE)
+                        printf("%s : Skipped...\n", name);
+                    return read_size;
                 }
             }
             if (noexec) {
@@ -517,13 +515,11 @@ extract_one(afp, hdr)
                     }
                 }
 
-                if (skip_flg == TRUE) { /* if skip_flg */
+                if (skip_flg == TRUE) {
                     if (GETSTAT(name, &stbuf) == 0 && force != TRUE) {
-                        /* if (stbuf.st_mtime >= hdr->unix_last_modified_stamp) { */
-                            if (quiet != TRUE)
-                                printf("%s : Skipped...\n", name);
-                            return read_size;
-                        /* } */
+                        if (quiet != TRUE)
+                            printf("%s : Skipped...\n", name);
+                        return read_size;
                     }
                 }
 
