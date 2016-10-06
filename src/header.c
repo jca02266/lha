@@ -328,9 +328,10 @@ convert_filename(name, len, size,
     }
 
 #ifdef MULTIBYTE_FILENAME
-    if (from_code == CODE_SJIS && to_code == CODE_UTF8) {
+    if ((from_code == CODE_SJIS || from_code == CODE_EUC) && to_code == CODE_UTF8) {
         for (i = 0; i < len; i++) {
-            if (SJIS_FIRST_P(name[i]) && SJIS_SECOND_P(name[i+1]))
+            if (from_code == CODE_SJIS &&
+                SJIS_FIRST_P(name[i]) && SJIS_SECOND_P(name[i+1]))
                 i++;
             else {
                 /* FIXME: provisionally fix for the Mac OS CoreFoundation */
@@ -338,7 +339,7 @@ convert_filename(name, len, size,
                     name[i] = '/';
             }
         }
-        sjis_to_utf8(tmp, name, sizeof(tmp));
+        conv_to_utf8(tmp, name, sizeof(tmp), from_code);
         strncpy(name, tmp, size);
         name[size-1] = 0;
         len = strlen(name);
@@ -346,17 +347,17 @@ convert_filename(name, len, size,
             if (name[i] == '/')  name[i] = LHA_PATHSEP;
         from_code = CODE_UTF8;
     }
-    else if (from_code == CODE_UTF8 && to_code == CODE_SJIS) {
+    else if (from_code == CODE_UTF8 && (to_code == CODE_SJIS || to_code == CODE_EUC)) {
         for (i = 0; i < len; i++)
             /* FIXME: provisionally fix for the Mac OS CoreFoundation */
             if ((unsigned char)name[i] == LHA_PATHSEP)  name[i] = '/';
-        utf8_to_sjis(tmp, name, sizeof(tmp));
+        conv_from_utf8(tmp, name, sizeof(tmp), to_code);
         strncpy(name, tmp, size);
         name[size-1] = 0;
         len = strlen(name);
         for (i = 0; i < len; i++)
             if (name[i] == '/')  name[i] = LHA_PATHSEP;
-        from_code = CODE_SJIS;
+        from_code = to_code;
     }
 #endif
 
@@ -387,7 +388,8 @@ convert_filename(name, len, size,
             len++;
             continue;
         }
-        if (from_code == CODE_EUC && (name[i] & 0x80) && (name[i+1] & 0x80)) {
+        if (from_code == CODE_EUC && (unsigned char)name[i] != LHA_PATHSEP &&
+            (name[i] & 0x80) && (name[i+1] & 0x80)) {
             int c1, c2;
             if (to_code != CODE_SJIS) {
                 i++;
@@ -2042,21 +2044,48 @@ ConvertEncodingByIconv(const char *src, char *dst, int dstsize,
 #endif /* defined(__APPLE__) */
 
 char *
-sjis_to_utf8(char *dst, const char *src, size_t dstsize)
+conv_to_utf8(char *dst, const char *src, size_t dstsize, int from_code)
 {
+#if HAVE_ICONV
+  const char *enc = NULL;
+
+  switch (from_code) {
+  case CODE_SJIS:
+      enc = "SJIS";
+      break;
+  case CODE_EUC:
+      enc = "EUC-JP";
+      break;
+  default:
+      error("unsupported encoding");
+      break;
+  }
+
 #if defined(__APPLE__)
-#if !defined(HAVE_ICONV)
-  dst[0] = '\0';
-  if (ConvertEncodingToUTF8(src, dst, dstsize,
-                            kCFStringEncodingDOSJapanese,
-                            kCFStringEncodingUseHFSPlusCanonical) == 0)
-      return dst;
+  if (enc && ConvertEncodingByIconv(src, dst, dstsize, enc, "UTF-8-MAC") != -1)
 #else
-  if (ConvertEncodingByIconv(src, dst, dstsize, "SJIS", "UTF-8-MAC") != -1)
-      return dst;
+  if (enc && ConvertEncodingByIconv(src, dst, dstsize, enc, "UTF-8") != -1)
 #endif
-#elif HAVE_ICONV
-  if (ConvertEncodingByIconv(src, dst, dstsize, "SJIS", "UTF-8") != -1)
+      return dst;
+#elif defined(__APPLE__)
+  unsigned long enc = 0; /* kCFStringEncodingMacRoman */
+
+  switch (from_code) {
+  case CODE_SJIS:
+      enc = kCFStringEncodingDOSJapanese;
+      break;
+  case CODE_EUC:
+      enc = kCFStringEncodingEUC_JP;
+      break;
+  default:
+      error("unsupported encoding");
+      break;
+  }
+
+  dst[0] = '\0';
+  if (enc && ConvertEncodingToUTF8(src, dst, dstsize,
+                            enc,
+                            kCFStringEncodingUseHFSPlusCanonical) == 0)
       return dst;
 #else
   error("not support utf-8 conversion");
@@ -2068,24 +2097,50 @@ sjis_to_utf8(char *dst, const char *src, size_t dstsize)
 }
 
 char *
-utf8_to_sjis(char *dst, const char *src, size_t dstsize)
+conv_from_utf8(char *dst, const char *src, size_t dstsize, int to_code)
 {
+#if HAVE_ICONV
+  const char *enc = NULL;
+
+  switch (to_code) {
+  case CODE_SJIS:
+      enc = "SJIS";
+      break;
+  case CODE_EUC:
+      enc = "EUC-JP";
+      break;
+  default:
+      error("unsupported encoding");
+      break;
+  }
+
 #if defined(__APPLE__)
-#if !defined(HAVE_ICONV)
+  if (enc && ConvertEncodingByIconv(src, dst, dstsize, "UTF-8-MAC", enc) != -1)
+#else
+  if (enc && ConvertEncodingByIconv(src, dst, dstsize, "UTF-8", enc) != -1)
+#endif
+      return dst;
+#elif defined(__APPLE__)
   int srclen;
+  unsigned long enc = 0; /* kCFStringEncodingMacRoman */
+
+  switch (to_code) {
+  case CODE_SJIS:
+      enc = kCFStringEncodingDOSJapanese;
+      break;
+  case CODE_EUC:
+      enc = kCFStringEncodingEUC_JP;
+      break;
+  default:
+      error("unsupported encoding");
+      break;
+  }
 
   dst[0] = '\0';
   srclen = strlen(src);
-  if (ConvertUTF8ToEncoding(src, srclen, dst, dstsize,
-                            kCFStringEncodingDOSJapanese,
+  if (enc && ConvertUTF8ToEncoding(src, srclen, dst, dstsize,
+                            enc,
                             kCFStringEncodingUseHFSPlusCanonical) == 0)
-      return dst;
-#else
-  if (ConvertEncodingByIconv(src, dst, dstsize, "UTF-8-MAC", "SJIS") != -1)
-      return dst;
-#endif
-#elif HAVE_ICONV
-  if (ConvertEncodingByIconv(src, dst, dstsize, "UTF-8", "SJIS") != -1)
       return dst;
 #else
   error("not support utf-8 conversion");
