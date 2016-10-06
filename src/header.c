@@ -569,9 +569,14 @@ get_extended_header(fp, hdr, header_size, hcrc)
     unsigned int *hcrc;
 {
     char data[LZHEADER_STORAGE];
-    int name_length;
+    int name_length = 0;
     char dirname[FILENAME_LENGTH];
     int dir_length = 0;
+#ifdef UNICODE_FILENAME
+    int name_u_length = 0;
+    char dirname_u[FILENAME_LENGTH*2];
+    int dir_u_length = 0;
+#endif
     int i;
     ssize_t whole_size = header_size;
     int ext_type;
@@ -666,6 +671,27 @@ get_extended_header(fp, hdr, header_size, hcrc)
 #endif
 
             break;
+#ifdef UNICODE_FILENAME
+        case 0x44:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < unicode filename >\n");
+#endif
+            /* unicode filename */
+            name_u_length =
+                get_bytes(hdr->name_u, header_size-n, sizeof(hdr->name_u)-2);
+            hdr->name_u[name_u_length] = 0;
+            hdr->name_u[name_u_length+1] = 0;
+            break;
+        case 0x45:
+#if DUMP_HEADER
+            if (verbose_listing && verbose > 1) printf("     < unicode directory >\n");
+#endif
+            /* unicode directory */
+            dir_u_length = get_bytes(dirname_u, header_size-n, sizeof(dirname_u)-2);
+            dirname_u[dir_u_length] = 0;
+            dirname_u[dir_u_length+1] = 0;
+            break;
+#endif
         case 0x50:
 #if DUMP_HEADER
             if (verbose_listing && verbose > 1) printf("     < UNIX permission >\n");
@@ -751,6 +777,23 @@ get_extended_header(fp, hdr, header_size, hcrc)
         strcpy(hdr->name, dirname); /* ok */
         name_length += dir_length;
     }
+
+#ifdef UNICODE_FILENAME
+    /* concatenate unicode dirname and filename */
+    if (dir_u_length) {
+        if (name_u_length + dir_u_length >= sizeof(hdr->name_u)) {
+            warning("the length of unicode pathname is too long.");
+            name_u_length = sizeof(hdr->name_u) - dir_u_length - 2;
+            hdr->name_u[name_u_length] = 0;
+            hdr->name_u[name_u_length + 1] = 0;
+        }
+        memcpy(&dirname_u[dir_u_length], hdr->name_u, name_u_length);
+        memcpy(hdr->name_u, dirname_u, name_u_length + dir_u_length);
+        name_u_length += dir_u_length;
+        hdr->name_u[name_u_length] = 0;
+        hdr->name_u[name_u_length + 1] = 0;
+    }
+#endif
 
     return whole_size;
 }
@@ -1282,10 +1325,14 @@ get_header(fp, hdr)
         filename_case = optional_filename_case;
 
     /* kanji code and delimiter conversion */
-    convert_filename(hdr->name, strlen(hdr->name), sizeof(hdr->name),
-                     archive_kanji_code,
-                     system_kanji_code,
-                     archive_delim, system_delim, filename_case);
+#ifdef UNICODE_FILENAME
+    if (convert_filename_from_unicode(hdr->name_u, hdr->name,
+                                      sizeof(hdr->name), system_kanji_code) == -1)
+#endif
+        convert_filename(hdr->name, strlen(hdr->name), sizeof(hdr->name),
+                         archive_kanji_code,
+                         system_kanji_code,
+                         archive_delim, system_delim, filename_case);
 
     if ((hdr->unix_mode & UNIX_FILE_SYMLINK) == UNIX_FILE_SYMLINK) {
         char *p;
@@ -2004,7 +2051,7 @@ ConvertUTF8ToEncoding(const char* inUTF8Buf,
 #include <iconv.h>
 
 static int
-ConvertEncodingByIconv(const char *src, char *dst, int dstsize,
+ConvertEncodingByIconv(const char *src, int srclen, char *dst, int dstsize,
                        const char *srcEnc, const char *dstEnc)
 {
     iconv_t ic;
@@ -2017,7 +2064,7 @@ ConvertEncodingByIconv(const char *src, char *dst, int dstsize,
     dst_p = &szTmpBuf[0];
     iLen = (size_t)sizeof(szTmpBuf)-1;
     src_p = (char *)src;
-    sLen = (size_t)strlen(src);
+    sLen = (size_t)srclen;
     memset(szTmpBuf, 0, sizeof(szTmpBuf));
     memset(dst, 0, dstsize);
 
@@ -2041,6 +2088,67 @@ ConvertEncodingByIconv(const char *src, char *dst, int dstsize,
 }
 #endif /* defined(__APPLE__) */
 
+#ifdef UNICODE_FILENAME
+int
+convert_filename_from_unicode(name_u, name, size, to_code)
+    char *name_u;
+    char *name;
+    int size;
+    int to_code;
+{
+#if HAVE_ICONV
+    char tmp[FILENAME_LENGTH];
+    int to_code_save = NONE;
+    const char *toEnc;
+    int i = 0;
+
+    if (to_code == CODE_CAP) {
+        to_code_save = CODE_CAP;
+        to_code = CODE_SJIS;
+    }
+
+    switch (to_code) {
+    case CODE_SJIS:
+        toEnc = "SJIS";
+        break;
+    case CODE_EUC:
+        toEnc = "EUC-JP";
+        break;
+    case CODE_UTF8:
+        toEnc = "UTF-8";
+        break;
+    default:
+        return -1;
+    }
+
+    while (name_u[i] != 0x00 || name_u[i+1] != 0x00) {
+        if ((unsigned char)name_u[i] == LHA_PATHSEP &&
+            (unsigned char)name_u[i+1] == LHA_PATHSEP) {
+            name_u[i] = 0x2F; name_u[i+1] = 0x00;
+        }
+        i += 2;
+    }
+
+    if (i == 0)
+        return -1;
+
+    if (ConvertEncodingByIconv(name_u, i, tmp, sizeof(tmp), "UTF-16LE", toEnc) == -1)
+        return -1;
+    strncpy(name, tmp, size);
+
+    if (to_code_save == CODE_CAP) {
+        sjis_to_cap(tmp, name, sizeof(tmp));
+        strncpy(name, tmp, size);
+        name[size-1] = 0;
+    }
+
+    return 0;
+#else
+    return -1;
+#endif
+}
+#endif
+
 char *
 sjis_to_utf8(char *dst, const char *src, size_t dstsize)
 {
@@ -2052,11 +2160,11 @@ sjis_to_utf8(char *dst, const char *src, size_t dstsize)
                             kCFStringEncodingUseHFSPlusCanonical) == 0)
       return dst;
 #else
-  if (ConvertEncodingByIconv(src, dst, dstsize, "SJIS", "UTF-8-MAC") != -1)
+  if (ConvertEncodingByIconv(src, strlen(src), dst, dstsize, "SJIS", "UTF-8-MAC") != -1)
       return dst;
 #endif
 #elif HAVE_ICONV
-  if (ConvertEncodingByIconv(src, dst, dstsize, "SJIS", "UTF-8") != -1)
+  if (ConvertEncodingByIconv(src, strlen(src), dst, dstsize, "SJIS", "UTF-8") != -1)
       return dst;
 #else
   error("not support utf-8 conversion");
@@ -2085,7 +2193,7 @@ utf8_to_sjis(char *dst, const char *src, size_t dstsize)
       return dst;
 #endif
 #elif HAVE_ICONV
-  if (ConvertEncodingByIconv(src, dst, dstsize, "UTF-8", "SJIS") != -1)
+  if (ConvertEncodingByIconv(src, strlen(src), dst, dstsize, "UTF-8", "SJIS") != -1)
       return dst;
 #else
   error("not support utf-8 conversion");
