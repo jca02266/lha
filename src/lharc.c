@@ -1003,7 +1003,7 @@ include_path_p(path, name)
     char           *n = name;
     while (*path)
         if (*path++ != *n++)
-            return (path[-1] == '/' && *n == '\0');
+            return (path[-1] == '/' && n[-1] == '\0');
     return (*n == '/' || (n != name && path[-1] == '/' && n[-1] == '/'));
 }
 
