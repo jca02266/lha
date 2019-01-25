@@ -58,6 +58,7 @@ fi
 
 # Checks for libraries.
 AC_SEARCH_LIBS(opendir, [mingwex])
+AC_SEARCH_LIBS(libiconv, [iconv])
 AC_CHECK_LIB(applefile, af_open)
 
 # Checks for header files.
@@ -65,6 +66,7 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h limits.h sys/file.h sys/param.h sys/time.h)
 AC_CHECK_HEADERS(pwd.h grp.h utime.h inttypes.h stdint.h fnmatch.h)
+AC_CHECK_HEADERS(iconv.h)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
