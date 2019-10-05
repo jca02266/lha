@@ -64,7 +64,7 @@ puts_argv(char **argv)
 
 #ifndef USE_GNU
 #include <stdio.h>
-#include <getopt_long.h>
+#include "getopt_long.h"
 
 char *optarg;
 int optind;
