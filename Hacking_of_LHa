@@ -3,7 +3,7 @@ $Id$
                The Hacking of LHa for UNIX (3rd draft)
              -------------------------------------------
 
-                                Koji Arai <arai@users.sourceforge.jp>
+                                      Koji Arai <jca02266@gmail.com>
 
 本書は、LHa for UNIX 1.14i のソースを解読し、その圧縮アルゴリズムの実
 装を確認するためのものだ。この成果は別の形でまとめなおされ資料になるか
