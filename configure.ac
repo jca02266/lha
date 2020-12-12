@@ -60,17 +60,32 @@ fi
 AC_SEARCH_LIBS(opendir, [mingwex])
 AC_CHECK_LIB(applefile, af_open)
 
-dnl Search iconv library
-dnl At first, search the libiconv_open() function. It is probably not part of the OS bundle.
-AC_SEARCH_LIBS(libiconv_open, [iconv])
-AC_SEARCH_LIBS(iconv_open, [iconv])
+# prefer to use libiconv
+AC_ARG_ENABLE(iconv,
+  [AC_HELP_STRING([--enable-iconv],
+     [Use iconv to support UTF-8 encoding])],
+  ,enable_iconv=yes)
+
+if test "x$enable_iconv" = xyes; then
+  dnl Search iconv library
+  dnl At first, search the libiconv_open() function. It is probably not part of the OS bundle.
+  AC_SEARCH_LIBS(libiconv_open, [iconv])
+  AC_SEARCH_LIBS(iconv_open, [iconv])
+
+  if test "x$enable_iconv" = xyes && (test "x$ac_cv_search_libiconv_open" != xno || test "x$ac_cv_search_iconv_open" != xno); then
+    AC_DEFINE(USE_ICONV, 1,
+              [Define to 1 if you have iconv library and prefer to use it])
+  fi
+fi
 
 # Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h limits.h sys/file.h sys/param.h sys/time.h)
 AC_CHECK_HEADERS(pwd.h grp.h utime.h inttypes.h stdint.h fnmatch.h)
-AC_CHECK_HEADERS(iconv.h)
+if test "x$enable_iconv" = xyes; then
+  AC_CHECK_HEADERS(iconv.h)
+fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
