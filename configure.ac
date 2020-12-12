@@ -58,8 +58,12 @@ fi
 
 # Checks for libraries.
 AC_SEARCH_LIBS(opendir, [mingwex])
-AC_SEARCH_LIBS(libiconv, [iconv])
 AC_CHECK_LIB(applefile, af_open)
+
+dnl Search iconv library
+dnl At first, search the libiconv_open() function. It is probably not part of the OS bundle.
+AC_SEARCH_LIBS(libiconv_open, [iconv])
+AC_SEARCH_LIBS(iconv_open, [iconv])
 
 # Checks for header files.
 AC_HEADER_DIRENT
@@ -106,7 +110,7 @@ AC_CHECK_FUNCS(strchr strdup memcpy memset memmove strcasecmp)
 AC_CHECK_FUNCS(mktime timelocal tzset ftime gettimeofday utime)
 AC_CHECK_FUNCS(ftruncate chsize lchown mkstemp ftello)
 AC_CHECK_FUNCS(getpwuid getgrgid getpwnam getgrnam)
-AC_CHECK_FUNCS(iconv basename)
+AC_CHECK_FUNCS(libiconv iconv basename)
 AC_REPLACE_FUNCS(vsnprintf fnmatch)
 
 if test $ac_header_dirent = no; then
