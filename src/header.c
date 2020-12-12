@@ -1493,27 +1493,27 @@ init_header(name, v_stat, hdr)
 	    hdr->unix_mode = hdr->unix_mode | UNIX_FILE_DIRECTORY;
     if (S_ISLNK(v_stat->st_mode))
 	    hdr->unix_mode = hdr->unix_mode | UNIX_FILE_SYMLINK;
-    if (v_stat->st_mode & S_IRUSR) 
+    if (v_stat->st_mode & S_IRUSR)
 	    hdr->unix_mode = hdr->unix_mode | UNIX_OWNER_READ_PERM;
-    if (v_stat->st_mode & S_IRGRP) 
+    if (v_stat->st_mode & S_IRGRP)
 	    hdr->unix_mode = hdr->unix_mode | UNIX_GROUP_READ_PERM;
-    if (v_stat->st_mode & S_IROTH) 
+    if (v_stat->st_mode & S_IROTH)
 	    hdr->unix_mode = hdr->unix_mode | UNIX_OTHER_READ_PERM;
-    if (v_stat->st_mode & S_IWUSR) 
+    if (v_stat->st_mode & S_IWUSR)
 	    hdr->unix_mode = hdr->unix_mode | UNIX_OWNER_WRITE_PERM;
-    if (v_stat->st_mode & S_IWGRP) 
+    if (v_stat->st_mode & S_IWGRP)
 	    hdr->unix_mode = hdr->unix_mode | UNIX_GROUP_WRITE_PERM;
-    if (v_stat->st_mode & S_IWOTH) 
+    if (v_stat->st_mode & S_IWOTH)
 	    hdr->unix_mode = hdr->unix_mode | UNIX_OTHER_WRITE_PERM;
-    if (v_stat->st_mode & S_IXUSR) 
+    if (v_stat->st_mode & S_IXUSR)
 	    hdr->unix_mode = hdr->unix_mode | UNIX_OWNER_EXEC_PERM;
-    if (v_stat->st_mode & S_IXGRP) 
+    if (v_stat->st_mode & S_IXGRP)
 	    hdr->unix_mode = hdr->unix_mode | UNIX_GROUP_EXEC_PERM;
-    if (v_stat->st_mode & S_IXOTH) 
+    if (v_stat->st_mode & S_IXOTH)
 	    hdr->unix_mode = hdr->unix_mode | UNIX_OTHER_EXEC_PERM;
-    if (v_stat->st_mode & S_ISUID) 
+    if (v_stat->st_mode & S_ISUID)
 	    hdr->unix_mode = hdr->unix_mode | UNIX_SETUID;
-    if (v_stat->st_mode & S_ISGID) 
+    if (v_stat->st_mode & S_ISGID)
 	    hdr->unix_mode = hdr->unix_mode | UNIX_SETGID;
 #endif /* __DJGPP__ */
 #else
@@ -1922,6 +1922,9 @@ write_header(fp, hdr)
 
 #include <CoreFoundation/CFString.h>
 #include <CoreFoundation/CFStringEncodingExt.h>
+
+unsigned int CFStringEncodingBytesToUnicode(unsigned long, unsigned long, char*, size_t, unsigned long*, UniChar*, int, unsigned long*);
+unsigned int CFStringEncodingUnicodeToBytes(unsigned long, unsigned long, UniChar*, size_t, unsigned long*, char*, int, unsigned long*);
 
 /* this is not need for Mac OS X v 10.2 later */
 enum {
