@@ -189,6 +189,32 @@ if test x$lha_cv_func_gettimeofday_2nd_arg = xyes; then
 	    [Define to 1 if the 2nd argument of gettimeofday() is effective.])
 fi
 
+# checking whether know the UTF-8-MAC encoding
+dnl For example: https://github.com/fumiyas/libiconv-utf8mac
+AC_CACHE_CHECK([whether iconv() know the UTF-8-MAC encoding],
+  [lha_cv_func_iconv_has_utf8mac],
+  AC_TRY_RUN([
+#if HAVE_ICONV_H
+# include <iconv.h>
+#endif
+
+int main()
+{
+    iconv_t ic;
+    ic = iconv_open("UTF-8-MAC", "ASCII");
+    if (ic == (iconv_t)-1) return -1;
+
+    return 0;
+}
+], lha_cv_func_iconv_has_utf8mac=yes,
+   lha_cv_func_iconv_has_utf8mac=no,
+   lha_cv_func_iconv_has_utf8mac=no))
+
+if test x$lha_cv_func_iconv_has_utf8mac = xyes; then
+  AC_DEFINE(ICONV_HAS_UTF8MAC, 1,
+	    [Define to 1 if iconv() know the UTF-8-MAC encoding.])
+fi
+
 # support kanji code conversion
 AC_SUBST(DEF_KCODE)
 AC_MSG_CHECKING(kanji code conversion on text file)
