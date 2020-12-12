@@ -33,8 +33,6 @@ boolean get_header(FILE *fp, LzHeader *hdr);
 int seek_lha_header(FILE *fp);
 void init_header(char *name, struct stat *v_stat, LzHeader *hdr);
 void write_header(FILE *fp, LzHeader *hdr);
-char *sjis_to_utf8(char *dst, const char *src, size_t dstsize);
-char *utf8_to_sjis(char *dst, const char *src, size_t dstsize);
 void euc2sjis(int *p1, int *p2);
 void sjis2euc(int *p1, int *p2);
 int cap_to_sjis(char *dst, const char *src, size_t dstsize);
@@ -137,6 +135,9 @@ int tree2_get(void);
 void hist_init(void);
 unsigned char hist_lookup(int n);
 void hist_update(unsigned char data);
+/* support_utf8.c */
+char *sjis_to_utf8(char *dst, const char *src, size_t dstsize);
+char *utf8_to_sjis(char *dst, const char *src, size_t dstsize);
 
 /* util.c */
 #if !HAVE_MEMMOVE
