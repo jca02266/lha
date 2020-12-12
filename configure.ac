@@ -1,14 +1,14 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT([LHa for UNIX], 1.14i-ac20081023, jca02266@gmail.com, lha)
 AC_DEFINE_UNQUOTED(LHA_CONFIGURE_OPTIONS, "$ac_configure_args",
-	    [specified options for the configure script.])
+            [specified options for the configure script.])
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS(config.h)
 
 AC_DEFINE_UNQUOTED(PLATFORM, "$ac_cv_host",
-		   [the type of system on which the package will run.])
+                   [the type of system on which the package will run.])
 
 # Checks for programs.
 AC_PROG_CC
@@ -163,7 +163,7 @@ int main()
 
 if test x$lha_cv_func_strchr_8bit_clean = xyes; then
   AC_DEFINE(STRCHR_8BIT_CLEAN, 1,
-	    [Define to 1 if strchr()/strrchr() works correctly.])
+            [Define to 1 if strchr()/strrchr() works correctly.])
 fi
 
 # checking whether the 2nd argument of gettimeofday() is effective or not.
@@ -192,7 +192,7 @@ int main()
         return 1;
 
     if (tz.tz_minuteswest == -1)
-        return 1;	/* the timezone information is no given */
+        return 1;       /* the timezone information is no given */
 
     return 0;
 }], lha_cv_func_gettimeofday_2nd_arg=yes,
@@ -201,7 +201,7 @@ int main()
 
 if test x$lha_cv_func_gettimeofday_2nd_arg = xyes; then
   AC_DEFINE(GETTIMEOFDAY_HAS_2ND_ARG, 1,
-	    [Define to 1 if the 2nd argument of gettimeofday() is effective.])
+            [Define to 1 if the 2nd argument of gettimeofday() is effective.])
 fi
 
 # checking whether know the UTF-8-MAC encoding
@@ -227,7 +227,7 @@ int main()
 
 if test x$lha_cv_func_iconv_has_utf8mac = xyes; then
   AC_DEFINE(ICONV_HAS_UTF8MAC, 1,
-	    [Define to 1 if iconv() know the UTF-8-MAC encoding.])
+            [Define to 1 if iconv() know the UTF-8-MAC encoding.])
 fi
 
 # support kanji code conversion
@@ -235,7 +235,7 @@ AC_SUBST(DEF_KCODE)
 AC_MSG_CHECKING(kanji code conversion on text file)
 AC_ARG_ENABLE(text-conv,
   AC_HELP_STRING([--enable-text-conv],
-		 [support text code convert from/to EUC [[default=yes]]]),
+                 [support text code convert from/to EUC [[default=yes]]]),
   , enable_text_conv=yes)
 
 AC_MSG_RESULT($enable_text_conv)
@@ -251,7 +251,7 @@ SUPPORT_LZHUFF_METHOD=-DSUPPORT_LH7
 AC_MSG_CHECKING(default archive method)
 AC_ARG_WITH(default-method,
   [AC_HELP_STRING([[[[--with-default-method=[567]]]]],
-		 [create the -lh[567]- archive default [default=5]])],
+                 [create the -lh[567]- archive default [default=5]])],
   [case $withval in
    [[567]]) ;;
    *) AC_MSG_ERROR([you should have specified 5, 6 or 7]);;
@@ -264,7 +264,7 @@ AC_DEFINE_UNQUOTED(DEFAULT_LZHUFF_METHOD, LZHUFF${with_default_method}_METHOD_NU
 AC_MSG_CHECKING(template of the temporary file)
 AC_ARG_WITH(tmp-file,
   AC_HELP_STRING([--with-tmp-file=TEMPLATE],
-		 [temporary file template [[default=/tmp/lhXXXXXX]]]),
+                 [temporary file template [[default=/tmp/lhXXXXXX]]]),
   [case $withval in
    yes)  with_tmp_file=/tmp/lhXXXXXX ;;
    no)   ;;
@@ -281,7 +281,7 @@ fi
 AC_MSG_CHECKING(whether incremental indicator is needed)
 AC_ARG_ENABLE(indicator,
   AC_HELP_STRING([--enable-indicator],
-		 [need incremental indicator [[default=yes]]]),
+                 [need incremental indicator [[default=yes]]]),
   ,
   # default
   enable_indicator=yes)
@@ -289,14 +289,14 @@ AC_ARG_ENABLE(indicator,
 AC_MSG_RESULT($enable_indicator)
 if test "x$enable_indicator" = xyes; then
   AC_DEFINE(NEED_INCREMENTAL_INDICATOR, 1,
-	    [Define to 1 if you want to use the incremental indicator])
+            [Define to 1 if you want to use the incremental indicator])
 fi
 
 # support multibyte filename
 AC_MSG_CHECKING(kanji code of filename)
 AC_ARG_ENABLE(multibyte-filename,
   AC_HELP_STRING([--enable-multibyte-filename],
-		 [support multibyte filename. specify kanji code (euc, sjis, utf8 or auto) [[default=auto]]]),,
+                 [support multibyte filename. specify kanji code (euc, sjis, utf8 or auto) [[default=auto]]]),,
   # default
   enable_multibyte_filename=auto)
 
@@ -307,15 +307,15 @@ auto|yes)
 SJIS
 #endif], enable_multibyte_filename=CODE_SJIS,
   AC_EGREP_CPP(UTF8,[
-#if defined(__APPLE__)	/* for Mac OS X */
+#if defined(__APPLE__)  /* for Mac OS X */
 UTF8
 #endif], enable_multibyte_filename=CODE_UTF8,
          enable_multibyte_filename=CODE_EUC));;
 sjis)    enable_multibyte_filename=CODE_SJIS;;
 euc)     enable_multibyte_filename=CODE_EUC;;
 utf8)    enable_multibyte_filename=CODE_UTF8;;
-no)	 ;;
-*)	 AC_MSG_ERROR([you should specify auto, sjis or euc as your system filename code.]);;
+no)      ;;
+*)       AC_MSG_ERROR([you should specify auto, sjis or euc as your system filename code.]);;
 esac
 
 AC_MSG_RESULT($enable_multibyte_filename)
@@ -325,9 +325,9 @@ if test x$enable_multibyte_filename != xno; then
 
   case $target_os in
   darwin*)
-	# for multibyte filename
-	LDFLAGS="$LDFLAGS -framework CoreFoundation"
-	;;
+        # for multibyte filename
+        LDFLAGS="$LDFLAGS -framework CoreFoundation"
+        ;;
   esac
 fi
 
@@ -335,7 +335,7 @@ fi
 AC_MSG_CHECKING(whether user/group name extended header is needed)
 AC_ARG_ENABLE(user-name-header,
   AC_HELP_STRING([--enable-user-name-header],
-		 [make user/group name extended header [[default=no]]]),
+                 [make user/group name extended header [[default=no]]]),
   ,
   # default
   enable_user_name_header=no)
@@ -350,7 +350,7 @@ fi
 AC_MSG_CHECKING(whether backup file for old archive is left)
 AC_ARG_ENABLE(backup-archive,
   AC_HELP_STRING([--enable-backup-archive],
-		 [backup old archive [[default=no]]]),
+                 [backup old archive [[default=no]]]),
   ,
   # default
   enable_backup_archive=no)
@@ -358,20 +358,20 @@ AC_ARG_ENABLE(backup-archive,
 AC_MSG_RESULT($enable_backup_archive)
 if test "x$enable_backup_archive" = xyes; then
   AC_DEFINE(BACKUP_OLD_ARCHIVE, 1,
-	    [Define to 1 if you want to leave an old archive])
+            [Define to 1 if you want to leave an old archive])
 fi
 
 # additional suffixes of archive filename.
 AC_MSG_CHECKING(additional suffixes of archive filename)
 AC_ARG_WITH(additional-suffixes,
   [AC_HELP_STRING([[[--with-additional-suffixes=foo,bar]]],
-		 [additional suffixes of archive filename, default is empty string])],
+                 [additional suffixes of archive filename, default is empty string])],
   ,
   with_additional_suffixes="")
 
 AC_MSG_RESULT($with_additional_suffixes)
 AC_DEFINE_UNQUOTED(ADDITIONAL_SUFFIXES, "$with_additional_suffixes",
-	    [Define to comma separated suffixes list if you wish to regard it as implicit archive suffixes.])
+            [Define to comma separated suffixes list if you wish to regard it as implicit archive suffixes.])
 
 case $host_os in
 *msdosdjgpp*)
