@@ -33,6 +33,9 @@ boolean get_header(FILE *fp, LzHeader *hdr);
 int seek_lha_header(FILE *fp);
 void init_header(char *name, struct stat *v_stat, LzHeader *hdr);
 void write_header(FILE *fp, LzHeader *hdr);
+#ifdef UNICODE_FILENAME
+int convert_filename_from_unicode(char *name_u, char *name, int size, int to_code);
+#endif
 char *sjis_to_utf8(char *dst, const char *src, size_t dstsize);
 char *utf8_to_sjis(char *dst, const char *src, size_t dstsize);
 void euc2sjis(int *p1, int *p2);

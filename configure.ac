@@ -247,6 +247,21 @@ if test "x$enable_indicator" = xyes; then
 	    [Define to 1 if you want to use the incremental indicator])
 fi
 
+# support unicode filename
+AC_MSG_CHECKING(whether unicode filename is supported)
+AC_ARG_ENABLE(unicode-filename,
+  AC_HELP_STRING([--enable-unicode-filename],
+		 [support unicode filename [[default=yes]]]),
+  ,
+  # default
+  enable_unicode_filename=yes)
+
+AC_MSG_RESULT($enable_unicode_filename)
+if test "x$enable_unicode_filename" = xyes; then
+  AC_DEFINE(UNICODE_FILENAME, 1,
+	    [Define to 1 if you want to support unicode filename])
+fi
+
 # support multibyte filename
 AC_MSG_CHECKING(kanji code of filename)
 AC_ARG_ENABLE(multibyte-filename,
