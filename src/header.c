@@ -1918,7 +1918,7 @@ write_header(fp, hdr)
 
 #if MULTIBYTE_FILENAME
 
-#if defined(__APPLE__) && !defined(HAVE_ICONV)  /* Added by Hiroto Sakai */
+#if defined(__APPLE__) && !USE_ICONV  /* Added by Hiroto Sakai */
 
 #include <CoreFoundation/CFString.h>
 #include <CoreFoundation/CFStringEncodingExt.h>
@@ -2016,8 +2016,10 @@ ConvertUTF8ToEncoding(const char* inUTF8Buf,
     return cfResult;
 }
 
-#elif HAVE_ICONV
+#elif USE_ICONV
+#if HAVE_ICONV_H
 #include <iconv.h>
+#endif
 
 static int
 ConvertEncodingByIconv(const char *src, char *dst, size_t dstsize,
@@ -2057,23 +2059,23 @@ ConvertEncodingByIconv(const char *src, char *dst, size_t dstsize,
 }
 #endif /* defined(__APPLE__) */
 
+#if ICONV_HAS_UTF8MAC
+#define LHA_ENCODING_UTF8 "UTF-8-MAC"
+#else
+#define LHA_ENCODING_UTF8 "UTF-8"
+#endif
+
 char *
 sjis_to_utf8(char *dst, const char *src, size_t dstsize)
 {
-#if defined(__APPLE__)
-#if !defined(HAVE_ICONV)
+#if defined(__APPLE__) && !USE_ICONV
   dst[0] = '\0';
   if (ConvertEncodingToUTF8(src, dst, dstsize,
                             kCFStringEncodingDOSJapanese,
                             kCFStringEncodingUseHFSPlusCanonical) == 0)
       return dst;
-#else
-  if (ConvertEncodingByIconv(src, dst, dstsize, "SJIS", "UTF-8-MAC") != -1)
-      return dst;
-#endif
-#elif HAVE_ICONV
-  if (ConvertEncodingByIconv(src, dst, dstsize, "SJIS", "UTF-8") != -1)
-      return dst;
+#elif USE_ICONV
+  if (ConvertEncodingByIconv(src, dst, dstsize, "SJIS", LHA_ENCODING_UTF8) != -1)
 #else
   error("not support utf-8 conversion");
 #endif
@@ -2086,8 +2088,7 @@ sjis_to_utf8(char *dst, const char *src, size_t dstsize)
 char *
 utf8_to_sjis(char *dst, const char *src, size_t dstsize)
 {
-#if defined(__APPLE__)
-#if !defined(HAVE_ICONV)
+#if defined(__APPLE__) && !USE_ICONV
   int srclen;
 
   dst[0] = '\0';
@@ -2096,12 +2097,8 @@ utf8_to_sjis(char *dst, const char *src, size_t dstsize)
                             kCFStringEncodingDOSJapanese,
                             kCFStringEncodingUseHFSPlusCanonical) == 0)
       return dst;
-#else
-  if (ConvertEncodingByIconv(src, dst, dstsize, "UTF-8-MAC", "SJIS") != -1)
-      return dst;
-#endif
-#elif HAVE_ICONV
-  if (ConvertEncodingByIconv(src, dst, dstsize, "UTF-8", "SJIS") != -1)
+#elif USE_ICONV
+  if (ConvertEncodingByIconv(src, dst, dstsize, LHA_ENCODING_UTF8, "SJIS") != -1)
       return dst;
 #else
   error("not support utf-8 conversion");
