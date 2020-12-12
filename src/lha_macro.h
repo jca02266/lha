@@ -130,6 +130,7 @@
 #define EXTEND_CPM              'C'
 #define EXTEND_FLEX             'F'
 #define EXTEND_RUNSER           'R'
+#define EXTEND_AMIGA            'A'
 
 /* this OS type is not official */
 

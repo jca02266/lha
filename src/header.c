@@ -1265,6 +1265,17 @@ get_header(fp, hdr)
         filename_case = NONE;
         break;
 
+    case EXTEND_AMIGA:
+        {
+            /* workaround */
+            size_t len = strlen(hdr->name);
+            if (len > 0 && (unsigned char)hdr->name[len-1] == LHA_PATHSEP
+                && memcmp(hdr->method, LZHUFF0_METHOD, sizeof(hdr->method)) == 0) {
+                /* replace with "-lhd-" */
+                memcpy(hdr->method, LZHDIRS_METHOD, sizeof(hdr->method));
+            }
+        }
+        break;
     default:
         filename_case = convertcase ? TO_LOWER : NONE;
         break;
