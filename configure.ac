@@ -66,6 +66,7 @@ AC_ARG_ENABLE(iconv,
      [Use iconv to support UTF-8 encoding])],
   ,enable_iconv=yes)
 
+use_iconv=no
 if test "x$enable_iconv" = xyes; then
   dnl Search iconv library
   dnl At first, search the libiconv_open() function. It is probably not part of the OS bundle.
@@ -73,6 +74,7 @@ if test "x$enable_iconv" = xyes; then
   AC_SEARCH_LIBS(iconv_open, [iconv])
 
   if test "x$enable_iconv" = xyes && (test "x$ac_cv_search_libiconv_open" != xno || test "x$ac_cv_search_iconv_open" != xno); then
+    use_iconv=yes
     AC_DEFINE(USE_ICONV, 1,
               [Define to 1 if you have iconv library and prefer to use it])
   fi
@@ -326,7 +328,9 @@ if test x$enable_multibyte_filename != xno; then
   case $target_os in
   darwin*)
         # for multibyte filename
-        LDFLAGS="$LDFLAGS -framework CoreFoundation"
+        if test $use_iconv = no; then
+          LDFLAGS="$LDFLAGS -framework CoreFoundation"
+        fi
         ;;
   esac
 fi
