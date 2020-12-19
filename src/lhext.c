@@ -220,6 +220,16 @@ adjust_info(name, hdr)
     char           *name;
     LzHeader       *hdr;
 {
+#if HAVE_UTIMES
+    struct timeval timevals[2];
+
+    /* adjust file stamp */
+    timevals[0].tv_sec = timevals[1].tv_sec = hdr->unix_last_modified_stamp;
+    timevals[0].tv_usec = timevals[1].tv_usec = 0;
+
+    if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK)
+        utimes(name, timevals);
+#else
     struct utimbuf utimebuf;
 
     /* adjust file stamp */
@@ -227,6 +237,7 @@ adjust_info(name, hdr)
 
     if ((hdr->unix_mode & UNIX_FILE_TYPEMASK) != UNIX_FILE_SYMLINK)
         utime(name, &utimebuf);
+#endif
 
     if (hdr->extend_type == EXTEND_UNIX
         || hdr->extend_type == EXTEND_OS68K

@@ -399,9 +399,16 @@ set_archive_file_mode()
     chmod(new_archive_name, archive_file_mode);
 
     if (timestamp_archive && most_recent) {
+#if HAVE_UTIMES
+        struct timeval  timevals[2];
+        timevals[0].tv_sec = timevals[1].tv_sec = most_recent;
+        timevals[0].tv_usec = timevals[1].tv_usec = 0;
+        utimes(new_archive_name, timevals);
+#else
         struct utimbuf  utimebuf;
         utimebuf.actime = utimebuf.modtime = most_recent;
         utime(new_archive_name, &utimebuf);
+#endif
     }
 }
 
