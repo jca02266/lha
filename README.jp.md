@@ -171,15 +171,14 @@ Mac OS X 用の utf8 <-> sjis 変換は、2002/6 に坂井浩人さんに作成�
 いただきました。ありがとうございます。
 
 また、Mac OS X 以外でも、iconv ライブラリを使用すれば、UTF-8 を使用す
-ることができます。ただし、現在のところ iconv ライブラリの存在を自動的
-に検出しないので、libc に iconv() 関数がなく、libiconv が存在する
-(iconvライブラリをリンクする必要がある)環境では、コンパイル時に
+ることができます。もし、iconv を使用したくない場合は
 
 ```
-   sh ./configure LIBS=-liconv
+   sh ./configure --disable-iconv
 ```
 
-などとする必要があります。
+としてください。特に Mac OS X ではこうすることで、Core Foundationライブラリ
+を使用した UTF-8 対応を行います。
 
 ### 標準入力からの展開ファイルの指定
 

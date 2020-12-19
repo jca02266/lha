@@ -23,6 +23,7 @@ SOURCES='append.c bitio.c crcio.c dhuf.c extract.c header.c
 	lhlist.c maketbl.c maketree.c patmatch.c
 	shuf.c slide.c util.c
 	pm2.c pm2tree.c pm2hist.c
+	support_utf8.c
 '
 
 test -f prototypes.h && mv -f prototypes.h prototypes.h.bak
