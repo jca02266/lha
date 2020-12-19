@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([LHa for UNIX], 1.14i-ac20081023, jca02266@gmail.com, lha)
+AC_INIT([LHa for UNIX], 1.14i-ac20201220, jca02266@gmail.com, lha)
 AC_DEFINE_UNQUOTED(LHA_CONFIGURE_OPTIONS, "$ac_configure_args",
             [specified options for the configure script.])
 AC_CANONICAL_HOST
