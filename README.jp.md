@@ -115,10 +115,9 @@ autoconf 版では、configure オプション --enable-multibyte-filename に
           システムの漢字コードを EUC として扱います。
     --enable-multibyte-filename=utf8
           システムの漢字コードを UTF-8 として扱います。
-          今のところ Mac OS X でだけこのオプションをサポートします。
     --enable-multibyte-filename=auto (または yes または引数なし)
           システムの漢字コードを自動で判別します。自動といっても現状は、
-          Cygwin, MinGW, HP-UX の場合に SJIS、Mac OS X の場合 UTF-8、
+          Cygwin, MinGW, HP-UX の場合に SJIS、iconvライブラリが利用できる場合 UTF-8、
           それ以外を EUC とみなすだけです。
     --enable-multibyte-filename=no
     --disable-multibyte-filename

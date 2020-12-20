@@ -309,7 +309,7 @@ auto|yes)
 SJIS
 #endif], enable_multibyte_filename=CODE_SJIS,
   AC_EGREP_CPP(UTF8,[
-#if defined(__APPLE__)  /* for Mac OS X */
+#if USE_ICONV
 UTF8
 #endif], enable_multibyte_filename=CODE_UTF8,
          enable_multibyte_filename=CODE_EUC));;
