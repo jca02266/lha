@@ -232,21 +232,10 @@ Since no extended headers were used for file names, if you write a file name (ex
 ### Fixed bugs in level 0 header
 
 Invalid archives were being created for long pathnames (including directory name) that exceeded the size limit of the archive header.
-(In fact, the originals do not write any directory information in the
-In fact, the original does not include any directory information in the level 0 header.
-In the autoconf version, pathnames exceeding the limit are warned.
-The autoconf version outputs a warning message for pathnames that exceed the limit, and truncates the end of the pathname.
-The autoconf version will print a warning message for pathnames that exceed the limit and truncate the pathname afterwards. (The level 0 header should not be used).
+(actually, this limit still only applies to the filename length, since the original does not write any directory information in the level 0 header).
+The autoconf version will output a warning message for pathnames that exceed the limit, and will truncate the end of the pathname. (The level 0 header should not be used).
 
-
-長いパス名(ディレクトリも含む)に対してアーカイブヘッダのサイズ制
-限を越えた不正なアーカイブが作成されていました(実際には、オリジ
-ナルは level 0 header にディレクトリの情報を一切書かないのでこの
-制限はやはりファイル名長だけが対象になります)。autoconf 版では制
-限を越えたパス名は warning メッセージを出力し、パス名の後ろを
-切り詰めます。(level 0 header は使用するべきではありません)
-
-空の(ディレクトリ名情報のない) -lhd- ヘッダが作成されていました。
+An empty -lhd- header (with no directory name information) was created.
 
 ```
   $ mkdir foo
@@ -259,24 +248,21 @@ The autoconf version will print a warning message for pathnames that exceed the 
    Total         1 file        0       0 ******            Jul 29 00:18
 ```
 
-なお、level 0 header で -lhd- method は使えないという説がある
+Note that there is a theory that the `-lhd-` method cannot be used with level 0 headers.
 
   <http://kuwa.xps.jp/x68k/KGARC/ARC/LHAHED15.ZIP>
 
-のですが、吉崎栄泰氏のオリジナル LHA (DOS/Windows版) (ver 2.55,
-2.67) などは -lhd- method を level 0 header で作成します。
+However, Haruyasu Yoshizaki's original LHA for DOS/Windows (ver 2.55, 2.67) creates -lhd- method in level 0 header.
 
-※ この意見は認められ(<http://kuwa.xps.jp/diary/2002-10.html#27_3>)、
-   上記のドキュメントは、訂正されたようです。
+This opinion was acknowledged. (<http://kuwa.xps.jp/diary/2002-10.html#27_3>)
+The above document have been fixed.
 
   <http://kuwa.xps.jp/x68k/KGARC/ARC/LHAHED21.ZIP>
 
-### Change behavior with -g option
-g オプションを付けたときの level 0, 1, 2 header
 
-g オプションは、アーカイブ作成のとき UNIX 固有の情報をアーカイブ
-に作成するのを抑止すると man にはあるのですが、実際にはディレク
-トリ情報まで抑止されていました。
+### Change behavior with -g option
+
+The `-g` option is said in the man page to suppress the creation of UNIX-specific information in the archive when creating an archive, but in fact it suppressed directory information as well.
 
 ```
   $ mkdir foo
@@ -290,113 +276,101 @@ g オプションは、アーカイブ作成のとき UNIX 固有の情報をア
    Total         1 file        0 ****** Jul 29 00:02
 ```
 
-autoconf 版では上記は foo/bar になります。(オリジナルはわざとそ
-うしていたのかもしれませんが、そうする理由はないと判断しました)
-g オプションで -lhd- の作成が抑止されるのは同じです。
+In the autoconf version, the above becomes foo/bar.
+(The original may have done this on purpose, but I saw no reason to do so.)
+The `-g` option suppresses the creation of `-lhd-`, it is same behavior as original one.
 
-なお、g オプションとヘッダレベルの指定を同時に行うときは上記のよ
-うに g オプションを先に指定する必要があります。lha c1g など g オ
-プションを後に指定すると level 0 header が作成されます(このオリ
-ジナル仕様はちょっとわかりにくいです)。
+In addition, if you specify the `-g` option and the header level option (`-0`, `-1` and so on ) at the same time, you need to specify the g option first, as shown above(`lha cg1`).
+If you specify the `-g` option afterwards, such as `lha c1g`, a level 0 header will be created.
+(this original behavior is a bit confusing)
 
 ## level 3 header
 
-世の中には、level 3 header というものが存在するようですが、まだ仕様
-としてfix されてないようなので*読み込みのみ*サポートしました。追加の
-拡張ヘッダは未対応です。(特に対応すべきヘッダが見当たらなかった)
-largefile 対応する場合は、この level 3 header をサポートした方が良さ
-そうです。
+There seems to be a level 3 header in the world, but it is not yet fixed as a specification,
+so I added *read only* support.
+Additional extension headers are not supported. (I couldn't find any header that should be supported).
+If you want to support largefile, you might want to support this level 3 header.
 
-## ヘッダのダンプ
+## dump of header information for debugging
 
-まったくのおまけ機能としてヘッダのダンプ機能を追加しました。これは完
-全にデバッグ用です。
+As a totally extra feature, I added the ability to dump headers.
+This is completely for debugging purposes.
 
 ```
-  lha vvv foo.lzh
+lha vvv foo.lzh
 ```
 
-とすると、アーカイブの内容一覧にまざってダンプが出力されます。
+This will output a dump with the list of archive contents.
 
-## デフォルトヘッダレベル
+## Change default header level
 
-アーカイブを作成するときのデフォルトのヘッダレベルを 2 にしました。
-(オリジナルの LHa for UNIX 1.14i ではレベル 1 がデフォルト)
+The default header level when creating an archive is now 2.
+(The original LHa for UNIX 1.14i defaulted to level 1)
 
-## 拡張ヘッダ
+## Support extended header
 
-拡張ヘッダ Windows timestamp (0x41) を解釈するようにしました。(level
-1 header のみ)。level 2 以上では、基本ヘッダに time_t の情報があるの
-で、拡張ヘッダの方は無視します。
-level 1 header のアーカイブに対して、Windows timestamp 拡張ヘッダ
-を出力する LHA アーカイバが存在するかどうかは未確認です。あまり、
-役に立たない修正だった気がしますがせっかく作ったので残してます:-)
+The extended header Windows timestamp (0x41) now read (in level 1 header only).
+For level 2 header and later, the extended header is ignored because the basic header contains the `time_t` information.
+It has not been confirmed whether there is an LHA archiver that outputs Windows timestamp extension headers for level 1 header archives. I don't think this is a very useful fix, but I'm keeping it because I made it :-)
 
-## -x オプション
+## Added `-x` option
 
-圧縮対象のファイルから除外されるパターンを指定する -x オプションを追
-加しました。これに伴い、
+Added the `-x` option to specify the pattern to be excluded from the files to be compressed.
 
 ```
   lha c -x '*.o' -x='*.a' -x'*.c' src.lzh src
 ```
 
-といった指定ができるよう、オプション解析部は変更されました。
-本バージョンの usage は以下のようになります。
+The option parsing code has been reconstruct so that you can specify something like
+The usage of this version is as follows
 
 ```
   usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]
 ```
 
-## Cygwin での解凍
+## Extracting in Cygwin
 
-MS-DOS タイプなど permission の情報を持たないアーカイブを Cygwin で
-解凍する場合は、0777 & ~umask で展開するようにしました。これは、.exe
-や .dll に実行属性を付けるためです。
+When decompressing archives that do not have permission information, such as MS-DOS types,
+Cygwin now decompresses them with 0777 & ~umask.
+This is so that .exe and .dll can have the execute attribute.
 
-## large files 対応
+## Support Large files
 
-システムが対応していれば、2G over な large file を扱うことができます
-(configure が適当なコンパイラオプションを指定してくれます)
+It can handle large files (over 2G) if your system supports it.
+(configure script will provide you with the appropriate compiler options).
 
-ただし、HP-UX 11.0 で large files に対応するには以下のように
-
-```
-      CC="cc -Ae +DA2.0W"
-```
-
-と指示してあげる必要があるようです。
+However, to support large files on HP-UX 11.0, you need to use
 
 ```
-      ./configure --with-tmp-file=no CC="cc -Ae +DA2.0W" \
-                              ac_cv_have_mktime=yes \
-                              ac_cv_func_mktime=yes
+CC="cc -Ae +DA2.0W"
 ```
 
---with-tmp-file=no は、中間ファイルを出力先と同じディレクトリに
-作成します。テンポラリディレクトリが 2G over をサポートしていない
-場合を考慮しています。
-
-(largefiles 対応とは関係ありませんが ac_cv_*=yes は、HP-UX ではなぜ
-か mktime の判定に失敗するため強制的に mktime を使うようにしています)
-
-もし large files 対応を「無効」にしたければ、
+It seems that you need to instruct them to do so.
 
 ```
-      ./configure --disable-largefile
+./configure --with-tmp-file=no CC="cc -Ae +DA2.0W" \
+                        ac_cv_have_mktime=yes \
+                        ac_cv_func_mktime=yes
 ```
 
-のようにします。
+`--with-tmp-file=no` will create intermediate files in the same directory as the output destination.
+This is in case the temporary directory does not support 2G over.
 
-なお、正規の LHA では、level 0, 1, 2 ヘッダの仕様上 4G 未満のファイル
-しか書庫に格納できません(ファイルサイズを格納する領域が 4 bytes しかない)。
+(This is not related to largefiles support, but ac_cv_*=yes forces HP-UX to use mktime because
+it fails to detect mktime for some reason.)
 
-しかし、UNLHA32.DLL などは、拡張ヘッダ(0x42)により、4G over なファイ
-ルも扱えるようになっています。autoconf 版では、今のところ展開のときの
-みこの拡張ヘッダを参照して、4G overファイルをサポートします。
+If you want to "disable" large files support, you can use the
 
-(作成に対応していないのは、安易にUNLHA32.DLLに従うことが正しいのかよ
-くわからなかったからです。)
+```
+./configure --disable-largefile
+```
+
+In regular LHA, only files less than 4G can be archived due to the specification of the level 0, 1, and 2 headers (there are only 4 bytes of space to store the file size).
+
+However, UNLHA32.DLL, for example, has an extension header (0x42) that allows it to handle files over 4G.
+The autoconf version currently supports files over 4G by referring to this extension header only during decompression.
+(The reason it does not support creation is that I was not sure if it was correct to simply follow UNLHA32.DLL.)
+
 
 ## MacBinaryつきアーカイブのサポート
 
