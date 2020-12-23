@@ -176,10 +176,30 @@ LHa for UNIX 拡張ヘッダ仕様
 	はなく、展開時には無視する。
 	また、(4)はヘッダレベル1の書庫にのみ含まれる。
 
+・LHa for UNIX ver 1.14i with autoconf での実装(2002-06-04 新井)
+
 	(3) を作成するようにしてみました。展開と一覧表示のときに (3) 
 	の情報があれば ID に優先します。
 	作成は configure オプション --enable-user-name-header を指定して
-	build したときに有効になります。(2002-06-04 新井)
+	build したときに有効になります。
+
+・追記: Unicode filename
+
+        UNLHA32.DLL ver 2.39a以降で、Unicodeファイル名に対応しているらしく、
+        以下の拡張ヘッダが定義されている(未実装)
+
+        Unicode filename header
+         1 0x44
+         ? filename (UTF-16LE)
+         2 next-header size
+
+        Unicode dirname header
+         1 0x45
+         ? dirname (UTF-16LE)
+         2 next-header size
+
+        このヘッダがついている場合、従来のファイル名ヘッダー(01h)、
+        ディレクトリ名ヘッダー(02h)は付与されないらしい。
 
 ----------------------------------------------------------------
 以上。
