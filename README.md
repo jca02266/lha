@@ -201,7 +201,7 @@ If you want to restore the original feature, change `#if 0` to `#if 1` at line a
 ## Extended header (user/group name) support
 
 It is now possible to create extended headers (0x52, 0x53) for user and group names for Unix.
-(default is off). See the `header.doc.jp` file for details.
+(default is off). See the `header.doc.md` file for details.
 
 When expanding and listing, if this information is in the header, it is used in preference to the ID.
 
