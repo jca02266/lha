@@ -3,7 +3,7 @@ LHa for UNIX with Autoconf
 
 Translated with www.DeepL.com/Translator (free version)
 
-This file describes the Autoconf version of LHa for UNIX.
+This file describes the Autoconf version of the LHa for UNIX.
 
 # How to compile
 
@@ -19,8 +19,8 @@ make check
 make install
 ```
 
-MinGW support is in alpha. It has not been tested much (only make check succeeds).
-To try out the MinGW version under Cygwin, use the
+MinGW support is in alpha. It has not been tested much (I only confirmed to success "make check").
+To try out the MinGW version under Cygwin, use the:
 
 ```
 sh ./configure \
@@ -54,7 +54,7 @@ autoheader
 automake -a
 autoconf
 
-# The procedure from aclocal to autoconf can replace with `autoreconf -is`
+# The steps from aclocal to autoconf can replace with `autoreconf -is`
 
 sh ./configure
 make
@@ -64,55 +64,54 @@ make install
 
 # Changes from the original
 
-The Autoconf version of LHa for UNIX has been modified based on the
+The Autoconf version of the LHa for UNIX has been modified based on the
 LHa for UNIX ver1.14i <http://www2m.biglobe.ne.jp/~dolphin/lha/lha.htm>
 
 The main changes are listed below.
 
-### -lh6-, -lh7- methods
+## -lh6-, -lh7- methods
 
-In the original LHa for UNIX 1.14i, if you compile without defining SUPPORT_LH7
-it was not possible to archive with -lh6- and -lh7- methods.
-This is not a problem, but when SUPPORT_LH7 is defined, the -lh7- method is created by default.
+In the original LHa for UNIX 1.14i, if you compile without defining the `SUPPORT_LH7` macro,
+it was not possible to archive with `-lh6-` and `-lh7-` methods.
+This is not a problem, but when the `SUPPORT_LH7` is defined, the `-lh7-` method is created by default.
 So, to make it more flexible for lha users to choose these methods:
-* SUPPORT_LH7 should always be defined.
+* `SUPPORT_LH7` should always be defined.
 * default archive method can be specified with the configure option `--with-default-method=[567]`.
-The default method for archives created by default can be specified with the configure option
---with-default-method=[567].
 
-The default value of this option is `-lh5-`. The command line option of lha, `-o6` or `-o7` options can create
-`-lh6-` or `-lh7-` archives at using time, and the configure option can change the default behavior.
+The default value of this configure option is `-lh5-`. The command line option of lha, `-o6` or `-o7` options
+can create `-lh6-` or `-lh7-` archives at using time, and the configure option can change the default method.
 
-## Japanese Kanji file names in the archive
+## Filename encoding in the archive
 
-The original LHa for UNIX 1.14i is careless about Japanese Kanji character codes of file names in archives.
+The original LHa for UNIX 1.14i is careless about encoding of filenames in archives.
 
-Even when MULTIBYTE_CHAR is defined at compile time, it does not convert between Kanji code in the archive and
-the system Kanji code.
+Even when the `MULTIBYTE_CHAR` macro is defined at compile time, it does not convert encoding between
+filenames in the archive and the system filename.
 
-In the autoconf version, the configure option `--enable-multibyte-filename` allows the use of Kanji file
-names, and treats the Kanji code of file names stored in the archive as fixed to Japanese Shift JIS (it is
+In the autoconf version, the configure option `--enable-multibyte-filename` allows the use of Japanese Kanji
+filename. it considers encoding of filenames stored in the archive as fixed to Japanese Shift JIS (it is
 specs of LHA).
 
-The value of `--enable-multibyte-filename` is specifying the Kanji code of the system filename.
-These are follows:
+The value of `--enable-multibyte-filename` is specifying Japanese Kanji character encoding of the system
+filename. These are follows:
 
 ```
 --enable-multibyte-filename=sjis
-      system's Kanji code as Shift_JIS.
+      Specifies filename encoding of the system as Shift_JIS.
 
 --enable-multibyte-filename=euc
-      system's Kanji code as EUC-JP.
+      Specifies filename encoding of the system as EUC-JP.
 
 --enable-multibyte-filename=utf8
-      system's Kanji code as UTF-8.
+      Specifies filename encoding of the system as UTF-8.
 
 --enable-multibyte-filename=auto (yes or omit value)
-      Automatically determine the system's kanji code.
+      Automatically determine the filename encoding of the system.
       Automatic currently means:
         Shift_JIS: for Cygwin, MinGW and HP-UX environment
         UTF-8: the environment that the iconv is available
         EUC-JP: otherwise
+
 --enable-multibyte-filename=no
 --disable-multibyte-filename
       Disables multibyte support for filenames.
@@ -120,7 +119,7 @@ These are follows:
 
 The default value is `auto`.
 
-The lha command line option allows you to change the compile-time default.
+The lha command line option allows you to change the compile-time value.
 This command line option is specified with the GNU style long option (with two leading dashes).
 
 ```
@@ -128,12 +127,12 @@ This command line option is specified with the GNU style long option (with two l
               Specifies the system kanji code.
 
       --archive-kanji-code=xxx
-              Specifies the Kanji code of the file name to be stored in the archive.
-              This is usually fixed to SJIS and should not be changed.
+              Specifies the encoding of filename to be stored in the archive.
+              This is usually fixed to Shift_JIS (`sjis`) and should not be changed.
 ```
 
-`xxx` is one of `sjis`, `euc`, `utf8`, or `cap`. `cap` is a code used by Samba and other applications.
-The `cap` is a code used by samba and others to represent a kanji code with a ":" and a hexadecimal character.
+`xxx` is one of `sjis`, `euc`, `utf8`, or `cap`. The `cap` is a code used by the Samba and others to represent
+multibyte filename with a ":" and two hexadecimal character.
 
 For example:
 
@@ -156,7 +155,7 @@ PERMISSION  UID  GID      SIZE  RATIO     STAMP           NAME
 ---------- ----------- ------- ------ ------------ --------------------
 ```
 
-The converter between utf8 and sjis for Mac OS X was created by Hiroto Sakai in 2002/6.
+The converter between UTF-8 and Shift_JIS for Mac OS X was created by Hiroto Sakai in 2002/6.
 Thank you very much.
 
 You can also use UTF-8 outside of Mac OS X by using the iconv library.
@@ -167,12 +166,11 @@ If you don't want to use iconv, you can do follows:
 sh ./configure --disable-iconv
 ```
 
-In particular, on Mac OS X, this will use the Core Foundation library
-to support UTF-8.
+In particular, on Mac OS X, when the iconv disabled, it will use the Core Foundation library to support UTF-8.
 
 ## Specify an extract/store file from standard input
 
-The original LHa for UNIX 1.14i uses:
+The original LHa for UNIX 1.14i uses standard input as follows:
 
 ```
 echo foo.txt | lha x foo.lzh
@@ -189,8 +187,7 @@ this behavior).
 I think it is only intended for use from tty, but it will probably cause unintended behavior when running lha
 from daemon. For this reason, I have taken the liberty of removing this feature.
 
-It was a meaningful feature in the Windows environment where the following things are not possible
-environment:
+It is a meaningful feature in the Windows environment where the following things are not possible:
 
 ```
 lha x bar.lzh `echo foo.txt`
@@ -199,12 +196,12 @@ lha x bar.lzh `echo foo.txt`
 Unfortunately, isatty() doesn't work well with MinGW, so the feature to use the standard input doesn't work
 on Windows.
 
-If you want to restore the original spec, change `#if 0` to `#if 1` at line about 631 in the `lharc.c`.
+If you want to restore the original feature, change `#if 0` to `#if 1` at line about 631 in the `lharc.c`.
 
 ## Extended header (user/group name) support
 
 It is now possible to create extended headers (0x52, 0x53) for user and group names for Unix.
-(default is off). See header.doc.jp for details.
+(default is off). See the `header.doc.jp` file for details.
 
 When expanding and listing, if this information is in the header, it is used in preference to the ID.
 
@@ -237,7 +234,7 @@ CRC check of header is now performed when reading.
 
 ### Fixed bugs in level 1 header
 
-Since no extended headers were used for file names, if you write a file name (excluding directory name) that
+Since no extended headers were used for filenames, if you write a filename (excluding directory name) that
 exceeds 230 bytes to an archive, it created an invalid archive that exceeds the archive header size limit.
 
 ### Fixed bugs in level 0 header
@@ -274,7 +271,7 @@ The above document have been fixed.
   <http://kuwa.xps.jp/x68k/KGARC/ARC/LHAHED21.ZIP>
 
 
-### Change behavior with -g option
+## Change behavior with -g option
 
 The `-g` option is said in the man page to suppress the creation of UNIX-specific information in the
 archive when creating an archive, but in fact it suppressed directory information as well.
