@@ -412,7 +412,7 @@ I am trying to make the code more free and easy to use as a component of LHa for
 The license to apply to src/header.c is still undecided (so please consider that the redistribution
 terms of LHa for UNIX apply for now).
 
-   License candidates (memo):
+   License candidates (notes):
          <http://www.gnu.org/licenses/license-list.ja.html>
          <http://www.opensource.org/licenses/>
 
