@@ -413,8 +413,8 @@ The license to apply to src/header.c is still undecided (so please consider that
 terms of LHa for UNIX apply for now).
 
    License candidates (notes):
-         <http://www.gnu.org/licenses/license-list.ja.html>
-         <http://www.opensource.org/licenses/>
+         <https://www.gnu.org/licenses/license-list.html.en>
+         <https://opensource.org/licenses/>
 
 Currently, sources of the LHa for UNIX except src/vsnprintf.c, src/fnmatch.[ch], src/getopt_long.[ch]
 apply the terms contained in man/lha.man. (Note that the terms described in each source also apply
