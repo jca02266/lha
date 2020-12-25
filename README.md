@@ -1,7 +1,7 @@
 LHa for UNIX with Autoconf
 =======================
 
-Translated with www.DeepL.com/Translator (free version)
+Translated by Koji Arai with www.DeepL.com/Translator (free version)
 
 This file describes changes of the Autoconf version of the LHa for UNIX.
 
