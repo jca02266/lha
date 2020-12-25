@@ -178,7 +178,7 @@ find bar -name '*.[ch]' | lha c bar.lzh
 ```
 This will extract only foo.txt from foo.lzh, or store files under the bar directory in bar.lzh.
 
-In other words, This is the features to specify compression/decompression files from the standard input,
+In other words, This is the features to specify compressed/extracted files from the standard input,
 but it's not really useful for me.
 
 (The compression example is as useful as `cpio`, but I think it would be better to create a new option for
@@ -205,7 +205,7 @@ It is now possible to create extended headers (0x52, 0x53) for user and group na
 
 This is enabled when you build with the configure option `--enable-user-name-header`.
 
-Whenever expanding and listing, if this information is in the header, it is used in preference to the ID.
+Whenever extracting and listing, if this information is in the header, it is used in preference to the ID.
 
 ## Suppress backup file creation
 
@@ -346,8 +346,8 @@ usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]
 
 ## Extracting in Cygwin
 
-On Cygwin, when decompressing archives that do not have permission information, such as MS-DOS types, now
-decompresses them with 0777 & ~umask.
+On Cygwin, when extracting archives that do not have permission information, such as MS-DOS types, now
+extracts them with 0777 & ~umask.
 This is so that .exe and .dll can have the execute attribute.
 
 ## Support Large files
@@ -386,15 +386,15 @@ and 2 headers (there are only 4 bytes of space to store the file size).
 
 However, UNLHA32.DLL, for example, has an extension header (0x42) that allows it to handle files over 4G
 (64-bit file size). The autoconf version currently supports files over 4G by referring to this extension
-header only during decompression. (The reason it does not support creation is that I was not sure if it was
+header only during extraction. (The reason it does not support creation is that I was not sure if it was
 correct to simply follow UNLHA32.DLL.)
 
 ## Support archive with MacBinary
 
 Files stored in archives created by turning on the "MacBinary" checkbox in MacLHA are MacBinary encoded.
-If the `-b` option is specified when decompressing, MacBinary decoding will be performed after decompression
+If the `-b` option is specified when extracting, MacBinary decoding will be performed after extraction
 and only the data fork will be extracted (the resource fork will be ignored).
-When decompressing a normal archive with the `-b` option, the normal decompression process will be performed.
+When extracting a normal archive with the `-b` option, the normal extraction process will be performed.
 
 To use this feature, you need the applefile library.
 The applefile library can be obtained from:
