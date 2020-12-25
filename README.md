@@ -414,9 +414,9 @@ I am trying to make the code more free and easy to use as a component of LHa for
 The license to apply to src/header.c is still undecided (so please consider that the redistribution
 terms of LHa for UNIX apply for now).
 
-   License candidates (notes):
-         <https://www.gnu.org/licenses/license-list.html.en>
-         <https://opensource.org/licenses/>
+License candidates (notes):
+* <https://www.gnu.org/licenses/license-list.html.en>
+* <https://opensource.org/licenses/>
 
 Currently, sources of the LHa for UNIX except src/vsnprintf.c, src/fnmatch.[ch], src/getopt_long.[ch]
 apply the terms contained in man/lha.man. (Note that the terms described in each source also apply
