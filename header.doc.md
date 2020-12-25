@@ -31,7 +31,7 @@ c     1 attribute             1 0x20                  1 RESERVED
 P     1 name length           1 name length
 a     ? pathname              ? filename
 r     2 file crc              2 file crc              2 file crc
-t      . ........              1 OS ID 'U'             1 OS ID 'U'
+t     . ........              1 OS ID 'U'             1 OS ID 'U'
                               . ........
                               2 next-header size      2 next-header size
     *************************************************************************
