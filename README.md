@@ -155,9 +155,6 @@ PERMISSION  UID  GID      SIZE  RATIO     STAMP           NAME
 ---------- ----------- ------- ------ ------------ --------------------
 ```
 
-The converter between UTF-8 and Shift_JIS for Mac OS X was created by Hiroto Sakai in 2002/6.
-Thank you very much.
-
 You can also use UTF-8 outside of Mac OS X by using the iconv library.
 
 If you don't want to use iconv, you can do follows:
@@ -167,6 +164,9 @@ sh ./configure --disable-iconv
 ```
 
 In particular, on Mac OS X, when the iconv disabled, it will use the Core Foundation library to support UTF-8.
+
+> The converter between UTF-8 and Shift_JIS for Mac OS X was created by Hiroto Sakai in 2002/6.
+> Thank you very much.
 
 ## Specify an extract/store file from standard input
 
@@ -415,6 +415,7 @@ The license to apply to src/header.c is still undecided (so please consider that
 terms of LHa for UNIX apply for now).
 
 License candidates (notes):
+
 * <https://www.gnu.org/licenses/license-list.html.en>
 * <https://opensource.org/licenses/>
 
