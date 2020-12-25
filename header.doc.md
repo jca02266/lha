@@ -130,6 +130,7 @@ t                             2 next-header size      2 next-header size
          ? comments
          2 next-header size
 ```
+----------------------------------------------------------------
 
 Extended header specification of the LHa for UNIX
 
