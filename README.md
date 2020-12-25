@@ -3,7 +3,7 @@ LHa for UNIX with Autoconf
 
 Translated with www.DeepL.com/Translator (free version)
 
-This file describes the Autoconf version of the LHa for UNIX.
+This file describes changes of the Autoconf version of the LHa for UNIX.
 
 # How to compile
 
@@ -54,7 +54,7 @@ autoheader
 automake -a
 autoconf
 
-# The steps from aclocal to autoconf can replace with `autoreconf -is`
+# Above steps from aclocal to autoconf can replace with `autoreconf -is`
 
 sh ./configure
 make
@@ -203,9 +203,9 @@ If you want to restore the original feature, change `#if 0` to `#if 1` at line a
 It is now possible to create extended headers (0x52, 0x53) for user and group names for Unix.
 (default is off). See the `header.doc.md` file for details.
 
-When expanding and listing, if this information is in the header, it is used in preference to the ID.
-
 This is enabled when you build with the configure option `--enable-user-name-header`.
+
+Whenever expanding and listing, if this information is in the header, it is used in preference to the ID.
 
 ## Suppress backup file creation
 
@@ -218,9 +218,8 @@ If you don't trust this patch, please build with the configure option `--enable-
 
 ## rewrite the source of header.c
 
-header.c has been rewritten. In addition to the above changes
-The following bugs have been fixed since LHa for UNIX 1.14i.
-
+The header.c has been rewritten. In addition to the above changes, the following bugs have been fixed since
+the LHa for UNIX 1.14i.
 
 ### Fixed bugs in level 2 header
 
@@ -258,12 +257,12 @@ drwxrwxr-x  1000/1000        0       0 ****** -lhd- 0000 Jul 29 00:18
  Total         1 file        0       0 ******            Jul 29 00:18
 ```
 
-Note that there is a theory that the `-lhd-` method cannot be used with level 0 headers.
+There was a theory that the `-lhd-` method could not be used with the level 0 header.
 
   <http://kuwa.xps.jp/x68k/KGARC/ARC/LHAHED15.ZIP>
 
-However, Haruyasu Yoshizaki's original LHA for DOS/Windows (ver 2.55, 2.67) creates -lhd- method in
-level 0 header.
+However, Haruyasu Yoshizaki's original LHA for DOS/Windows (ver 2.55, 2.67) creates `-lhd-` method in level 0
+header.
 
 This opinion was acknowledged. (<http://kuwa.xps.jp/diary/2002-10.html#27_3>)
 The above document have been fixed.
@@ -294,39 +293,41 @@ The `-g` option suppresses the creation of `-lhd-`, it is same behavior as origi
 
 In addition, if you specify the `-g` option and the header level option (`-0`, `-1` and so on ) at
 the same time, you need to specify the g option first, as shown above(`lha cg1`).
+This is because the `-g` option also has the meaning of the `-0` option.
 If you specify the `-g` option afterwards, such as `lha c1g`, a level 0 header will be created.
 (this original behavior is a bit confusing)
 
 ## level 3 header
 
-There seems to be a level 3 header in the world, but it is not yet fixed as a specification,
+The level 3 header specification seems to exist, but it is not yet fixed as a specification,
 so I added *read only* support.
 Additional extension headers are not supported. (I couldn't find any header that should be supported).
 If you want to support largefile, you might want to support this level 3 header.
 
 ## dump of header information for debugging
 
-As a totally extra feature, I added the ability to dump headers.
-This is completely for debugging purposes.
+I added the ability to dump headers. This is completely for debugging purposes.
 
 ```
 lha vvv foo.lzh
 ```
 
-This will output a dump with the list of archive contents.
+This will output a dump along with the list of archive contents.
 
 ## Change default header level
 
 The default header level when creating an archive is now 2.
 (The original LHa for UNIX 1.14i defaulted to level 1)
 
-## Support extended header
+## Support extended headers
 
 The extended header Windows timestamp (0x41) now read (in level 1 header only).
-For level 2 header and later, the extended header is ignored because the basic header contains
-the `time_t` information. It has not been confirmed whether there is an LHA archiver that outputs
-Windows timestamp extension headers for level 1 header archives. I don't think this is a very useful fix,
-but I'm keeping it because I made it :-)
+It has 64-bit creation date, last modified date, and last accessed date.
+
+For level 2 header and later, the extended header is ignored because the basic part of header contains the
+32-bit Unix epoch time. It has not been confirmed whether there is an LHA archiver that outputs Windows
+timestamp extension headers for level 1 header archives. I don't think this is a very useful fix, but since I
+made it, I'll leave it. :-)
 
 ## Added `-x` option
 
@@ -336,8 +337,8 @@ Added the `-x` option to specify the pattern to be excluded from the files to be
 lha c -x '*.o' -x='*.a' -x'*.c' src.lzh src
 ```
 
-The option parsing code has been reconstruct so that you can specify something like
-The usage of this version is as follows
+The source of command line parser has been reconstruct.
+The usage of the autoconf version is as follows:
 
 ```
 usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]
@@ -345,8 +346,8 @@ usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]
 
 ## Extracting in Cygwin
 
-When decompressing archives that do not have permission information, such as MS-DOS types,
-Cygwin now decompresses them with 0777 & ~umask.
+On Cygwin, when decompressing archives that do not have permission information, such as MS-DOS types, now
+decompresses them with 0777 & ~umask.
 This is so that .exe and .dll can have the execute attribute.
 
 ## Support Large files
@@ -354,7 +355,7 @@ This is so that .exe and .dll can have the execute attribute.
 It can handle large files (over 2G) if your system supports it.
 (configure script will provide you with the appropriate compiler options).
 
-However, to support large files on HP-UX 11.0, you need to use
+However, to support large files on HP-UX 11.0, you need to use the:
 
 ```
 CC="cc -Ae +DA2.0W"
@@ -369,12 +370,12 @@ It seems that you need to instruct them to do so.
 ```
 
 `--with-tmp-file=no` will create intermediate files in the same directory as the output destination.
-This is in case the temporary directory does not support 2G over.
+This is in case the temporary directory does not support over 2G.
 
-(This is not related to largefiles support, but ac_cv_*=yes forces HP-UX to use mktime because
-it fails to detect mktime for some reason.)
+(This is not related to largefiles support, but ac_cv_*=yes forces HP-UX to use `mktime()` because
+it fails to detect `mktime()` for some reason.)
 
-If you want to "disable" large files support, you can use the
+If you want to "disable" large files support, you can use the:
 
 ```
 ./configure --disable-largefile
@@ -383,27 +384,26 @@ If you want to "disable" large files support, you can use the
 In regular LHA, only files less than 4G can be archived due to the specification of the level 0, 1,
 and 2 headers (there are only 4 bytes of space to store the file size).
 
-However, UNLHA32.DLL, for example, has an extension header (0x42) that allows it to handle files over 4G.
-The autoconf version currently supports files over 4G by referring to this extension header only during
-decompression. (The reason it does not support creation is that I was not sure if it was correct to
-simply follow UNLHA32.DLL.)
-
+However, UNLHA32.DLL, for example, has an extension header (0x42) that allows it to handle files over 4G
+(64-bit file size). The autoconf version currently supports files over 4G by referring to this extension
+header only during decompression. (The reason it does not support creation is that I was not sure if it was
+correct to simply follow UNLHA32.DLL.)
 
 ## Support archive with MacBinary
 
 Files stored in archives created by turning on the "MacBinary" checkbox in MacLHA are MacBinary encoded.
-If the -b option is specified when decompressing, MacBinary decoding will be performed after decompression
+If the `-b` option is specified when decompressing, MacBinary decoding will be performed after decompression
 and only the data fork will be extracted (the resource fork will be ignored).
 When decompressing a normal archive with the `-b` option, the normal decompression process will be performed.
 
 To use this feature, you need the applefile library.
-The applefile library can be obtained from
+The applefile library can be obtained from:
 
 http://sourceforge.net/projects/applefile/
 
-# Redistribution Policy
+# Redistribution
 
-I believe that src/header.c no longer contains the code that was in the original lha 1.14i.
+I believe that the src/header.c no longer contains the code that was in the original lha 1.14i.
 The src/header.c is my source code. However, it is true that the code in lha 1.14i was helpful to me,
 and I have left the names of the developers in src/header.c as a sign of respect.
 
@@ -416,6 +416,6 @@ terms of LHa for UNIX apply for now).
          <http://www.gnu.org/licenses/license-list.ja.html>
          <http://www.opensource.org/licenses/>
 
-Currently, sources of LHa for UNIX except src/vsnprintf.c, src/fnmatch.[ch], src/getopt_long.[ch]
+Currently, sources of the LHa for UNIX except src/vsnprintf.c, src/fnmatch.[ch], src/getopt_long.[ch]
 apply the terms contained in man/lha.man. (Note that the terms described in each source also apply
 to LHa for UNIX made using vsnprintf.c and fnmatch.c.)
