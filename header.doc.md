@@ -1,16 +1,20 @@
 # header.doc
 
-Author: Mar. 2, 1992, Masaru Oki.
+Original author: Mar. 2, 1992, Masaru Oki.
+Translated by Koji Arai with www.DeepL.com/Translator (free version)
 
 This document describes the structure of LHA header used by the LHa for Unix
 
+The below is from Mr. Yoshizaki's lhx.doc
+
 ----------------------------------------------------------------
-    本バージョンでは過渡的な措置として3種類のヘッダ形式を用意し、level-1
-  を既定値としていますが、将来的にはパス名の文字数に制限のない level-2に
-  統一する方針です。
 
+In this version, three types of header formats are provided as a transitional measure. level-1 is the default
+value, but in the future, we plan to use level-2, which has no limitation on the number of characters in the
+path name.
 
-  A. ヘッダの仕様
+```
+  A. Header Specifications
 
 -----------------------------------------------------------------------------
         level-0                 level-1                 level-2
@@ -18,45 +22,45 @@ This document describes the structure of LHA header used by the LHa for Unix
       1 header size           1 header size           2 total header size
       1 header sum            1 header sum
       5 method ID             5 method ID             5 method ID
-基    4 packed size           4 skip size             4 packed size
-      4 original size         4 original size         4 original size
-本    2 time                  2 time                  4 time(UNIX type)
-      2 date                  2 date
-部    1 attribute             1 0x20                  1 RESERVED
+B     4 packed size           4 skip size             4 packed size
+a     4 original size         4 original size         4 original size
+s     2 time                  2 time                  4 time(UNIX type)
+i     2 date                  2 date
+c     1 attribute             1 0x20                  1 RESERVED
       1 level 0x00            1 level 0x01            1 level 0x02
-分    1 name length           1 name length
-      ? pathname              ? filename
-      2 file crc              2 file crc              2 file crc
-      . ........              1 OS ID 'U'             1 OS ID 'U'
+P     1 name length           1 name length
+a     ? pathname              ? filename
+r     2 file crc              2 file crc              2 file crc
+t      . ........              1 OS ID 'U'             1 OS ID 'U'
                               . ........
                               2 next-header size      2 next-header size
     *************************************************************************
      24 + ?                  27 + ?                  26
 -----------------------------------------------------------------------------
-拡                            1 ext-type              1 ext-type
-張                            . ........              . ........
-部                            2 next-header size      2 next-header size
-分
+E                             1 ext-type              1 ext-type
+x                             . ........              . ........
+t                             2 next-header size      2 next-header size
 -----------------------------------------------------------------------------
 
-    a. ヘッダの種類
+    a. Header type
 
-      level-0 ヘッダ
-          従来の LHarc, LArc と同じ形式です。ディレクトリ名の区切りは '\'
-        を標準としています。
+      level-0 header
+          The format is the same as the traditional LHarc and LArc.
+          The standard delimiter for directory names is '\'.
 
-      level-1 ヘッダ
-          既定値でこのヘッダが作成されます。-x0 で作成された -lh0- の書庫
-        は LHarc で解凍可能ですが、解凍時に CRC チェックは行われません。
+      level-1 header
+          This header is used by default. The -lh0- archives created by
+          -x0 option can be decompressed by LHarc, but no CRC check is
+          performed.
 
-      level-2 ヘッダ
-          長いファイル名をサポートするためのヘッダです。将来的には本ヘッ
-        ダを標準としたいので、LH 関連のユーティリティを作成される方は今後
-        準拠してくださるようにお願いします。
+      level-2 header
+          This is a header to support long filenames. We would like to
+          make this header the standard in the future, so please support
+          it if you are writing LH-related utilities.
 
-    b. 凍結・解凍可能な method ID について
+    b. For compressible and decompressible method IDs
 
-      * は作成可能な method
+      "*" mark means compressible method
 
       -lh0- * no compression
 
@@ -74,10 +78,10 @@ This document describes the structure of LHA header used by the LHa for Unix
               + improved encoding of position and trees
 
       -lh6-   32k sliding dictionary(max 256 bytes) + static Huffman
-			  + improved encoding of position and trees
+              + improved encoding of position and trees
 
       -lh7-   64k sliding dictionary(max 256 bytes) + static Huffman
-			  + improved encoding of position and trees
+              + improved encoding of position and trees
 
       -lzs-   2k sliding dictionary(max 17 bytes)
 
@@ -85,9 +89,9 @@ This document describes the structure of LHA header used by the LHa for Unix
 
       -lz5-   4k sliding dictionary(max 17 bytes)
 
-    c. OS ID について
+    c. OS ID
 
-      現在のところ、以下の ID を予約しています。
+      As of now, reserved the following IDs
 
         MS-DOS  'M'
         OS/2    '2'
@@ -101,9 +105,9 @@ This document describes the structure of LHA header used by the LHa for Unix
         Mac     'm'
         Runser  'R'
 
-  B. 拡張部分
+  B. Extended header
 
-    a. OS 非依存 (0x00 - 0x3f)
+    a. OS-independent (0x00 - 0x3f)
 
         common header
          1 0x00
@@ -125,88 +129,70 @@ This document describes the structure of LHA header used by the LHa for Unix
          1 0x3f
          ? comments
          2 next-header size
+```
 
-(以上、吉崎氏の lhx.doc より)
-----------------------------------------------------------------
-LHa for UNIX 拡張ヘッダ仕様
+Extended header specification of the LHa for UNIX
 
-・依存情報の種類(格納すべき情報)
-	UNIX に依存する情報で記録すべきは以下のものである。
-	(1) パーミッション
-	(2) GID,UID
-	(3) グループ名、ユーザ名
-	(4) 最終変更時刻(UNIX time)
+```
+* The type of dependent information (information to be stored)
+        The following UNIX-dependent information should be stored.
+        (1) Unix permission
+        (2) GID,UID
+        (3) Group name, user name
+        (4) Last modified time (UNIX time)
 
-・依存情報のタイプ(ext-type)
-	  拡張ヘッダの先頭1バイトには情報が何を示すもの
-	か識別するための値が格納されている。
-	UNIX依存情報として 0x50 - 0x54 を使用する。
+* Type of dependent information(ext-type)
+        The first byte of the extended header contains a value that
+        IDs what the information represents. The UNIX-dependent ext-type
+        0x50 - 0x54 is used.
 
-・依存情報の格納方法
-	上記 (1) - (4) をそれぞれ別のタイプとする。
+* How to store dependent information
+    Each of the above (1) - (4) made a different type.
 
-	(1)パーミッション
-		size	値
-		1	0x50
-		2	パーミッション値
-		2	next-header size
+        (1)Unix permission
+                size    value
+                1       0x50
+                2       permission value
+                2       next-header size
 
-	(2)GID,UID
-		size	値
-		1	0x51
-		2	GID
-		2	UID
-		2	next-header size
+        (2)GID,UID
+                size    value
+                1       0x51
+                2       GID
+                2       UID
+                2       next-header size
 
-	(3)-1 グループ名
-		1	0x52
-		?	グループ名文字列
-		2	next-header size
+        (3)-1 Group name
+                1       0x52
+                ?       group name
+                2       next-header size
 
-	(3)-2 ユーザ名
-		1	0x53
-		?	ユーザ名文字列
-		2	next-header size
+        (3)-2 User name
+                1       0x53
+                ?       user name
+                2       next-header size
 
-	(4) 最終変更時刻 (for header_level1)
-		1	0x54
-		4	UNIX 時間
-		2	next-header size
+        (4) Last modified time (for header_level1)
+                1       0x54
+                4       Unix time
+                2       next-header size
+```
 
-・LHa for UNIX ver 1.14 での実装（綿崎）
-	上記(3)をサポートしていない。
-	(3)のグループ名、ユーザ名の情報を含む書庫を作成すること
-	はなく、展開時には無視する。
-	また、(4)はヘッダレベル1の書庫にのみ含まれる。
+* Implementation of the LHa for UNIX ver 1.14 (Added by Nobutaka Watazaki)
 
-・LHa for UNIX ver 1.14i with autoconf での実装(2002-06-04 新井)
+  (3) above is not supported.
+  It does not create an archive that contains the group name and user
+  name information, and ignores them when extracting.
+  Also, (4) is added only in the archive of header level 1.
 
-	(3) を作成するようにしてみました。展開と一覧表示のときに (3) 
-	の情報があれば ID に優先します。
-	作成は configure オプション --enable-user-name-header を指定して
-	build したときに有効になります。
+* Implementation of the LHa for UNIX ver 1.14i with autoconf (2002-06-04 Koji Arai)
 
-・追記: Unicode filename
-
-        UNLHA32.DLL ver 2.39a以降で、Unicodeファイル名に対応しているらしく、
-        以下の拡張ヘッダが定義されている(未実装)
-
-        Unicode filename header
-         1 0x44
-         ? filename (UTF-16LE)
-         2 next-header size
-
-        Unicode dirname header
-         1 0x45
-         ? dirname (UTF-16LE)
-         2 next-header size
-
-        このヘッダがついている場合、従来のファイル名ヘッダー(01h)、
-        ディレクトリ名ヘッダー(02h)は付与されないらしい。
+  If the information of (3) exists, it will be used in preference
+  to the ID when expanding and listing.
+  The addtion the ext-header is enabled when you built with the configure
+  option --enable-user-name-header.
 
 ----------------------------------------------------------------
-以上。
 
-一部改変：
-綿崎　修隆 (Nobutaka Watazaki)
+Partially modified by Nobutaka Watazaki
 watazaki@shimadzu.co.jp
