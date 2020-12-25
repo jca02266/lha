@@ -198,7 +198,7 @@ on Windows.
 
 If you want to restore the original feature, change `#if 0` to `#if 1` at line about 631 in the `lharc.c`.
 
-## Extended header (user/group name) support
+## Support extended header (user/group name)
 
 It is now possible to create extended headers (0x52, 0x53) for user and group names for Unix.
 (default is off). See the [header.doc.md](header.doc.md) file for details.
@@ -216,7 +216,7 @@ I found this behavior annoying, so I decided not to create a backup file in the 
 If you don't trust this patch, please build with the configure option `--enable-backup-archive`
 (which you should definitely do :p). It will behave the same as the original.
 
-## rewrite the source of header.c
+## Rewrite the source of header.c
 
 The header.c has been rewritten. In addition to the above changes, the following bugs have been fixed since
 the LHa for UNIX 1.14i.
@@ -297,14 +297,16 @@ This is because the `-g` option also has the meaning of the `-0` option.
 If you specify the `-g` option afterwards, such as `lha c1g`, a level 0 header will be created.
 (this original behavior is a bit confusing)
 
-## level 3 header
+## Support level 3 header (extracting only)
 
 The level 3 header specification seems to exist, but it is not yet fixed as a specification,
-so I added *read only* support.
-Additional extension headers are not supported. (I couldn't find any header that should be supported).
+so I added support *extracting only*.
+Additional extension headers with level 3 header are not supported.
+(I couldn't find any header that should be supported).
+
 If you want to support largefile, you might want to support this level 3 header.
 
-## dump of header information for debugging
+## Dump the header information for debugging
 
 I added the ability to dump headers. This is completely for debugging purposes.
 
@@ -350,7 +352,7 @@ On Cygwin, when extracting archives that do not have permission information, suc
 extracts them with 0777 & ~umask.
 This is so that .exe and .dll can have the execute attribute.
 
-## Support Large files
+## Support large files
 
 It can handle large files (over 2G) if your system supports it.
 (configure script will provide you with the appropriate compiler options).
