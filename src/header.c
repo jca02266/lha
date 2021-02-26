@@ -95,7 +95,7 @@ dump_get_byte()
     int c;
 
     if (verbose_listing && verbose > 1)
-        printf("%02d %2d: ", get_ptr - start_ptr, 1);
+        printf("%02ld %2d: ", (long)(get_ptr - start_ptr), 1);
     c = _get_byte();
     if (verbose_listing && verbose > 1) {
         if (isprint(c))
@@ -112,7 +112,7 @@ dump_skip_bytes(len)
 {
     if (len == 0) return;
     if (verbose_listing && verbose > 1) {
-        printf("%02d %2d: ", get_ptr - start_ptr, len);
+        printf("%02ld %2d: ", (long)(get_ptr - start_ptr), len);
         if (len < 0) {
           error("Invalid header: %d", len);
           exit(1);
@@ -134,7 +134,7 @@ get_word()
 
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
-        printf("%02d %2d: ", get_ptr - start_ptr, 2);
+        printf("%02ld %2d: ", (long)(get_ptr - start_ptr), 2);
 #endif
     b0 = _get_byte();
     b1 = _get_byte();
@@ -162,7 +162,7 @@ get_longword()
 
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
-        printf("%02d %2d: ", get_ptr - start_ptr, 4);
+        printf("%02ld %2d: ", (long)(get_ptr - start_ptr), 4);
 #endif
     b0 = _get_byte();
     b1 = _get_byte();
@@ -194,7 +194,7 @@ get_longlongword()
 
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
-        printf("%02d %2d: ", get_ptr - start_ptr, 4);
+        printf("%02ld %2d: ", (long)(get_ptr - start_ptr), 4);
 #endif
     b0 = _get_byte();
     b1 = _get_byte();
@@ -210,7 +210,11 @@ get_longlongword()
     l |= (b3 << 24) + (b2 << 16) + (b1 << 8) + b0;
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
+#if SIZEOF_LONG < 8
         printf("%lld(%#016llx)\n", l, l);
+#else
+        printf("%ld(%#016lx)\n", l, l);
+#endif
 #endif
     return l;
 }
@@ -238,7 +242,7 @@ get_bytes(buf, len, size)
 
 #if DUMP_HEADER
     if (verbose_listing && verbose > 1)
-        printf("%02d %2d: \"", get_ptr - start_ptr, len);
+        printf("%02ld %2d: \"", (long)(get_ptr - start_ptr), len);
     if (len < 0) {
       error("Invalid header: %d", len);
       exit(1);
