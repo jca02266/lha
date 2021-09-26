@@ -1241,7 +1241,7 @@ get_header(fp, hdr)
             return FALSE;
         break;
     default:
-        error("Unknown level header (level %d)", data[I_HEADER_LEVEL]);
+        error("read header (level %x) is unknown", (unsigned char)data[I_HEADER_LEVEL]);
         return FALSE;
     }
 
@@ -1908,7 +1908,7 @@ write_header(fp, hdr)
         header_size = write_header_level2(data, hdr, pathname);
         break;
     default:
-        error("Unknown level header (level %d)", hdr->header_level);
+        error("Unknown header (level %x)", (unsigned char)data[I_HEADER_LEVEL]);
         exit(1);
     }
 
