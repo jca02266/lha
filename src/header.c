@@ -869,6 +869,8 @@ get_header_level0(fp, hdr, data)
             hdr->extend_type = EXTEND_GENERIC;
             hdr->has_crc = FALSE;
 
+            hdr->whole_header_size  = hdr->header_size;
+            hdr->whole_packed_size  = hdr->packed_size;
             return TRUE;
         }
 
@@ -879,31 +881,31 @@ get_header_level0(fp, hdr, data)
     hdr->has_crc = TRUE;
     hdr->crc = get_word();
 
-    if (extend_size == 0)
-        return TRUE;
+    if (extend_size != 0) {
+        hdr->extend_type = get_byte();
+        extend_size--;
 
-    hdr->extend_type = get_byte();
-    extend_size--;
-
-    if (hdr->extend_type == EXTEND_UNIX) {
-        if (extend_size >= 11) {
-            hdr->minor_version = get_byte();
-            hdr->unix_last_modified_stamp = (time_t) get_longword();
-            hdr->unix_mode = get_word();
-            hdr->unix_uid = get_word();
-            hdr->unix_gid = get_word();
-            extend_size -= 11;
-        } else {
-            hdr->extend_type = EXTEND_GENERIC;
+        if (hdr->extend_type == EXTEND_UNIX) {
+            if (extend_size >= 11) {
+                hdr->minor_version = get_byte();
+                hdr->unix_last_modified_stamp = (time_t) get_longword();
+                hdr->unix_mode = get_word();
+                hdr->unix_uid = get_word();
+                hdr->unix_gid = get_word();
+                extend_size -= 11;
+            } else {
+                hdr->extend_type = EXTEND_GENERIC;
+            }
         }
+        if (extend_size > 0)
+            skip_bytes(extend_size);
     }
-    if (extend_size > 0)
-        skip_bytes(extend_size);
 
     hdr->whole_header_size  = hdr->header_size + 2;
     hdr->whole_packed_size  = hdr->packed_size;
 
-    //hdr->header_size += 2;
+    hdr->header_size += 2;
+
     return TRUE;
 }
 
@@ -1009,7 +1011,7 @@ get_header_level1(fp, hdr, data)
 
     hdr->packed_size -= extend_size;
     hdr->header_size += extend_size;
-    //hdr->header_size += 2;
+    hdr->header_size += 2;
 
     return TRUE;
 }
