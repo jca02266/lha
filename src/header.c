@@ -280,7 +280,6 @@ put_bytes(buf, len)
         put_byte(buf[i]);
 }
 
-/* added by Koji Arai */
 void
 convert_filename(name, len, size,
                  from_code, to_code,
