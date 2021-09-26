@@ -1,6 +1,6 @@
 # -*- shell-script -*-
 message testing to add/update files to archive.
-lv=
+lv=0
 $lha a$lv test-tmp.lzh test-c
 							check $? $LINENO
 $lha a$lv test-tmp.lzh test-b

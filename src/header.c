@@ -280,7 +280,6 @@ put_bytes(buf, len)
         put_byte(buf[i]);
 }
 
-/* added by Koji Arai */
 void
 convert_filename(name, len, size,
                  from_code, to_code,
@@ -880,28 +879,28 @@ get_header_level0(fp, hdr, data)
     hdr->has_crc = TRUE;
     hdr->crc = get_word();
 
-    if (extend_size == 0)
-        return TRUE;
+    if (extend_size != 0) {
+        hdr->extend_type = get_byte();
+        extend_size--;
 
-    hdr->extend_type = get_byte();
-    extend_size--;
-
-    if (hdr->extend_type == EXTEND_UNIX) {
-        if (extend_size >= 11) {
-            hdr->minor_version = get_byte();
-            hdr->unix_last_modified_stamp = (time_t) get_longword();
-            hdr->unix_mode = get_word();
-            hdr->unix_uid = get_word();
-            hdr->unix_gid = get_word();
-            extend_size -= 11;
-        } else {
-            hdr->extend_type = EXTEND_GENERIC;
+        if (hdr->extend_type == EXTEND_UNIX) {
+            if (extend_size >= 11) {
+                hdr->minor_version = get_byte();
+                hdr->unix_last_modified_stamp = (time_t) get_longword();
+                hdr->unix_mode = get_word();
+                hdr->unix_uid = get_word();
+                hdr->unix_gid = get_word();
+                extend_size -= 11;
+            } else {
+                hdr->extend_type = EXTEND_GENERIC;
+            }
         }
+        if (extend_size > 0)
+            skip_bytes(extend_size);
     }
-    if (extend_size > 0)
-        skip_bytes(extend_size);
 
     hdr->header_size += 2;
+
     return TRUE;
 }
 
@@ -1003,7 +1002,8 @@ get_header_level1(fp, hdr, data)
     /* the `packed_size' field contains the extended header size. */
     /* the `header_size' field does not. */
     hdr->packed_size -= extend_size;
-    hdr->header_size += extend_size + 2;
+    hdr->header_size += extend_size;
+    hdr->header_size += 2;
 
     return TRUE;
 }
@@ -1241,7 +1241,7 @@ get_header(fp, hdr)
             return FALSE;
         break;
     default:
-        error("Unknown level header (level %d)", data[I_HEADER_LEVEL]);
+        error("read header (level %x) is unknown", (unsigned char)data[I_HEADER_LEVEL]);
         return FALSE;
     }
 
@@ -1908,7 +1908,7 @@ write_header(fp, hdr)
         header_size = write_header_level2(data, hdr, pathname);
         break;
     default:
-        error("Unknown level header (level %d)", hdr->header_level);
+        error("Unknown header (level %x)", (unsigned char)data[I_HEADER_LEVEL]);
         exit(1);
     }
 
