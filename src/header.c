@@ -869,8 +869,6 @@ get_header_level0(fp, hdr, data)
             hdr->extend_type = EXTEND_GENERIC;
             hdr->has_crc = FALSE;
 
-            hdr->whole_header_size  = hdr->header_size;
-            hdr->whole_packed_size  = hdr->packed_size;
             return TRUE;
         }
 
@@ -900,9 +898,6 @@ get_header_level0(fp, hdr, data)
         if (extend_size > 0)
             skip_bytes(extend_size);
     }
-
-    hdr->whole_header_size  = hdr->header_size + 2;
-    hdr->whole_packed_size  = hdr->packed_size;
 
     hdr->header_size += 2;
 
@@ -1006,9 +1001,6 @@ get_header_level1(fp, hdr, data)
     /* On level 1 header, size fields should be adjusted. */
     /* the `packed_size' field contains the extended header size. */
     /* the `header_size' field does not. */
-    hdr->whole_header_size  = hdr->header_size + extend_size + 2;
-    hdr->whole_packed_size  = hdr->packed_size - extend_size;
-
     hdr->packed_size -= extend_size;
     hdr->header_size += extend_size;
     hdr->header_size += 2;
@@ -1109,9 +1101,6 @@ get_header_level2(fp, hdr, data)
     if (hdr->header_crc != hcrc)
         error("header CRC error");
 
-    hdr->whole_header_size  = hdr->header_size;
-    hdr->whole_packed_size  = hdr->packed_size;
-
     return TRUE;
 }
 
@@ -1201,9 +1190,6 @@ get_header_level3(fp, hdr, data)
 
     if (hdr->header_crc != hcrc)
         error("header CRC error");
-
-    hdr->whole_header_size  = hdr->header_size;
-    hdr->whole_packed_size  = hdr->packed_size;
 
     return TRUE;
 }
