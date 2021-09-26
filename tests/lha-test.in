@@ -148,6 +148,9 @@ else
   testsuite lha-test5
   #testsuite lha-test6		# this feature was removed.
   testsuite lha-test7
+  testsuite lha-test7_lv0
+  testsuite lha-test7_lv1
+  testsuite lha-test7_lvg
   testsuite lha-test8
   #testsuite lha-test9		# incomplete
   testsuite lha-test10
