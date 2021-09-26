@@ -248,6 +248,9 @@ struct string_pool {
 };
 
 typedef struct LzHeader {
+    size_t          whole_header_size; /* include ext header size */
+    size_t          whole_packed_size; /* exclude ext header size */
+
     size_t          header_size;
     int             size_field_length;
     char            method[METHOD_TYPE_STORAGE];

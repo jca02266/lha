@@ -20,13 +20,18 @@ copy_old_one(oafp, nafp, hdr)
     FILE           *oafp, *nafp;
     LzHeader       *hdr;
 {
+    size_t offset = 0;
+    if (hdr->header_level == 0 || hdr->header_level == 1) {
+      offset = 2;
+    }
+
     if (noexec) {
-        fseeko(oafp, hdr->header_size + hdr->packed_size, SEEK_CUR);
+        fseeko(oafp, offset + hdr->header_size + hdr->packed_size, SEEK_CUR);
     }
     else {
         reading_filename = archive_name;
         writing_filename = temporary_name;
-        copyfile(oafp, nafp, hdr->header_size + hdr->packed_size, 0, 0);
+        copyfile(oafp, nafp, offset + hdr->header_size + hdr->packed_size, 0, 0);
 
         /* directory and symlink are ignored for time-stamp archiving */
         if (memcmp(hdr->method, "-lhd-", 5) != 0) {
