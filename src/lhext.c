@@ -41,8 +41,8 @@ inquire_extract(name)
     struct stat     stbuf;
 
     skip_flg = FALSE;
-    if (stat(name, &stbuf) >= 0) {
-        if (!is_regularfile(&stbuf)) {
+    if (GETSTAT(name, &stbuf) >= 0) {
+        if (!is_regularfile(&stbuf) && !is_symlink(&stbuf)) {
             error("\"%s\" already exists (not a file)", name);
             return FALSE;
         }
