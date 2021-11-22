@@ -186,7 +186,11 @@
 /*  FILE Attribute                                                          */
 /* ------------------------------------------------------------------------ */
 #define is_directory(statp)     (((statp)->st_mode & S_IFMT) == S_IFDIR)
+#ifdef S_IFLNK
 #define is_symlink(statp)       (((statp)->st_mode & S_IFMT) == S_IFLNK)
+#else
+#define is_symlink(statp)       (FALSE)
+#endif
 #define is_regularfile(statp)   (((statp)->st_mode & S_IFMT) == S_IFREG)
 
 #if 1 /* assume that fopen() will accepts "b" as binary mode on all systems. */

@@ -1041,10 +1041,8 @@ cleaning_files(v_filec, v_filev)
                 flags[i] = 0x00;
             else if (is_directory(&stbuf))
                 flags[i] = 0x02;
-#ifdef S_IFLNK
             else if (is_symlink(&stbuf)) /* t.okamoto */
                 flags[i] = 0x00;
-#endif
             else {
                 flags[i] = 0x04;
                 warning("Cannot archive \"%s\", ignored.", filev[i]);

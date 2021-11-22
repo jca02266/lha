@@ -123,11 +123,7 @@ append_it(name, oafp, nafp)
     }
 
     directory = is_directory(&stbuf);
-#ifdef S_IFLNK
     symlink = is_symlink(&stbuf);
-#else
-    symlink = 0;
-#endif
 
     fp = NULL;
     if (!directory && !symlink && !noexec) {
@@ -449,7 +445,6 @@ remove_one(name)
         else if (verbose)
             message("Removed %s.", name);
     }
-#ifdef S_IFLNK
     else if (is_symlink(&stbuf)) {
         if (noexec)
             message("REMOVE SYMBOLIC LINK %s.", name);
@@ -458,7 +453,6 @@ remove_one(name)
         else if (verbose)
             message("Removed %s.", name);
     }
-#endif
     else {
         error("Cannot remove file \"%s\" (not a file or directory)", name);
     }
