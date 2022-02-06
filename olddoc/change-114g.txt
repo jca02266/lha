@@ -1,104 +1,104 @@
-lha for unix ver 1.14g���н�
+lha for unix ver 1.14gで対処
 
 lha for unix ver 1.14f bugs
 
-�������������������� ��� ��������������������
+■■■■■■■■■■ 報告 ■■■■■■■■■■
 (23)
 
-������
-chown,lchown�λȤ������ְ�äƤ�����
-lchown�Τ��륷���ƥ�Ǥϡ�symbolic link���
-�ե������owner���ѹ����褦�Ȥ��Ƥ�����
+■問題
+chown,lchownの使い方が間違っていた。
+lchownのあるシステムでは、symbolic link先の
+ファイルのownerを変更しようとしていた。
 
-������
-chown()��lchwon()�����륷���ƥ��̵�������ƥ��
-��ư���ۤʤ롣Ÿ�������ե����뤬symbolic link
-�Υե�����Ǥ����硢�����Τ褦�ˤ��ʤ��Ƥ�
-�����ʤ��ä������դˤ��Ƥ�����
+■原因
+chown()はlchwon()があるシステムと無いシステムで
+挙動が異なる。展開したファイルがsymbolic link
+のファイルである場合、下記のようにしなくては
+いけなかったが、逆にしていた。
 
-    lchown()�����륷���ƥࡧlchown()��Ȥ�
-    lchown()���ʤ������ƥࡧchown()��Ȥ�
+    lchown()があるシステム：lchown()を使う
+    lchown()がないシステム：chown()を使う
 
-���н�
-������lchown()��chown()�����򤹤뤫�ξ�郎�դ�
-�ʤäƤ����Τǡ�lhext.c�ξ���դˤ�����
+■対処
+原因はlchown()かchown()を選択するかの条件が逆に
+なっていたので、lhext.cの条件を逆にした。
 
-���н��ǧ
+■対処確認
 
-�������������������� ��� ��������������������
+■■■■■■■■■■ 報告 ■■■■■■■■■■
 (24)
 
-�����
+■場所
 #define SJC_SECOND_P
-��unsigned char�Υ��ڥ��ְ㤨�Ƥ�����
+のunsigned charのスペルを間違えていた。
 
-���н�
-ungigned��unsigned��ľ������
+■対処
+ungigned→unsignedに直した。
 
-�������������������� ��� ��������������������
+■■■■■■■■■■ 報告 ■■■■■■■■■■
 (25)
 
-������
-Header Level 2�Ǻ��������ե�����ξ��ˡ�
-�ե������Ĺ��������˷׻����Ƥ��ʤ��ä���
+■問題
+Header Level 2で作成したファイルの場合に、
+ファイルの長さを正常に計算していなかった。
 
-���н�
-level2�إå���filename��������Ƥ���ս��
+■対処
+level2ヘッダでfilenameを取得している箇所に
     name_length = header_size - 3;
-���ɲä�����
+を追加した。
 
-�������������������� ���Թ� ��������������������
+■■■■■■■■■■ 不都合 ■■■■■■■■■■
 (26)
 
-�����
-Header Level 2�Ǻ���������ˤΥإå����ɤ߹��߻���
-����˥إå�Ĺ�η׻����Ԥ��Ƥ��ʤ��ä���
-���̥Х��Ȥ����׻����Ƥ��ʤ��ä���
+■場所
+Header Level 2で作成した書庫のヘッダの読み込み時に
+正常にヘッダ長の計算が行われていなかった。
+下位バイトしか計算していなかった。
 
-���н�
-��̥Х��Ȥ�إå�Ĺ�˴ޤ�Ʒ׻����뤳�Ȥˤ�����
+■対処
+上位バイトもヘッダ長に含めて計算することにした。
 
-�������������������� ��� ��������������������
+■■■■■■■■■■ 報告 ■■■■■■■■■■
 (27)
 
-������
-level2�إå���append�����ޤ������������顼��
-ȯ�����롣
+■問題
+level2ヘッダのappendがうまくいかず、エラーが
+発生する。
 
-������
-Header Level 2�Ǻ���������ˤΥإå����ɤ߹��߻���
-����˥إå�Ĺ�η׻����Ԥ��Ƥ��ʤ��ä���
-��ˤؤ��ɲäκݤˡ����ԡ����륵�����η׻���
-level 0,1�Ȱۤʤ뤳�Ȥ��θ���Ƥ��ʤ��ä���
+■原因
+Header Level 2で作成した書庫のヘッダの読み込み時に
+正常にヘッダ長の計算が行われていなかった。
+書庫への追加の際に、コピーするサイズの計算が
+level 0,1と異なることを考慮していなかった。
 
-���н�
-level0,1��level2�Υإå�Ĺ�׻��βս����櫓������
+■対処
+level0,1とlevel2のヘッダ長計算の箇所を場合わけした。
 
-�������������������� ��� ��������������������
+■■■■■■■■■■ 報告 ■■■■■■■■■■
 (28)
 
-������
-������symbolic link�Υե�����ȡ�
-Ʊ��̾����symbolic link�ե������append��
-���ޤ����������ŤʤäƤ��ޤ���
+■問題
+書庫内のsymbolic linkのファイルと、
+同じ名前のsymbolic linkファイルのappendが
+うまくいかず、重なってしまう。
 
-������
-�ե�����̾��Ӥǡ�symbolic link�ե�����̾�ɤ�����
-��ӥ��르�ꥺ�ब�ְ㤨�Ƥ�����
+■原因
+ファイル名比較で、symbolic linkファイル名どうしの
+比較アルゴリズムが間違えていた。
 
-���н�
-����˷׻��Ǥ���褦�˽���������
+■対処
+正常に計算できるように修正した。
 
-�������������������� �ɲ� ��������������������
+■■■■■■■■■■ 追加 ■■■■■■■■■■
 (29)
 
-����ǽ
--lh7-�ν�ˤ�����/Ÿ�����Ǥ��뵡ǽ���ɲä�����
+■機能
+-lh7-の書庫を生成/展開ができる機能を追加した。
 
-������¾
-Makefile��-DSUPPORT_LH7�Υ��ץ������ɲä���
-����ѥ��뤹�뤳�Ȥ�-lh7-�ν�ˤ����Ǥ���褦��
-�ʤ롣
+■その他
+Makefileで-DSUPPORT_LH7のオプションを追加して
+コンパイルすることで-lh7-の書庫が操作できるように
+なる。
 
 
 

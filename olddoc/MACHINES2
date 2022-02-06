@@ -1,0 +1,107 @@
+----------------------------------------------------------------
+マシン          AT互換機 (Pentium 133MHz)
+OS              FreeBSD 2.0.5
+Compiler        gcc 2.6.3
+変更事項        特になし
+備考            Ver.1.14d製作環境
+                Ver.1.14dのコンパイル
+----------------------------------------------------------------
+マシン          AT互換機 (Pentium 100MHz)
+OS              Linux 2.0.20 (POSIX)
+Compiler        gcc version 2.7.2
+変更事項        MACHINE に -DSYSV_SYSTEM_DIR  を追加
+                OPTIMIZE に -m486 を追加
+備考            Slackware-3.0.0ベースで kernel version 2.0.XX
+                が動くようにしたシステム (libc version 5.2.18)
+                コンパイルした日: 1996/09/17(火)
+----------------------------------------------------------------
+-- 以下、1.14d公開以後報告
+----------------------------------------------------------------
+   NeXT
+   NeXTStationTurbo Color
+   NeXTSTEP Release 3.3J 
+   cc ( システム標準 gcc 2.4.5相当) 
+   SWITHESに -DNOSTRDUP -DUSESTRCASECMP を追加
+   また、4way-MAB作成の為、 CC に
+   -arch m68k -arch i386 -arch hppa -arch sparcを追加
+    ( 試してはいませんが、このバイナリで Intel, PA-RISC, SPARC用の
+       NeXTSTEP/OPENSTEP for Machでも稼動するはずです )
+----------------------------------------------------------------
+   NEC
+   EWS4800/320PX ( and 310PX )
+   EWS-UX/V R11.4
+   /usr/abiccs/bin/cc
+   SWITCHES に -DNOINDEX -DMKTIME -DSYSV_SYSTEM_DIR を追加
+   また OPTIMIZEを -O -Kmips2に設定
+   -Kmips2は mips2に最適化するため、R3000系のCPUを使ったマシンでは
+   稼動しないバイナリを作成します。
+----------------------------------------------------------------
+メーカー： 不明
+マシン  ： SGI CRAY Origin 2000
+OS      ： IRIX 6.4
+オプション MACHINEから-DHAVE_TM_ZONEを除きました。
+----------------------------------------------------------------
+マシン        SGI O2
+OS           IRIX 6.5 + WorldView Japanese 6.5
+SWITCHES     = -DEUC
+MACHINE      = -DNOINDEX -DSYSTIME_HAS_NO_TM -DSYSV_SYSTEM_DIR -n32 -mips3
+OPTIMIZE     = -O2
+備考         -DNOINDEX を付けないとデリミタを含むパスがうまく書けません。
+----------------------------------------------------------------
+マシン          AT互換機 (Pentium III 500MHz)
+OS              Solaris 2.7 (x86)
+Compiler        gcc version 2.8.1
+変更事項        SWITCHES に -DFTIME
+                            -DUSESTRCASECMP を追加
+                MACHINE に -DSYSV_SYSTEM_DIR を追加
+                OPTIMIZE に -m486 を追加
+備考            make install 時に
+                  "/usr/sbin/install"ではエラー。
+                  "/usr/ucb/install"を使用。
+                これは Solaris 全般のインストール時の問題。
+----------------------------------------------------------------
+マシン		?
+OS		Linux 2.2.x
+Compiler	gcc version egcs-2.91.66 19990314 (egcs-1.1.2 rel)
+変更事項	-DHAVE_TM_ZONE を消して -DMKTIME を入れる
+
+----------------------------------------------------------------
+社名  		Sun Microsystems
+マシン  	Ultra
+OS  		Solaris2.5
+Compiler 	cc,gcc
+変更事項 	MACHINEを-DSYSTIME_HAS_NO_TM
+		-DEUC -DSYSV_SYSTEM_DIRに変更
+---------------------------------------------------------------
+社名		Sun Microsystems
+マシン		Sun Ultra 1/170
+OS		Solaris2.6 (SunOS5.6)
+Compiler	egcs-1.1 release (egcs-2.91.57 19980901)(gcc-2.8.*相当？)
+変更事項	MACHINE=-DNOBSTRING -DNOINDEX -DTZSET -DSYSV_SYSTEM_DIR
+		-DSYSTIME_HAS_NO_TM
+		MANDIR=/usr/local/man/ja
+		INSTALL=/usr/ucb/install
+		MANSECT=1	(お好みに応じて)
+備考		sun solaris SVR4
+		SunOSには伝統的に？struct tmにtimezoneがないので注意
+----------------------------------------------------------------
+社名：　　　  IBM
+マシン：　　　RS/6000-25T
+ＯＳ　：　　　AIX Version 3.2.5
+コンパイラ：  /bin/cc
+変更　：　　　SWITCHESに-DSYSV_SYSTEM_DIR -BSD_INCLUDES -DAIXを追加
+              MACHINEを-DSYSTIME_HAS_NO_TM -DTZSETに変更
+----------------------------------------------------------------
+社名            Hewlett Packard
+マシン          HP9000 C240
+OS              HP-UX 10.20
+Compiler        cc
+変更事項        SWITCHES に -DUSESTRCASECMP を追加。
+                SWITCHES に -DNOBSTRING を追加。
+                Shift-JIS を使用するので -DEUCを削除し，
+                source内のEUCコードをShift-JISコードに変換。
+                OPTIMIZEに -Y -O +DAportable +DSportableを指定
+                portable指定はPA7000シリーズに対応するため
+----------------------------------------------------------------
+
+

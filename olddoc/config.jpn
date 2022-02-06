@@ -1,0 +1,51 @@
+LHa for UNIX ver 1.14g コンフィグレーション (Makefile, SWITCHESマクロ参照)
+
+機種依存マクロは、MACHINES ファイルに設定例がありますので参照願います。
+
+
+機種非依存のマクロ
+
+  NEED_INCREMENTAL_INDICATOR	経過表示グラフを表示するようにします。
+  EUC			漢字コード変換を行なう e オプションを用意します。
+  ARCHIVENAME_EXTENTION	デフォルトのアーカイブ拡張子。デフォルトは ".lzh" 。
+  BACKUPNAME_EXTENTION	バックアップアーカイブの拡張子。デフォルトは ".bak" 。
+  TMP_FILENAME_TEMPLATE	作業ファイルのテンプレート。
+  SUPPORT_LH7		-lh7- methodをサポートするときに定義します。
+
+機種依存マクロ
+
+--インクルードファイル関係
+  USG			<strings.h> がないときに定義します。
+  SYSTIME_HAS_NO_TM	<sys/time.h> に struct tm がないときに定義します。
+
+--文字列関係
+  NOBSTRING		bstring(3) がないときに定義します。
+  NOINDEX		index(3) がないときに定義します。
+  NOSTRDUP		strdup(3) がないときに定義します。
+  USESTRCASECMP		strcasecmp(3) があるときに定義します。
+  NOMEMSET		memset(3)がないときに定義します。
+
+--timezone 情報の取得関係
+  FTIME			ftime(3C) を使用した変換を行なう時に定義します。
+  GETTIMEOFDAY		gettimeofday(2) を使用した変換を行なう時に定義します。
+  MKTIME		mktime(3C) を使用した変換を行なう時に定義します。
+  TIMELOCAL		timelocal(3V) を使用した変換を行なう時に定義します。
+  TZSET			tzset(3C) を使用した変換を行なう時に定義します。
+  TIMEZONE_HOOK
+
+--ディレクトリ操作関係
+  NONSYSTEM_DIR_LIBRARY	ディレクトリ操作関数(opendir,readdir,closedir)が
+			ないときに定義します。Makefile の LIBRARYOBJS に
+			lhdir$(O) を追加してください。
+  SYSV_SYSTEM_DIR	struct dirent (direct ではない)があるときに定義します。
+  NODIRECTORY		上記マクロを使用しても失敗する時に定義します。
+
+--その他
+  NOFTRUNCATE		ftruncate(2) がない時に定義します。
+  NOMKDIR		mkdir(2) がないときに定義します。
+  MKDIRPATH		mkdir の外部コマンド名を定義します。NOMKDIR と
+			同時に機能します。デフォルトは "/bin/mkdir" です。
+  RMDIRPATH		rmdir の外部コマンド名を定義します。NOMKDIR と
+			同時に機能します。デフォルトは "/bin/rmdir" です。
+  NOT_COMPATIBLE_MODE
+  HAVE_NO_LCHOWN	lchown(2)が無いときに定義します。
