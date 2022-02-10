@@ -165,6 +165,7 @@ sjis_to_utf8(char *dst, const char *src, size_t dstsize)
       return dst;
 #elif USE_ICONV
   if (ConvertEncodingByIconv(src, dst, dstsize, "SJIS", LHA_ENCODING_UTF8) != -1)
+      return dst;
 #else
   error("not support utf-8 conversion");
 #endif
