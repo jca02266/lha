@@ -23,6 +23,15 @@ EXTRA_DIST =	lha-test1 \
 		lha-test17 \
 		lha-test18 \
 		lha-test19 \
+		lha-test20 \
+		lha-test20-cap.lzh \
+		lha-test20-euc.lzh \
+		lha-test20-list-cap.txt \
+		lha-test20-list-euc.txt \
+		lha-test20-list-sjis.txt \
+		lha-test20-list-utf8.txt \
+		lha-test20-sjis.lzh \
+		lha-test20-utf8.lzh \
 		lha-test51 \
 		lha-test51-2G.lzh \
 		lha-test52 \
