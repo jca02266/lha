@@ -7,6 +7,9 @@ EXTRA_DIST =	lha-test1 \
 		lha-test5 \
 		lha-test6 \
 		lha-test7 \
+		lha-test7_lv0 \
+		lha-test7_lv1 \
+		lha-test7_lvg \
 		lha-test8 \
 		lha-test9 \
 		lha-test10 \
