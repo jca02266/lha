@@ -1,0 +1,63 @@
+# -*- shell-script -*-
+message testing japanese filename conversion
+
+case `$lha --version 2>&1` in
+*-linux-gnu*)
+acodes="cap euc sjis utf8"
+scodes="cap euc sjis utf8"
+
+for acode in $acodes
+do
+	for scode in $scodes
+	do
+$lha l --archive-kanji-code=$acode --system-kanji-code=$scode \
+	$srcdir/lha-test20-$acode.lzh | \
+	head -n -1 | diff - $srcdir/lha-test20-list-$scode.txt
+							check $? $LINENO
+	done
+done
+
+filename_cap=test-tmp-:93:fa:96{:8c:ea.file
+filename_utf8=test-tmp-日本語.file
+filename_euc=`echo $filename_utf8 | iconv -f UTF-8 -t EUC-JP`
+filename_sjis=`echo $filename_utf8 | iconv -f UTF-8 -t Shift_JIS`
+
+touch "$filename_cap"
+change_timestamp 200001020304.05 "$filename_cap"
+for acode in $acodes
+do
+$lha c --archive-kanji-code=$acode --system-kanji-code=cap \
+	- ${filename_cap} | diff -q - $srcdir/lha-test20-$acode.lzh
+							check $? $LINENO
+done
+
+touch "$filename_euc"
+change_timestamp 200001020304.05 "$filename_euc"
+for acode in $acodes
+do
+$lha c --archive-kanji-code=$acode --system-kanji-code=euc \
+	- ${filename_euc} | diff -q - $srcdir/lha-test20-$acode.lzh
+							check $? $LINENO
+done
+
+touch "$filename_sjis"
+change_timestamp 200001020304.05 "$filename_sjis"
+for acode in $acodes
+do
+$lha c --archive-kanji-code=$acode --system-kanji-code=sjis \
+	- ${filename_sjis} | diff -q - $srcdir/lha-test20-$acode.lzh
+							check $? $LINENO
+done
+
+touch "$filename_utf8"
+change_timestamp 200001020304.05 "$filename_utf8"
+for acode in $acodes
+do
+$lha c --archive-kanji-code=$acode --system-kanji-code=utf8 \
+	- ${filename_utf8} | diff -q - $srcdir/lha-test20-$acode.lzh
+							check $? $LINENO
+done
+;;
+*)
+;;
+esac

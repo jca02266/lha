@@ -155,16 +155,44 @@ ConvertEncodingByIconv(const char *src, char *dst, size_t dstsize,
 #endif
 
 extern char *
-sjis_to_utf8(char *dst, const char *src, size_t dstsize)
+conv_to_utf8(char *dst, const char *src, size_t dstsize, int from_code)
 {
 #if defined(__APPLE__) && !USE_ICONV
+  unsigned long enc = 0; /* kCFStringEncodingMacRoman */
+
+  switch (from_code) {
+  case CODE_SJIS:
+      enc = kCFStringEncodingDOSJapanese;
+      break;
+  case CODE_EUC:
+      enc = kCFStringEncodingEUC_JP;
+      break;
+  default:
+      error("unsupported encoding");
+      break;
+  }
+
   dst[0] = '\0';
-  if (ConvertEncodingToUTF8(src, dst, dstsize,
-                            kCFStringEncodingDOSJapanese,
+  if (enc && ConvertEncodingToUTF8(src, dst, dstsize, enc,
                             kCFStringEncodingUseHFSPlusCanonical) == 0)
       return dst;
 #elif USE_ICONV
-  if (ConvertEncodingByIconv(src, dst, dstsize, "SJIS", LHA_ENCODING_UTF8) != -1)
+  const char *enc = NULL;
+
+  switch (from_code) {
+  case CODE_SJIS:
+      enc = "SJIS";
+      break;
+  case CODE_EUC:
+      enc = "EUC-JP";
+      break;
+  default:
+      error("unsupported encoding");
+      break;
+  }
+
+  if (enc && ConvertEncodingByIconv(src, dst, dstsize, enc, LHA_ENCODING_UTF8) != -1)
+      return dst;
 #else
   error("not support utf-8 conversion");
 #endif
@@ -175,19 +203,45 @@ sjis_to_utf8(char *dst, const char *src, size_t dstsize)
 }
 
 extern char *
-utf8_to_sjis(char *dst, const char *src, size_t dstsize)
+conv_from_utf8(char *dst, const char *src, size_t dstsize, int to_code)
 {
 #if defined(__APPLE__) && !USE_ICONV
   int srclen;
+  unsigned long enc = 0; /* kCFStringEncodingMacRoman */
+
+  switch (to_code) {
+  case CODE_SJIS:
+      enc = kCFStringEncodingDOSJapanese;
+      break;
+  case CODE_EUC:
+      enc = kCFStringEncodingEUC_JP;
+      break;
+  default:
+      error("unsupported encoding");
+      break;
+  }
 
   dst[0] = '\0';
   srclen = strlen(src);
-  if (ConvertUTF8ToEncoding(src, srclen, dst, dstsize,
-                            kCFStringEncodingDOSJapanese,
+  if (enc && ConvertUTF8ToEncoding(src, srclen, dst, dstsize, enc,
                             kCFStringEncodingUseHFSPlusCanonical) == 0)
       return dst;
 #elif USE_ICONV
-  if (ConvertEncodingByIconv(src, dst, dstsize, LHA_ENCODING_UTF8, "SJIS") != -1)
+  const char *enc = NULL;
+
+  switch (to_code) {
+  case CODE_SJIS:
+      enc = "SJIS";
+      break;
+  case CODE_EUC:
+      enc = "EUC-JP";
+      break;
+  default:
+      error("unsupported encoding");
+      break;
+  }
+
+  if (enc && ConvertEncodingByIconv(src, dst, dstsize, LHA_ENCODING_UTF8, enc) != -1)
       return dst;
 #else
   error("not support utf-8 conversion");

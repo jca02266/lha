@@ -171,6 +171,7 @@ else
   testsuite lha-test17
   testsuite lha-test18
   testsuite lha-test19
+  testsuite lha-test20
   # followings will take a long time
   if [[ $perform_number = all ]]; then
     testsuite lha-test51	# extract 2G over files

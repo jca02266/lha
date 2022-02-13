@@ -136,8 +136,8 @@ void hist_init(void);
 unsigned char hist_lookup(int n);
 void hist_update(unsigned char data);
 /* support_utf8.c */
-char *sjis_to_utf8(char *dst, const char *src, size_t dstsize);
-char *utf8_to_sjis(char *dst, const char *src, size_t dstsize);
+char *conv_to_utf8(char *dst, const char *src, size_t dstsize, int from_code);
+char *conv_from_utf8(char *dst, const char *src, size_t dstsize, int to_code);
 
 /* util.c */
 #if !HAVE_MEMMOVE

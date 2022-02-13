@@ -327,9 +327,9 @@ convert_filename(name, len, size,
     }
 
 #ifdef MULTIBYTE_FILENAME
-    if (from_code == CODE_SJIS && to_code == CODE_UTF8) {
+    if ((from_code == CODE_SJIS || from_code == CODE_EUC) && to_code == CODE_UTF8) {
         for (i = 0; i < len; i++) {
-            if (SJIS_FIRST_P(name[i]) && SJIS_SECOND_P(name[i+1]))
+            if (from_code == CODE_SJIS && (SJIS_FIRST_P(name[i]) && SJIS_SECOND_P(name[i+1])))
                 i++;
             else {
                 /* FIXME: provisionally fix for the Mac OS CoreFoundation */
@@ -337,7 +337,7 @@ convert_filename(name, len, size,
                     name[i] = '/';
             }
         }
-        sjis_to_utf8(tmp, name, sizeof(tmp));
+        conv_to_utf8(tmp, name, sizeof(tmp), from_code);
         strncpy(name, tmp, size);
         name[size-1] = 0;
         len = strlen(name);
@@ -345,17 +345,17 @@ convert_filename(name, len, size,
             if (name[i] == '/')  name[i] = LHA_PATHSEP;
         from_code = CODE_UTF8;
     }
-    else if (from_code == CODE_UTF8 && to_code == CODE_SJIS) {
+    else if (from_code == CODE_UTF8 && (to_code == CODE_SJIS || to_code == CODE_EUC)) {
         for (i = 0; i < len; i++)
             /* FIXME: provisionally fix for the Mac OS CoreFoundation */
             if ((unsigned char)name[i] == LHA_PATHSEP)  name[i] = '/';
-        utf8_to_sjis(tmp, name, sizeof(tmp));
+        conv_from_utf8(tmp, name, sizeof(tmp), to_code);
         strncpy(name, tmp, size);
         name[size-1] = 0;
         len = strlen(name);
         for (i = 0; i < len; i++)
             if (name[i] == '/')  name[i] = LHA_PATHSEP;
-        from_code = CODE_SJIS;
+        from_code = to_code;
     }
 #endif
 
@@ -386,7 +386,8 @@ convert_filename(name, len, size,
             len++;
             continue;
         }
-        if (from_code == CODE_EUC && (name[i] & 0x80) && (name[i+1] & 0x80)) {
+        if (from_code == CODE_EUC && (unsigned char)name[i] != LHA_PATHSEP &&
+            (name[i] & 0x80) && (name[i+1] & 0x80)) {
             int c1, c2;
             if (to_code != CODE_SJIS) {
                 i++;
