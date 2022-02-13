@@ -1,8 +1,6 @@
 # -*- shell-script -*-
 message testing japanese filename conversion
 
-case `$lha --version 2>&1` in
-*-linux-gnu*)
 acodes="cap euc sjis utf8"
 scodes="cap euc sjis utf8"
 
@@ -57,7 +55,3 @@ $lha c --archive-kanji-code=$acode --system-kanji-code=utf8 \
 	- ${filename_utf8} | diff -q - $srcdir/lha-test20-$acode.lzh
 							check $? $LINENO
 done
-;;
-*)
-;;
-esac
