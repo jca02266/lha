@@ -68,13 +68,16 @@ message()
 check()
 {
   ((test_number = test_number + 1))
-  typeset exit_status=$1
-  typeset lineno=$2
+  typeset exit_status=$1; shift
+  typeset lineno=$1; shift
+  if [ $# -gt 0 ]; then
+    typeset and_more=" ($@)"; shift
+  fi
   if [[ $exit_status -eq 0 ]]; then
     echo    "$FILENAME #$test_number ... ok" >&2
-    echo    "$FILENAME #$test_number ... ok at line $lineno"
+    echo    "$FILENAME$and_more #$test_number ... ok at line $lineno"
   else
-    message "$FILENAME #$test_number ... failed at line $lineno"
+    message "$FILENAME$and_more #$test_number ... failed at line $lineno"
     ((error_num = error_num + 1))
     error_tests="$error_tests $FILENAME #$test_number"
     result=1
