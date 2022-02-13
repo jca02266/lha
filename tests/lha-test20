@@ -12,7 +12,7 @@ do
 	do
 $lha l --archive-kanji-code=$acode --system-kanji-code=$scode \
 	$srcdir/lha-test20-$acode.lzh | \
-	head -n -1 | diff - $srcdir/lha-test20-list-$scode.txt
+	sed '$d' | diff - $srcdir/lha-test20-list-$scode.txt
 							check $? $LINENO
 	done
 done
