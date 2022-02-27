@@ -160,7 +160,7 @@ You can also use UTF-8 outside of Mac OS X by using the iconv library.
 If you don't want to use iconv, you can do follows:
 
 ```
-sh ./configure --disable-iconv
+sh ./configure --enable-multibyte-filename=utf8 --disable-iconv
 ```
 
 In particular, on Mac OS X, when the iconv disabled, it will use the Core Foundation library to support UTF-8.

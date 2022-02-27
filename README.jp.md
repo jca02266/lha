@@ -173,7 +173,7 @@ Mac OS X 用の utf8 <-> sjis 変換は、2002/6 に坂井浩人さんに作成�
 ることができます。もし、iconv を使用したくない場合は
 
 ```
-   sh ./configure --disable-iconv
+   sh ./configure --enable-multibyte-filename=utf8 --disable-iconv
 ```
 
 としてください。特に Mac OS X ではこうすることで、Core Foundationライブラリ
