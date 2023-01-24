@@ -24,13 +24,12 @@ filename_utf8=test-tmp-日本語.file
 filename_euc=`echo $filename_utf8 | iconv -f UTF-8 -t EUC-JP`
 filename_sjis=`echo $filename_utf8 | iconv -f UTF-8 -t Shift_JIS`
 
-filenames="cap $filename_cap
-utf8 $filename_utf8
-euc $filename_euc
-sjis $filename_sjis"
+targets="cap:$filename_cap utf8:$filename_utf8 euc:$filename_euc sjis:$filename_sjis"
 
-echo "$filenames" | while read scode filename
+for target in $targets
 do
+  scode="${target%%:*}"
+  filename="${target#*:}"
   if touch "$filename" 2>/dev/null; then
     for acode in $acodes
     do
