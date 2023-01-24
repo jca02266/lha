@@ -36,7 +36,7 @@ do
       $lha c --archive-kanji-code=$acode --system-kanji-code=$scode \
           test-tmp-$scode-$acode.lzh $filename
                                                         check $? $LINENO $scode $acode
-      $lha t --archive-kanji-code=$acode test-tmp-$scode-$acode.lzh > test-tmp-stdout
+      $lha t --archive-kanji-code=$acode --system-kanji-code=utf8 test-tmp-$scode-$acode.lzh > test-tmp-stdout
                                                         check $? $LINENO $scode $acode
       (
         echo
