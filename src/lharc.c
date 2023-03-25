@@ -152,6 +152,8 @@ usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
 static void
 print_usage()
 {
+    print_version();
+    
     fprintf(stdout, "\
 LHarc    for UNIX  V 1.02  Copyright(C) 1989  Y.Tagawa\n\
 LHx      for MSDOS V C2.01 Copyright(C) 1990  H.Yoshizaki\n\
