@@ -706,7 +706,9 @@ print_version()
        defined in config.h by configure script */
     fprintf(stdout, "%s version %s (%s)\n",
             PACKAGE_NAME, PACKAGE_VERSION, PLATFORM);
-    fprintf(stderr, "  configure options: %s\n", LHA_CONFIGURE_OPTIONS);
+    
+    if (LHA_CONFIGURE_OPTIONS != "")
+      fprintf(stderr, "  configure options: %s\n", LHA_CONFIGURE_OPTIONS);
 }
 
 void
