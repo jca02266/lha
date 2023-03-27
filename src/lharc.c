@@ -152,7 +152,9 @@ usage: lha [-]<commands>[<options>] [-<options> ...] archive_file [file...]\n\
 static void
 print_usage()
 {
-    fprintf(stdout, "\
+    print_version();
+    
+    fprintf(stdout, "\n\
 LHarc    for UNIX  V 1.02  Copyright(C) 1989  Y.Tagawa\n\
 LHx      for MSDOS V C2.01 Copyright(C) 1990  H.Yoshizaki\n\
 LHx(arc) for OSK   V 2.01  Modified     1990  Momozou\n\
@@ -702,9 +704,11 @@ print_version()
 {
     /* macro PACKAGE_NAME, PACKAGE_VERSION and PLATFORM are
        defined in config.h by configure script */
-    fprintf(stderr, "%s version %s (%s)\n",
+    fprintf(stdout, "%s version %s (%s)\n",
             PACKAGE_NAME, PACKAGE_VERSION, PLATFORM);
-    fprintf(stderr, "  configure options: %s\n", LHA_CONFIGURE_OPTIONS);
+    
+    if (strlen(LHA_CONFIGURE_OPTIONS) != 0)
+      fprintf(stdout, "  configure options: %s\n", LHA_CONFIGURE_OPTIONS);
 }
 
 void
