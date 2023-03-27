@@ -707,7 +707,7 @@ print_version()
     fprintf(stdout, "%s version %s (%s)\n",
             PACKAGE_NAME, PACKAGE_VERSION, PLATFORM);
     
-    if (LHA_CONFIGURE_OPTIONS != "")
+    if (strlen(LHA_CONFIGURE_OPTIONS) != 0)
       fprintf(stdout, "  configure options: %s\n", LHA_CONFIGURE_OPTIONS);
 }
 
