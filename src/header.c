@@ -69,6 +69,7 @@ calc_sum(p, len)
 
 static void
 _skip_bytes(len)
+    int len;
 {
     if (len < 0) {
       error("Invalid header: %d", len);
