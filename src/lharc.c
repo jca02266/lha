@@ -1437,6 +1437,10 @@ inquire(msg, name, selective)
         fflush(stderr);
 
         fgets(buffer, 1024, stdin);
+        if (feof(stdin)) { /* ^D is entered */
+            clearerr(stdin);
+            fprintf(stderr, "\n");
+        }
 
         for (p = selective; *p; p++)
             if (buffer[0] == *p)
