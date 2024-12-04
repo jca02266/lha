@@ -19,8 +19,8 @@ fillbuf(n)          /* Shift bitbuf n bits left, read n bits */
         n -= bitcount;
         bitbuf = (bitbuf << bitcount) + (subbitbuf >> (CHAR_BIT - bitcount));
         if (compsize != 0) {
-            compsize--;
             int c = getc(infile);
+            compsize--;
             if (c == EOF) {
                 fatal_error("cannot read stream");
             }
