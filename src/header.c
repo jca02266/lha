@@ -328,7 +328,7 @@ convert_filename(name, len, size,
     }
 
 #ifdef MULTIBYTE_FILENAME
-    if ((from_code == CODE_SJIS || from_code == CODE_EUC) && to_code == CODE_UTF8) {
+    if ((from_code == CODE_SJIS || from_code == CODE_EUC || from_code == CODE_LATIN1 || from_code == CODE_OTHER) && to_code == CODE_UTF8) {
         for (i = 0; i < len; i++) {
             if (from_code == CODE_SJIS && (SJIS_FIRST_P(name[i]) && SJIS_SECOND_P(name[i+1])))
                 i++;
@@ -346,7 +346,7 @@ convert_filename(name, len, size,
             if (name[i] == '/')  name[i] = LHA_PATHSEP;
         from_code = CODE_UTF8;
     }
-    else if (from_code == CODE_UTF8 && (to_code == CODE_SJIS || to_code == CODE_EUC)) {
+    else if (from_code == CODE_UTF8 && (to_code == CODE_SJIS || to_code == CODE_EUC || to_code == CODE_LATIN1 || to_code == CODE_OTHER)) {
         for (i = 0; i < len; i++)
             /* FIXME: provisionally fix for the Mac OS CoreFoundation */
             if ((unsigned char)name[i] == LHA_PATHSEP)  name[i] = '/';

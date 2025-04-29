@@ -357,6 +357,9 @@ EXTERN int      archive_file_gid;
 
 EXTERN int      convertcase;    /* 2000.10.6 */
 
+EXTERN char     iconv_code_system[FILENAME_LENGTH];
+EXTERN char     iconv_code_archive[FILENAME_LENGTH];
+
 /* slide.c */
 EXTERN int      unpackable;
 EXTERN off_t origsize, compsize;
