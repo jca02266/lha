@@ -138,6 +138,7 @@ void hist_update(unsigned char data);
 /* support_utf8.c */
 char *conv_to_utf8(char *dst, const char *src, size_t dstsize, int from_code);
 char *conv_from_utf8(char *dst, const char *src, size_t dstsize, int to_code);
+boolean is_valid_kanji_code(char *enc);
 
 /* util.c */
 #if !HAVE_MEMMOVE

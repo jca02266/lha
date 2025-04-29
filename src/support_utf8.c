@@ -167,6 +167,9 @@ conv_to_utf8(char *dst, const char *src, size_t dstsize, int from_code)
   case CODE_EUC:
       enc = kCFStringEncodingEUC_JP;
       break;
+  case CODE_LATIN1:
+      enc = kCFStringEncodingMacRomanLatin1;
+      break;
   default:
       error("unsupported encoding");
       break;
@@ -181,10 +184,16 @@ conv_to_utf8(char *dst, const char *src, size_t dstsize, int from_code)
 
   switch (from_code) {
   case CODE_SJIS:
-      enc = "SJIS";
+      enc = "CP932";
       break;
   case CODE_EUC:
       enc = "EUC-JP";
+      break;
+  case CODE_LATIN1:
+      enc = "CP1252";
+      break;
+  case CODE_OTHER:
+      enc = iconv_code_archive;
       break;
   default:
       error("unsupported encoding");
@@ -216,6 +225,9 @@ conv_from_utf8(char *dst, const char *src, size_t dstsize, int to_code)
   case CODE_EUC:
       enc = kCFStringEncodingEUC_JP;
       break;
+      case CODE_LATIN1:
+      enc = kCFStringEncodingMacRomanLatin1;
+      break;
   default:
       error("unsupported encoding");
       break;
@@ -231,10 +243,16 @@ conv_from_utf8(char *dst, const char *src, size_t dstsize, int to_code)
 
   switch (to_code) {
   case CODE_SJIS:
-      enc = "SJIS";
+      enc = "CP932";
       break;
   case CODE_EUC:
       enc = "EUC-JP";
+      break;
+  case CODE_LATIN1:
+      enc = "CP1252";
+      break;
+  case CODE_OTHER:
+      enc = iconv_code_system;
       break;
   default:
       error("unsupported encoding");
@@ -250,4 +268,22 @@ conv_from_utf8(char *dst, const char *src, size_t dstsize, int to_code)
   if (dstsize < 1) return dst;
   dst[dstsize-1] = 0;
   return strncpy(dst, src, dstsize-1);
+}
+
+extern boolean
+is_valid_kanji_code(char *enc) {
+    int rc = FALSE;
+#if USE_ICONV
+    iconv_t ic;
+
+    ic = iconv_open(enc, enc);
+    if (ic == (iconv_t)-1) {
+        error("iconv_open() failure: %s", strerror(errno));
+        rc = FALSE;
+    } else {
+        iconv_close(ic);
+        rc = TRUE;
+    }
+#endif
+    return rc;
 }

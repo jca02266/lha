@@ -131,7 +131,8 @@ This command line option is specified with the GNU style long option (with two l
               This is usually fixed to Shift_JIS (`sjis`) and should not be changed.
 ```
 
-`xxx` is one of `sjis`, `euc`, `utf8`, or `cap`. The `cap` is a code used by the Samba and others to represent
+`xxx` is one of `sjis`, `euc`, `utf8`, `latin1`, or `cap`. If iconv is available, you can
+specify any encoding also. The `cap` is a code used by the Samba and others to represent
 multibyte filename with a ":" and two hexadecimal character.
 
 For example:
