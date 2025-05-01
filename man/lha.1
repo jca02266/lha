@@ -289,7 +289,7 @@ An equal mark is omittable like, \-x pattern.
 .SH LONG OPTIONS
 
 .TP
-\fB\-\-archive\-kanji\-code\fR={euc,sjis,utf8,cap,none}
+\fB\-\-archive\-kanji\-code\fR={euc,sjis,utf8,latin1,cap,none}
 Specifies the multi-byte encoding of the archived pathname.
 
 Default is sjis as Shift_JIS.
@@ -298,9 +298,8 @@ On LZH file, the encoding of pathname in archive is not ruled.
 However, In Japan, Shift_JIS (exactly Windows-31J) is defacto standard.
 
 .TP
-\fB\-\-system\-kanji\-code\fR={euc,sjis,utf8,cap,none}
+\fB\-\-system\-kanji\-code\fR={euc,sjis,utf8,latin1,cap,none}
 This option specifies the encoding of the pathname on the filesystem.
-Default is euc as EUC-JP.
 
 .TP
 \fB\-\-extract\-broken\-archive\fR
