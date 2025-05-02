@@ -726,14 +726,16 @@ main(argc, argv)
 
 
 /* ------------------------------------------------------------------------ */
+#include "version.h"
+
 static void
 print_version()
 {
     /* macro PACKAGE_NAME, PACKAGE_VERSION and PLATFORM are
        defined in config.h by configure script */
     fprintf(stdout, "%s version %s (%s)\n",
-            PACKAGE_NAME, PACKAGE_VERSION, PLATFORM);
-    
+            PACKAGE_NAME, BUILD_VERSION, PLATFORM);
+
     if (strlen(LHA_CONFIGURE_OPTIONS) != 0)
       fprintf(stdout, "  configure options: %s\n", LHA_CONFIGURE_OPTIONS);
 }
