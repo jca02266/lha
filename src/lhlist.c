@@ -21,7 +21,7 @@
 static void
 print_size(off_t packed_size, off_t original_size)
 {
-#if SIZEOF_OFF_T == 8
+#if SIZEOF_LONG < SIZEOF_OFF_T
     if (verbose_listing)
         printf("%7llu ", packed_size);
 
