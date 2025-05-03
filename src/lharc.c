@@ -210,7 +210,11 @@ commands:                           options:\n\
 ");
 }
 
+#if USE_GNU
+#include <getopt.h>  /* use GNU getopt_long() */
+#else
 #include "getopt_long.h"
+#endif
 
 /*
   Parse LHA options
