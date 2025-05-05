@@ -8,11 +8,16 @@ top_srcdir=$(dirname $0)/..
 
 VERSION_PREFIX="1.14i-ac"
 
+# command line switch
+if test "$1" = "--dist"; then
+  OUTPUT_FOR_DIST=true
+fi
+
 # Use Git info to generate full version
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   IS_INSIDE_WORK_TREE=true
-  DATE=$(git log -1 --date=format:"%Y%m%d" --pretty=format:"%cd")
-  HASH=$(git rev-parse --short=7 HEAD)
+  set -- $(git log -1 --date=format:"%Y%m%d" --pretty=format:"%cd %h")
+  DATE=$1 HASH=$2
 
   DIRTY=""
   if ! git diff --quiet || ! git diff --cached --quiet; then
@@ -22,7 +27,7 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 fi
 
 # --dist: output version for .tarball-version and exit
-if test "$1" = "--dist"; then
+if test "$OUTPUT_FOR_DIST" = true; then
   if test x"$DIRTY" != x; then
     exit 1
   fi
