@@ -4,10 +4,10 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = README.md README.jp.md header.doc.md header.doc.jp Hacking_of_LHa autogen.sh build-aux/gen-build-version.sh
 SUBDIRS= man olddoc src tests
 
-.tarball-version:
-	sh $(top_srcdir)/build-aux/gen-build-version.sh --dist > .tarball-version
-
-pre-configure: .tarball-version
-
-dist-hook: .tarball-version
-	mv .tarball-version $(distdir)
+## Re-run autoconf to regenerate configure and update PACKAGE_VERSION via .tarball-version
+dist-hook:
+	rm -f $(top_srcdir)/.tarball-version 2>/dev/null
+	cd $(top_srcdir) && \
+		build-aux/gen-build-version.sh --dist > .tarball-version && \
+		$(AUTOCONF) --force
+	mv $(top_srcdir)/.tarball-version $(distdir)

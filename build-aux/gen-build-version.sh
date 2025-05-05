@@ -13,6 +13,12 @@ if test "$1" = "--dist"; then
   OUTPUT_FOR_DIST=true
 fi
 
+# Use .tarball-version if present
+if test -s $top_srcdir/.tarball-version; then
+  cat $top_srcdir/.tarball-version
+  exit 0
+fi
+
 # Use Git info to generate full version
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   IS_INSIDE_WORK_TREE=true
@@ -39,12 +45,6 @@ if test "$OUTPUT_FOR_DIST" = true; then
     echo "Error: not inside a Git repository" >&2
     exit 1
   fi
-fi
-
-# Use .tarball-version if present
-if test -f $top_srcdir/.tarball-version; then
-  cat $top_srcdir/.tarball-version
-  exit 0
 fi
 
 if test "$IS_INSIDE_WORK_TREE" = true; then
