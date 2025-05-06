@@ -16,6 +16,10 @@ while [ $# -gt 0 ]; do
       OUTPUT_FOR_DIST=true
       shift
       ;;
+    --verify)
+      VERIFY=true
+      shift
+      ;;
     -o)
       OUTPUT_FILE="$2"
       shift 2
@@ -44,7 +48,6 @@ output_version() {
   if test x"$OUTPUT_FILE" = x && test -f $top_srcdir/.tarball-version; then
     version=$(cat $top_srcdir/.tarball-version)
   elif test "$OUTPUT_FOR_DIST" = true; then
-    check_git_clean_for_dist
     version="${VERSION_PREFIX}${DATE}"
   else
     version="${VERSION_PREFIX}${DATE}-${HASH}${DIRTY}"
@@ -68,6 +71,10 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     DIRTY="-dirty"
     echo "Warning: repository is dirty (has uncommitted changes)" >&2
   fi
+fi
+
+if test "$VERIFY" = true; then
+  check_git_clean_for_dist
 fi
 
 output_version
