@@ -7,6 +7,6 @@ SUBDIRS= man olddoc src tests
 ## Re-run autoconf to regenerate configure and update PACKAGE_VERSION via .tarball-version
 dist-hook:
 	cd $(top_srcdir) && \
-		build-aux/gen-build-version.sh --dist --verify -o .tarball-version && \
+		build-aux/gen-build-version.sh --dist --check-clean -o .tarball-version && \
 		$(AUTOCONF) --force
 	mv $(top_srcdir)/.tarball-version $(distdir)

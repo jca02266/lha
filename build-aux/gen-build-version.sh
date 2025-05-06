@@ -16,8 +16,8 @@ while [ $# -gt 0 ]; do
       OUTPUT_FOR_DIST=true
       shift
       ;;
-    --verify)
-      VERIFY=true
+    --check-clean)
+      CHECK_CLEAN=true
       shift
       ;;
     -o)
@@ -73,7 +73,7 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   fi
 fi
 
-if test "$VERIFY" = true; then
+if test "$CHECK_CLEAN" = true; then
   check_git_clean_for_dist
 fi
 
