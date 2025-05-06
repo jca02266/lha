@@ -16,6 +16,7 @@ CLEANFILES = version.h
 version.h: FORCE
 	@echo "Generating version.h..."
 	@BUILD_VERSION=`sh $(top_srcdir)/build-aux/gen-build-version.sh`; \
-	sed "s|@BUILD_VERSION@|$$BUILD_VERSION|" $(srcdir)/version.h.in > $@
+	sed "s|@BUILD_VERSION@|$$BUILD_VERSION|" $(srcdir)/version.h.in > $@.tmp
+	if cmp -s $@.tmp $@; then rm -f $@.tmp; else mv $@.tmp $@; fi
 
 FORCE:
