@@ -1,2 +1,1 @@
-/**/
 #define BUILD_VERSION "@BUILD_VERSION@"
