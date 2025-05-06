@@ -1,19 +1,19 @@
 #!/bin/sh
 # Print version string derived from Git or .tarball-version
-# If called with --dist, output a simplified version string (written to file if -o is used)
+# If called with --package, output a simplified package version string (written to file if -o is used)
 
 set -e
 
 top_srcdir=$(dirname $0)/..
 
 VERSION_PREFIX="1.14i-ac"
-OUTPUT_FOR_DIST=false
+OUTPUT_FOR_PACKAGE=false
 OUTPUT_FILE=
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --dist)
-      OUTPUT_FOR_DIST=true
+    --package)
+      OUTPUT_FOR_PACKAGE=true
       shift
       ;;
     --check-clean)
@@ -25,16 +25,16 @@ while [ $# -gt 0 ]; do
       shift 2
       ;;
     *)
-      echo "Usage: $0 [--dist] [-o <output-file>]" >&2
+      echo "Usage: $0 [--package] [-o <output-file>]" >&2
       exit 1
       ;;
   esac
 done
 
-# Ensure we are inside a clean Git work tree for --dist
-check_git_clean_for_dist() {
+# Ensure we are inside a clean Git work tree for --package
+check_git_clean_for_package() {
   if test x"$DIRTY" != x; then
-    echo "Error: working tree is dirty; commit or stash changes before running with --dist" >&2
+    echo "Error: working tree is dirty; commit or stash changes before running with packaging" >&2
     exit 1
   fi
 
@@ -47,7 +47,7 @@ check_git_clean_for_dist() {
 output_version() {
   if test x"$OUTPUT_FILE" = x && test -f $top_srcdir/.tarball-version; then
     version=$(cat $top_srcdir/.tarball-version)
-  elif test "$OUTPUT_FOR_DIST" = true; then
+  elif test "$OUTPUT_FOR_PACKAGE" = true; then
     version="${VERSION_PREFIX}${DATE}"
   else
     version="${VERSION_PREFIX}${DATE}-${HASH}${DIRTY}"
@@ -74,7 +74,7 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 fi
 
 if test "$CHECK_CLEAN" = true; then
-  check_git_clean_for_dist
+  check_git_clean_for_package
 fi
 
 output_version

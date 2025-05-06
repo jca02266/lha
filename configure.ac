@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-m4_define([VERSION_STRING], m4_esyscmd_s([build-aux/gen-build-version.sh --dist]))
+m4_define([VERSION_STRING], m4_esyscmd_s([build-aux/gen-build-version.sh --package]))
 AC_INIT([LHa for UNIX], VERSION_STRING, [jca02266@gmail.com], [lha])
 AC_DEFINE_UNQUOTED(LHA_CONFIGURE_OPTIONS, "$ac_configure_args",
             [specified options for the configure script.])
