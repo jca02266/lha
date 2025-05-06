@@ -1,6 +1,6 @@
 #!/bin/sh
 # Print version string derived from Git or .tarball-version
-# If called with --dist, generate .tarball-version with simplified version
+# If called with --dist, output a simplified version string (written to file if -o is used)
 
 set -e
 
