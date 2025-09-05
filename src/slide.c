@@ -37,11 +37,11 @@ static unsigned int *prev;      /* previous posiion associated with hash */
 static struct encode_option encode_define[2] = {
 #if defined(__STDC__) || defined(AIX)
     /* lh1 */
-    {(void (*) ()) output_dyn,
+    { output_dyn,
      (void (*) ()) encode_start_fix,
      (void (*) ()) encode_end_dyn},
     /* lh4, 5, 6, 7 */
-    {(void (*) ()) output_st1,
+    { output_st1,
      (void (*) ()) encode_start_st1,
      (void (*) ()) encode_end_st1}
 #else

@@ -235,8 +235,8 @@ send_block( /* void */ )
 /* lh4, 5, 6, 7 */
 void
 output_st1(c, p)
-    unsigned short  c;
-    unsigned short  p;
+    unsigned int  c;
+    unsigned int  p;
 {
     static unsigned short cpos;
 

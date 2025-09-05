@@ -215,7 +215,7 @@ int fnmatch(const char *pattern, const char *string, int flags);
 
 struct encode_option {
 #if defined(__STDC__) || defined(AIX)
-    void            (*output) ();
+    void            (*output) (unsigned int code, unsigned int pos);
     void            (*encode_start) ();
     void            (*encode_end) ();
 #else

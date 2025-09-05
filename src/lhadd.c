@@ -9,7 +9,7 @@
 /* ------------------------------------------------------------------------ */
 #include "lha.h"
 /* ------------------------------------------------------------------------ */
-static void     remove_files();
+static void     remove_files(int filec, char **filev);
 
 static char     new_archive_name_buffer[FILENAME_LENGTH];
 static char    *new_archive_name;
