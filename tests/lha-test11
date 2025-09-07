@@ -61,13 +61,13 @@ $lha vv test-tmp1-h1.lzh
 							check $? $LINENO
 $lha vv test-tmp1-h2.lzh
 							check $? $LINENO
-$lha vv test-tmp1-hg.lzh | egrep '\[0\].?$'
+$lha vv test-tmp1-hg.lzh | grep -E '\[0\].?$'
 							check $? $LINENO
-$lha vv test-tmp1-h0.lzh | egrep '\[0\].?$'
+$lha vv test-tmp1-h0.lzh | grep -E '\[0\].?$'
 							check $? $LINENO
-$lha vv test-tmp1-h1.lzh | egrep '\[1\].?$'
+$lha vv test-tmp1-h1.lzh | grep -E '\[1\].?$'
 							check $? $LINENO
-$lha vv test-tmp1-h2.lzh | egrep '\[2\].?$'
+$lha vv test-tmp1-h2.lzh | grep -E '\[2\].?$'
 							check $? $LINENO
 test -f test-tmp1-hg/$(echo test-tmp1/$file | cut -c-233)
 							check $? $LINENO
@@ -88,7 +88,7 @@ else
 							check $? $LINENO
   $lha vv test-tmp4-h2.lzh
 							check $? $LINENO
-  $lha vv test-tmp4-h2.lzh | egrep '\[2\].?$'
+  $lha vv test-tmp4-h2.lzh | grep -E '\[2\].?$'
 							check $? $LINENO
   rm -f $file
 							check $? $LINENO

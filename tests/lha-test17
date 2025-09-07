@@ -16,7 +16,7 @@ EOF
 							check $? $LINENO
 
 $lha vvq test-tmp-1.lzh | head -1
-$lha vvq test-tmp-1.lzh | head -1 | egrep '^test-1/test-a$'
+$lha vvq test-tmp-1.lzh | head -1 | grep -E '^test-1/test-a$'
 							check $? $LINENO
 
 echo -------------------------------------------------------------------
@@ -32,7 +32,7 @@ EOF
 							check $? $LINENO
 
 $lha vvq test-tmp-2.lzh | head -1
-$lha vvq test-tmp-2.lzh | head -1 | egrep '^test-a$'
+$lha vvq test-tmp-2.lzh | head -1 | grep -E '^test-a$'
 							check $? $LINENO
 echo -------------------------------------------------------------------
 # ../xx/xx/../xx (result: xx not "xx/xx")
@@ -51,7 +51,7 @@ EOF
 							check $? $LINENO
 
 $lha vvq test-tmp-3.lzh | head -1
-$lha vvq test-tmp-3.lzh | head -1 | egrep '^test-a$'
+$lha vvq test-tmp-3.lzh | head -1 | grep -E '^test-a$'
 							check $? $LINENO
 echo -------------------------------------------------------------------
 # just a ".." (result: ".")
@@ -84,7 +84,7 @@ test-1/test-b
 test-1/test-c
 EOF
 
-egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+grep -E -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
 							check $? $LINENO
 echo -------------------------------------------------------------------
 # "xx/./xx" -> "xx/xx"
@@ -97,7 +97,7 @@ cat <<"EOF" > test-tmp-expect
 test-1/test-a
 EOF
 
-egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+grep -E -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
 							check $? $LINENO
 echo -------------------------------------------------------------------
 # "./xx/././xx" -> "xx/xx"
@@ -110,7 +110,7 @@ cat <<"EOF" > test-tmp-expect
 test-1/test-a
 EOF
 
-egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+grep -E -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
 							check $? $LINENO
 echo -------------------------------------------------------------------
 # "xx/./xx/./././xx" -> "xx/xx/xx"
@@ -127,7 +127,7 @@ cat <<"EOF" > test-tmp-expect
 test-tmp-7/test-1/test-a
 EOF
 
-egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+grep -E -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
 							check $? $LINENO
 echo -------------------------------------------------------------------
 # "./" -> "."
@@ -145,7 +145,7 @@ test-b
 test-c
 EOF
 
-egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+grep -E -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
 							check $? $LINENO
 echo -------------------------------------------------------------------
 # "." -> "."
@@ -163,7 +163,7 @@ test-b
 test-c
 EOF
 
-egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+grep -E -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
 							check $? $LINENO
 echo -------------------------------------------------------------------
 # remove duplicated slash "xxx//xxx" -> "xxx/xxx"
@@ -187,6 +187,6 @@ test-b
 test-a
 EOF
 
-egrep -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
+grep -E -v -- '-lh' test-tmp-stdout | diff - test-tmp-expect
 							check $? $LINENO
 echo -------------------------------------------------------------------

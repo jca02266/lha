@@ -24,7 +24,7 @@ esac
 $lha c test-tmp-euc.lzh test-tmp-euc
 							check $? $LINENO
 # file size is too small, so no compressed
-$lha v test-tmp-euc.lzh | egrep lh0
+$lha v test-tmp-euc.lzh | grep -E lh0
 							check $? $LINENO
 # no convert
 $lha xw=test-tmp-euc-d test-tmp-euc.lzh
@@ -45,7 +45,7 @@ test $? -ne 0
 $lha ce test-tmp-sjis.lzh test-tmp-euc
 							check $? $LINENO
 # file size is too small, so no compressed
-$lha v test-tmp-euc.lzh | egrep lh0
+$lha v test-tmp-euc.lzh | grep -E lh0
 							check $? $LINENO
 # no convert (CR LF to LF)
 $lha xtw=test-tmp-sjis-d test-tmp-sjis.lzh
@@ -75,7 +75,7 @@ done > test-tmp-sjis2
 # no convert
 $lha c test-tmp-euc2.lzh test-tmp-euc2
 							check $? $LINENO
-$lha v test-tmp-euc2.lzh | egrep 'lh[567]'
+$lha v test-tmp-euc2.lzh | grep -E 'lh[567]'
 							check $? $LINENO
 # no convert
 $lha xw=test-tmp-euc2-d test-tmp-euc2.lzh
@@ -95,7 +95,7 @@ test $? -ne 0
 # euc to sjis (LF to CR LF)
 $lha ce test-tmp-sjis2.lzh test-tmp-euc2
 							check $? $LINENO
-$lha v test-tmp-euc2.lzh | egrep 'lh[567]'
+$lha v test-tmp-euc2.lzh | grep -E 'lh[567]'
 							check $? $LINENO
 # no convert (CR LF to LF)
 $lha xtw=test-tmp-sjis2-d test-tmp-sjis2.lzh
