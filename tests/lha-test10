@@ -18,11 +18,11 @@ $lha vv test-tmp-h1.lzh
 							check $? $LINENO
 $lha vv test-tmp-h2.lzh
 							check $? $LINENO
-$lha vv test-tmp-h0.lzh | egrep '\[0\].?$'
+$lha vv test-tmp-h0.lzh | grep -E '\[0\].?$'
 							check $? $LINENO
-$lha vv test-tmp-h1.lzh | egrep '\[1\].?$'
+$lha vv test-tmp-h1.lzh | grep -E '\[1\].?$'
 							check $? $LINENO
-$lha vv test-tmp-h2.lzh | egrep '\[2\].?$'
+$lha vv test-tmp-h2.lzh | grep -E '\[2\].?$'
 							check $? $LINENO
 diff -r test-1 test-tmp-h0/test-1
 							check $? $LINENO
@@ -56,11 +56,11 @@ $lha vv test-tmp2-h1.lzh
 							check $? $LINENO
 $lha vv test-tmp2-h2.lzh
 							check $? $LINENO
-$lha vv test-tmp2-h0.lzh | egrep '\[0\].?$'
+$lha vv test-tmp2-h0.lzh | grep -E '\[0\].?$'
 							check $? $LINENO
-$lha vv test-tmp2-h1.lzh | egrep '\[1\].?$'
+$lha vv test-tmp2-h1.lzh | grep -E '\[1\].?$'
 							check $? $LINENO
-$lha vv test-tmp2-h2.lzh | egrep '\[2\].?$'
+$lha vv test-tmp2-h2.lzh | grep -E '\[2\].?$'
 							check $? $LINENO
 diff test-a test-tmp2-h0/test-tmp-d1/test-a
 							check $? $LINENO
@@ -101,11 +101,11 @@ $lha vv test-tmp-hg1.lzh
 							check $? $LINENO
 $lha vv test-tmp-hg2.lzh
 							check $? $LINENO
-$lha vv test-tmp-hg0.lzh | egrep '\[0\].?$'
+$lha vv test-tmp-hg0.lzh | grep -E '\[0\].?$'
 							check $? $LINENO
-$lha vv test-tmp-hg1.lzh | egrep '\[1\].?$'
+$lha vv test-tmp-hg1.lzh | grep -E '\[1\].?$'
 							check $? $LINENO
-$lha vv test-tmp-hg2.lzh | egrep '\[2\].?$'
+$lha vv test-tmp-hg2.lzh | grep -E '\[2\].?$'
 							check $? $LINENO
 diff -r test-1 test-tmp-hg0/test-1
 							check $? $LINENO
@@ -140,11 +140,11 @@ $lha vv test-tmp2-hg1.lzh
 							check $? $LINENO
 $lha vv test-tmp2-hg2.lzh
 							check $? $LINENO
-$lha vv test-tmp2-hg0.lzh | egrep '\[0\].?$'
+$lha vv test-tmp2-hg0.lzh | grep -E '\[0\].?$'
 							check $? $LINENO
-$lha vv test-tmp2-hg1.lzh | egrep '\[1\].?$'
+$lha vv test-tmp2-hg1.lzh | grep -E '\[1\].?$'
 							check $? $LINENO
-$lha vv test-tmp2-hg2.lzh | egrep '\[2\].?$'
+$lha vv test-tmp2-hg2.lzh | grep -E '\[2\].?$'
 							check $? $LINENO
 diff test-a test-tmp2-hg0/test-tmp-gd1/test-a
 							check $? $LINENO

@@ -43,7 +43,7 @@ test -s test-tmp-stderr
 # '|' was changed into '_'.
 $lha v test-tmp-2.lzh
 							check $? $LINENO
-$lha v test-tmp-2.lzh | egrep 'test-tmp-_foo -> test-a'
+$lha v test-tmp-2.lzh | grep -E 'test-tmp-_foo -> test-a'
 							check $? $LINENO
 $lha xw=test-tmp-2 test-tmp-2.lzh 2> test-tmp-stderr
 							check $? $LINENO
@@ -60,7 +60,7 @@ $lha c test-tmp-3.lzh test-tmp-foo
 							check $? $LINENO
 $lha v test-tmp-3.lzh
 							check $? $LINENO
-$lha v test-tmp-3.lzh | egrep 'test-tmp-foo -> test-tmp-\|bar'
+$lha v test-tmp-3.lzh | grep -E 'test-tmp-foo -> test-tmp-\|bar'
 							check $? $LINENO
 $lha xw=test-tmp-3 test-tmp-3.lzh 2> test-tmp-stderr
 							check $? $LINENO
