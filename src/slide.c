@@ -438,7 +438,7 @@ decode(interface)
         c = decode_set.decode_c();
         if (c < 256) {
             if (dump_lzss) {
-#if SIZEOF_OFF_T == 8
+#if SIZEOF_LONG < SIZEOF_OFF_T
                 printf("%04llu %02x(%c)\n",
                        decode_count, c, isprint(c) ? c : '?');
 #else
@@ -461,7 +461,7 @@ decode(interface)
             match.off = decode_set.decode_p() + 1;
             matchpos = (loc - match.off) & dicsiz1;
             if (dump_lzss) {
-#if SIZEOF_OFF_T == 8
+#if SIZEOF_LONG < SIZEOF_OFF_T
                 printf("%04llu <%u %llu>\n",
                        decode_count, match.len, decode_count-match.off);
 #else
