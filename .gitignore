@@ -22,6 +22,7 @@ olddoc/Makefile
 olddoc/Makefile.in
 .deps/
 src/lha
+src/version.h
 src/Makefile
 src/Makefile.in
 stamp-h1

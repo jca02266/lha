@@ -1,5 +1,6 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([LHa for UNIX], 1.14i-ac20220213, jca02266@gmail.com, lha)
+m4_define([VERSION_STRING], m4_esyscmd_s([build-aux/gen-build-version.sh --package]))
+AC_INIT([LHa for UNIX], VERSION_STRING, [jca02266@gmail.com], [lha])
 AC_DEFINE_UNQUOTED(LHA_CONFIGURE_OPTIONS, "$ac_configure_args",
             [specified options for the configure script.])
 AC_CANONICAL_HOST
