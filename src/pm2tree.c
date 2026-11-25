@@ -108,8 +108,10 @@ maketree2(int tree2bound) /* in use: 5 <= tree2bound <= 8 */
     else if (count > 1) {
         tree_rebuild(&tree2, tree2bound, 1, 7, table2);
     }
-    // Note: count == 0 is possible!
-    //       Excluding that possibility was a bug in version 1.
+    else {
+        error("Bad table");
+        exit(1);
+    }
 
 }
 
