@@ -10,10 +10,24 @@
 #include "lha.h"
 
 static unsigned char subbitbuf, bitcount;
+static unsigned int buffered_bits;
+static int getbits_initialized;
 
 void
 fillbuf(unsigned char n)  /* Shift bitbuf n bits left, read n bits */
 {
+    unsigned int old_buffered_bits = buffered_bits;
+    unsigned int bytes_read = 0;
+
+    if (getbits_initialized) {
+        unsigned int needed_bits = n > buffered_bits ? n - buffered_bits : 0;
+        unsigned int needed_bytes =
+            (needed_bits + CHAR_BIT - 1) / CHAR_BIT;
+
+        if (needed_bytes > compsize)
+            fatal_error("Unexpected end of compressed data");
+    }
+
     while (n > bitcount) {
         n -= bitcount;
         bitbuf = (bitbuf << bitcount) + (subbitbuf >> (CHAR_BIT - bitcount));
@@ -24,6 +38,7 @@ fillbuf(unsigned char n)  /* Shift bitbuf n bits left, read n bits */
                 fatal_error("cannot read stream");
             }
             subbitbuf = (unsigned char)c;
+            bytes_read++;
         }
         else
             subbitbuf = 0;
@@ -32,6 +47,11 @@ fillbuf(unsigned char n)  /* Shift bitbuf n bits left, read n bits */
     bitcount -= n;
     bitbuf = (bitbuf << n) + (subbitbuf >> (CHAR_BIT - n));
     subbitbuf <<= n;
+
+    if (getbits_initialized)
+        buffered_bits = old_buffered_bits + bytes_read * CHAR_BIT - n;
+    else
+        buffered_bits = bytes_read * CHAR_BIT;
 }
 
 unsigned short
@@ -79,12 +99,16 @@ init_getbits( /* void */ )
     bitbuf = 0;
     subbitbuf = 0;
     bitcount = 0;
+    buffered_bits = 0;
+    getbits_initialized = 0;
     fillbuf(2 * CHAR_BIT);
+    getbits_initialized = 1;
 }
 
 void
 init_putbits( /* void */ )
 {
+    getbits_initialized = 0;
     bitcount = CHAR_BIT;
     subbitbuf = 0;
 }
