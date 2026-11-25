@@ -1978,19 +1978,30 @@ sjis_to_cap(char *dst, const char *src, size_t dstsize)
     size_t len = strlen(src);
     int a, b;
 
-    for (i = j = 0; i < len && i < dstsize; i++) {
+    if (dstsize == 0)
+        return 0;
+
+    for (i = j = 0; i < len; i++) {
         if (src[i] == ':') {
-            strncpy(dst+j, ":3a", dstsize-j);
-            dst[dstsize-1] = 0;
-            j = strlen(dst);
+            if (dstsize - j < 4) {
+                dst[j] = 0;
+                return j;
+            }
+            dst[j++] = ':';
+            dst[j++] = '3';
+            dst[j++] = 'a';
             continue;
         }
-        if (isprint(src[i])) {
+        if (isprint((unsigned char)src[i])) {
+            if (dstsize - j < 2) {
+                dst[j] = 0;
+                return j;
+            }
             dst[j++] = src[i];
             continue;
         }
 
-        if (j + 3 >= dstsize) {
+        if (dstsize - j < 4) {
             dst[j] = 0;
             return j;
         }
